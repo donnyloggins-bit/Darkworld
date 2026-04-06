@@ -2211,7 +2211,7 @@ function headingLabel(h){
 // ══════════════════════════════════════════════════════
 //  AR ENGINE
 // ══════════════════════════════════════════════════════
-let arStream=null,arHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[];
+let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[];
 
 async function startAR(){
   if(!Player)return;
@@ -2233,11 +2233,14 @@ async function startAR(){
   }
   // Compass
   arOrientHandler=e=>{
+    let raw;
     if(e.webkitCompassHeading!==undefined){
-      arHeading=e.webkitCompassHeading; // iOS
+      raw=e.webkitCompassHeading;
     } else {
-      arHeading=(360-(e.alpha||0))%360; // Android
+      raw=(360-(e.alpha||0))%360;
     }
+    // Store raw target; smoothing applied during render
+    arTargetHeading=raw;
   };
   window.addEventListener('deviceorientationabsolute',arOrientHandler,true);
   window.addEventListener('deviceorientation',arOrientHandler,true);
@@ -2271,7 +2274,7 @@ async function startAR(){
 }
 
 function stopAR(){
-  if(arAnimId){cancelAnimationFrame(arAnimId);clearTimeout(arAnimId);arAnimId=null;}
+  if(arAnimId){cancelAnimationFrame(arAnimId);arAnimId=null;}
   if(arStream){arStream.getTracks().forEach(t=>t.stop());arStream=null;}
   if(arOrientHandler){
     window.removeEventListener('deviceorientationabsolute',arOrientHandler,true);
@@ -2285,9 +2288,19 @@ function stopAR(){
 }
 
 function renderAR(){
+  // Schedule next frame FIRST so there is never a gap between frames
+  arAnimId=requestAnimationFrame(renderAR);
+
   const canvas=document.getElementById('ar-canvas');
   const c=canvas.getContext('2d');
   const W=canvas.width,H=canvas.height;
+
+  // Smooth heading: interpolate toward target, handle 0/360 wrap
+  let diff=arTargetHeading-arHeading;
+  if(diff>180) diff-=360;
+  if(diff<-180) diff+=360;
+  arHeading=(arHeading+diff*0.2+360)%360;
+
   c.clearRect(0,0,W,H);
 
   const FOV=65,MAX_DIST=0.5;
@@ -2295,9 +2308,9 @@ function renderAR(){
 
   // Atmospheric vignette
   const vgrd=c.createLinearGradient(0,0,0,H);
-  vgrd.addColorStop(0,'rgba(3,2,5,0.55)');
-  vgrd.addColorStop(0.45,'rgba(3,2,5,0)');
-  vgrd.addColorStop(1,'rgba(3,2,5,0.65)');
+  vgrd.addColorStop(0,'rgba(3,2,5,0.5)');
+  vgrd.addColorStop(0.4,'rgba(3,2,5,0)');
+  vgrd.addColorStop(1,'rgba(3,2,5,0.6)');
   c.fillStyle=vgrd; c.fillRect(0,0,W,H);
 
   // Collect enemies in FOV — keep reference to original entity object
@@ -2392,8 +2405,6 @@ function renderAR(){
 
   // Compass update
   document.getElementById('ar-heading-txt').textContent=`${Math.round(arHeading)}° ${headingLabel(arHeading)}`;
-
-  arAnimId=setTimeout(()=>requestAnimationFrame(renderAR), 50); // ~20fps
 }
 
 function updateZone(){
