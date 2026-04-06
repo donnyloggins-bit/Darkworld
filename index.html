@@ -520,46 +520,33 @@ body::before {
 .lg-item { display:flex; align-items:center; gap:8px; margin-bottom:3px; font-size:.65rem; color:#4a3a5a; }
 .lg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 
-/* SIDEBAR */
+/* SIDEBAR — always an overlay so map fills full screen */
 #sidebar {
-  width:280px;
+  position:fixed; top:0; right:0; bottom:0;
+  width:min(300px,88vw);
   background:linear-gradient(180deg,#07060a 0%,#030205 100%);
   border-left:1px solid #12101a;
-  display:flex;
-  flex-direction:column;
-  z-index:20;
-  overflow-y:auto;
-  overflow-x:hidden;
+  display:flex; flex-direction:column;
+  z-index:50; overflow-y:auto; overflow-x:hidden;
+  transform:translateX(100%);
   transition:transform .25s ease;
+  box-shadow:-4px 0 24px rgba(0,0,0,0.9);
 }
+#sidebar.open { transform:translateX(0); }
 #sidebar-close {
-  display:none;
   position:absolute; top:10px; right:12px;
   background:transparent; border:none; color:#5a4a6a;
-  font-size:1rem; cursor:pointer; padding:4px 8px;
+  font-size:1.1rem; cursor:pointer; padding:4px 8px;
 }
+#sidebar-close:hover { color:var(--crimson); }
 #menu-btn {
   position:absolute; bottom:16px; left:12px;
   background:rgba(3,2,5,0.85); border:1px solid #2a1e3a;
   color:#5a4a6a; font-family:'Share Tech Mono',monospace;
   font-size:.55rem; letter-spacing:.1em; padding:7px 12px;
-  cursor:pointer; z-index:5; display:none;
+  cursor:pointer; z-index:5;
 }
 #menu-btn:hover { border-color:var(--gold); color:var(--gold); }
-
-@media (max-width:640px){
-  #screen-game { flex-direction:column; }
-  #sidebar {
-    position:absolute; top:0; right:0; bottom:0;
-    transform:translateX(100%);
-    box-shadow:-4px 0 20px rgba(0,0,0,0.8);
-    z-index:50;
-  }
-  #sidebar.open { transform:translateX(0); }
-  #sidebar-close { display:block; }
-  #menu-btn { display:block; }
-  #map-wrap { flex:1; width:100%; }
-}
 
 #sb-title {
   padding:14px 16px 10px;
@@ -1370,11 +1357,11 @@ const CLASSES = {
 const CENTER = {lat:39.9492, lng:-75.1719};
 
 const ZONES = [
-  {max:0.5,  name:'Hellmouth',         danger:'EXTREME', color:'rgba(80,0,0,0.3)',       dc:'#cc1100'},
-  {max:1.5,  name:'Blighted Quarter',  danger:'HARD',    color:'rgba(100,40,0,0.22)',    dc:'#aa3300'},
-  {max:2.5,  name:'Cursed Wards',      danger:'MEDIUM',  color:'rgba(80,60,0,0.18)',     dc:'#886600'},
-  {max:3.8,  name:'Haunted Outskirts', danger:'EASY',    color:'rgba(20,50,20,0.15)',    dc:'#336633'},
-  {max:5.2,  name:'Borderlands',       danger:'SAFE',    color:'rgba(10,20,40,0.13)',    dc:'#224455'},
+  {max:0.5,  name:'Hellmouth',         danger:'EXTREME', color:'rgba(140,0,0,0.55)',     dc:'#ff2200'},
+  {max:1.5,  name:'Blighted Quarter',  danger:'HARD',    color:'rgba(160,60,0,0.40)',    dc:'#ff5500'},
+  {max:2.5,  name:'Cursed Wards',      danger:'MEDIUM',  color:'rgba(130,100,0,0.32)',   dc:'#ccaa00'},
+  {max:3.8,  name:'Haunted Outskirts', danger:'EASY',    color:'rgba(30,80,30,0.28)',    dc:'#44aa44'},
+  {max:5.2,  name:'Borderlands',       danger:'SAFE',    color:'rgba(15,35,70,0.22)',    dc:'#4488bb'},
 ];
 
 const ZONE_DESCS = [
@@ -1859,7 +1846,7 @@ function buildPlayer() {
 // ══════════════════════════════════════════════════════
 const canvas = document.getElementById('map-canvas');
 const ctx = canvas.getContext('2d');
-let mapW,mapH,viewX=0,viewY=0,zoom=1.0;
+let mapW,mapH,viewX=0,viewY=0,zoom=2.0;
 let dragging=false,dragStart={x:0,y:0},dragView={x:0,y:0};
 
 function ll2px(lat,lng){
@@ -1918,7 +1905,7 @@ function render(){
 
 function drawGrid(){
   const step=mi2px(0.15);
-  ctx.strokeStyle='rgba(20,14,28,0.8)'; ctx.lineWidth=0.5;
+  ctx.strokeStyle='rgba(50,35,70,0.5)'; ctx.lineWidth=0.8;
   const cx=mapW/2+viewX, cy=mapH/2+viewY;
   for(let x=cx%step-step;x<mapW;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,mapH);ctx.stroke();}
   for(let y=cy%step-step;y<mapH;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(mapW,y);ctx.stroke();}
@@ -1934,7 +1921,7 @@ function drawZones(){
     ctx.lineWidth=1; ctx.setLineDash([4,5]); ctx.stroke(); ctx.setLineDash([]);
     if(zoom>0.4){
       ctx.font=`${Math.max(7,8*zoom)}px "Share Tech Mono"`;
-      ctx.fillStyle='rgba(184,150,42,0.25)'; ctx.textAlign='center';
+      ctx.fillStyle='rgba(220,180,60,0.6)'; ctx.textAlign='center';
       ctx.fillText(z.name.toUpperCase(),c.x,c.y-r+13);
     }
   });
@@ -1952,21 +1939,19 @@ function drawPaths(){
 
 function drawMob(s){
   const p=ll2px(s.lat,s.lng);
-  const r=Math.max(4,6*zoom);
+  const r=Math.max(8,10*zoom);
   const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r*2.5);
-  g.addColorStop(0,'rgba(80,50,100,0.35)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  g.addColorStop(0,'rgba(140,80,180,0.5)'); g.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,r*2.5,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
-  ctx.fillStyle='#1a1228'; ctx.fill();
-  ctx.strokeStyle='#3a2a5a'; ctx.lineWidth=1; ctx.stroke();
-  if(zoom>0.7){
-    ctx.font=`${Math.floor(9*zoom)}px serif`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(s.emoji,p.x,p.y);
-  }
-  if(zoom>1.2){
-    ctx.font=`${Math.max(6,6*zoom)}px "Share Tech Mono"`;
-    ctx.fillStyle='rgba(140,110,170,0.55)'; ctx.textBaseline='top';
+  ctx.fillStyle='#2a1a40'; ctx.fill();
+  ctx.strokeStyle='#7a5aaa'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.font=`${Math.floor(Math.max(12,12*zoom))}px serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(s.emoji,p.x,p.y);
+  if(zoom>1.0){
+    ctx.font=`${Math.max(8,8*zoom)}px "Share Tech Mono"`;
+    ctx.fillStyle='rgba(180,150,220,0.8)'; ctx.textBaseline='top';
     ctx.fillText(s.name,p.x,p.y+r+3);
   }
 }
