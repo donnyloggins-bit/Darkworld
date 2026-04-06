@@ -1649,6 +1649,12 @@ function startGPS(){
   gpsWatchId=navigator.geolocation.watchPosition(
     pos=>{
       const {latitude:lat,longitude:lng,accuracy}=pos.coords;
+      const miFromPhilly=distMiles(lat,lng,CENTER.lat,CENTER.lng);
+      if(miFromPhilly>50){
+        setGPSStatus('denied','NOT IN PHILLY');
+        if(!gpsFirstLock){ gpsFirstLock=true; addLog('⚠ GPS locked but you\'re outside Philadelphia. Get to the city.','ls'); }
+        return;
+      }
       Player.lat=lat; Player.lng=lng;
       updateZone();
       if(!gpsFirstLock){
