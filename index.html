@@ -31,6 +31,7 @@
   --soul:    rgba(200,180,240,0.12);
 }
 
+html { font-size: 20px; }
 *{margin:0;padding:0;box-sizing:border-box;}
 
 body {
@@ -77,7 +78,7 @@ body::before {
 }
 #rotate-warn .rw-sub {
   font-family:'Share Tech Mono',monospace;
-  font-size:.7rem; color:#9080a8;
+  font-size:1.05rem; color:#9080a8;
 }
 
 /* ══════════════════════════════════════════════
@@ -96,7 +97,7 @@ body::before {
 
 .title-runes {
   font-family:'Share Tech Mono',monospace;
-  font-size:.55rem;
+  font-size:.88rem;
   color:rgba(200,60,60,0.5);
   letter-spacing:.5em;
   margin-bottom:30px;
@@ -193,7 +194,7 @@ body::before {
 }
 
 .create-sub {
-  font-size:.75rem;
+  font-size:1.1rem;
   color:var(--blood);
   letter-spacing:.4em;
   text-transform:uppercase;
@@ -238,8 +239,8 @@ body::before {
 .class-card.selected::after { transform:scaleX(1); background:var(--gold); }
 
 .class-emoji { font-size:1.8rem; margin-bottom:6px; display:block; }
-.class-card-name { font-family:'Cinzel Decorative',serif; font-size:.55rem; color:var(--pale); letter-spacing:.05em; margin-bottom:4px; }
-.class-card-type { font-size:.6rem; color:#8878a8; font-style:italic; }
+.class-card-name { font-family:'Cinzel Decorative',serif; font-size:.88rem; color:var(--pale); letter-spacing:.05em; margin-bottom:4px; }
+.class-card-type { font-size:.95rem; color:#8878a8; font-style:italic; }
 .class-card.selected .class-card-name { color:var(--gold); }
 
 /* STAT ROLLER */
@@ -254,7 +255,7 @@ body::before {
 
 .roller-title {
   font-family:'Cinzel Decorative',serif;
-  font-size:.85rem;
+  font-size:1.2rem;
   color:var(--gold);
   letter-spacing:.1em;
   margin-bottom:18px;
@@ -287,7 +288,7 @@ body::before {
 
 .stat-roll-label {
   font-family:'Share Tech Mono',monospace;
-  font-size:.6rem;
+  font-size:.95rem;
   color:#9080a8;
   letter-spacing:.2em;
   margin-bottom:8px;
@@ -314,7 +315,7 @@ body::before {
 
 .stat-roll-mod {
   font-family:'Share Tech Mono',monospace;
-  font-size:.6rem;
+  font-size:.95rem;
   margin-top:4px;
   display:block;
 }
@@ -330,7 +331,7 @@ body::before {
   width:14px; height:14px;
   background:#201c34;
   border:1px solid #4a3a60;
-  font-size:.55rem;
+  font-size:.88rem;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -343,7 +344,7 @@ body::before {
   border:1px solid var(--crimson);
   color:var(--pale);
   font-family:'Cinzel Decorative',serif;
-  font-size:.75rem;
+  font-size:1.1rem;
   letter-spacing:.15em;
   padding:11px 30px;
   cursor:pointer;
@@ -354,7 +355,7 @@ body::before {
 .roll-btn:hover { border-color:var(--gold); color:var(--gold); box-shadow:0 0 20px rgba(184,150,42,0.2); }
 
 .reroll-note {
-  font-size:.65rem;
+  font-size:1rem;
   color:#7a6a9a;
   font-style:italic;
   margin-top:10px;
@@ -374,7 +375,7 @@ body::before {
 .class-info-panel.visible { display:block; }
 
 .cip-name { font-family:'Cinzel Decorative',serif; font-size:1.1rem; color:var(--gold); margin-bottom:4px; }
-.cip-desc { font-size:.85rem; color:#b0a0c8; font-style:italic; margin-bottom:14px; line-height:1.6; }
+.cip-desc { font-size:1.2rem; color:#b0a0c8; font-style:italic; margin-bottom:14px; line-height:1.6; }
 .cip-abilities { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
 
 .ability-card {
@@ -383,17 +384,17 @@ body::before {
   padding:10px;
 }
 
-.ab-name { font-family:'Cinzel Decorative',serif; font-size:.55rem; color:var(--pale); margin-bottom:4px; }
-.ab-type { font-size:.6rem; color:var(--crimson); font-style:italic; margin-bottom:4px; }
-.ab-desc { font-size:.65rem; color:#9a8ab8; line-height:1.4; }
-.ab-cost { font-family:'Share Tech Mono',monospace; font-size:.55rem; color:#6a9acc; margin-top:4px; }
+.ab-name { font-family:'Cinzel Decorative',serif; font-size:.88rem; color:var(--pale); margin-bottom:4px; }
+.ab-type { font-size:.95rem; color:var(--crimson); font-style:italic; margin-bottom:4px; }
+.ab-desc { font-size:1rem; color:#9a8ab8; line-height:1.4; }
+.ab-cost { font-family:'Share Tech Mono',monospace; font-size:.88rem; color:#6a9acc; margin-top:4px; }
 
 .enter-btn {
   background:linear-gradient(135deg,#1a0800,#0d0500);
   border:1px solid var(--gold);
   color:var(--gold);
   font-family:'Cinzel Decorative',serif;
-  font-size:.9rem;
+  font-size:1.25rem;
   letter-spacing:.2em;
   padding:14px 50px;
   cursor:pointer;
@@ -433,7 +434,7 @@ body::before {
   border-left:2px solid var(--blood);
   padding:6px 12px;
   font-family:'Share Tech Mono',monospace;
-  font-size:.6rem;
+  font-size:.95rem;
   color:#a090b8;
   z-index:5;
 }
@@ -443,7 +444,7 @@ body::before {
   background:rgba(13,10,20,0.92);
   border:1px solid #3a2a50;
   padding:6px 10px;
-  font-size:.58rem;
+  font-size:.92rem;
   color:#8878a0;
   z-index:5;
   line-height:1.8;
@@ -468,7 +469,7 @@ body::before {
   border-left:2px solid var(--blood);
   color:var(--pale);
   font-family:'Share Tech Mono',monospace;
-  font-size:.65rem; letter-spacing:.1em;
+  font-size:1rem; letter-spacing:.1em;
   padding:10px 16px; cursor:pointer; z-index:4;
 }
 #ar-status {
@@ -478,7 +479,7 @@ body::before {
   border-right:2px solid var(--blood);
   padding:10px 14px;
   font-family:'Share Tech Mono',monospace;
-  font-size:.55rem; color:#dd4444; z-index:4;
+  font-size:.88rem; color:#dd4444; z-index:4;
   animation:flicker 4s ease infinite;
 }
 #ar-compass {
@@ -489,7 +490,7 @@ body::before {
   border-bottom:2px solid var(--gold);
   padding:7px 22px;
   font-family:'Share Tech Mono',monospace;
-  font-size:.6rem; color:var(--gold);
+  font-size:.95rem; color:var(--gold);
   z-index:4; letter-spacing:.2em; white-space:nowrap;
 }
 #ar-btn {
@@ -499,7 +500,7 @@ body::before {
   border-bottom:2px solid var(--blood);
   padding:8px 16px;
   font-family:'Share Tech Mono',monospace;
-  font-size:.6rem; color:#9080b0;
+  font-size:.95rem; color:#9080b0;
   cursor:pointer; z-index:5; letter-spacing:.08em;
 }
 #ar-btn:hover { color:var(--bone); border-bottom-color:var(--gold); }
@@ -512,7 +513,7 @@ body::before {
   border-left:2px solid #1a2a1a;
   padding:5px 12px;
   font-family:'Share Tech Mono',monospace;
-  font-size:.55rem;
+  font-size:.88rem;
   z-index:5;
   display:flex; align-items:center; gap:7px;
 }
@@ -525,7 +526,7 @@ body::before {
   border-bottom:2px solid var(--blood);
   padding:8px 16px;
   font-family:'Share Tech Mono',monospace;
-  font-size:.6rem;
+  font-size:.95rem;
   color:#9080b0;
   cursor:pointer;
   z-index:5;
@@ -542,8 +543,8 @@ body::before {
   padding:10px 14px;
   z-index:5;
 }
-.lg-title { font-family:'Cinzel Decorative',serif; font-size:.5rem; color:var(--gold); letter-spacing:.2em; margin-bottom:8px; }
-.lg-item { display:flex; align-items:center; gap:8px; margin-bottom:3px; font-size:.65rem; color:#a090b8; }
+.lg-title { font-family:'Cinzel Decorative',serif; font-size:.82rem; color:var(--gold); letter-spacing:.2em; margin-bottom:8px; }
+.lg-item { display:flex; align-items:center; gap:8px; margin-bottom:3px; font-size:1rem; color:#a090b8; }
 .lg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 
 /* SIDEBAR — always an overlay so map fills full screen */
@@ -569,7 +570,7 @@ body::before {
   position:absolute; bottom:16px; left:12px;
   background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
   color:#9a88b8; font-family:'Share Tech Mono',monospace;
-  font-size:.55rem; letter-spacing:.1em; padding:7px 12px;
+  font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
   cursor:pointer; z-index:5;
 }
 #menu-btn:hover { border-color:var(--gold); color:var(--gold); }
@@ -589,7 +590,7 @@ body::before {
 }
 
 #sb-title .city {
-  font-size:.6rem;
+  font-size:.95rem;
   color:var(--crimson);
   letter-spacing:.3em;
   text-transform:uppercase;
@@ -614,7 +615,7 @@ body::before {
 
 .p-name {
   font-family:'Cinzel Decorative',serif;
-  font-size:.75rem;
+  font-size:1.1rem;
   color:var(--ghost);
 }
 
@@ -623,20 +624,20 @@ body::before {
   background:var(--blood);
   color:var(--gold);
   font-family:'Cinzel Decorative',serif;
-  font-size:.5rem;
+  font-size:.82rem;
   padding:2px 7px;
   letter-spacing:.05em;
 }
 
 .bar-row { display:flex; align-items:center; gap:7px; margin-bottom:4px; }
-.bar-lbl { font-family:'Share Tech Mono',monospace; font-size:.55rem; color:#9080a8; width:24px; }
+.bar-lbl { font-family:'Share Tech Mono',monospace; font-size:.88rem; color:#9080a8; width:24px; }
 .bar-bg { flex:1; height:6px; background:#1a1628; border:1px solid #3a2a50; overflow:hidden; }
 .bar-fill { height:100%; transition:width .4s ease; }
 .bar-hp  { background:linear-gradient(90deg,#7a0000,#dd2800); }
 .bar-mp  { background:linear-gradient(90deg,#001a60,#0050cc); }
 .bar-res { background:linear-gradient(90deg,#3a2000,#cc8000); }
 .bar-xp  { background:linear-gradient(90deg,#2a1e00,#aa8800); }
-.bar-val { font-family:'Share Tech Mono',monospace; font-size:.55rem; color:#9080a8; width:80px; text-align:right; }
+.bar-val { font-family:'Share Tech Mono',monospace; font-size:.88rem; color:#9080a8; width:80px; text-align:right; }
 
 .stat-chips {
   display:flex;
@@ -647,7 +648,7 @@ body::before {
 
 .chip {
   font-family:'Share Tech Mono',monospace;
-  font-size:.55rem;
+  font-size:.88rem;
   color:#a090b8;
   background:#1a1628;
   border:1px solid #3a2a50;
@@ -662,9 +663,9 @@ body::before {
   border-bottom:1px solid #3a2a50;
   min-height:70px;
 }
-.z-name { font-family:'Cinzel Decorative',serif; font-size:.7rem; margin-bottom:2px; }
-.z-danger { font-size:.55rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:4px; }
-.z-desc { font-size:.7rem; color:#9080a8; font-style:italic; line-height:1.5; }
+.z-name { font-family:'Cinzel Decorative',serif; font-size:1.05rem; margin-bottom:2px; }
+.z-danger { font-size:.88rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:4px; }
+.z-desc { font-size:1.05rem; color:#9080a8; font-style:italic; line-height:1.5; }
 
 /* LOG */
 #log-panel {
@@ -678,7 +679,7 @@ body::before {
 #log-panel::-webkit-scrollbar { width:3px; }
 #log-panel::-webkit-scrollbar-thumb { background:#3a2a50; }
 
-.log-e { font-size:.7rem; line-height:1.4; padding:2px 0; border-bottom:1px solid #221e30; animation:fadeIn .25s ease; }
+.log-e { font-size:1.05rem; line-height:1.4; padding:2px 0; border-bottom:1px solid #221e30; animation:fadeIn .25s ease; }
 @keyframes fadeIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
 .ls { color:#8070a0; font-style:italic; }
 .lc { color:#cc6644; }
@@ -721,7 +722,7 @@ body::before {
 }
 #cb-type {
   font-family:'Share Tech Mono',monospace;
-  font-size:.5rem; color:var(--blood);
+  font-size:.82rem; color:var(--blood);
   letter-spacing:.3em; margin-bottom:10px;
 }
 #e-spr {
@@ -745,17 +746,17 @@ body::before {
 .c-ehp { background:linear-gradient(90deg,#5a2800,#cc5800); }
 .c-hptext {
   font-family:'Share Tech Mono',monospace;
-  font-size:.55rem; color:#9080a8; text-align:right;
+  font-size:.88rem; color:#9080a8; text-align:right;
 }
 .c-resbar { height:5px; background:#1a1628; border:1px solid #3a2a50; overflow:hidden; border-radius:2px; }
 .c-resfill { height:100%; transition:width .4s ease; }
-.c-name { font-family:'Cinzel Decorative',serif; font-size:.6rem; color:var(--pale); letter-spacing:.05em; }
+.c-name { font-family:'Cinzel Decorative',serif; font-size:.95rem; color:var(--pale); letter-spacing:.05em; }
 
 /* MIDDLE: Combat log */
 #cb-log {
   flex-shrink:0; height:58px; overflow-y:auto;
   padding:7px 16px; font-family:'IM Fell English',serif;
-  font-size:.72rem; color:#c0a880; font-style:italic; line-height:1.4;
+  font-size:1.08rem; color:#c0a880; font-style:italic; line-height:1.4;
   background:#18142a;
   border-top:1px solid #3a2a50; border-bottom:1px solid #3a2a50;
 }
@@ -772,7 +773,7 @@ body::before {
 }
 #p-spr { font-size:1.6rem; }
 .cb-bar-row { display:flex; align-items:center; gap:7px; margin-bottom:3px; }
-.cb-bl { font-family:'Share Tech Mono',monospace; font-size:.5rem; color:#9080a8; width:18px; }
+.cb-bl { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#9080a8; width:18px; }
 
 /* Enemy attack timer */
 #enemy-timer-track {
@@ -783,7 +784,7 @@ body::before {
   background:linear-gradient(90deg,var(--blood),#ff2200);
 }
 #turn-ind {
-  font-family:'Share Tech Mono',monospace; font-size:.5rem;
+  font-family:'Share Tech Mono',monospace; font-size:.82rem;
   color:#9080a8; letter-spacing:.2em; text-align:center; margin-bottom:8px;
 }
 
@@ -810,18 +811,18 @@ body::before {
 /* Type badge stripe at top */
 .abtn-type {
   position:absolute; top:0; left:0; right:0;
-  font-family:'Share Tech Mono',monospace; font-size:.45rem;
-  letter-spacing:.12em; text-align:center; padding:3px 0;
+  font-family:'Share Tech Mono',monospace; font-size:.68rem;
+  letter-spacing:.08em; text-align:center; padding:3px 0;
   font-weight:700; pointer-events:none;
 }
-.abtn-emoji { font-size:2.1rem; line-height:1; pointer-events:none; }
+.abtn-emoji { font-size:2.4rem; line-height:1; pointer-events:none; }
 .abtn-name {
-  font-family:'Share Tech Mono',monospace; font-size:.6rem;
+  font-family:'Share Tech Mono',monospace; font-size:.78rem;
   color:#e8daf8; text-align:center; line-height:1.1;
   pointer-events:none; padding:0 3px; font-weight:700;
 }
 .abtn-cost {
-  font-family:'Share Tech Mono',monospace; font-size:.48rem;
+  font-family:'Share Tech Mono',monospace; font-size:.68rem;
   color:#a090c0; pointer-events:none;
 }
 /* Cooldown bar at bottom */
@@ -914,7 +915,7 @@ body::before {
 /* STATUS */
 .status-row { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
 .status-chip {
-  font-size:.5rem; font-family:'Share Tech Mono',monospace;
+  font-size:.82rem; font-family:'Share Tech Mono',monospace;
   padding:1px 5px; background:#1a1628; border:1px solid #4a3a60;
 }
 
@@ -930,7 +931,7 @@ body::before {
 .sb-btn {
   flex:1; background:transparent; border:1px solid #4a3a60;
   color:#a090c0; font-family:'Share Tech Mono',monospace;
-  font-size:.6rem; letter-spacing:.1em; padding:6px 4px;
+  font-size:.95rem; letter-spacing:.1em; padding:6px 4px;
   cursor:pointer; transition:all .2s;
 }
 .sb-btn:hover { border-color:var(--gold); color:var(--gold); }
@@ -945,14 +946,14 @@ body::before {
 #inv-modal.active, #shop-modal.active { display:flex; }
 
 .modal-title {
-  font-family:'Cinzel Decorative',serif; font-size:.85rem;
+  font-family:'Cinzel Decorative',serif; font-size:1.2rem;
   color:var(--gold); letter-spacing:.2em;
   margin-bottom:14px; text-align:center;
 }
 .modal-close {
   position:fixed; top:12px; right:14px;
   background:transparent; border:1px solid #5a4a70;
-  color:#a090b8; font-size:.75rem; padding:4px 10px;
+  color:#a090b8; font-size:1.1rem; padding:4px 10px;
   cursor:pointer; font-family:'Share Tech Mono',monospace;
   z-index:151;
 }
@@ -961,7 +962,7 @@ body::before {
 /* EQUIPPED SLOTS */
 .equip-section { width:100%; max-width:380px; margin-bottom:14px; }
 .equip-label {
-  font-family:'Share Tech Mono',monospace; font-size:.55rem;
+  font-family:'Share Tech Mono',monospace; font-size:.88rem;
   color:#9080a8; letter-spacing:.15em; margin-bottom:6px;
 }
 .equip-slots { display:flex; gap:6px; }
@@ -973,9 +974,9 @@ body::before {
 }
 .equip-slot.filled { border-color:#6a4a88; }
 .equip-slot:hover { border-color:var(--crimson); }
-.equip-slot .slot-type { font-family:'Share Tech Mono',monospace; font-size:.5rem; color:#9080a8; }
+.equip-slot .slot-type { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#9080a8; }
 .equip-slot .slot-emoji { font-size:1.4rem; }
-.equip-slot .slot-name { font-family:'Share Tech Mono',monospace; font-size:.5rem; color:#8a7a9a; line-height:1.2; }
+.equip-slot .slot-name { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#8a7a9a; line-height:1.2; }
 
 /* BAG */
 .bag-section { width:100%; max-width:380px; }
@@ -988,15 +989,15 @@ body::before {
 }
 .bag-item:hover { border-color:var(--gold); }
 .bag-item .bi-emoji { font-size:1.2rem; }
-.bag-item .bi-name { font-family:'Share Tech Mono',monospace; font-size:.45rem; color:#c0b0d8; line-height:1.2; }
-.bag-item .bi-stat { font-family:'Share Tech Mono',monospace; font-size:.45rem; color:#7aaa7a; }
+.bag-item .bi-name { font-family:'Share Tech Mono',monospace; font-size:1.08rem; color:#c0b0d8; line-height:1.2; }
+.bag-item .bi-stat { font-family:'Share Tech Mono',monospace; font-size:1.08rem; color:#7aaa7a; }
 .bag-item.potion { border-color:#3a6a3a; }
 .bag-item.potion:hover { border-color:#4acc6a; }
 .bag-item.legendary { border-color:#8a6a00; background:#1a1400; }
 .bag-item.legendary:hover { border-color:var(--gold); box-shadow:0 0 8px rgba(212,168,48,0.4); }
-.bi-req { font-family:'Share Tech Mono',monospace; font-size:.4rem; color:#aa8800; margin-top:1px; }
-.bi-legendary { font-family:'Share Tech Mono',monospace; font-size:.42rem; color:var(--gold); letter-spacing:.05em; }
-.bag-empty { font-family:'Share Tech Mono',monospace; font-size:.6rem; color:#7060a0; text-align:center; padding:20px; }
+.bi-req { font-family:'Share Tech Mono',monospace; font-size:1rem; color:#aa8800; margin-top:1px; }
+.bi-legendary { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:var(--gold); letter-spacing:.05em; }
+.bag-empty { font-family:'Share Tech Mono',monospace; font-size:.95rem; color:#7060a0; text-align:center; padding:20px; }
 
 /* SHOP */
 .shop-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; width:100%; max-width:380px; }
@@ -1006,25 +1007,25 @@ body::before {
   align-items:center; gap:4px; text-align:center;
 }
 .shop-item .si-emoji { font-size:1.5rem; }
-.shop-item .si-name { font-family:'Cinzel Decorative',serif; font-size:.5rem; color:var(--pale); }
-.shop-item .si-stat { font-family:'Share Tech Mono',monospace; font-size:.5rem; color:#7aaa7a; }
-.shop-item .si-desc { font-family:'IM Fell English',serif; font-size:.55rem; color:#9a8ab8; font-style:italic; }
-.shop-item .si-cost { font-family:'Share Tech Mono',monospace; font-size:.6rem; color:var(--gold); margin-top:2px; }
+.shop-item .si-name { font-family:'Cinzel Decorative',serif; font-size:.82rem; color:var(--pale); }
+.shop-item .si-stat { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#7aaa7a; }
+.shop-item .si-desc { font-family:'IM Fell English',serif; font-size:.88rem; color:#9a8ab8; font-style:italic; }
+.shop-item .si-cost { font-family:'Share Tech Mono',monospace; font-size:.95rem; color:var(--gold); margin-top:2px; }
 .shop-btn {
   background:transparent; border:1px solid #6a5a1a;
   color:#b0981e; font-family:'Share Tech Mono',monospace;
-  font-size:.55rem; padding:4px 10px; cursor:pointer;
+  font-size:.88rem; padding:4px 10px; cursor:pointer;
   width:100%; margin-top:4px; transition:all .2s;
 }
 .shop-btn:hover:not(:disabled) { border-color:var(--gold); color:var(--gold); }
 .shop-btn:disabled { opacity:0.35; cursor:default; }
 .shop-section-title {
   width:100%; max-width:380px; text-align:left;
-  font-family:'Share Tech Mono',monospace; font-size:.55rem;
+  font-family:'Share Tech Mono',monospace; font-size:.88rem;
   color:#9080a8; letter-spacing:.15em; margin:12px 0 6px;
 }
 .gold-display {
-  font-family:'Share Tech Mono',monospace; font-size:.7rem;
+  font-family:'Share Tech Mono',monospace; font-size:1.05rem;
   color:var(--gold); margin-bottom:12px;
 }
 
@@ -1050,7 +1051,7 @@ body::before {
   animation:deathPulse 2s ease infinite;
 }
 @keyframes deathPulse { 0%,100%{opacity:.8}50%{opacity:1} }
-#death-screen p { color:#c08080; font-style:italic; font-size:.9rem; }
+#death-screen p { color:#c08080; font-style:italic; font-size:1.25rem; }
 #revive-btn {
   background:#0d0508;
   border:1px solid var(--gold);
@@ -1080,7 +1081,7 @@ body::before {
   animation:slideUp .3s ease;
 }
 @keyframes slideUp{from{transform:translateX(-50%) translateY(16px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-.loot-t { font-family:'Cinzel Decorative',serif; font-size:.6rem; color:var(--gold); margin-bottom:4px; letter-spacing:.2em; }
+.loot-t { font-family:'Cinzel Decorative',serif; font-size:.95rem; color:var(--gold); margin-bottom:4px; letter-spacing:.2em; }
 .loot-i { font-size:.8rem; color:#2a6a4a; }
 
 /* FLASH OVERLAY */
@@ -1088,6 +1089,116 @@ body::before {
 #flash.flash-white { opacity:0.15; }
 #flash.flash-red { background:rgba(139,0,0,0.3); opacity:1; animation:flashOut .4s ease forwards; }
 @keyframes flashOut { to{opacity:0;} }
+
+/* SKILLS MODAL */
+#skills-modal {
+  display:none; position:fixed; inset:0; z-index:150;
+  background:rgba(14,11,24,0.96); backdrop-filter:blur(8px);
+  flex-direction:column; align-items:center;
+  overflow-y:auto; padding:16px 12px 32px;
+}
+#skills-modal.active { display:flex; }
+#skills-content { width:100%; max-width:400px; }
+
+.skill-tier-header {
+  font-family:'Share Tech Mono',monospace; font-size:.88rem;
+  color:#9080a8; letter-spacing:.15em; margin:14px 0 6px;
+  border-bottom:1px solid #3a2a50; padding-bottom:4px;
+}
+.skill-tier-header .stier-badge {
+  background:var(--blood); color:var(--gold);
+  font-family:'Cinzel Decorative',serif; font-size:.78rem;
+  padding:1px 6px; margin-right:6px;
+}
+.skill-tier-header .stier-lock {
+  float:right; color:#5a4a70; font-size:.82rem;
+}
+.skill-card {
+  background:#181428; border:1px solid #3a3050;
+  padding:10px 12px; margin-bottom:6px; cursor:pointer;
+  transition:all .2s; display:flex; align-items:flex-start; gap:10px;
+}
+.skill-card:hover:not(.locked):not(.chosen) { border-color:var(--gold); }
+.skill-card.locked { opacity:.45; cursor:default; }
+.skill-card.chosen { border-color:#44aa44; background:#101e10; }
+.skill-card.choosable { border-color:var(--gold); animation:skillGlow 1.5s ease infinite; }
+@keyframes skillGlow { 0%,100%{box-shadow:0 0 4px rgba(212,168,48,0.3)} 50%{box-shadow:0 0 14px rgba(212,168,48,0.8)} }
+.skill-emoji { font-size:1.5rem; flex-shrink:0; }
+.skill-info { flex:1; }
+.skill-name { font-family:'Cinzel Decorative',serif; font-size:.88rem; color:var(--pale); margin-bottom:2px; }
+.skill-card.chosen .skill-name { color:#44cc44; }
+.skill-desc { font-size:1rem; color:#9a8ab8; font-style:italic; line-height:1.4; }
+.skill-chosen-badge { font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#44cc44; margin-top:3px; }
+.skill-class-section { margin-top:16px; border-top:1px solid #3a2a50; padding-top:10px; }
+
+/* LEVEL UP MODAL */
+#levelup-modal {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:rgba(5,3,12,0.92); backdrop-filter:blur(12px);
+  align-items:center; justify-content:center;
+  flex-direction:column;
+}
+#levelup-modal.active { display:flex; }
+.lu-card {
+  background:linear-gradient(160deg,#1e1a34,#141028);
+  border:1px solid var(--gold);
+  box-shadow:0 0 40px rgba(184,150,42,0.25);
+  padding:24px 20px; width:min(380px,92vw);
+  max-height:88vh; overflow-y:auto;
+}
+.lu-title {
+  font-family:'Cinzel Decorative',serif; font-size:1.8rem;
+  color:var(--gold); text-align:center; letter-spacing:.15em;
+  text-shadow:0 0 20px rgba(212,168,48,0.6); margin-bottom:4px;
+}
+.lu-level {
+  font-family:'Cinzel Decorative',serif; font-size:2.5rem;
+  color:var(--ghost); text-align:center; margin-bottom:4px;
+}
+.lu-sub {
+  font-size:1.05rem; color:#9080a8; text-align:center;
+  font-style:italic; margin-bottom:16px;
+}
+.lu-points-counter {
+  font-family:'Share Tech Mono',monospace; font-size:1rem;
+  color:var(--gold); text-align:center; margin-bottom:10px;
+}
+#lu-stat-grid { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.lu-stat-row {
+  display:flex; align-items:center; gap:8px;
+  background:#181428; border:1px solid #3a3050; padding:8px 10px;
+}
+.lu-stat-name {
+  font-family:'Share Tech Mono',monospace; font-size:.95rem;
+  color:#9080a8; width:36px; letter-spacing:.1em;
+}
+.lu-stat-val {
+  font-family:'Cinzel Decorative',serif; font-size:1.05rem;
+  color:var(--ghost); width:28px; text-align:center;
+}
+.lu-stat-effect { flex:1; font-size:.95rem; color:#7a6a9a; font-style:italic; }
+.lu-stat-btn {
+  background:transparent; border:1px solid #5a4a70;
+  color:#a090c0; font-size:1rem; width:28px; height:28px;
+  cursor:pointer; font-family:'Share Tech Mono',monospace;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.lu-stat-btn:hover { border-color:var(--gold); color:var(--gold); }
+.lu-stat-btn:disabled { opacity:.3; cursor:default; }
+.lu-confirm {
+  width:100%; background:linear-gradient(135deg,#1a0800,#0d0500);
+  border:1px solid var(--gold); color:var(--gold);
+  font-family:'Cinzel Decorative',serif; font-size:1rem;
+  letter-spacing:.15em; padding:12px; cursor:pointer;
+  transition:all .25s; margin-bottom:8px;
+}
+.lu-confirm:hover:not(:disabled) { background:var(--gold); color:var(--void); }
+.lu-confirm:disabled { opacity:.35; cursor:default; }
+.lu-skill-note {
+  font-family:'Share Tech Mono',monospace; font-size:.88rem;
+  color:#aa8800; text-align:center; min-height:1.2em;
+}
 
 </style>
 </head>
@@ -1183,6 +1294,7 @@ body::before {
       <div class="sb-btns">
         <button class="sb-btn" onclick="openInventory()">⚔ GEAR</button>
         <button class="sb-btn" onclick="openShop()">🏪 SHOP</button>
+        <button class="sb-btn" onclick="openSkills()">🌟 SKILLS</button>
       </div>
     </div>
     <div id="zone-panel">
@@ -1291,6 +1403,26 @@ body::before {
   <div class="modal-title">🏪 BLACK MARKET</div>
   <div class="gold-display" id="shop-gold">⚙ 0 GOLD</div>
   <div id="shop-contents"></div>
+</div>
+
+<!-- ══ SKILLS MODAL ══ -->
+<div id="skills-modal">
+  <button class="modal-close" onclick="closeSkills()">✕ CLOSE</button>
+  <div class="modal-title">🌟 SKILL TREE</div>
+  <div id="skills-content"></div>
+</div>
+
+<!-- ══ LEVEL UP MODAL ══ -->
+<div id="levelup-modal">
+  <div class="lu-card">
+    <div class="lu-title">LEVEL UP!</div>
+    <div class="lu-level" id="lu-level-num"></div>
+    <div class="lu-sub">Allocate 2 stat points</div>
+    <div class="lu-points-counter" id="lu-points-counter">0 / 2 points spent</div>
+    <div id="lu-stat-grid"></div>
+    <button class="lu-confirm" id="lu-confirm-btn" onclick="confirmStats()" disabled>CONFIRM</button>
+    <div class="lu-skill-note" id="lu-skill-note"></div>
+  </div>
 </div>
 
 <div id="screen-ar" class="screen">
@@ -1475,18 +1607,30 @@ const ITEMS = {
   'Iron Sword':     {emoji:'⚔', type:'weapon',    tier:1, atk:2000,         cost:280,  desc:'Standard iron. Reliable.'},
   'Bone Cleaver':   {emoji:'🪓', type:'weapon',    tier:2, atk:5500,         cost:750,  desc:'Carved from a giant\'s femur.'},
   'Cursed Blade':   {emoji:'🗡', type:'weapon',    tier:2, atk:9000,  crit:5, cost:1400, desc:'Drips with dark energy. +5% crit.'},
+  'Vampiric Blade': {emoji:'🗡', type:'weapon',    tier:2, atk:8000,  hp:3000,  cost:950,  desc:'Drains life. +8,000 ATK, +3,000 HP.'},
   'Soul Reaper':    {emoji:'☠', type:'weapon',    tier:3, atk:22000, crit:8, cost:4500, desc:'It hungers eternally. +8% crit.'},
+  'Void Blade':     {emoji:'🌀', type:'weapon',    tier:3, atk:32000, crit:10,  cost:5500, desc:'Cuts through reality itself.'},
   // ── ARMOR ──
   'Tattered Rags':  {emoji:'🧥', type:'armor',     tier:1, def:400,   hp:800,   cost:100,  desc:'Better than nothing.'},
   'Leather Vest':   {emoji:'🦺', type:'armor',     tier:1, def:1000,  hp:2000,  cost:260,  desc:'Crude but effective.'},
   'Chain Mail':     {emoji:'🛡', type:'armor',     tier:2, def:3000,  hp:6000,  cost:700,  desc:'Heavy iron links.'},
+  'Mithril Shield': {emoji:'🛡', type:'armor',     tier:2, def:5000,  hp:4000,  cost:850,  desc:'Mithril-forged. +5,000 DEF, +4,000 HP.'},
+  'Cloak of Shadows':{emoji:'🌑', type:'armor',    tier:2, dodge:8, crit:4, def:1500, cost:820, desc:'+8% dodge, +4% crit, +1,500 DEF.'},
   'Shadow Plate':   {emoji:'🖤', type:'armor',     tier:3, def:8000,  hp:15000, cost:4000, desc:'Forged in the void itself.'},
+  'Dragonscale Mail':{emoji:'🐲', type:'armor',    tier:3, def:13000, hp:22000, cost:5800, desc:'Scales of the last dragon.'},
   // ── ACCESSORIES ──
   'Lucky Charm':    {emoji:'🍀', type:'accessory', tier:1, crit:4,            cost:180,  desc:'+4% crit chance.'},
   'Shadow Ring':    {emoji:'💍', type:'accessory', tier:1, dodge:5,           cost:180,  desc:'+5% dodge.'},
+  'Ring of Fortitude': {emoji:'💍', type:'accessory', tier:1, hp:2000, def:300,         cost:220,  desc:'+2,000 HP and +300 DEF.'},
+  'Amulet of Speed':   {emoji:'📿', type:'accessory', tier:1, dodge:5, crit:3,           cost:200,  desc:'+5% dodge, +3% crit.'},
   'Blood Amulet':   {emoji:'🩸', type:'accessory', tier:2, hp:8000,           cost:600,  desc:'+8,000 max HP.'},
   'Arcane Focus':   {emoji:'🔮', type:'accessory', tier:2, resMax:60,         cost:550,  desc:'+60 max resource.'},
+  'Ring of Power':      {emoji:'💎', type:'accessory', tier:2, atk:3000, resMax:40,       cost:780,  desc:'+3,000 ATK, +40 resource max.'},
+  'Berserker Charm':    {emoji:'😡', type:'accessory', tier:2, atk:6000, def:-500,        cost:680,  desc:'+6,000 ATK but -500 DEF. High risk.'},
   'Death\'s Sigil': {emoji:'💀', type:'accessory', tier:3, atk:6000, crit:6,  cost:3800, desc:'+ATK and +6% crit.'},
+  "Lich's Phylactery":  {emoji:'💀', type:'accessory', tier:3, atk:16000, hp:12000,       cost:5200, desc:'Contains a sliver of undeath.'},
+  'Eye of the Storm':   {emoji:'🌩', type:'accessory', tier:3, crit:12, dodge:10, atk:9000, cost:4800, desc:'Perfect focus. See everything.'},
+  'Tome of Devastation':{emoji:'📕', type:'accessory', tier:3, resMax:80, atk:14000,      cost:4500, desc:'+80 resource, +14,000 ATK.'},
   // ── POTIONS ──
   'Minor Heal':     {emoji:'🧪', type:'potion',    tier:1, healPct:0.25,      cost:75,   desc:'Restores 25% HP.'},
   'Major Heal':     {emoji:'⚗', type:'potion',    tier:2, healPct:0.50,      cost:190,  desc:'Restores 50% HP.'},
@@ -1510,6 +1654,36 @@ const ITEMS = {
   "Wraith's Veil":           {emoji:'🌫', type:'accessory', tier:4, dodge:20,  hp:20000,                     cost:0, desc:'You are half-ghost now. Blades find only air.'},
   "Death's Ledger":          {emoji:'📖', type:'accessory', tier:4, atk:18000, crit:10,                      cost:0, desc:'Every soul you claim is recorded. Interest compounds.'},
   "Troll's Knuckle":         {emoji:'🪨', type:'accessory', tier:4, def:15000, hp:25000, atk:10000,          cost:0, desc:'Dense as the bridge it fell from. Heavy as regret.'},
+};
+
+const SKILL_TREE = {
+  t1: [
+    { id:'power',    name:'Power Training',   emoji:'⚔️', desc:'+25% ATK permanently.',          effect:'atkPct25' },
+    { id:'iron',     name:'Iron Will',         emoji:'🛡', desc:'+20% DEF and +15% max HP.',      effect:'defHp20' },
+    { id:'arcane',   name:'Arcane Study',      emoji:'📖', desc:'+25 max resource, CDs -0.4s.',   effect:'arcane25' },
+  ],
+  t2: [
+    { id:'warlord',  name:'Warlord',           emoji:'🔥', desc:'+35% ATK, +8% crit.',            effect:'atkCrit35' },
+    { id:'fortress', name:'Fortress',          emoji:'🏰', desc:'+35% DEF, +25% max HP.',         effect:'defHp35' },
+    { id:'mastery',  name:'Spell Mastery',     emoji:'✨', desc:'All ability dmgMult +25%, heals +20%.', effect:'mastery' },
+  ],
+  t3: [
+    { id:'devastator',name:'Devastator',       emoji:'💥', desc:'+50% ATK, execute enemies below 20% HP for double damage.', effect:'devastator' },
+    { id:'titan',    name:'Titan',             emoji:'🗿', desc:'+50% DEF, +40% max HP, revive once per combat at 20% HP.', effect:'titan' },
+    { id:'archmage', name:'Archmage',          emoji:'🔮', desc:'All CDs -30%, resource max +60, Signature dmgMult ×1.5.', effect:'archmage' },
+  ],
+  classUnique: {
+    Fighter:    { name:'Bloodthirst',    emoji:'🩸', desc:'Heal 5% max HP on every kill.' },
+    Paladin:    { name:'Holy Shield',    emoji:'✝️', desc:'15% chance to block all incoming damage.' },
+    Ranger:     { name:'Eagle Eye',      emoji:'🦅', desc:'+12% crit, +8% dodge permanently.' },
+    'Magic-User':{ name:'Arcane Surge',  emoji:'⚡', desc:'Every 5th ability deals double damage.' },
+    Illusionist:{ name:'Phantom Step',   emoji:'👻', desc:'Start combat with 2 illusion stacks.' },
+    Cleric:     { name:'Divine Favor',   emoji:'💚', desc:'All heals restore 25% more HP.' },
+    Thief:      { name:'Shadow Strike',  emoji:'🗡', desc:'First hit each combat ignores DEF.' },
+    Assassin:   { name:'Deathmark',      emoji:'☠️', desc:'Poison damage +60%, stacks apply faster.' },
+    Monk:       { name:'Inner Peace',    emoji:'🧘', desc:'Resource regenerates 3× faster.' },
+    Druid:      { name:"Nature's Wrath", emoji:'🌿', desc:'DoT effects deal 50% more damage.' },
+  }
 };
 
 const BAG_SIZE = 12;
@@ -1700,6 +1874,143 @@ function buyItem(itemName){
   setPUI();
 }
 
+// ── SKILLS UI ────────────────────────────────────────
+function openSkills(){
+  renderSkills();
+  document.getElementById('skills-modal').classList.add('active');
+}
+function closeSkills(){
+  document.getElementById('skills-modal').classList.remove('active');
+}
+
+function renderSkills(){
+  if(!Player) return;
+  const lvl = Player.level;
+  const sk = Player.skills || {};
+  const content = document.getElementById('skills-content');
+  let html = '';
+
+  // Tier 1 (level 5)
+  const t1Lock = lvl < 5;
+  html += `<div class="skill-tier-header"><span class="stier-badge">T1</span>COMBAT TRAINING<span class="stier-lock">${t1Lock?'🔒 LV 5':''}</span></div>`;
+  SKILL_TREE.t1.forEach(skill=>{
+    const locked = t1Lock;
+    const chosen = sk.t1 === skill.id;
+    const choosable = !locked && !sk.t1;
+    let cls = 'skill-card';
+    if(locked) cls+=' locked';
+    else if(chosen) cls+=' chosen';
+    else if(choosable) cls+=' choosable';
+    const click = (!locked && !sk.t1) ? `onclick="chooseSkill('t1','${skill.id}')"` : '';
+    html += `<div class="${cls}" ${click}>
+      <div class="skill-emoji">${skill.emoji}</div>
+      <div class="skill-info">
+        <div class="skill-name">${skill.name}</div>
+        <div class="skill-desc">${skill.desc}</div>
+        ${chosen?'<div class="skill-chosen-badge">✓ ACTIVE</div>':''}
+        ${choosable?'<div class="skill-chosen-badge" style="color:var(--gold)">TAP TO CHOOSE</div>':''}
+      </div>
+    </div>`;
+  });
+
+  // Tier 2 (level 15)
+  const t2Lock = lvl < 15;
+  html += `<div class="skill-tier-header"><span class="stier-badge">T2</span>ADVANCED PATH<span class="stier-lock">${t2Lock?'🔒 LV 15':''}</span></div>`;
+  SKILL_TREE.t2.forEach(skill=>{
+    const locked = t2Lock;
+    const chosen = sk.t2 === skill.id;
+    const choosable = !locked && !sk.t2;
+    let cls = 'skill-card';
+    if(locked) cls+=' locked';
+    else if(chosen) cls+=' chosen';
+    else if(choosable) cls+=' choosable';
+    const click = (!locked && !sk.t2) ? `onclick="chooseSkill('t2','${skill.id}')"` : '';
+    html += `<div class="${cls}" ${click}>
+      <div class="skill-emoji">${skill.emoji}</div>
+      <div class="skill-info">
+        <div class="skill-name">${skill.name}</div>
+        <div class="skill-desc">${skill.desc}</div>
+        ${chosen?'<div class="skill-chosen-badge">✓ ACTIVE</div>':''}
+        ${choosable?'<div class="skill-chosen-badge" style="color:var(--gold)">TAP TO CHOOSE</div>':''}
+      </div>
+    </div>`;
+  });
+
+  // Tier 3 (level 30)
+  const t3Lock = lvl < 30;
+  html += `<div class="skill-tier-header"><span class="stier-badge">T3</span>MASTERY<span class="stier-lock">${t3Lock?'🔒 LV 30':''}</span></div>`;
+  SKILL_TREE.t3.forEach(skill=>{
+    const locked = t3Lock;
+    const chosen = sk.t3 === skill.id;
+    const choosable = !locked && !sk.t3;
+    let cls = 'skill-card';
+    if(locked) cls+=' locked';
+    else if(chosen) cls+=' chosen';
+    else if(choosable) cls+=' choosable';
+    const click = (!locked && !sk.t3) ? `onclick="chooseSkill('t3','${skill.id}')"` : '';
+    html += `<div class="${cls}" ${click}>
+      <div class="skill-emoji">${skill.emoji}</div>
+      <div class="skill-info">
+        <div class="skill-name">${skill.name}</div>
+        <div class="skill-desc">${skill.desc}</div>
+        ${chosen?'<div class="skill-chosen-badge">✓ ACTIVE</div>':''}
+        ${choosable?'<div class="skill-chosen-badge" style="color:var(--gold)">TAP TO CHOOSE</div>':''}
+      </div>
+    </div>`;
+  });
+
+  // Class Unique (level 10)
+  const cuLock = lvl < 10;
+  const cuData = SKILL_TREE.classUnique[Player.className];
+  if(cuData){
+    html += `<div class="skill-class-section">`;
+    html += `<div class="skill-tier-header"><span class="stier-badge">★</span>CLASS PASSIVE<span class="stier-lock">${cuLock?'🔒 LV 10':''}</span></div>`;
+    const chosen = sk.classUnique;
+    const choosable = !cuLock && !chosen;
+    let cls = 'skill-card';
+    if(cuLock) cls+=' locked';
+    else if(chosen) cls+=' chosen';
+    else if(choosable) cls+=' choosable';
+    const click = choosable ? `onclick="chooseSkill('classUnique','${Player.className}')"` : '';
+    html += `<div class="${cls}" ${click}>
+      <div class="skill-emoji">${cuData.emoji}</div>
+      <div class="skill-info">
+        <div class="skill-name">${cuData.name}</div>
+        <div class="skill-desc">${cuData.desc}</div>
+        ${chosen?'<div class="skill-chosen-badge">✓ ACTIVE</div>':''}
+        ${choosable?'<div class="skill-chosen-badge" style="color:var(--gold)">TAP TO UNLOCK</div>':''}
+      </div>
+    </div>`;
+    html += `</div>`;
+  }
+
+  content.innerHTML = html;
+}
+
+function chooseSkill(tier, skillId){
+  if(!Player) return;
+  const sk = Player.skills || {};
+  const lvl = Player.level;
+  if(tier==='t1' && lvl<5){ addLog('Tier 1 unlocks at level 5.','ls'); return; }
+  if(tier==='t2' && lvl<15){ addLog('Tier 2 unlocks at level 15.','ls'); return; }
+  if(tier==='t3' && lvl<30){ addLog('Tier 3 unlocks at level 30.','ls'); return; }
+  if(tier==='classUnique' && lvl<10){ addLog('Class passive unlocks at level 10.','ls'); return; }
+  if(tier!=='classUnique' && sk[tier]){ addLog('You already chose a skill for this tier.','ls'); return; }
+  if(tier==='classUnique' && sk.classUnique){ addLog('Class passive already unlocked.','ls'); return; }
+
+  if(tier==='classUnique'){
+    Player.skills.classUnique = true;
+    addLog(`★ ${SKILL_TREE.classUnique[Player.className].name} unlocked!`,'lb');
+  } else {
+    Player.skills[tier] = skillId;
+    const skill = SKILL_TREE[tier].find(s=>s.id===skillId);
+    addLog(`${skill.emoji} ${skill.name} chosen!`,'lb');
+  }
+  applySkillBonuses();
+  renderSkills();
+  saveGame();
+}
+
 // ── LOOT DROP ───────────────────────────────────────
 const ZONE_DROP_TIERS = [1, 1, 2, 2, 2]; // by zone index
 
@@ -1883,6 +2194,63 @@ function checkCanEnter(){
 // ══════════════════════════════════════════════════════
 let Player = null;
 
+function xpForLevel(lvl){ return Math.floor(120 * Math.pow(lvl, 1.85)); }
+
+function applySkillBonuses(){
+  if(!Player) return;
+  const sk = Player.skills;
+  // DEF/HP passives applied as flat multiplier adjustments
+  // These are applied by resetting to base and recomputing, but simpler: just apply the difference
+  // We track via a flag to avoid double-applying
+  if(sk.t1 === 'iron' && !Player._appliedT1Iron){
+    Player.def = Math.floor(Player.def * 1.20);
+    Player.maxHp = Math.floor(Player.maxHp * 1.15);
+    Player.hp = Math.min(Player.hp, Player.maxHp);
+    Player._appliedT1Iron = true;
+  }
+  if(sk.t2 === 'fortress' && !Player._appliedT2Fortress){
+    Player.def = Math.floor(Player.def * 1.35);
+    Player.maxHp = Math.floor(Player.maxHp * 1.25);
+    Player.hp = Math.min(Player.hp, Player.maxHp);
+    Player._appliedT2Fortress = true;
+  }
+  if(sk.t1 === 'power' && !Player._appliedT1Power){
+    Player.atk = Math.floor(Player.atk * 1.25);
+    Player._appliedT1Power = true;
+  }
+  if(sk.t1 === 'arcane' && !Player._appliedT1Arcane){
+    Player.maxRes += 25;
+    Player._appliedT1Arcane = true;
+  }
+  if(sk.t2 === 'warlord' && !Player._appliedT2Warlord){
+    Player.atk = Math.floor(Player.atk * 1.35);
+    Player.crit = Math.min(75, Player.crit + 8);
+    Player._appliedT2Warlord = true;
+  }
+  if(sk.t3 === 'devastator' && !Player._appliedT3Devastator){
+    Player.atk = Math.floor(Player.atk * 1.50);
+    Player._appliedT3Devastator = true;
+  }
+  if(sk.t3 === 'titan' && !Player._appliedT3Titan){
+    Player.def = Math.floor(Player.def * 1.50);
+    Player.maxHp = Math.floor(Player.maxHp * 1.40);
+    Player.hp = Math.min(Player.hp, Player.maxHp);
+    Player._appliedT3Titan = true;
+  }
+  if(sk.t3 === 'archmage' && !Player._appliedT3Archmage){
+    Player.maxRes += 60;
+    Player._appliedT3Archmage = true;
+  }
+  if(sk.classUnique && !Player._appliedClassUnique){
+    if(Player.className === 'Ranger'){
+      Player.crit = Math.min(75, Player.crit + 12);
+      Player.dodge = Math.min(75, Player.dodge + 8);
+    }
+    Player._appliedClassUnique = true;
+  }
+  setPUI();
+}
+
 function buildPlayer() {
   const cls = CLASSES[selectedClass];
   const stats = rolledStats;
@@ -1907,13 +2275,18 @@ function buildPlayer() {
     def: cls.def || cls.stats.def,
     crit: cls.stats.crit + statMod(DEX),
     dodge: cls.stats.dodge + statMod(DEX),
-    xp: 0, xpNext: 1000, level: 1, gold: 0,
+    xp: 0, xpNext: xpForLevel(1), level: 1, gold: 0,
     lat: 39.9492, lng: -75.1740,
     cooldowns: {},
     statuses: [],
     poisonStacks: 0,
     illusionStacks: 0,
     STR,INT,WIS,DEX,CON,CHA,
+    statPoints: 0,
+    baseStats: {STR,DEX,INT,CON,WIS,CHA},
+    skills: { t1: null, t2: null, t3: null, classUnique: false },
+    healBonus: 0, goldBonus: 0, xpBonus: 0,
+    surgeCount: 0, titanUsed: false, shadowStrikeUsed: false,
     equipped: { weapon: null, armor: null, accessory: null },
     inventory: [],
   };
@@ -2541,10 +2914,13 @@ function combatTick(){
     if(!inCombat) return;
   }
 
-  // Resource regen every 2s
+  // Resource regen every 2s (Inner Peace: 3x for Monk with skill)
   if(now - lastResRegen > 2000){
     lastResRegen=now;
-    if(Player.cls.resRegen>0) gainRes(Player.cls.resRegen);
+    if(Player.cls.resRegen>0){
+      const innerPeace = Player.skills?.classUnique && Player.className==='Monk';
+      gainRes(Player.cls.resRegen * (innerPeace ? 3 : 1));
+    }
   }
 
   updateCooldownDisplay();
@@ -2555,6 +2931,13 @@ function startCombat(ent,boss){
   inCombat=true; isBoss=boss; curEnemy=ent;
   eStatuses=[]; Player.statuses=[];
   Player.cooldowns={};
+  Player.titanUsed = false;
+  Player.shadowStrikeUsed = false;
+  Player.surgeCount = Player.surgeCount || 0;
+  // Phantom Step: start combat with 2 illusion stacks
+  if(Player.skills?.classUnique && Player.className==='Illusionist'){
+    Player.illusionStacks = (Player.illusionStacks||0) + 2;
+  }
   const attackInterval = boss ? 4000 : 5500;
   curEnemy.nextAttackAt = Date.now() + attackInterval;
 
@@ -2677,12 +3060,27 @@ function gainRes(amt){ Player.res=Math.min(Player.maxRes,Player.res+amt); }
 function tickStatuses(who){
   const arr=who==='player'?Player.statuses:eStatuses;
   const target=who==='player'?Player:curEnemy;
+  const natWrathActive = Player.skills?.classUnique && Player.className==='Druid';
+  const deathmarkActive = Player.skills?.classUnique && Player.className==='Assassin';
   for(let i=arr.length-1;i>=0;i--){
     const s=arr[i];
-    if(s.type==='bleed'||s.type==='dot'||s.type==='regen'){
-      const amt=Math.floor(target.maxHp*0.05);
-      if(s.type==='regen'){ target.hp=Math.min(target.maxHp,target.hp+amt); addLog(`Rejuvenation: +${fmt(amt)} HP`,'ll'); }
-      else { target.hp=Math.max(0,target.hp-amt); showDamageNum(fmt(amt),'dmg-orange',who==='enemy'?'left':'right'); }
+    if(s.type==='bleed'||s.type==='dot'||s.type==='regen'||s.type==='poison'){
+      let amt=Math.floor(target.maxHp*0.05);
+      // Nature's Wrath: DoT does 50% more
+      if(natWrathActive && (s.type==='dot'||s.type==='bleed') && who==='enemy') amt=Math.floor(amt*1.5);
+      // Deathmark: poison does 60% more
+      if(deathmarkActive && s.type==='poison' && who==='enemy') amt=Math.floor(amt*1.6);
+      // Divine Favor: heals restore 25% more
+      if(s.type==='regen'){
+        let healAmt = amt;
+        if(Player.skills?.classUnique && Player.className==='Cleric') healAmt=Math.floor(healAmt*1.25);
+        healAmt = Math.floor(healAmt*(1+(Player.healBonus||0)));
+        target.hp=Math.min(target.maxHp,target.hp+healAmt);
+        addLog(`Rejuvenation: +${fmt(healAmt)} HP`,'ll');
+      } else {
+        target.hp=Math.max(0,target.hp-amt);
+        showDamageNum(fmt(amt),'dmg-orange',who==='enemy'?'left':'right');
+      }
     }
     s.turns--;
     if(s.turns<=0) arr.splice(i,1);
@@ -2699,7 +3097,12 @@ function playerAct(ability){
   }
 
   spendRes(ability.cost);
-  if(ability.cd>0) Player.cooldowns[ability.name]=now+ability.cd*CD_SCALE;
+  if(ability.cd>0){
+    let cdMs = ability.cd * CD_SCALE;
+    if(Player.skills?.t1==='arcane') cdMs = Math.max(0, cdMs - 400);
+    if(Player.skills?.t3==='archmage') cdMs = Math.floor(cdMs * 0.70);
+    Player.cooldowns[ability.name] = now + cdMs;
+  }
 
   // Resource generation effects
   if(ability.effect?.startsWith('rage+'))  gainRes(parseInt(ability.effect.split('+')[1]));
@@ -2710,7 +3113,13 @@ function playerAct(ability){
   // Healing
   if(ability.effect?.startsWith('heal')){
     const pct=parseInt(ability.effect.replace('heal',''))/100;
-    const h=Math.floor(Player.maxHp*pct);
+    let h=Math.floor(Player.maxHp*pct);
+    // Divine Favor: +25%
+    if(Player.skills?.classUnique && Player.className==='Cleric') h=Math.floor(h*1.25);
+    // Mastery: +20% heals
+    if(Player.skills?.t2==='mastery') h=Math.floor(h*1.20);
+    // WIS heal bonus
+    h=Math.floor(h*(1+(Player.healBonus||0)));
     Player.hp=Math.min(Player.maxHp,Player.hp+h);
     setCLog(`${ability.name}: Restored ${fmt(h)} HP!`);
     showDamageNum(`+${fmt(h)}`,'dmg-heal','left');
@@ -2768,7 +3177,9 @@ function useCombatPotion(){
   if(!used){ setCLog('No potions left!'); return; }
   const item=ITEMS[used];
   if(item.healPct){
-    const h=Math.floor(Player.maxHp*item.healPct);
+    let h=Math.floor(Player.maxHp*item.healPct);
+    if(Player.skills?.classUnique && Player.className==='Cleric') h=Math.floor(h*1.25);
+    h=Math.floor(h*(1+(Player.healBonus||0)));
     Player.hp=Math.min(Player.maxHp,Player.hp+h);
     showDamageNum(`+${fmt(h)}`,'dmg-heal','left');
     setCLog(`${item.emoji} ${used}: +${fmt(h)} HP!`);
@@ -2783,15 +3194,22 @@ function useCombatPotion(){
 }
 
 function calcDamage(ability){
-  const base=Math.floor(Player.atk*ability.dmgMult);
+  const sk = Player.skills || {};
+  let dmgMult = ability.dmgMult;
+  // Mastery: +25% to all ability damage
+  if(sk.t2==='mastery') dmgMult *= 1.25;
+
+  const base=Math.floor(Player.atk*dmgMult);
   const variance=0.15;
   let dmg=Math.floor(base*(1-variance+Math.random()*variance*2));
 
-  // Crit
+  // Skill ATK bonuses (atkPct25 already applied via applySkillBonuses to Player.atk)
+  // atkCrit35 also already applied; but add crit bonus at check time
   let critChance=Player.crit+(ability.critBonus||0);
+  if(sk.t2==='atkCrit35') critChance+=8; // extra 8% crit from skill
   if(ability.forceCrit) critChance=100;
   if(Math.random()*100<critChance){
-    const critMult=2.5+Math.random()*2; // 2.5x to 4.5x
+    const critMult=2.5+Math.random()*2;
     dmg=Math.floor(dmg*critMult);
     setTimeout(()=>showDamageNum('CRITICAL!','dmg-crit','right'),200);
     flashScreen('white');
@@ -2800,8 +3218,33 @@ function calcDamage(ability){
   // Illusion stacks
   if(Player.illusionStacks>0){ dmg=Math.floor(dmg*(1+Player.illusionStacks*0.5)); }
 
-  // Defense mitigation (flat reduction)
-  dmg=Math.max(1,dmg-Math.floor(curEnemy.def*0.3));
+  // Arcane Surge: every 5th ability deals double damage
+  if(sk.classUnique && Player.className==='Magic-User'){
+    Player.surgeCount = (Player.surgeCount||0) + 1;
+    if(Player.surgeCount % 5 === 0){ dmg = Math.floor(dmg * 2); showDamageNum('SURGE!','dmg-crit','right'); }
+  }
+
+  // Devastator: execute — double damage below 20% HP
+  if(sk.t3==='devastator' && curEnemy && curEnemy.hp/curEnemy.maxHp < 0.20){
+    dmg = Math.floor(dmg * 2);
+    showDamageNum('EXECUTE!','dmg-red','right');
+  }
+
+  // Archmage: Signature abilities deal 1.5x
+  if(sk.t3==='archmage' && ability.type==='Signature'){
+    dmg = Math.floor(dmg * 1.5);
+  }
+
+  // Shadow Strike: first hit ignores DEF
+  let ignoreDef = false;
+  if(sk.classUnique && Player.className==='Thief' && !Player.shadowStrikeUsed){
+    ignoreDef = true;
+    Player.shadowStrikeUsed = true;
+  }
+
+  // Defense mitigation
+  if(!ignoreDef) dmg=Math.max(1,dmg-Math.floor(curEnemy.def*0.3));
+  else dmg=Math.max(1,dmg);
   return dmg;
 }
 
@@ -2842,6 +3285,13 @@ function doEnemyAttack(){
     showDamageNum('DODGE','dmg-dodge','left');
     anim('p-spr','hit-anim'); return;
   }
+  // Holy Shield: 15% chance to block all damage
+  if(Player.skills?.classUnique && Player.className==='Paladin' && Math.random()<0.15){
+    setCLog(`Holy Shield! ${e.name}'s attack is blocked!`);
+    showDamageNum('BLOCKED!','dmg-dodge','left');
+    anim('p-spr','hit-anim'); return;
+  }
+
   // Damage
   const special=isBoss&&Math.random()<0.15;
   let dmg=Math.floor(e.atk*(special?1.5:1.0)*(0.85+Math.random()*0.3));
@@ -2853,17 +3303,35 @@ function doEnemyAttack(){
   showDamageNum(fmt(dmg),getDmgClass(dmg),'left');
   anim('e-spr','atk-anim'); anim('p-spr','hit-anim');
   if(special) shakeScreen();
+
+  // Titan revive: if hp drops to 0 and titan skill and not yet used, revive at 20%
+  if(Player.hp<=0 && Player.skills?.t3==='titan' && !Player.titanUsed){
+    Player.hp = Math.floor(Player.maxHp*0.20);
+    Player.titanUsed = true;
+    setCLog(`TITAN: You rise from the brink at 20% HP!`);
+    showDamageNum('TITAN REVIVE!','dmg-heal','left');
+    setCBUI(); return;
+  }
+
   setCBUI();
   if(Player.hp<=0){ setTimeout(()=>dead(),500); }
 }
 
 // ── VICTORY ───────────────────────────────────────────
 function victory(){
-  const xp=curEnemy.xp||100;
-  const gold=ri(curEnemy.gold[0],curEnemy.gold[1]);
+  const xpBase = curEnemy.xp||100;
+  const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0)));
+  const goldBase = ri(curEnemy.gold[0],curEnemy.gold[1]);
+  const gold = Math.floor(goldBase * (1 + (Player.goldBonus||0)));
   Player.xp+=xp; Player.gold+=gold;
   curEnemy.defeated=true; curEnemy.hp=0;
   curEnemy.poisonStacks=0;
+  // Bloodthirst: heal 5% max HP on kill
+  if(Player.skills?.classUnique && Player.className==='Fighter'){
+    const h=Math.floor(Player.maxHp*0.05);
+    Player.hp=Math.min(Player.maxHp,Player.hp+h);
+    addLog(`Bloodthirst: +${fmt(h)} HP`,'ll');
+  }
   const drops = rollLootDrop(curEnemy, isBoss);
   const dropStr = drops.map(n => `${ITEMS[n].emoji} ${n}`).join(' · ');
   const lootTxt = drops.length
@@ -2872,25 +3340,139 @@ function victory(){
   drops.forEach(n => addLog(`Found: ${ITEMS[n].emoji} ${n}${ITEMS[n].tier===4?' ✦ LEGENDARY':''}!`,'lb'));
   addLog(`Victory! +${fmt(xp)} XP · +${gold} Gold`,'ll');
   showLoot(lootTxt);
-  while(Player.xp>=Player.xpNext){ levelUp(); }
+  pendingLevelUps = [];
+  if(Player.level < 100){ while(Player.xp>=Player.xpNext && Player.level<100){ levelUp(); } }
   inCombat=false; stopCombatTimer();
   document.getElementById('combat-modal').classList.remove('active');
   curEnemy=null;
   setPUI(); render();
   saveGame();
+  // Show level-up modals after a brief delay
+  if(pendingLevelUps.length > 0) setTimeout(showNextLevelUp, 400);
 }
 
+// Pending level-ups queue (shown after combat ends)
+let pendingLevelUps = [];
+
 function levelUp(){
-  Player.xp-=Player.xpNext;
+  if(Player.level >= 100) return;
+  Player.xp -= Player.xpNext;
   Player.level++;
-  Player.xpNext=Math.floor(Player.xpNext*1.6);
-  Player.maxHp=Math.floor(Player.maxHp*1.25);
-  Player.hp=Player.maxHp;
-  Player.maxRes=Math.floor(Player.maxRes*1.1);
-  Player.atk=Math.floor(Player.atk*1.2);
-  Player.def=Math.floor(Player.def*1.15);
-  Player.crit=Math.min(50,Player.crit+1);
-  addLog(`⬆ LEVEL UP! Now Level ${Player.level}! Stats increased dramatically.`,'lb');
+  Player.xpNext = xpForLevel(Player.level);
+  // Base stat scaling
+  Player.maxHp  = Math.floor(Player.maxHp  * 1.12);
+  Player.hp     = Player.maxHp;
+  Player.maxRes = Math.floor(Player.maxRes  * 1.06);
+  Player.atk    = Math.floor(Player.atk    * 1.10);
+  Player.def    = Math.floor(Player.def    * 1.08);
+  Player.crit   = Math.min(50, Player.crit + 0.5);
+  Player.statPoints = (Player.statPoints || 0) + 2;
+  addLog(`⬆ LEVEL UP! Now Level ${Player.level}!`, 'lb');
+  pendingLevelUps.push(Player.level);
+}
+
+function showNextLevelUp(){
+  if(pendingLevelUps.length === 0) return;
+  const lvl = pendingLevelUps.shift();
+  openLevelUpModal(lvl, ()=>{ showNextLevelUp(); });
+}
+
+// Temp stat allocation vars
+let luTempStats = {};
+let luSpent = 0;
+let luOnClose = null;
+
+const STAT_EFFECTS = {
+  STR: '+80 ATK',
+  DEX: '+1.5% CRIT & DODGE',
+  INT: '+15 RES MAX, +40 ATK',
+  CON: '+800 MAX HP',
+  WIS: '+20 RES MAX, +heal bonus',
+  CHA: '+gold & XP bonus',
+};
+
+function openLevelUpModal(lvl, onClose){
+  luOnClose = onClose || null;
+  luSpent = 0;
+  luTempStats = {STR:0, DEX:0, INT:0, CON:0, WIS:0, CHA:0};
+  document.getElementById('lu-level-num').textContent = `LEVEL ${lvl}`;
+  renderLUStatGrid();
+  updateLUCounter();
+  // Skill tier notifications
+  let note = '';
+  if(lvl === 5)  note = '🌟 Tier 1 skills unlocked! Open SKILLS to choose.';
+  if(lvl === 10) note = '🌟 Class unique skill unlocked! Open SKILLS.';
+  if(lvl === 15) note = '🌟 Tier 2 skills unlocked! Open SKILLS to choose.';
+  if(lvl === 30) note = '🌟 Tier 3 skills unlocked! Open SKILLS to choose.';
+  document.getElementById('lu-skill-note').textContent = note;
+  document.getElementById('levelup-modal').classList.add('active');
+}
+
+function renderLUStatGrid(){
+  const grid = document.getElementById('lu-stat-grid');
+  const stats = ['STR','DEX','INT','CON','WIS','CHA'];
+  grid.innerHTML = stats.map(s=>`
+    <div class="lu-stat-row">
+      <span class="lu-stat-name">${s}</span>
+      <span class="lu-stat-val" id="lu-v-${s}">${Player[s] + luTempStats[s]}</span>
+      <span class="lu-stat-effect">${STAT_EFFECTS[s]}</span>
+      <button class="lu-stat-btn" onclick="luAdjust('${s}',-1)" id="lu-m-${s}">−</button>
+      <button class="lu-stat-btn" onclick="luAdjust('${s}',+1)" id="lu-p-${s}">+</button>
+    </div>
+  `).join('');
+  updateLUButtons();
+}
+
+function luAdjust(stat, dir){
+  if(dir > 0 && luSpent >= 2) return;
+  if(dir < 0 && luTempStats[stat] <= 0) return;
+  luTempStats[stat] += dir;
+  luSpent += dir;
+  document.getElementById(`lu-v-${stat}`).textContent = Player[stat] + luTempStats[stat];
+  updateLUCounter();
+  updateLUButtons();
+}
+
+function updateLUCounter(){
+  document.getElementById('lu-points-counter').textContent = `${luSpent} / 2 points spent`;
+  document.getElementById('lu-confirm-btn').disabled = luSpent < 2;
+}
+
+function updateLUButtons(){
+  const stats = ['STR','DEX','INT','CON','WIS','CHA'];
+  stats.forEach(s=>{
+    const pm = document.getElementById(`lu-m-${s}`);
+    const pp = document.getElementById(`lu-p-${s}`);
+    if(pm) pm.disabled = luTempStats[s] <= 0;
+    if(pp) pp.disabled = luSpent >= 2;
+  });
+}
+
+function confirmStats(){
+  if(luSpent < 2) return;
+  // Apply temp stats
+  const bs = Player.baseStats;
+  Object.entries(luTempStats).forEach(([s,n])=>{
+    if(n === 0) return;
+    Player[s] += n;
+    // Apply stat effects
+    for(let i=0;i<n;i++){
+      if(s==='STR'){ Player.atk += 80; }
+      if(s==='DEX'){ Player.crit=Math.min(75,Player.crit+1.5); Player.dodge=Math.min(75,Player.dodge+1.5); }
+      if(s==='INT'){ Player.maxRes+=15; Player.atk+=40; }
+      if(s==='CON'){ Player.maxHp+=800; Player.hp=Math.min(Player.maxHp,Player.hp+800); }
+      if(s==='WIS'){ Player.maxRes+=20; Player.healBonus=(Player[s]-bs[s])*0.04; }
+      if(s==='CHA'){
+        Player.goldBonus=(Player[s]-bs[s])*0.08;
+        Player.xpBonus=(Player[s]-bs[s])*0.05;
+      }
+    }
+  });
+  Player.statPoints = Math.max(0, (Player.statPoints||0) - 2);
+  document.getElementById('levelup-modal').classList.remove('active');
+  setPUI();
+  saveGame();
+  if(luOnClose) luOnClose();
 }
 
 function doFlee(){
@@ -3014,6 +3596,24 @@ function saveGame(){
       illusionStacks: Player.illusionStacks,
       STR: Player.STR, INT: Player.INT, WIS: Player.WIS,
       DEX: Player.DEX, CON: Player.CON, CHA: Player.CHA,
+      statPoints: Player.statPoints || 0,
+      baseStats: Player.baseStats || {STR:Player.STR,DEX:Player.DEX,INT:Player.INT,CON:Player.CON,WIS:Player.WIS,CHA:Player.CHA},
+      skills: Player.skills || {t1:null,t2:null,t3:null,classUnique:false},
+      healBonus: Player.healBonus || 0,
+      goldBonus: Player.goldBonus || 0,
+      xpBonus: Player.xpBonus || 0,
+      surgeCount: Player.surgeCount || 0,
+      titanUsed: Player.titanUsed || false,
+      shadowStrikeUsed: Player.shadowStrikeUsed || false,
+      _appliedT1Iron: Player._appliedT1Iron || false,
+      _appliedT2Fortress: Player._appliedT2Fortress || false,
+      _appliedT1Power: Player._appliedT1Power || false,
+      _appliedT1Arcane: Player._appliedT1Arcane || false,
+      _appliedT2Warlord: Player._appliedT2Warlord || false,
+      _appliedT3Devastator: Player._appliedT3Devastator || false,
+      _appliedT3Titan: Player._appliedT3Titan || false,
+      _appliedT3Archmage: Player._appliedT3Archmage || false,
+      _appliedClassUnique: Player._appliedClassUnique || false,
       equipped: Player.equipped,
       inventory: Player.inventory,
     },
@@ -3050,13 +3650,34 @@ function continueGame(){
   if(!save) return;
   // Restore player
   const cls = CLASSES[save.player.className];
+  const sp = save.player;
   Player = {
-    ...save.player,
+    ...sp,
     cls,
     cooldowns: {},
     statuses: [],
-    equipped: save.player.equipped || { weapon: null, armor: null, accessory: null },
-    inventory: save.player.inventory || [],
+    equipped: sp.equipped || { weapon: null, armor: null, accessory: null },
+    inventory: sp.inventory || [],
+    statPoints: sp.statPoints || 0,
+    baseStats: sp.baseStats || {STR:sp.STR,DEX:sp.DEX,INT:sp.INT,CON:sp.CON,WIS:sp.WIS,CHA:sp.CHA},
+    skills: sp.skills || {t1:null,t2:null,t3:null,classUnique:false},
+    healBonus: sp.healBonus || 0,
+    goldBonus: sp.goldBonus || 0,
+    xpBonus: sp.xpBonus || 0,
+    surgeCount: sp.surgeCount || 0,
+    titanUsed: sp.titanUsed || false,
+    shadowStrikeUsed: sp.shadowStrikeUsed || false,
+    _appliedT1Iron: sp._appliedT1Iron || false,
+    _appliedT2Fortress: sp._appliedT2Fortress || false,
+    _appliedT1Power: sp._appliedT1Power || false,
+    _appliedT1Arcane: sp._appliedT1Arcane || false,
+    _appliedT2Warlord: sp._appliedT2Warlord || false,
+    _appliedT3Devastator: sp._appliedT3Devastator || false,
+    _appliedT3Titan: sp._appliedT3Titan || false,
+    _appliedT3Archmage: sp._appliedT3Archmage || false,
+    _appliedClassUnique: sp._appliedClassUnique || false,
+    // Ensure xpNext uses formula if it's a new enough save
+    xpNext: sp.xpNext || xpForLevel(sp.level||1),
   };
   selectedClass = save.player.className;
   // Restore boss states
