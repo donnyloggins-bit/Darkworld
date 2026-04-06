@@ -2110,7 +2110,7 @@ function headingLabel(h){
 // ══════════════════════════════════════════════════════
 //  AR ENGINE
 // ══════════════════════════════════════════════════════
-let arStream=null,arHeading=0,arAnimId=null,arOrientHandler=null;
+let arStream=null,arHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[];
 
 async function startAR(){
   if(!Player)return;
@@ -2143,6 +2143,26 @@ async function startAR(){
   // Resize AR canvas
   const ac=document.getElementById('ar-canvas');
   ac.width=window.innerWidth; ac.height=window.innerHeight;
+  // Tap-to-fight handler
+  ac._arTapHandler=e=>{
+    e.preventDefault();
+    if(inCombat)return;
+    const t=e.changedTouches[0];
+    const rect=ac.getBoundingClientRect();
+    const tx=t.clientX-rect.left;
+    const ty=t.clientY-rect.top;
+    // Find nearest tapped enemy (largest hitbox: sz*1.5 radius)
+    let best=null, bestDist=Infinity;
+    for(const v of arVisibleEnemies){
+      const d=Math.hypot(tx-v.x, ty-v.yBase);
+      if(d<v.sz*1.5 && d<bestDist){ best=v; bestDist=d; }
+    }
+    if(best){
+      stopAR();
+      startCombat(best.entity, best.isBoss);
+    }
+  };
+  ac.addEventListener('touchend', ac._arTapHandler, {passive:false});
   // Switch screens
   document.getElementById('screen-game').classList.remove('active');
   document.getElementById('screen-ar').classList.add('active');
@@ -2156,6 +2176,9 @@ function stopAR(){
     window.removeEventListener('deviceorientationabsolute',arOrientHandler,true);
     window.removeEventListener('deviceorientation',arOrientHandler,true);
   }
+  const ac=document.getElementById('ar-canvas');
+  if(ac._arTapHandler){ ac.removeEventListener('touchend',ac._arTapHandler); ac._arTapHandler=null; }
+  arVisibleEnemies=[];
   document.getElementById('screen-ar').classList.remove('active');
   document.getElementById('screen-game').classList.add('active');
 }
@@ -2167,6 +2190,7 @@ function renderAR(){
   c.clearRect(0,0,W,H);
 
   const FOV=65,MAX_DIST=0.5;
+  arVisibleEnemies=[]; // reset hit-test targets each frame
 
   // Atmospheric vignette
   const vgrd=c.createLinearGradient(0,0,0,H);
@@ -2175,21 +2199,21 @@ function renderAR(){
   vgrd.addColorStop(1,'rgba(3,2,5,0.65)');
   c.fillStyle=vgrd; c.fillRect(0,0,W,H);
 
-  // Collect enemies in FOV
+  // Collect enemies in FOV — keep reference to original entity object
   const visible=[];
   BOSSES.filter(b=>!b.defeated).forEach(b=>{
     const dist=distMiles(Player.lat,Player.lng,b.lat,b.lng);
     if(dist>MAX_DIST)return;
     let diff=bearing(Player.lat,Player.lng,b.lat,b.lng)-arHeading;
     if(diff>180)diff-=360; if(diff<-180)diff+=360;
-    if(Math.abs(diff)<FOV/2) visible.push({name:b.name,emoji:b.emoji,hp:b.hp,maxHp:b.maxHp,dist,diff,boss:true});
+    if(Math.abs(diff)<FOV/2) visible.push({name:b.name,emoji:b.emoji,hp:b.hp,maxHp:b.maxHp,dist,diff,boss:true,entity:b});
   });
   spawns.filter(s=>!s.defeated).forEach(s=>{
     const dist=distMiles(Player.lat,Player.lng,s.lat,s.lng);
     if(dist>MAX_DIST)return;
     let diff=bearing(Player.lat,Player.lng,s.lat,s.lng)-arHeading;
     if(diff>180)diff-=360; if(diff<-180)diff+=360;
-    if(Math.abs(diff)<FOV/2) visible.push({name:s.name,emoji:s.emoji,hp:s.hp,maxHp:s.maxHp,dist,diff,boss:false});
+    if(Math.abs(diff)<FOV/2) visible.push({name:s.name,emoji:s.emoji,hp:s.hp,maxHp:s.maxHp,dist,diff,boss:false,entity:s});
   });
 
   // Draw each enemy
@@ -2200,6 +2224,8 @@ function renderAR(){
     const scale=0.6+proximity*0.6;
     const sz=Math.floor(W*0.14*scale);
     const yBase=H*(0.25+proximity*0.1);
+    // Store screen position for tap hit-testing
+    arVisibleEnemies.push({entity:e.entity,isBoss:e.boss,x,yBase,sz});
 
     // Glow
     const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*1.8);
@@ -2242,6 +2268,13 @@ function renderAR(){
     c.fillStyle='rgba(30,10,10,0.9)'; c.fillRect(bx,by,bw,bh);
     c.fillStyle=e.boss?'#c8a030':'#aa2020';
     c.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
+
+    // TAP TO FIGHT hint below card
+    const hintY=cardY+cardH+10;
+    c.font=`bold ${Math.max(12,Math.floor(14*scale))}px "Share Tech Mono",monospace`;
+    c.fillStyle=e.boss?'rgba(255,200,0,0.9)':'rgba(255,80,80,0.9)';
+    c.textAlign='center';
+    c.fillText('⚔ TAP TO FIGHT',x,hintY);
   });
 
   // No enemies message
