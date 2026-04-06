@@ -83,9 +83,9 @@ body::before {
 
 .main-title {
   font-family:'Cinzel Decorative',serif;
-  font-size:5rem;
+  font-size:clamp(1.6rem, 10vw, 5rem);
   color:var(--ghost);
-  letter-spacing:.15em;
+  letter-spacing:clamp(.05em, .5vw, .15em);
   text-shadow:
     0 0 40px rgba(139,26,26,0.8),
     0 0 80px rgba(139,26,26,0.4),
@@ -101,11 +101,11 @@ body::before {
 
 .main-subtitle {
   font-family:'IM Fell English',serif;
-  font-size:1rem;
+  font-size:clamp(.6rem, 2.5vw, 1rem);
   color:var(--blood);
-  letter-spacing:.5em;
+  letter-spacing:.4em;
   text-transform:uppercase;
-  margin-bottom:60px;
+  margin-bottom:clamp(24px, 6vh, 60px);
   font-style:italic;
 }
 
@@ -114,9 +114,9 @@ body::before {
   border:1px solid var(--crimson);
   color:var(--pale);
   font-family:'Cinzel Decorative',serif;
-  font-size:.9rem;
+  font-size:clamp(.7rem, 2vw, .9rem);
   letter-spacing:.2em;
-  padding:16px 50px;
+  padding:clamp(10px,2vh,16px) clamp(24px,6vw,50px);
   cursor:pointer;
   position:relative;
   transition:all .3s ease;
@@ -139,14 +139,6 @@ body::before {
 }
 .begin-btn:hover::before { opacity:1; }
 
-/* ── TITLE MOBILE ── */
-@media(max-width:600px){
-  .main-title { font-size:1.8rem; letter-spacing:.08em; }
-  .main-subtitle { font-size:.65rem; letter-spacing:.3em; margin-bottom:28px; }
-  .title-runes { font-size:.45rem; margin-bottom:14px; }
-  .begin-btn { font-size:.7rem; padding:12px 28px; }
-  .skull-divider { font-size:.9rem; margin:18px 0; }
-}
 
 .skull-divider {
   color:rgba(139,26,26,0.4);
