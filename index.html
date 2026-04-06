@@ -54,6 +54,32 @@ body::before {
   opacity:0.6;
 }
 
+/* ── LANDSCAPE WARNING ── */
+@media (orientation: landscape) {
+  #rotate-warn {
+    display:flex !important;
+  }
+}
+#rotate-warn {
+  display:none;
+  position:fixed; inset:0; z-index:10000;
+  background:#0d0a14;
+  flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:20px;
+  text-align:center;
+}
+#rotate-warn .rw-icon { font-size:4rem; }
+#rotate-warn .rw-text {
+  font-family:'Cinzel Decorative',serif;
+  font-size:1rem; color:var(--gold);
+  letter-spacing:.1em; line-height:1.6;
+}
+#rotate-warn .rw-sub {
+  font-family:'Share Tech Mono',monospace;
+  font-size:.7rem; color:#9080a8;
+}
+
 /* ══════════════════════════════════════════════
    SCREENS
 ══════════════════════════════════════════════ */
@@ -1022,6 +1048,13 @@ body::before {
 </head>
 <body>
 
+<!-- Landscape warning — CSS shows this in landscape orientation -->
+<div id="rotate-warn">
+  <div class="rw-icon">📱</div>
+  <div class="rw-text">ROTATE YOUR PHONE</div>
+  <div class="rw-sub">DARKWORLD requires portrait mode</div>
+</div>
+
 <div id="flash"></div>
 
 <!-- ══ TITLE ══ -->
@@ -1381,11 +1414,11 @@ const MOB_TYPES = [
   {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:12000,  atk:500,  def:180,  xp:250,  gold:[50,120]},
   {name:'Wailing Banshee', emoji:'👁', zone:2, hp:9000,   atk:600,  def:80,   xp:220,  gold:[40,100]},
   {name:'Rot Golem',       emoji:'🗿', zone:2, hp:14000,  atk:420,  def:300,  xp:280,  gold:[50,110]},
-  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:4500,   atk:220,  def:50,   xp:120,  gold:[20,60]},
-  {name:'Bog Specter',     emoji:'💨', zone:3, hp:5500,   atk:250,  def:30,   xp:140,  gold:[20,70]},
-  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:2500,   atk:160,  def:20,   xp:80,   gold:[10,40]},
-  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:1200,   atk:80,   def:10,   xp:50,   gold:[5,25]},
-  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:1000,   atk:100,  def:10,   xp:45,   gold:[5,25]},
+  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:2000,   atk:120,  def:20,   xp:120,  gold:[20,60]},
+  {name:'Bog Specter',     emoji:'💨', zone:3, hp:2500,   atk:140,  def:15,   xp:140,  gold:[20,70]},
+  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:1200,   atk:90,   def:10,   xp:80,   gold:[10,40]},
+  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:500,    atk:40,   def:5,    xp:50,   gold:[5,25]},
+  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:400,    atk:50,   def:5,    xp:45,   gold:[5,25]},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -1866,16 +1899,17 @@ function genSpawns(){
   const outsidePhilly = Player && distMiles(Player.lat,Player.lng,CENTER.lat,CENTER.lng) > 3;
 
   if(outsidePhilly){
-    // Outside Philadelphia: spawn 30 random mobs within 100 feet of the player
+    // Outside Philadelphia: spawn 30 easy mobs (zones 3-4) within 100 feet of the player
     const MAX_FEET = 100;
     const MAX_MILES = MAX_FEET / 5280;
     const total = 30;
+    const easyMobs = MOB_TYPES.filter(m=>m.zone>=3);
     for(let i=0;i<total;i++){
       const angle = Math.random()*2*Math.PI;
       const r = Math.random()*MAX_MILES;
       const lat = Player.lat + (r/69.11)*Math.cos(angle);
       const lng = Player.lng + (r/(69.11*Math.cos(Player.lat*Math.PI/180)))*Math.sin(angle);
-      const t = MOB_TYPES[Math.floor(Math.random()*MOB_TYPES.length)];
+      const t = easyMobs[Math.floor(Math.random()*easyMobs.length)];
       const mult = 1+Math.random()*0.4;
       spawns.push({...t,lat,lng,
         hp:Math.floor(t.hp*mult),maxHp:Math.floor(t.hp*mult),
@@ -2812,8 +2846,9 @@ function showDamageNum(text, cls, side){
   const layer=document.getElementById('dmg-layer');
   const div=document.createElement('div');
   div.className=`dmg-num ${cls}`;
-  const x=side==='right'?60+Math.random()*120:Math.random()*120;
-  const y=40+Math.random()*60;
+  // Keep numbers on screen: enemy side = right half, player side = left half
+  const x = side==='right' ? 55+Math.random()*25 : 20+Math.random()*25;
+  const y = 25+Math.random()*35;
   div.style.left=x+'%';
   div.style.top=y+'%';
   div.style.transform='translateX(-50%)';
@@ -3008,6 +3043,11 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('/sw.js').catch(err=>console.warn('SW registration failed:',err));
   });
+}
+
+// ── ORIENTATION LOCK ──────────────────────────────────
+if(screen.orientation && screen.orientation.lock){
+  screen.orientation.lock('portrait').catch(()=>{});
 }
 
 // ── INIT ───────────────────────────────────────────────
