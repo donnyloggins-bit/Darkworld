@@ -2142,10 +2142,7 @@ async function startAR(){
   window.addEventListener('deviceorientation',arOrientHandler,true);
   // Resize AR canvas
   const ac=document.getElementById('ar-canvas');
-  const dpr=window.devicePixelRatio||1;
-  ac.width=window.innerWidth*dpr; ac.height=window.innerHeight*dpr;
-  ac.style.width=window.innerWidth+'px'; ac.style.height=window.innerHeight+'px';
-  ac.getContext('2d').scale(dpr,dpr);
+  ac.width=window.innerWidth; ac.height=window.innerHeight;
   // Switch screens
   document.getElementById('screen-game').classList.remove('active');
   document.getElementById('screen-ar').classList.add('active');
@@ -2153,7 +2150,7 @@ async function startAR(){
 }
 
 function stopAR(){
-  if(arAnimId){cancelAnimationFrame(arAnimId);arAnimId=null;}
+  if(arAnimId){cancelAnimationFrame(arAnimId);clearTimeout(arAnimId);arAnimId=null;}
   if(arStream){arStream.getTracks().forEach(t=>t.stop());arStream=null;}
   if(arOrientHandler){
     window.removeEventListener('deviceorientationabsolute',arOrientHandler,true);
@@ -2202,7 +2199,7 @@ function renderAR(){
     const proximity=1-e.dist/MAX_DIST;
     const scale=0.6+proximity*0.6;
     const sz=Math.floor(W*0.14*scale);
-    const yBase=H*(0.28+proximity*0.15);
+    const yBase=H*(0.25+proximity*0.1);
 
     // Glow
     const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*1.8);
@@ -2262,7 +2259,7 @@ function renderAR(){
   // Compass update
   document.getElementById('ar-heading-txt').textContent=`${Math.round(arHeading)}° ${headingLabel(arHeading)}`;
 
-  arAnimId=requestAnimationFrame(renderAR);
+  arAnimId=setTimeout(()=>requestAnimationFrame(renderAR), 50); // ~20fps
 }
 
 function updateZone(){
