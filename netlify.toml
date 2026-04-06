@@ -1,0 +1,20 @@
+[build]
+  publish = "."
+
+# Correct MIME type for manifest (some hosts get this wrong)
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+
+# Service worker must not be cached — browser needs the latest version always
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Game assets can be cached
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

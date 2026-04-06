@@ -1,0 +1,18 @@
+{
+  "name": "DARKWORLD — The Fallen City",
+  "short_name": "DARKWORLD",
+  "description": "Location-based AR RPG set in Philadelphia. The darkness has fallen.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#030205",
+  "theme_color": "#030205",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
