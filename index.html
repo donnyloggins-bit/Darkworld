@@ -1574,6 +1574,12 @@ function drawPlayer(){
   ctx.font=`${Math.floor(10*zoom)}px serif`;
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(Player.emoji,p.x,p.y);
+  if(gpsFirstLock){
+    const engageR=mi2px(ENGAGE_MILES);
+    ctx.beginPath(); ctx.arc(p.x,p.y,engageR,0,Math.PI*2);
+    ctx.strokeStyle='rgba(42,100,70,0.18)'; ctx.lineWidth=1;
+    ctx.setLineDash([3,4]); ctx.stroke(); ctx.setLineDash([]);
+  }
   if(zoom>0.8){
     ctx.font=`${Math.max(6,6*zoom)}px "Share Tech Mono"`;
     ctx.fillStyle='#2a6a4a'; ctx.textBaseline='top';
@@ -1592,10 +1598,30 @@ canvas.addEventListener('touchstart',e=>{dragStart={x:e.touches[0].clientX,y:e.t
 canvas.addEventListener('touchmove',e=>{e.preventDefault();viewX=dragView.x+(e.touches[0].clientX-dragStart.x);viewY=dragView.y+(e.touches[0].clientY-dragStart.y);render();},{passive:false});
 canvas.addEventListener('touchend',e=>{const t=e.changedTouches[0];if(Math.abs(t.clientX-dragStart.x)+Math.abs(t.clientY-dragStart.y)<10)handleClick(t.clientX,t.clientY);});
 
+const ENGAGE_MILES=0.1;
+
 function handleClick(cx,cy){
   if(inCombat)return;
-  for(const b of BOSSES){ if(b.defeated)continue; const p=ll2px(b.lat,b.lng); if(Math.hypot(cx-p.x,cy-p.y)<(b.isWorld?22:16)){startCombat(b,true);return;} }
-  for(const s of spawns){ if(s.defeated)continue; const p=ll2px(s.lat,s.lng); if(Math.hypot(cx-p.x,cy-p.y)<Math.max(10,10*zoom)){startCombat(s,false);return;} }
+  for(const b of BOSSES){
+    if(b.defeated)continue;
+    const p=ll2px(b.lat,b.lng);
+    if(Math.hypot(cx-p.x,cy-p.y)<(b.isWorld?22:16)){
+      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,b.lat,b.lng)>ENGAGE_MILES){
+        addLog('⚠ Move closer to engage this enemy.','ls'); return;
+      }
+      startCombat(b,true); return;
+    }
+  }
+  for(const s of spawns){
+    if(s.defeated)continue;
+    const p=ll2px(s.lat,s.lng);
+    if(Math.hypot(cx-p.x,cy-p.y)<Math.max(10,10*zoom)){
+      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,s.lat,s.lng)>ENGAGE_MILES){
+        addLog('⚠ Move closer to engage this enemy.','ls'); return;
+      }
+      startCombat(s,false); return;
+    }
+  }
 }
 
 function distMiles(lat1,lng1,lat2,lng2){
