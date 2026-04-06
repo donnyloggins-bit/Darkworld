@@ -1863,24 +1863,46 @@ function fmt(n){ return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).t
 let spawns=[];
 function genSpawns(){
   spawns=[];
-  const counts=[8,18,22,20,12];
-  ZONES.forEach((z,zi)=>{
-    const minR=zi?ZONES[zi-1].max:0.3;
-    const mobs=MOB_TYPES.filter(m=>m.zone===zi);
-    if(!mobs.length)return;
-    for(let i=0;i<counts[zi];i++){
-      const angle=Math.random()*2*Math.PI;
-      const r=minR+Math.random()*(z.max-minR);
-      const lat=CENTER.lat+(r/69.11)*Math.cos(angle);
-      const lng=CENTER.lng+(r/(69.11*Math.cos(CENTER.lat*Math.PI/180)))*Math.sin(angle);
-      const t=mobs[Math.floor(Math.random()*mobs.length)];
-      const mult=1+Math.random()*0.4;
+  const outsidePhilly = Player && distMiles(Player.lat,Player.lng,CENTER.lat,CENTER.lng) > 3;
+
+  if(outsidePhilly){
+    // Outside Philadelphia: spawn 30 random mobs within 100 feet of the player
+    const MAX_FEET = 100;
+    const MAX_MILES = MAX_FEET / 5280;
+    const total = 30;
+    for(let i=0;i<total;i++){
+      const angle = Math.random()*2*Math.PI;
+      const r = Math.random()*MAX_MILES;
+      const lat = Player.lat + (r/69.11)*Math.cos(angle);
+      const lng = Player.lng + (r/(69.11*Math.cos(Player.lat*Math.PI/180)))*Math.sin(angle);
+      const t = MOB_TYPES[Math.floor(Math.random()*MOB_TYPES.length)];
+      const mult = 1+Math.random()*0.4;
       spawns.push({...t,lat,lng,
         hp:Math.floor(t.hp*mult),maxHp:Math.floor(t.hp*mult),
         atk:Math.floor(t.atk*mult),def:Math.floor(t.def*mult),
         id:spawns.length,defeated:false,statuses:[]});
     }
-  });
+  } else {
+    // Inside Philadelphia: spawn by zone rings as normal
+    const counts=[8,18,22,20,12];
+    ZONES.forEach((z,zi)=>{
+      const minR=zi?ZONES[zi-1].max:0.3;
+      const mobs=MOB_TYPES.filter(m=>m.zone===zi);
+      if(!mobs.length)return;
+      for(let i=0;i<counts[zi];i++){
+        const angle=Math.random()*2*Math.PI;
+        const r=minR+Math.random()*(z.max-minR);
+        const lat=CENTER.lat+(r/69.11)*Math.cos(angle);
+        const lng=CENTER.lng+(r/(69.11*Math.cos(CENTER.lat*Math.PI/180)))*Math.sin(angle);
+        const t=mobs[Math.floor(Math.random()*mobs.length)];
+        const mult=1+Math.random()*0.4;
+        spawns.push({...t,lat,lng,
+          hp:Math.floor(t.hp*mult),maxHp:Math.floor(t.hp*mult),
+          atk:Math.floor(t.atk*mult),def:Math.floor(t.def*mult),
+          id:spawns.length,defeated:false,statuses:[]});
+      }
+    });
+  }
 }
 
 function resize(){
