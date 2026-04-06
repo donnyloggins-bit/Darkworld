@@ -423,6 +423,61 @@ body::before {
   line-height:1.8;
 }
 
+/* AR SCREEN */
+#screen-ar { background:#000; }
+#ar-video {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover; z-index:1;
+}
+#ar-canvas {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  z-index:2;
+}
+#ar-back {
+  position:absolute; top:20px; left:16px;
+  background:rgba(3,2,5,0.85);
+  border:1px solid #3a2a4a;
+  border-left:2px solid var(--blood);
+  color:var(--pale);
+  font-family:'Share Tech Mono',monospace;
+  font-size:.65rem; letter-spacing:.1em;
+  padding:10px 16px; cursor:pointer; z-index:4;
+}
+#ar-status {
+  position:absolute; top:20px; right:16px;
+  background:rgba(3,2,5,0.85);
+  border:1px solid #1c1220;
+  border-right:2px solid var(--blood);
+  padding:10px 14px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.55rem; color:#6b0000; z-index:4;
+  animation:flicker 4s ease infinite;
+}
+#ar-compass {
+  position:absolute; bottom:28px; left:50%;
+  transform:translateX(-50%);
+  background:rgba(3,2,5,0.85);
+  border:1px solid #2a1a3a;
+  border-bottom:2px solid var(--gold);
+  padding:7px 22px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.6rem; color:var(--gold);
+  z-index:4; letter-spacing:.2em; white-space:nowrap;
+}
+#ar-btn {
+  position:absolute; bottom:54px; right:14px;
+  background:rgba(3,2,5,0.92);
+  border:1px solid #1c1220;
+  border-bottom:2px solid var(--blood);
+  padding:8px 16px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.6rem; color:#3a2a4a;
+  cursor:pointer; z-index:5; letter-spacing:.08em;
+}
+#ar-btn:hover { color:var(--bone); border-bottom-color:var(--gold); }
+
 /* GPS */
 #gps-hud {
   position:absolute; top:46px; left:12px;
@@ -978,6 +1033,7 @@ body::before {
     <div id="coord-hud"><span id="coord-txt">RITTENHOUSE — HELLMOUTH</span></div>
     <div id="gps-hud"><div class="gps-dot" id="gps-dot"></div><span id="gps-txt">GPS INACTIVE</span></div>
     <div id="hint-hud">DRAG · SCROLL · CLICK TO ENGAGE</div>
+    <button id="ar-btn" onclick="startAR()">👁 AR VIEW</button>
     <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER ON ME</button>
     <div id="legend">
       <div class="lg-title">⚔ THREAT ZONES</div>
@@ -1067,6 +1123,14 @@ body::before {
 <div id="loot-popup">
   <div class="loot-t">⚰ SPOILS OF BATTLE</div>
   <div class="loot-i" id="loot-txt"></div>
+</div>
+
+<div id="screen-ar" class="screen">
+  <video id="ar-video" autoplay playsinline muted></video>
+  <canvas id="ar-canvas"></canvas>
+  <button id="ar-back" onclick="stopAR()">◀ MAP</button>
+  <div id="ar-status">⬤ AR MODE · THE FALLEN CITY</div>
+  <div id="ar-compass" id="ar-compass"><span id="ar-heading-txt">--- °</span></div>
 </div>
 
 <script>
@@ -1620,6 +1684,152 @@ function distMiles(lat1,lng1,lat2,lng2){
   const R=3958.8,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function bearing(lat1,lng1,lat2,lng2){
+  const dLng=(lng2-lng1)*Math.PI/180;
+  const φ1=lat1*Math.PI/180,φ2=lat2*Math.PI/180;
+  const y=Math.sin(dLng)*Math.cos(φ2);
+  const x=Math.cos(φ1)*Math.sin(φ2)-Math.sin(φ1)*Math.cos(φ2)*Math.cos(dLng);
+  return(Math.atan2(y,x)*180/Math.PI+360)%360;
+}
+
+function headingLabel(h){
+  return['N','NE','E','SE','S','SW','W','NW','N'][Math.round(h/45)%8];
+}
+
+// ══════════════════════════════════════════════════════
+//  AR ENGINE
+// ══════════════════════════════════════════════════════
+let arStream=null,arHeading=0,arAnimId=null,arOrientHandler=null;
+
+async function startAR(){
+  if(!Player)return;
+  // iOS compass permission
+  if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
+    try{ await DeviceOrientationEvent.requestPermission(); }
+    catch(e){ addLog('⚠ Compass permission denied.','ls'); return; }
+  }
+  // Camera
+  try{
+    arStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280}},audio:false});
+    document.getElementById('ar-video').srcObject=arStream;
+  }catch(e){
+    addLog('⚠ Camera access denied. Enable in browser settings.','ls'); return;
+  }
+  // Compass
+  arOrientHandler=e=>{
+    if(e.webkitCompassHeading!==undefined){
+      arHeading=e.webkitCompassHeading; // iOS
+    } else {
+      arHeading=(360-(e.alpha||0))%360; // Android
+    }
+  };
+  window.addEventListener('deviceorientationabsolute',arOrientHandler,true);
+  window.addEventListener('deviceorientation',arOrientHandler,true);
+  // Resize AR canvas
+  const ac=document.getElementById('ar-canvas');
+  ac.width=window.innerWidth; ac.height=window.innerHeight;
+  // Switch screens
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-ar').classList.add('active');
+  renderAR();
+}
+
+function stopAR(){
+  if(arAnimId){cancelAnimationFrame(arAnimId);arAnimId=null;}
+  if(arStream){arStream.getTracks().forEach(t=>t.stop());arStream=null;}
+  if(arOrientHandler){
+    window.removeEventListener('deviceorientationabsolute',arOrientHandler,true);
+    window.removeEventListener('deviceorientation',arOrientHandler,true);
+  }
+  document.getElementById('screen-ar').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+}
+
+function renderAR(){
+  const canvas=document.getElementById('ar-canvas');
+  const c=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  c.clearRect(0,0,W,H);
+
+  const FOV=65,MAX_DIST=0.5;
+
+  // Atmospheric vignette
+  const vgrd=c.createLinearGradient(0,0,0,H);
+  vgrd.addColorStop(0,'rgba(3,2,5,0.55)');
+  vgrd.addColorStop(0.45,'rgba(3,2,5,0)');
+  vgrd.addColorStop(1,'rgba(3,2,5,0.65)');
+  c.fillStyle=vgrd; c.fillRect(0,0,W,H);
+
+  // Collect enemies in FOV
+  const visible=[];
+  BOSSES.filter(b=>!b.defeated).forEach(b=>{
+    const dist=distMiles(Player.lat,Player.lng,b.lat,b.lng);
+    if(dist>MAX_DIST)return;
+    let diff=bearing(Player.lat,Player.lng,b.lat,b.lng)-arHeading;
+    if(diff>180)diff-=360; if(diff<-180)diff+=360;
+    if(Math.abs(diff)<FOV/2) visible.push({name:b.name,emoji:b.emoji,hp:b.hp,maxHp:b.maxHp,dist,diff,boss:true});
+  });
+  spawns.filter(s=>!s.defeated).forEach(s=>{
+    const dist=distMiles(Player.lat,Player.lng,s.lat,s.lng);
+    if(dist>MAX_DIST)return;
+    let diff=bearing(Player.lat,Player.lng,s.lat,s.lng)-arHeading;
+    if(diff>180)diff-=360; if(diff<-180)diff+=360;
+    if(Math.abs(diff)<FOV/2) visible.push({name:s.name,emoji:s.emoji,hp:s.hp,maxHp:s.maxHp,dist,diff,boss:false});
+  });
+
+  // Draw each enemy
+  visible.forEach(e=>{
+    const x=W/2+(e.diff/(FOV/2))*(W/2);
+    const proximity=1-e.dist/MAX_DIST;
+    const scale=0.5+proximity*0.7;
+    const sz=Math.floor(52*scale);
+    const yBase=H*0.42;
+
+    // Outer glow
+    const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*2);
+    grd.addColorStop(0,e.boss?'rgba(184,150,42,0.25)':'rgba(139,26,26,0.22)');
+    grd.addColorStop(1,'rgba(3,2,5,0)');
+    c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*2,0,Math.PI*2); c.fill();
+
+    // Emoji
+    c.font=`${sz}px serif`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(e.emoji,x,yBase);
+
+    // Name
+    const nameSize=Math.max(9,Math.floor(12*scale));
+    c.font=`${nameSize}px "Share Tech Mono",monospace`;
+    c.fillStyle=e.boss?'rgba(184,150,42,0.95)':'rgba(221,208,184,0.9)';
+    c.fillText(e.name.toUpperCase(),x,yBase+sz*0.65+nameSize);
+
+    // Distance in feet
+    const ft=Math.round(e.dist*5280);
+    c.font=`${Math.max(8,Math.floor(10*scale))}px "Share Tech Mono",monospace`;
+    c.fillStyle='rgba(107,0,0,0.85)';
+    c.fillText(ft<528?`${ft}ft`:`${(e.dist).toFixed(2)}mi`,x,yBase+sz*0.65+nameSize*2.4);
+
+    // HP bar
+    const bw=sz*1.4,bh=3;
+    const bx=x-bw/2,by=yBase+sz*0.65+nameSize*3.6;
+    c.fillStyle='rgba(30,10,10,0.8)'; c.fillRect(bx,by,bw,bh);
+    c.fillStyle=e.boss?'#b8962a':'#6b0000';
+    c.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
+  });
+
+  // No enemies message
+  if(visible.length===0){
+    c.font='13px "Share Tech Mono",monospace';
+    c.fillStyle='rgba(58,42,74,0.7)';
+    c.textAlign='center';
+    c.fillText('NO ENEMIES IN SIGHT — TURN TO HUNT',W/2,H*0.88);
+  }
+
+  // Compass update
+  document.getElementById('ar-heading-txt').textContent=`${Math.round(arHeading)}° ${headingLabel(arHeading)}`;
+
+  arAnimId=requestAnimationFrame(renderAR);
 }
 
 function updateZone(){
