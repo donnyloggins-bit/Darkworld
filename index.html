@@ -2255,11 +2255,16 @@ async function startAR(){
     const rect=ac.getBoundingClientRect();
     const tx=t.clientX-rect.left;
     const ty=t.clientY-rect.top;
-    // Find nearest tapped enemy (largest hitbox: sz*1.5 radius)
     let best=null, bestDist=Infinity;
     for(const v of arVisibleEnemies){
+      // Check FIGHT button rect first (primary target)
+      if(v.btnY!==undefined){
+        const inBtn = Math.abs(tx-v.x)<v.btnW/2+16 && Math.abs(ty-v.btnY)<v.btnH/2+16;
+        if(inBtn){ best=v; break; }
+      }
+      // Fallback: large radius around sprite
       const d=Math.hypot(tx-v.x, ty-v.yBase);
-      if(d<v.sz*1.5 && d<bestDist){ best=v; bestDist=d; }
+      if(d<v.sz*2.5 && d<bestDist){ best=v; bestDist=d; }
     }
     if(best){
       stopAR();
@@ -2295,11 +2300,11 @@ function renderAR(){
   const c=canvas.getContext('2d');
   const W=canvas.width,H=canvas.height;
 
-  // Smooth heading: interpolate toward target, handle 0/360 wrap
+  // Smooth heading heavily — damp out sensor jitter
   let diff=arTargetHeading-arHeading;
   if(diff>180) diff-=360;
   if(diff<-180) diff+=360;
-  arHeading=(arHeading+diff*0.2+360)%360;
+  arHeading=(arHeading+diff*0.05+360)%360;
 
   c.clearRect(0,0,W,H);
 
@@ -2383,12 +2388,27 @@ function renderAR(){
     c.fillStyle=e.boss?'#c8a030':'#aa2020';
     c.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
 
-    // TAP TO FIGHT hint below card
-    const hintY=cardY+cardH+10;
-    c.font=`bold ${Math.max(12,Math.floor(14*scale))}px "Share Tech Mono",monospace`;
-    c.fillStyle=e.boss?'rgba(255,200,0,0.9)':'rgba(255,80,80,0.9)';
-    c.textAlign='center';
-    c.fillText('⚔ TAP TO FIGHT',x,hintY);
+    // FIGHT button below card — large tap target
+    const btnW=Math.min(cardW, 180);
+    const btnH=38;
+    const btnX=x-btnW/2;
+    const btnY=cardY+cardH+8;
+    const btnColor=e.boss?'rgba(200,150,0,0.92)':'rgba(180,30,30,0.92)';
+    c.fillStyle=btnColor;
+    c.beginPath();
+    c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,8):c.rect(btnX,btnY,btnW,btnH);
+    c.fill();
+    c.strokeStyle=e.boss?'rgba(255,220,60,0.9)':'rgba(255,80,80,0.9)';
+    c.lineWidth=1.5; c.stroke();
+    const btnFontSize=Math.max(14,Math.floor(17*scale));
+    c.font=`bold ${btnFontSize}px "Share Tech Mono",monospace`;
+    c.fillStyle='#ffffff';
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('⚔ FIGHT',x,btnY+btnH/2);
+    // Store button centre for hit-testing (use button centre, not sprite)
+    arVisibleEnemies[arVisibleEnemies.length-1].btnY=btnY+btnH/2;
+    arVisibleEnemies[arVisibleEnemies.length-1].btnW=btnW;
+    arVisibleEnemies[arVisibleEnemies.length-1].btnH=btnH;
   });
 
   // No enemies message
