@@ -991,6 +991,10 @@ body::before {
 .bag-item .bi-stat { font-family:'Share Tech Mono',monospace; font-size:.45rem; color:#5a7a5a; }
 .bag-item.potion { border-color:#2a4a2a; }
 .bag-item.potion:hover { border-color:#2a9a4a; }
+.bag-item.legendary { border-color:#6a5000; background:#0a0800; }
+.bag-item.legendary:hover { border-color:var(--gold); box-shadow:0 0 8px rgba(184,150,42,0.3); }
+.bi-req { font-family:'Share Tech Mono',monospace; font-size:.4rem; color:#6a5000; margin-top:1px; }
+.bi-legendary { font-family:'Share Tech Mono',monospace; font-size:.42rem; color:var(--gold); letter-spacing:.05em; }
 .bag-empty { font-family:'Share Tech Mono',monospace; font-size:.6rem; color:#2a1e3a; text-align:center; padding:20px; }
 
 /* SHOP */
@@ -1466,6 +1470,24 @@ const ITEMS = {
   'Major Heal':     {emoji:'⚗', type:'potion',    tier:2, healPct:0.50,      cost:190,  desc:'Restores 50% HP.'},
   'Full Restore':   {emoji:'✨', type:'potion',    tier:3, healPct:1.00,      cost:580,  desc:'Fully restores HP.'},
   'Elixir':         {emoji:'💫', type:'potion',    tier:2, resPct:0.50,       cost:160,  desc:'Restores 50% resource.'},
+  // ── CLASS WEAPONS (legendary, class-locked, drop-only) ──
+  'Bloodreaver':      {emoji:'🩸', type:'weapon', tier:4, classReq:'Fighter',     atk:45000, crit:10,           cost:0, desc:'Drinks deep. The more you kill, the stronger it grows.'},
+  'Lightbringer':     {emoji:'⚡', type:'weapon', tier:4, classReq:'Paladin',     atk:38000, hp:20000,          cost:0, desc:'Radiates holy judgment. Burns the unholy.'},
+  'Shadowbow':        {emoji:'🏹', type:'weapon', tier:4, classReq:'Ranger',      atk:40000, crit:14, dodge:8,  cost:0, desc:'Never misses. Never forgives.'},
+  'Mind Shard':       {emoji:'🔮', type:'weapon', tier:4, classReq:'Illusionist', atk:50000, resMax:200,        cost:0, desc:'Fractures reality on impact. Your illusions become lethal.'},
+  'Divine Mace':      {emoji:'☩',  type:'weapon', tier:4, classReq:'Cleric',      atk:35000, hp:25000,          cost:0, desc:'Blessed by the last god standing.'},
+  'Shadowfang':       {emoji:'🗡', type:'weapon', tier:4, classReq:'Thief',       atk:42000, crit:16, dodge:10, cost:0, desc:'Kills before the shadow falls.'},
+  'Venom Edge':       {emoji:'🐍', type:'weapon', tier:4, classReq:'Assassin',    atk:48000, crit:12,           cost:0, desc:'The poison compounds. The target always dies.'},
+  'Dragon Fist Wraps':{emoji:'🐉', type:'weapon', tier:4, classReq:'Monk',        atk:55000, crit:8,            cost:0, desc:'Strike of ten thousand deaths. Your chi is now fire.'},
+  "Nature's Fury":    {emoji:'🌿', type:'weapon', tier:4, classReq:'Druid',       atk:38000, resMax:150, hp:12000, cost:0, desc:'The wild answers your call. Grow. Devour.'},
+  // ── BOSS UNIQUE DROPS (legendary accessories, any class) ──
+  'Crown of Malechar':       {emoji:'👑', type:'accessory', tier:4, hp:50000, atk:15000, crit:10,            cost:0, desc:'The Lich-King\'s crown. Cold with ancient malice.'},
+  "Demon's Heart":           {emoji:'🫀', type:'accessory', tier:4, atk:25000, crit:8,                       cost:0, desc:'Still beating. Fuels a rage that never fades.'},
+  'Soul of the Iron Ghost':  {emoji:'⚙',  type:'accessory', tier:4, def:12000, hp:30000,                     cost:0, desc:'The ghost\'s will made manifest in iron and silence.'},
+  'Plague Sigil':            {emoji:'🕸', type:'accessory', tier:4, atk:20000, crit:12, dodge:8,             cost:0, desc:'Vexara\'s mark. Death follows where you walk.'},
+  "Wraith's Veil":           {emoji:'🌫', type:'accessory', tier:4, dodge:20,  hp:20000,                     cost:0, desc:'You are half-ghost now. Blades find only air.'},
+  "Death's Ledger":          {emoji:'📖', type:'accessory', tier:4, atk:18000, crit:10,                      cost:0, desc:'Every soul you claim is recorded. Interest compounds.'},
+  "Troll's Knuckle":         {emoji:'🪨', type:'accessory', tier:4, def:15000, hp:25000, atk:10000,          cost:0, desc:'Dense as the bridge it fell from. Heavy as regret.'},
 };
 
 const BAG_SIZE = 12;
@@ -1503,6 +1525,9 @@ function applyItemBonus(item, sign){
 function equipItem(itemName){
   const item = ITEMS[itemName];
   if(!item || item.type==='potion') return;
+  if(item.classReq && item.classReq !== Player.className){
+    addLog(`⚠ Only a ${item.classReq} can wield ${itemName}.`,'ls'); return;
+  }
   const slot = item.type; // 'weapon','armor','accessory'
   // Unequip existing
   if(Player.equipped[slot]){
@@ -1581,10 +1606,19 @@ function renderInventory(){
     const item = ITEMS[name];
     if(!item) return '';
     const isPotion = item.type==='potion';
-    return `<div class="bag-item${isPotion?' potion':''}" onclick="${isPotion?`usePotion('${name}')`:`equipItem('${name}')`}">
+    const isLegendary = item.tier === 4;
+    const wrongClass = item.classReq && item.classReq !== Player.className;
+    let cls = 'bag-item';
+    if(isPotion) cls += ' potion';
+    if(isLegendary) cls += ' legendary';
+    const extra = isLegendary
+      ? `<div class="bi-legendary">✦ LEGENDARY${item.classReq ? ' · '+item.classReq.toUpperCase() : ''}</div>`
+      : (wrongClass ? `<div class="bi-req">REQ: ${item.classReq}</div>` : '');
+    return `<div class="${cls}" onclick="${isPotion?`usePotion('${name}')`:`equipItem('${name}')`}">
       <div class="bi-emoji">${item.emoji}</div>
       <div class="bi-name">${name}</div>
       <div class="bi-stat">${itemStatLine(item)}</div>
+      ${extra}
     </div>`;
   }).join('');
 }
@@ -1605,7 +1639,7 @@ function renderShop(){
 
   const byType = {weapon:[], armor:[], accessory:[], potion:[]};
   Object.entries(ITEMS).forEach(([name,item])=>{
-    if(item.tier <= maxTier) byType[item.type]?.push([name,item]);
+    if(item.tier <= maxTier && item.tier < 4) byType[item.type]?.push([name,item]);
   });
 
   const typeLabels = {weapon:'⚔ WEAPONS', armor:'🛡 ARMOR', accessory:'💍 ACCESSORIES', potion:'🧪 CONSUMABLES'};
@@ -1647,30 +1681,54 @@ function buyItem(itemName){
 // ── LOOT DROP ───────────────────────────────────────
 const ZONE_DROP_TIERS = [1, 1, 2, 2, 2]; // by zone index
 
-function rollLootDrop(enemy, isBoss){
-  const dropChance = isBoss ? 0.70 : 0.25;
-  if(Math.random() > dropChance) return null;
-  if(Player.inventory.length >= BAG_SIZE) return null;
+function ownsItem(name){
+  return Player.inventory.includes(name) || Object.values(Player.equipped).includes(name);
+}
 
-  const zone = enemy.zone ?? 2;
-  const maxTier = Math.min(3, ZONE_DROP_TIERS[zone] + (isBoss ? 1 : 0));
-  const eligible = Object.entries(ITEMS).filter(([,item])=>
-    item.type !== 'potion' && item.tier <= maxTier
-  );
-  if(!eligible.length) return null;
-  const [name] = eligible[Math.floor(Math.random()*eligible.length)];
-  Player.inventory.push(name);
-  return name;
+function rollLootDrop(enemy, isBoss){
+  const drops = [];
+
+  if(isBoss){
+    // Guaranteed unique boss drop (first kill only)
+    if(enemy.uniqueDrop && !ownsItem(enemy.uniqueDrop)){
+      drops.push(enemy.uniqueDrop);
+    }
+    // 40% chance to drop your class weapon from any zone boss
+    if(!enemy.isWorld){
+      const classWeapon = Object.keys(ITEMS).find(n => ITEMS[n].classReq === Player.className);
+      if(classWeapon && !ownsItem(classWeapon) && Math.random() < 0.40){
+        drops.push(classWeapon);
+      }
+    }
+  }
+
+  // Regular random loot drop (tier 1-3 only)
+  const dropChance = isBoss ? 0.60 : 0.25;
+  if(Math.random() < dropChance){
+    const zone = enemy.zone ?? 2;
+    const maxTier = Math.min(3, ZONE_DROP_TIERS[zone] + (isBoss ? 1 : 0));
+    const eligible = Object.entries(ITEMS).filter(([n,item])=>
+      item.type !== 'potion' && item.tier <= maxTier && item.tier < 4 && !drops.includes(n)
+    );
+    if(eligible.length){
+      const [name] = eligible[Math.floor(Math.random()*eligible.length)];
+      drops.push(name);
+    }
+  }
+
+  // Add to inventory (respect bag limit)
+  drops.forEach(name => { if(Player.inventory.length < BAG_SIZE) Player.inventory.push(name); });
+  return drops;
 }
 
 const BOSSES = [
-  {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a'},
-  {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:680000, atk:32000,def:5000,xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200'},
-  {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:520000, atk:28000,def:7000,xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500'},
-  {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:480000, atk:26000,def:4000,xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500'},
-  {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:340000, atk:22000,def:3500,xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566'},
-  {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:300000, atk:20000,def:5000,xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422'},
-  {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:260000, atk:18000,def:7000,xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344'},
+  {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar'},
+  {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:680000, atk:32000,def:5000,xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart"},
+  {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:520000, atk:28000,def:7000,xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost'},
+  {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:480000, atk:26000,def:4000,xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil'},
+  {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:340000, atk:22000,def:3500,xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil"},
+  {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:300000, atk:20000,def:5000,xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger"},
+  {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:260000, atk:18000,def:7000,xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle"},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -2602,11 +2660,13 @@ function victory(){
   Player.xp+=xp; Player.gold+=gold;
   curEnemy.defeated=true; curEnemy.hp=0;
   curEnemy.poisonStacks=0;
-  const drop = rollLootDrop(curEnemy, isBoss);
-  const lootTxt = drop
-    ? `+${fmt(xp)} XP · +${gold} Gold · ${ITEMS[drop].emoji} ${drop}!`
+  const drops = rollLootDrop(curEnemy, isBoss);
+  const dropStr = drops.map(n => `${ITEMS[n].emoji} ${n}`).join(' · ');
+  const lootTxt = drops.length
+    ? `+${fmt(xp)} XP · +${gold} Gold\n${dropStr}`
     : `+${fmt(xp)} XP · +${gold} Gold`;
-  addLog(drop ? `Victory! +${fmt(xp)} XP · +${gold} Gold · Found: ${ITEMS[drop].emoji} ${drop}!` : `Victory! +${fmt(xp)} XP · +${gold} Gold`,'ll');
+  drops.forEach(n => addLog(`Found: ${ITEMS[n].emoji} ${n}${ITEMS[n].tier===4?' ✦ LEGENDARY':''}!`,'lb'));
+  addLog(`Victory! +${fmt(xp)} XP · +${gold} Gold`,'ll');
   showLoot(lootTxt);
   while(Player.xp>=Player.xpNext){ levelUp(); }
   document.getElementById('combat-modal').classList.remove('active');
