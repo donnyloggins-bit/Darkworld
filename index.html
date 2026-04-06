@@ -789,44 +789,92 @@ body::before {
 
 /* ABILITY BUTTONS */
 #ab-grid {
-  display:flex; gap:7px; overflow-x:auto;
-  padding-bottom:3px; -webkit-overflow-scrolling:touch;
+  display:flex; gap:8px; overflow-x:auto;
+  padding:4px 2px 6px; -webkit-overflow-scrolling:touch;
+  align-items:flex-end;
 }
 #ab-grid::-webkit-scrollbar { height:3px; }
-#ab-grid::-webkit-scrollbar-thumb { background:#1c1220; }
+#ab-grid::-webkit-scrollbar-thumb { background:#3a2a50; }
 
 .abtn {
-  flex:0 0 74px; height:82px;
-  background:linear-gradient(160deg,#1e1a30,#141020);
-  border:1px solid #3a2a50; border-radius:6px;
+  flex:0 0 82px; height:100px;
+  background:linear-gradient(180deg,#1e1a30,#12101e);
+  border:2px solid #3a2a50; border-radius:10px;
   cursor:pointer; position:relative; overflow:hidden;
   display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:3px;
-  transition:border-color .15s;
+  align-items:center; justify-content:center; gap:1px;
+  transition:border-color .15s, box-shadow .15s, transform .1s;
   -webkit-tap-highlight-color:transparent;
+  padding:16px 2px 8px;
 }
-.abtn-emoji { font-size:1.9rem; line-height:1; pointer-events:none; }
+/* Type badge stripe at top */
+.abtn-type {
+  position:absolute; top:0; left:0; right:0;
+  font-family:'Share Tech Mono',monospace; font-size:.45rem;
+  letter-spacing:.12em; text-align:center; padding:3px 0;
+  font-weight:700; pointer-events:none;
+}
+.abtn-emoji { font-size:2.1rem; line-height:1; pointer-events:none; }
 .abtn-name {
-  font-family:'Share Tech Mono',monospace; font-size:.55rem;
-  color:#c0b0d8; text-align:center; line-height:1.2;
-  pointer-events:none; padding:0 3px;
+  font-family:'Share Tech Mono',monospace; font-size:.6rem;
+  color:#e8daf8; text-align:center; line-height:1.1;
+  pointer-events:none; padding:0 3px; font-weight:700;
 }
-.abtn-cost { font-family:'Share Tech Mono',monospace; font-size:.5rem; color:#8878b8; pointer-events:none; }
+.abtn-cost {
+  font-family:'Share Tech Mono',monospace; font-size:.48rem;
+  color:#a090c0; pointer-events:none;
+}
+/* Cooldown bar at bottom */
+.abtn-cd-track {
+  position:absolute; bottom:0; left:0; right:0; height:6px; background:#0a0818;
+}
+.abtn-cd-fill {
+  height:100%; width:0%;
+  background:linear-gradient(90deg,#cc2200,#ff5500);
+}
+/* CD number overlay (centred, shown only on cooldown) */
 .abtn-cd-overlay {
-  position:absolute; left:0; right:0; bottom:0;
-  background:rgba(10,8,24,0.85); pointer-events:none;
-  display:flex; align-items:center; justify-content:center; overflow:hidden;
+  position:absolute; inset:0;
+  background:rgba(5,3,15,0.6);
+  pointer-events:none; display:none; border-radius:8px;
+  align-items:center; justify-content:center;
 }
-.abtn-cd-num { font-family:'Share Tech Mono',monospace; font-size:.8rem; color:#ee3333; }
-.abtn:active:not(:disabled) { transform:scale(.93); }
-.abtn:disabled { opacity:.45; cursor:not-allowed; }
-.abtn.signature { border-color:#6a3a00; }
-.abtn.signature:not(:disabled):hover { border-color:var(--gold); }
-.abtn.ready:not(:disabled) { border-color:#3a5a3a; }
-.abtn.flee-btn { flex:0 0 50px; border-color:#3a2a3a; }
-.abtn.flee-btn:hover { border-color:var(--crimson); }
-.abtn.potion-btn { flex:0 0 56px; border-color:#3a6a3a; }
-.abtn.potion-btn:hover:not(:disabled) { border-color:#2a9a4a; }
+.abtn-cd-num {
+  font-family:'Share Tech Mono',monospace; font-size:1.1rem;
+  color:#ff7722; font-weight:700;
+  text-shadow:0 0 10px rgba(255,100,0,0.9);
+}
+.abtn.on-cooldown .abtn-cd-overlay { display:flex; }
+
+.abtn:active:not(:disabled) { transform:scale(.92); }
+.abtn:disabled:not(.on-cooldown) { opacity:.4; cursor:not-allowed; }
+
+/* Basic — free, always ready — green */
+.abtn.type-basic { border-color:#2a6a2a; }
+.abtn.type-basic .abtn-type { background:#1a4a1a; color:#6aee6a; }
+.abtn.type-basic.ready { border-color:#44cc44; box-shadow:0 0 8px rgba(60,200,60,0.35); }
+
+/* Core — resource cost — blue */
+.abtn.type-core { border-color:#2a3a8a; }
+.abtn.type-core .abtn-type { background:#18245a; color:#7aaaff; }
+.abtn.type-core.ready { border-color:#5580ee; box-shadow:0 0 8px rgba(80,120,240,0.35); }
+
+/* Signature — powerful, long CD — gold */
+.abtn.type-sig { border-color:#8a5a00; }
+.abtn.type-sig .abtn-type { background:#5a3800; color:#ffcc44; }
+.abtn.type-sig.ready { border-color:var(--gold); box-shadow:0 0 12px rgba(212,168,48,0.5); animation:sigPulse 2s ease infinite; }
+@keyframes sigPulse { 0%,100%{box-shadow:0 0 8px rgba(212,168,48,0.3)} 50%{box-shadow:0 0 20px rgba(255,200,0,0.7)} }
+
+/* Flee */
+.abtn.flee-btn { flex:0 0 66px; border-color:#6a2a2a; }
+.abtn.flee-btn .abtn-type { background:#3a1010; color:#ff7a7a; }
+.abtn.flee-btn:hover { border-color:#cc3333; }
+
+/* Potion */
+.abtn.potion-btn { flex:0 0 74px; border-color:#1a6a5a; }
+.abtn.potion-btn .abtn-type { background:#0a3a30; color:#44ddbb; }
+.abtn.potion-btn:not(:disabled):hover { border-color:#30ccaa; box-shadow:0 0 8px rgba(48,200,160,0.3); }
+.abtn.potion-btn:disabled { border-color:#1a3a30; opacity:.45; }
 
 /* DAMAGE NUMBERS */
 #dmg-layer { position:fixed; inset:0; pointer-events:none; z-index:300; }
@@ -870,12 +918,9 @@ body::before {
   padding:1px 5px; background:#1a1628; border:1px solid #4a3a60;
 }
 
-/* placeholder to avoid breaking old refs */
+/* placeholder */
 .cb-log { }
 .ab-grid { }
-.abtn .an,.abtn .ad,.abtn .ac,.abtn .acd { display:none; }
-.abtn.on-cooldown { }
-.abtn.flee-btn { }
 
 /* SCREEN SHAKE (on combat box) */
 #combat-box.shaking { animation:screenShake .35s ease; }
@@ -2426,7 +2471,7 @@ function startGPS(){
 let inCombat=false, curEnemy=null, isBoss=false;
 let eStatuses=[];
 let combatInterval=null, lastStatusTick=0, lastResRegen=0;
-const CD_SCALE=2500; // ms per "cd unit"
+const CD_SCALE=1800; // ms per "cd unit"
 
 function startCombatTimer(){
   if(combatInterval) clearInterval(combatInterval);
@@ -2440,7 +2485,7 @@ function stopCombatTimer(){
 function combatTick(){
   if(!inCombat){ stopCombatTimer(); return; }
   const now=Date.now();
-  const attackInterval = isBoss ? 2200 : 2800;
+  const attackInterval = isBoss ? 4000 : 5500;
 
   // Enemy attack timer bar
   const elapsed = now-(curEnemy.nextAttackAt - attackInterval);
@@ -2479,7 +2524,7 @@ function startCombat(ent,boss){
   inCombat=true; isBoss=boss; curEnemy=ent;
   eStatuses=[]; Player.statuses=[];
   Player.cooldowns={};
-  const attackInterval = boss ? 2200 : 2800;
+  const attackInterval = boss ? 4000 : 5500;
   curEnemy.nextAttackAt = Date.now() + attackInterval;
 
   document.getElementById('cb-name').textContent=ent.name;
@@ -2504,27 +2549,31 @@ function buildAbilityButtons(){
   grid.innerHTML='';
   Player.cls.abilities.forEach(a=>{
     const btn=document.createElement('button');
-    btn.className='abtn'+(a.type==='Signature'?' signature':'');
+    const typeKey = a.type==='Signature'?'sig':a.type==='Basic'?'basic':'core';
+    const typeLbl = a.type==='Signature'?'SIGNATURE':a.type==='Basic'?'BASIC':'CORE';
+    btn.className=`abtn type-${typeKey}`;
     btn.id=`abtn-${a.name.replace(/\s/g,'')}`;
     const costTxt = a.cost>0 ? `${a.cost} ${a.costType.toUpperCase().slice(0,3)}` : 'FREE';
     btn.innerHTML=`
-      <div class="abtn-cd-overlay" id="abtnov-${a.name.replace(/\s/g,'')}"><span class="abtn-cd-num" id="abtncd-${a.name.replace(/\s/g,'')}"></span></div>
+      <div class="abtn-type">${typeLbl}</div>
       <div class="abtn-emoji">${a.emoji}</div>
       <div class="abtn-name">${a.name}</div>
-      <div class="abtn-cost">${costTxt}</div>`;
+      <div class="abtn-cost">${costTxt}</div>
+      <div class="abtn-cd-track"><div class="abtn-cd-fill" id="abtnfill-${a.name.replace(/\s/g,'')}"></div></div>
+      <div class="abtn-cd-overlay" id="abtnov-${a.name.replace(/\s/g,'')}"><span class="abtn-cd-num" id="abtncd-${a.name.replace(/\s/g,'')}"></span></div>`;
     btn.onclick=()=>playerAct(a);
     grid.appendChild(btn);
   });
   // Potion button
   const pot=document.createElement('button');
   pot.className='abtn potion-btn'; pot.id='potion-btn';
-  pot.innerHTML=`<div class="abtn-emoji">🧪</div><div class="abtn-name">POTION</div><div class="abtn-cost" id="pot-count">0</div>`;
+  pot.innerHTML=`<div class="abtn-type">ITEM</div><div class="abtn-emoji">🧪</div><div class="abtn-name">POTION</div><div class="abtn-cost" id="pot-count"></div>`;
   pot.onclick=useCombatPotion;
   grid.appendChild(pot);
   // Flee
   const flee=document.createElement('button');
   flee.className='abtn flee-btn'; flee.id='flee-btn';
-  flee.innerHTML=`<div class="abtn-emoji">↩</div><div class="abtn-name">FLEE</div>`;
+  flee.innerHTML=`<div class="abtn-type">FLEE</div><div class="abtn-emoji">🏃</div><div class="abtn-name">ESCAPE</div>`;
   flee.onclick=doFlee;
   grid.appendChild(flee);
 }
@@ -2561,22 +2610,24 @@ function updateCooldownDisplay(){
   const now=Date.now();
   Player.cls.abilities.forEach(a=>{
     const btn=document.getElementById(`abtn-${a.name.replace(/\s/g,'')}`);
-    const overlay=document.getElementById(`abtnov-${a.name.replace(/\s/g,'')}`);
+    const fill=document.getElementById(`abtnfill-${a.name.replace(/\s/g,'')}`);
     const cdNum=document.getElementById(`abtncd-${a.name.replace(/\s/g,'')}`);
-    if(!btn||!overlay) return;
+    if(!btn) return;
     const endTime=Player.cooldowns[a.name]||0;
     const remaining=Math.max(0, endTime-now);
     const hasRes = a.cost===0 || a.costType==='none' || Player.res>=a.cost;
     if(remaining>0){
       const totalMs=a.cd*CD_SCALE;
       const pct=(remaining/totalMs)*100;
-      overlay.style.height=pct+'%';
-      cdNum.textContent=(remaining/1000).toFixed(1)+'s';
+      if(fill) fill.style.width=pct+'%';
+      if(cdNum) cdNum.textContent=(remaining/1000).toFixed(1)+'s';
       btn.disabled=true;
+      btn.classList.add('on-cooldown');
       btn.classList.remove('ready');
     } else {
-      overlay.style.height='0%';
-      cdNum.textContent='';
+      if(fill) fill.style.width='0%';
+      if(cdNum) cdNum.textContent='';
+      btn.classList.remove('on-cooldown');
       btn.disabled=!hasRes;
       btn.classList.toggle('ready', hasRes);
     }
@@ -2761,10 +2812,10 @@ function doEnemyAttack(){
     anim('p-spr','hit-anim'); return;
   }
   // Damage
-  const special=isBoss&&Math.random()<0.3;
-  let dmg=Math.floor(e.atk*(special?1.8:1.0)*(0.85+Math.random()*0.3));
-  dmg=Math.max(1,dmg-Math.floor(Player.def*0.4));
-  if(Math.random()<0.08){ dmg=Math.floor(dmg*2.2); showDamageNum('ENEMY CRIT!','dmg-crit','left'); }
+  const special=isBoss&&Math.random()<0.15;
+  let dmg=Math.floor(e.atk*(special?1.5:1.0)*(0.85+Math.random()*0.3));
+  dmg=Math.max(1,dmg-Math.floor(Player.def*0.5));
+  if(Math.random()<0.04){ dmg=Math.floor(dmg*1.7); showDamageNum('ENEMY CRIT!','dmg-crit','left'); }
   Player.hp=Math.max(0,Player.hp-dmg);
   setCLog(special?`${e.name} unleashes devastation! ${fmt(dmg)} damage!`:`${e.name} strikes for ${fmt(dmg)} damage.`);
   addLog(`${e.name}: ${fmt(dmg)} dmg to you`,'lc');
