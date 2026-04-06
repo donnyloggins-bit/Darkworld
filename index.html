@@ -924,6 +924,105 @@ body::before {
   border:1px solid #1c1220;
 }
 
+/* SIDEBAR BUTTONS */
+.sb-btns { display:flex; gap:6px; margin:8px 0 4px; }
+.sb-btn {
+  flex:1; background:transparent; border:1px solid #2a1e3a;
+  color:#5a4a6a; font-family:'Share Tech Mono',monospace;
+  font-size:.6rem; letter-spacing:.1em; padding:6px 4px;
+  cursor:pointer; transition:all .2s;
+}
+.sb-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+/* INVENTORY / SHOP MODALS */
+#inv-modal, #shop-modal {
+  display:none; position:fixed; inset:0; z-index:150;
+  background:rgba(3,2,5,0.92); backdrop-filter:blur(8px);
+  flex-direction:column; align-items:center;
+  overflow-y:auto; padding:16px 12px 32px;
+}
+#inv-modal.active, #shop-modal.active { display:flex; }
+
+.modal-title {
+  font-family:'Cinzel Decorative',serif; font-size:.85rem;
+  color:var(--gold); letter-spacing:.2em;
+  margin-bottom:14px; text-align:center;
+}
+.modal-close {
+  position:fixed; top:12px; right:14px;
+  background:transparent; border:1px solid #3a2a4a;
+  color:#5a4a6a; font-size:.75rem; padding:4px 10px;
+  cursor:pointer; font-family:'Share Tech Mono',monospace;
+  z-index:151;
+}
+.modal-close:hover { border-color:var(--crimson); color:var(--crimson); }
+
+/* EQUIPPED SLOTS */
+.equip-section { width:100%; max-width:380px; margin-bottom:14px; }
+.equip-label {
+  font-family:'Share Tech Mono',monospace; font-size:.55rem;
+  color:#3a2a4a; letter-spacing:.15em; margin-bottom:6px;
+}
+.equip-slots { display:flex; gap:6px; }
+.equip-slot {
+  flex:1; background:#07060a; border:1px solid #1c1826;
+  padding:8px 6px; text-align:center; cursor:pointer;
+  transition:all .2s; min-height:64px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+}
+.equip-slot.filled { border-color:#3a2a5a; }
+.equip-slot:hover { border-color:var(--crimson); }
+.equip-slot .slot-type { font-family:'Share Tech Mono',monospace; font-size:.5rem; color:#3a2a4a; }
+.equip-slot .slot-emoji { font-size:1.4rem; }
+.equip-slot .slot-name { font-family:'Share Tech Mono',monospace; font-size:.5rem; color:#8a7a9a; line-height:1.2; }
+
+/* BAG */
+.bag-section { width:100%; max-width:380px; }
+.bag-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.bag-item {
+  background:#07060a; border:1px solid #1c1826;
+  padding:8px 4px; text-align:center; cursor:pointer;
+  transition:all .2s; display:flex; flex-direction:column;
+  align-items:center; gap:3px;
+}
+.bag-item:hover { border-color:var(--gold); }
+.bag-item .bi-emoji { font-size:1.2rem; }
+.bag-item .bi-name { font-family:'Share Tech Mono',monospace; font-size:.45rem; color:#8a7a9a; line-height:1.2; }
+.bag-item .bi-stat { font-family:'Share Tech Mono',monospace; font-size:.45rem; color:#5a7a5a; }
+.bag-item.potion { border-color:#2a4a2a; }
+.bag-item.potion:hover { border-color:#2a9a4a; }
+.bag-empty { font-family:'Share Tech Mono',monospace; font-size:.6rem; color:#2a1e3a; text-align:center; padding:20px; }
+
+/* SHOP */
+.shop-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; width:100%; max-width:380px; }
+.shop-item {
+  background:#07060a; border:1px solid #1c1826;
+  padding:10px 8px; display:flex; flex-direction:column;
+  align-items:center; gap:4px; text-align:center;
+}
+.shop-item .si-emoji { font-size:1.5rem; }
+.shop-item .si-name { font-family:'Cinzel Decorative',serif; font-size:.5rem; color:var(--pale); }
+.shop-item .si-stat { font-family:'Share Tech Mono',monospace; font-size:.5rem; color:#5a7a5a; }
+.shop-item .si-desc { font-family:'IM Fell English',serif; font-size:.55rem; color:#4a3a5a; font-style:italic; }
+.shop-item .si-cost { font-family:'Share Tech Mono',monospace; font-size:.6rem; color:var(--gold); margin-top:2px; }
+.shop-btn {
+  background:transparent; border:1px solid #3a2a0a;
+  color:#6a5a2a; font-family:'Share Tech Mono',monospace;
+  font-size:.55rem; padding:4px 10px; cursor:pointer;
+  width:100%; margin-top:4px; transition:all .2s;
+}
+.shop-btn:hover:not(:disabled) { border-color:var(--gold); color:var(--gold); }
+.shop-btn:disabled { opacity:0.35; cursor:default; }
+.shop-section-title {
+  width:100%; max-width:380px; text-align:left;
+  font-family:'Share Tech Mono',monospace; font-size:.55rem;
+  color:#3a2a4a; letter-spacing:.15em; margin:12px 0 6px;
+}
+.gold-display {
+  font-family:'Share Tech Mono',monospace; font-size:.7rem;
+  color:var(--gold); margin-bottom:12px;
+}
+
 /* DEATH */
 #death-screen {
   display:none;
@@ -1067,6 +1166,10 @@ body::before {
       <div class="bar-row"><span class="bar-lbl" id="res-lbl">MP</span><div class="bar-bg"><div class="bar-fill bar-mp" id="b-mp" style="width:100%"></div></div><span class="bar-val" id="t-mp">500</span></div>
       <div class="bar-row"><span class="bar-lbl">XP</span><div class="bar-bg"><div class="bar-fill bar-xp" id="b-xp" style="width:0%"></div></div><span class="bar-val" id="t-xp">0 / 1000</span></div>
       <div class="stat-chips" id="stat-chips"></div>
+      <div class="sb-btns">
+        <button class="sb-btn" onclick="openInventory()">⚔ GEAR</button>
+        <button class="sb-btn" onclick="openShop()">🏪 SHOP</button>
+      </div>
     </div>
     <div id="zone-panel">
       <div class="z-name" id="z-name" style="color:var(--gold)">⬡ RITTENHOUSE SQUARE</div>
@@ -1124,6 +1227,44 @@ body::before {
 <div id="loot-popup">
   <div class="loot-t">⚰ SPOILS OF BATTLE</div>
   <div class="loot-i" id="loot-txt"></div>
+</div>
+
+<!-- ══ INVENTORY MODAL ══ -->
+<div id="inv-modal">
+  <button class="modal-close" onclick="closeInventory()">✕ CLOSE</button>
+  <div class="modal-title">⚔ EQUIPPED GEAR</div>
+  <div class="equip-section">
+    <div class="equip-label">EQUIPPED</div>
+    <div class="equip-slots">
+      <div class="equip-slot" id="slot-weapon" onclick="unequipSlot('weapon')">
+        <div class="slot-type">WEAPON</div>
+        <div class="slot-emoji" id="slot-weapon-emoji">—</div>
+        <div class="slot-name" id="slot-weapon-name">Empty</div>
+      </div>
+      <div class="equip-slot" id="slot-armor" onclick="unequipSlot('armor')">
+        <div class="slot-type">ARMOR</div>
+        <div class="slot-emoji" id="slot-armor-emoji">—</div>
+        <div class="slot-name" id="slot-armor-name">Empty</div>
+      </div>
+      <div class="equip-slot" id="slot-accessory" onclick="unequipSlot('accessory')">
+        <div class="slot-type">ACCESSORY</div>
+        <div class="slot-emoji" id="slot-accessory-emoji">—</div>
+        <div class="slot-name" id="slot-accessory-name">Empty</div>
+      </div>
+    </div>
+  </div>
+  <div class="bag-section">
+    <div class="equip-label">BAG <span id="bag-count" style="color:#3a2a5a"></span></div>
+    <div class="bag-grid" id="bag-grid"></div>
+  </div>
+</div>
+
+<!-- ══ SHOP MODAL ══ -->
+<div id="shop-modal">
+  <button class="modal-close" onclick="closeShop()">✕ CLOSE</button>
+  <div class="modal-title">🏪 BLACK MARKET</div>
+  <div class="gold-display" id="shop-gold">⚙ 0 GOLD</div>
+  <div id="shop-contents"></div>
 </div>
 
 <div id="screen-ar" class="screen">
@@ -1299,6 +1440,229 @@ const MOB_TYPES = [
   {name:'Shadow Imp',      emoji:'👿', zone:4, hp:10000,  atk:600,  def:80,   xp:45,   gold:[5,25]},
 ];
 
+// ══════════════════════════════════════════════════════
+//  ITEMS
+// ══════════════════════════════════════════════════════
+const ITEMS = {
+  // ── WEAPONS ──
+  'Rusted Blade':   {emoji:'🗡', type:'weapon',    tier:1, atk:800,          cost:120,  desc:'A blade left to rot in the dark.'},
+  'Iron Sword':     {emoji:'⚔', type:'weapon',    tier:1, atk:2000,         cost:280,  desc:'Standard iron. Reliable.'},
+  'Bone Cleaver':   {emoji:'🪓', type:'weapon',    tier:2, atk:5500,         cost:750,  desc:'Carved from a giant\'s femur.'},
+  'Cursed Blade':   {emoji:'🗡', type:'weapon',    tier:2, atk:9000,  crit:5, cost:1400, desc:'Drips with dark energy. +5% crit.'},
+  'Soul Reaper':    {emoji:'☠', type:'weapon',    tier:3, atk:22000, crit:8, cost:4500, desc:'It hungers eternally. +8% crit.'},
+  // ── ARMOR ──
+  'Tattered Rags':  {emoji:'🧥', type:'armor',     tier:1, def:400,   hp:800,   cost:100,  desc:'Better than nothing.'},
+  'Leather Vest':   {emoji:'🦺', type:'armor',     tier:1, def:1000,  hp:2000,  cost:260,  desc:'Crude but effective.'},
+  'Chain Mail':     {emoji:'🛡', type:'armor',     tier:2, def:3000,  hp:6000,  cost:700,  desc:'Heavy iron links.'},
+  'Shadow Plate':   {emoji:'🖤', type:'armor',     tier:3, def:8000,  hp:15000, cost:4000, desc:'Forged in the void itself.'},
+  // ── ACCESSORIES ──
+  'Lucky Charm':    {emoji:'🍀', type:'accessory', tier:1, crit:4,            cost:180,  desc:'+4% crit chance.'},
+  'Shadow Ring':    {emoji:'💍', type:'accessory', tier:1, dodge:5,           cost:180,  desc:'+5% dodge.'},
+  'Blood Amulet':   {emoji:'🩸', type:'accessory', tier:2, hp:8000,           cost:600,  desc:'+8,000 max HP.'},
+  'Arcane Focus':   {emoji:'🔮', type:'accessory', tier:2, resMax:60,         cost:550,  desc:'+60 max resource.'},
+  'Death\'s Sigil': {emoji:'💀', type:'accessory', tier:3, atk:6000, crit:6,  cost:3800, desc:'+ATK and +6% crit.'},
+  // ── POTIONS ──
+  'Minor Heal':     {emoji:'🧪', type:'potion',    tier:1, healPct:0.25,      cost:75,   desc:'Restores 25% HP.'},
+  'Major Heal':     {emoji:'⚗', type:'potion',    tier:2, healPct:0.50,      cost:190,  desc:'Restores 50% HP.'},
+  'Full Restore':   {emoji:'✨', type:'potion',    tier:3, healPct:1.00,      cost:580,  desc:'Fully restores HP.'},
+  'Elixir':         {emoji:'💫', type:'potion',    tier:2, resPct:0.50,       cost:160,  desc:'Restores 50% resource.'},
+};
+
+const BAG_SIZE = 12;
+
+function itemStatLine(item){
+  const parts=[];
+  if(item.atk)    parts.push(`+${fmt(item.atk)} ATK`);
+  if(item.def)    parts.push(`+${fmt(item.def)} DEF`);
+  if(item.hp)     parts.push(`+${fmt(item.hp)} HP`);
+  if(item.crit)   parts.push(`+${item.crit}% CRIT`);
+  if(item.dodge)  parts.push(`+${item.dodge}% DODGE`);
+  if(item.resMax) parts.push(`+${item.resMax} RES`);
+  if(item.healPct)parts.push(`HEAL ${item.healPct*100|0}%`);
+  if(item.resPct) parts.push(`RES ${item.resPct*100|0}%`);
+  return parts.join(' · ');
+}
+
+// ── EQUIP / UNEQUIP ──────────────────────────────────
+function applyItemBonus(item, sign){
+  if(item.atk)    Player.atk    = Math.max(1, Player.atk    + sign*item.atk);
+  if(item.def)    Player.def    = Math.max(0, Player.def    + sign*item.def);
+  if(item.crit)   Player.crit   = Math.max(0, Player.crit   + sign*item.crit);
+  if(item.dodge)  Player.dodge  = Math.max(0, Player.dodge  + sign*item.dodge);
+  if(item.hp){
+    Player.maxHp = Math.max(1, Player.maxHp + sign*item.hp);
+    if(sign > 0) Player.hp += item.hp;
+    else Player.hp = Math.min(Player.hp, Player.maxHp);
+  }
+  if(item.resMax){
+    Player.maxRes = Math.max(1, Player.maxRes + sign*item.resMax);
+    Player.res = Math.min(Player.res, Player.maxRes);
+  }
+}
+
+function equipItem(itemName){
+  const item = ITEMS[itemName];
+  if(!item || item.type==='potion') return;
+  const slot = item.type; // 'weapon','armor','accessory'
+  // Unequip existing
+  if(Player.equipped[slot]){
+    const old = ITEMS[Player.equipped[slot]];
+    applyItemBonus(old, -1);
+    Player.inventory.push(Player.equipped[slot]);
+  }
+  // Remove from bag
+  const idx = Player.inventory.indexOf(itemName);
+  if(idx >= 0) Player.inventory.splice(idx, 1);
+  // Equip
+  Player.equipped[slot] = itemName;
+  applyItemBonus(item, 1);
+  addLog(`Equipped: ${item.emoji} ${itemName}.`, 'll');
+  setPUI(); renderInventory();
+}
+
+function unequipSlot(slot){
+  const itemName = Player.equipped[slot];
+  if(!itemName) return;
+  if(Player.inventory.length >= BAG_SIZE){ addLog('Bag is full!','ls'); return; }
+  const item = ITEMS[itemName];
+  applyItemBonus(item, -1);
+  Player.inventory.push(itemName);
+  Player.equipped[slot] = null;
+  addLog(`Unequipped: ${item.emoji} ${itemName}.`, 'ls');
+  setPUI(); renderInventory();
+}
+
+function usePotion(itemName){
+  const item = ITEMS[itemName];
+  if(!item || item.type!=='potion') return;
+  const idx = Player.inventory.indexOf(itemName);
+  if(idx < 0) return;
+  Player.inventory.splice(idx, 1);
+  if(item.healPct){
+    const h = Math.floor(Player.maxHp * item.healPct);
+    Player.hp = Math.min(Player.maxHp, Player.hp + h);
+    addLog(`${item.emoji} ${itemName}: +${fmt(h)} HP restored.`, 'll');
+  }
+  if(item.resPct){
+    const r = Math.floor(Player.maxRes * item.resPct);
+    Player.res = Math.min(Player.maxRes, Player.res + r);
+    addLog(`${item.emoji} ${itemName}: +${fmt(r)} ${Player.cls.resource} restored.`, 'll');
+  }
+  setPUI(); renderInventory();
+}
+
+// ── INVENTORY UI ────────────────────────────────────
+function openInventory(){
+  renderInventory();
+  document.getElementById('inv-modal').classList.add('active');
+}
+function closeInventory(){
+  document.getElementById('inv-modal').classList.remove('active');
+}
+
+function renderInventory(){
+  // Equipped slots
+  ['weapon','armor','accessory'].forEach(slot=>{
+    const name = Player.equipped[slot];
+    const item = name ? ITEMS[name] : null;
+    const el = document.getElementById(`slot-${slot}`);
+    document.getElementById(`slot-${slot}-emoji`).textContent = item ? item.emoji : '—';
+    document.getElementById(`slot-${slot}-name`).textContent  = name || 'Empty';
+    el.classList.toggle('filled', !!name);
+  });
+  // Bag
+  const grid = document.getElementById('bag-grid');
+  document.getElementById('bag-count').textContent = `${Player.inventory.length}/${BAG_SIZE}`;
+  if(Player.inventory.length === 0){
+    grid.innerHTML = '<div class="bag-empty" style="grid-column:1/-1">Your bag is empty.</div>';
+    return;
+  }
+  grid.innerHTML = Player.inventory.map((name,i)=>{
+    const item = ITEMS[name];
+    if(!item) return '';
+    const isPotion = item.type==='potion';
+    return `<div class="bag-item${isPotion?' potion':''}" onclick="${isPotion?`usePotion('${name}')`:`equipItem('${name}')`}">
+      <div class="bi-emoji">${item.emoji}</div>
+      <div class="bi-name">${name}</div>
+      <div class="bi-stat">${itemStatLine(item)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── SHOP UI ─────────────────────────────────────────
+function openShop(){
+  renderShop();
+  document.getElementById('shop-modal').classList.add('active');
+}
+function closeShop(){
+  document.getElementById('shop-modal').classList.remove('active');
+}
+
+function renderShop(){
+  document.getElementById('shop-gold').textContent = `⚙ ${fmt(Player.gold)} GOLD`;
+  const maxTier = Player.level >= 10 ? 3 : Player.level >= 5 ? 2 : 1;
+  const contents = document.getElementById('shop-contents');
+
+  const byType = {weapon:[], armor:[], accessory:[], potion:[]};
+  Object.entries(ITEMS).forEach(([name,item])=>{
+    if(item.tier <= maxTier) byType[item.type]?.push([name,item]);
+  });
+
+  const typeLabels = {weapon:'⚔ WEAPONS', armor:'🛡 ARMOR', accessory:'💍 ACCESSORIES', potion:'🧪 CONSUMABLES'};
+  contents.innerHTML = Object.entries(byType).map(([type, list])=>{
+    if(!list.length) return '';
+    const items = list.map(([name,item])=>{
+      const canAfford = Player.gold >= item.cost;
+      const bagFull = item.type!=='potion'
+        ? (Player.inventory.length >= BAG_SIZE && !Player.equipped[item.type])
+        : Player.inventory.length >= BAG_SIZE;
+      const disabled = !canAfford || bagFull;
+      const reason = !canAfford ? 'NO GOLD' : bagFull ? 'BAG FULL' : 'BUY';
+      return `<div class="shop-item">
+        <div class="si-emoji">${item.emoji}</div>
+        <div class="si-name">${name}</div>
+        <div class="si-stat">${itemStatLine(item)}</div>
+        <div class="si-desc">${item.desc}</div>
+        <div class="si-cost">⚙ ${fmt(item.cost)} gold</div>
+        <button class="shop-btn" ${disabled?'disabled':''} onclick="buyItem('${name}')">${reason}</button>
+      </div>`;
+    }).join('');
+    return `<div class="shop-section-title">${typeLabels[type]}</div><div class="shop-grid">${items}</div>`;
+  }).join('');
+}
+
+function buyItem(itemName){
+  const item = ITEMS[itemName];
+  if(!item) return;
+  if(Player.gold < item.cost){ addLog('Not enough gold.','ls'); return; }
+  if(Player.inventory.length >= BAG_SIZE){ addLog('Bag is full!','ls'); return; }
+  Player.gold -= item.cost;
+  Player.inventory.push(itemName);
+  addLog(`Purchased: ${item.emoji} ${itemName} for ${fmt(item.cost)} gold.`, 'll');
+  saveGame();
+  renderShop();
+  setPUI();
+}
+
+// ── LOOT DROP ───────────────────────────────────────
+const ZONE_DROP_TIERS = [1, 1, 2, 2, 2]; // by zone index
+
+function rollLootDrop(enemy, isBoss){
+  const dropChance = isBoss ? 0.70 : 0.25;
+  if(Math.random() > dropChance) return null;
+  if(Player.inventory.length >= BAG_SIZE) return null;
+
+  const zone = enemy.zone ?? 2;
+  const maxTier = Math.min(3, ZONE_DROP_TIERS[zone] + (isBoss ? 1 : 0));
+  const eligible = Object.entries(ITEMS).filter(([,item])=>
+    item.type !== 'potion' && item.tier <= maxTier
+  );
+  if(!eligible.length) return null;
+  const [name] = eligible[Math.floor(Math.random()*eligible.length)];
+  Player.inventory.push(name);
+  return name;
+}
+
 const BOSSES = [
   {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a'},
   {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:680000, atk:32000,def:5000,xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200'},
@@ -1470,6 +1834,8 @@ function buildPlayer() {
     poisonStacks: 0,
     illusionStacks: 0,
     STR,INT,WIS,DEX,CON,CHA,
+    equipped: { weapon: null, armor: null, accessory: null },
+    inventory: [],
   };
 }
 
@@ -2236,8 +2602,12 @@ function victory(){
   Player.xp+=xp; Player.gold+=gold;
   curEnemy.defeated=true; curEnemy.hp=0;
   curEnemy.poisonStacks=0;
-  addLog(`Victory! +${fmt(xp)} XP · +${gold} Gold`,'ll');
-  showLoot(`+${fmt(xp)} XP  ·  +${gold} Gold`);
+  const drop = rollLootDrop(curEnemy, isBoss);
+  const lootTxt = drop
+    ? `+${fmt(xp)} XP · +${gold} Gold · ${ITEMS[drop].emoji} ${drop}!`
+    : `+${fmt(xp)} XP · +${gold} Gold`;
+  addLog(drop ? `Victory! +${fmt(xp)} XP · +${gold} Gold · Found: ${ITEMS[drop].emoji} ${drop}!` : `Victory! +${fmt(xp)} XP · +${gold} Gold`,'ll');
+  showLoot(lootTxt);
   while(Player.xp>=Player.xpNext){ levelUp(); }
   document.getElementById('combat-modal').classList.remove('active');
   inCombat=false; curEnemy=null;
@@ -2372,6 +2742,8 @@ function saveGame(){
       illusionStacks: Player.illusionStacks,
       STR: Player.STR, INT: Player.INT, WIS: Player.WIS,
       DEX: Player.DEX, CON: Player.CON, CHA: Player.CHA,
+      equipped: Player.equipped,
+      inventory: Player.inventory,
     },
     bossStates: BOSSES.map(b => b.defeated || false),
     savedAt: Date.now(),
@@ -2406,7 +2778,14 @@ function continueGame(){
   if(!save) return;
   // Restore player
   const cls = CLASSES[save.player.className];
-  Player = { ...save.player, cls, cooldowns: {}, statuses: [] };
+  Player = {
+    ...save.player,
+    cls,
+    cooldowns: {},
+    statuses: [],
+    equipped: save.player.equipped || { weapon: null, armor: null, accessory: null },
+    inventory: save.player.inventory || [],
+  };
   selectedClass = save.player.className;
   // Restore boss states
   save.bossStates.forEach((defeated, i) => { BOSSES[i].defeated = defeated; });
