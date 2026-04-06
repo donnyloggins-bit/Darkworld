@@ -997,7 +997,8 @@ body::before {
   <h1 class="main-title">DARKWORLD</h1>
   <div class="main-subtitle">Philadelphia · The Fallen City</div>
   <div class="skull-divider">☠ ☠ ☠</div>
-  <button class="begin-btn" onclick="goCreate()">ENTER THE DARKNESS</button>
+  <button class="begin-btn" id="continue-btn" onclick="continueGame()" style="display:none;margin-bottom:10px"></button>
+  <button class="begin-btn" id="new-game-btn" onclick="goCreate()">ENTER THE DARKNESS</button>
 </div>
 
 <!-- ══ CHARACTER CREATION ══ -->
@@ -2241,6 +2242,7 @@ function victory(){
   document.getElementById('combat-modal').classList.remove('active');
   inCombat=false; curEnemy=null;
   setPUI(); render();
+  saveGame();
 }
 
 function levelUp(){
@@ -2266,6 +2268,7 @@ function dead(){
   document.getElementById('combat-modal').classList.remove('active');
   document.getElementById('death-screen').classList.add('active');
   addLog('YOU HAVE FALLEN. The void swallows your soul.','ld');
+  saveGame();
 }
 
 function revive(){
@@ -2276,6 +2279,7 @@ function revive(){
   document.getElementById('death-screen').classList.remove('active');
   addLog('You claw back from the darkness. Weakened. Burning with vengeance.','ls');
   setPUI();
+  saveGame();
 }
 
 // ── DAMAGE NUMBERS ────────────────────────────────────
@@ -2346,9 +2350,89 @@ function showLoot(txt){
 }
 
 // ══════════════════════════════════════════════════════
+//  SAVE SYSTEM
+// ══════════════════════════════════════════════════════
+const SAVE_KEY = 'darkworld_save_v1';
+
+function saveGame(){
+  if(!Player) return;
+  const data = {
+    player: {
+      name: Player.name,
+      className: Player.className,
+      emoji: Player.emoji,
+      hp: Player.hp, maxHp: Player.maxHp,
+      res: Player.res, maxRes: Player.maxRes,
+      atk: Player.atk, def: Player.def,
+      crit: Player.crit, dodge: Player.dodge,
+      xp: Player.xp, xpNext: Player.xpNext,
+      level: Player.level, gold: Player.gold,
+      lat: Player.lat, lng: Player.lng,
+      poisonStacks: Player.poisonStacks,
+      illusionStacks: Player.illusionStacks,
+      STR: Player.STR, INT: Player.INT, WIS: Player.WIS,
+      DEX: Player.DEX, CON: Player.CON, CHA: Player.CHA,
+    },
+    bossStates: BOSSES.map(b => b.defeated || false),
+    savedAt: Date.now(),
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+}
+
+function loadSave(){
+  const raw = localStorage.getItem(SAVE_KEY);
+  if(!raw) return null;
+  try { return JSON.parse(raw); } catch(e) { return null; }
+}
+
+function deleteSave(){
+  localStorage.removeItem(SAVE_KEY);
+}
+
+function initTitleScreen(){
+  const save = loadSave();
+  if(save){
+    const d = new Date(save.savedAt);
+    const timeStr = d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' · Lv ' + save.player.level + ' ' + save.player.name;
+    const btn = document.getElementById('continue-btn');
+    btn.style.display = '';
+    btn.textContent = `⚔ CONTINUE — ${timeStr}`;
+    document.getElementById('new-game-btn').textContent = '+ NEW GAME';
+  }
+}
+
+function continueGame(){
+  const save = loadSave();
+  if(!save) return;
+  // Restore player
+  const cls = CLASSES[save.player.className];
+  Player = { ...save.player, cls, cooldowns: {}, statuses: [] };
+  selectedClass = save.player.className;
+  // Restore boss states
+  save.bossStates.forEach((defeated, i) => { BOSSES[i].defeated = defeated; });
+  // Skip to game
+  document.getElementById('screen-title').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  genSpawns();
+  window.addEventListener('resize', resize);
+  resize();
+  updateZone();
+  gameLoop();
+  setPUI();
+  addLog(`${Player.emoji} ${Player.name} returns to the Fallen City. Level ${Player.level}.`, 'lb');
+  addLog(`The darkness remembers you.`, 'ls');
+  startGPS();
+  setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
+  setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)render(); }, 60000);
+}
+
+// ══════════════════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════════════════
 function goCreate(){
+  deleteSave();
+  // Reset boss states for new game
+  BOSSES.forEach(b => b.defeated = false);
   document.getElementById('screen-title').classList.remove('active');
   document.getElementById('screen-create').classList.add('active');
   buildClassGrid();
@@ -2387,6 +2471,9 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js').catch(err=>console.warn('SW registration failed:',err));
   });
 }
+
+// ── INIT ───────────────────────────────────────────────
+initTitleScreen();
 </script>
 </body>
 </html>
