@@ -1223,6 +1223,16 @@ body::before {
   <button class="begin-btn" id="new-game-btn" onclick="goCreate()">ENTER THE DARKNESS</button>
 </div>
 
+<!-- ══ WORLD SELECT ══ -->
+<div id="screen-world" class="screen">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;gap:20px;background:radial-gradient(ellipse at center,#1a1430 0%,#0d0a1c 70%);">
+    <div style="font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);letter-spacing:.15em;text-align:center;text-shadow:0 0 20px rgba(212,168,48,0.5);">CHOOSE YOUR WORLD</div>
+    <div style="font-size:.95rem;color:#8878a8;font-style:italic;text-align:center;">Each city holds different darkness</div>
+    <div id="world-cards" style="display:flex;flex-direction:column;gap:16px;width:100%;max-width:360px;">
+    </div>
+  </div>
+</div>
+
 <!-- ══ CHARACTER CREATION ══ -->
 <div id="screen-create" class="screen">
   <div class="create-title">FORGE YOUR SOUL</div>
@@ -1564,23 +1574,74 @@ const CLASSES = {
 // ══════════════════════════════════════════════════════
 //  WORLD DATA
 // ══════════════════════════════════════════════════════
-const CENTER = {lat:39.9492, lng:-75.1719};
+const WORLDS = {
+  philadelphia: {
+    key: 'philadelphia',
+    name: 'PHILADELPHIA',
+    subtitle: 'THE FALLEN CITY',
+    emoji: '🏙',
+    desc: 'The ancient city rots under Malechar\'s curse. Venture into the heart of darkness.',
+    center: {lat:39.9492, lng:-75.1719},
+    zones: [
+      {max:0.5,  name:'Hellmouth',         danger:'EXTREME', color:'rgba(140,0,0,0.55)',     dc:'#ff2200'},
+      {max:1.5,  name:'Blighted Quarter',  danger:'HARD',    color:'rgba(160,60,0,0.40)',    dc:'#ff5500'},
+      {max:2.5,  name:'Cursed Wards',      danger:'MEDIUM',  color:'rgba(130,100,0,0.32)',   dc:'#ccaa00'},
+      {max:3.8,  name:'Haunted Outskirts', danger:'EASY',    color:'rgba(30,80,30,0.28)',    dc:'#44aa44'},
+      {max:5.2,  name:'Borderlands',       danger:'SAFE',    color:'rgba(15,35,70,0.22)',    dc:'#4488bb'},
+    ],
+    zoneDescs: [
+      "The heart of the fallen city. Malechar's corruption bleeds through every cobblestone.",
+      "The blighted quarter reeks of sulfur. Wraiths haunt every hollow and alley.",
+      "Old neighborhoods twisted by ancient curse. The living avoid these streets.",
+      "Suburb ruins at the city's edge. Low monsters, but the ground whispers.",
+      "The borderlands stretch thin into quiet darkness. Mostly safe — for now.",
+    ],
+    bosses: [
+      {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar'},
+      {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:680000, atk:32000,def:5000,xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart"},
+      {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:520000, atk:28000,def:7000,xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost'},
+      {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:480000, atk:26000,def:4000,xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil'},
+      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:340000, atk:22000,def:3500,xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil"},
+      {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:300000, atk:20000,def:5000,xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger"},
+      {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:260000, atk:18000,def:7000,xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle"},
+    ],
+  },
+  ephrata: {
+    key: 'ephrata',
+    name: 'EPHRATA',
+    subtitle: 'THE ANCIENT DARK',
+    emoji: '⛪',
+    desc: 'A colonial settlement consumed by a forgotten evil. The Cloister hides terrible secrets.',
+    center: {lat:40.1793, lng:-76.1794},
+    zones: [
+      {max:0.3,  name:'The Sanctum',        danger:'EXTREME', color:'rgba(100,0,80,0.55)',    dc:'#dd00aa'},
+      {max:0.8,  name:'Old Borough',        danger:'HARD',    color:'rgba(120,40,0,0.42)',    dc:'#ff6600'},
+      {max:1.6,  name:'Dark Farmlands',     danger:'MEDIUM',  color:'rgba(60,80,0,0.35)',     dc:'#aacc00'},
+      {max:2.8,  name:'Outer Fields',       danger:'EASY',    color:'rgba(20,60,20,0.28)',    dc:'#55aa55'},
+      {max:4.5,  name:'Lancaster Plains',   danger:'SAFE',    color:'rgba(15,30,60,0.22)',    dc:'#4477cc'},
+    ],
+    zoneDescs: [
+      "The Cloister grounds pulse with dark energy. Brother Gehman's spirit festers in the stone.",
+      "Colonial streets twisted by plague and prayer. The faithful became something else entirely.",
+      "Once fertile fields, now cursed earth. The scarecrows move at night.",
+      "Rolling hills haunted by the restless dead. Farmhouses stand empty — or seem to.",
+      "The flat plains stretch toward Lancaster. Safer here, but the dark follows you.",
+    ],
+    bosses: [
+      {name:'BROTHER GEHMAN THE UNDYING', landmark:'Ephrata Cloister',        emoji:'☩',  lat:40.1793,lng:-76.1794, hp:2000000,atk:40000,def:7000,xp:5000,gold:[900,1800],  type:'WORLD BOSS · UNDEAD',       zone:0,isWorld:true, color:'#cc88ff', uniqueDrop:"Gehman's Lantern"},
+      {name:'SISTER ANASTASIA THE PALE',  landmark:'Cloister Cemetery',       emoji:'👰', lat:40.1810,lng:-76.1720, hp:620000, atk:30000,def:4500,xp:2400,gold:[480,960],   type:'ZONE BOSS · SPECTER',       zone:0, color:'#aaaaff',          uniqueDrop:'Veil of the Pale Sister'},
+      {name:'THE MILL DEMON',             landmark:'Old Ephrata Mill',         emoji:'⚙',  lat:40.1600,lng:-76.1850, hp:500000, atk:26000,def:6500,xp:2100,gold:[380,850],   type:'ZONE BOSS · CONSTRUCT',     zone:1, color:'#885500',          uniqueDrop:'Grinding Stone of Ruin'},
+      {name:'THE HARVEST LORD',           landmark:'Dark Cornfields',          emoji:'🌽', lat:40.2050,lng:-76.1600, hp:450000, atk:24000,def:3800,xp:2600,gold:[500,1000],  type:'ZONE BOSS · ANCIENT',       zone:1, color:'#886600',          uniqueDrop:'Harvest Reaper'},
+      {name:'THE CURSED PREACHER',        landmark:'Abandoned Church',         emoji:'📖', lat:40.1950,lng:-76.2100, hp:320000, atk:20000,def:3200,xp:1700,gold:[280,650],   type:'ZONE BOSS · UNDEAD',        zone:2, color:'#666688',          uniqueDrop:'Tome of Damnation'},
+      {name:'THE CROSSROADS DEVIL',       landmark:'Route 322 Crossing',       emoji:'😈', lat:40.1400,lng:-76.1900, hp:280000, atk:17000,def:4500,xp:1500,gold:[220,520],   type:'ZONE BOSS · DEMON',         zone:3, color:'#cc2200',          uniqueDrop:"Devil's Bargain"},
+      {name:'THE WENDIGO OF MUDDY CREEK', landmark:'Muddy Creek Hollow',       emoji:'🦌', lat:40.2200,lng:-76.1500, hp:240000, atk:15000,def:3000,xp:1300,gold:[180,450],   type:'ZONE BOSS · BEAST',         zone:3, color:'#336633',          uniqueDrop:'Wendigo Claw'},
+    ],
+  },
+};
 
-const ZONES = [
-  {max:0.5,  name:'Hellmouth',         danger:'EXTREME', color:'rgba(140,0,0,0.55)',     dc:'#ff2200'},
-  {max:1.5,  name:'Blighted Quarter',  danger:'HARD',    color:'rgba(160,60,0,0.40)',    dc:'#ff5500'},
-  {max:2.5,  name:'Cursed Wards',      danger:'MEDIUM',  color:'rgba(130,100,0,0.32)',   dc:'#ccaa00'},
-  {max:3.8,  name:'Haunted Outskirts', danger:'EASY',    color:'rgba(30,80,30,0.28)',    dc:'#44aa44'},
-  {max:5.2,  name:'Borderlands',       danger:'SAFE',    color:'rgba(15,35,70,0.22)',    dc:'#4488bb'},
-];
+let selectedWorld = 'philadelphia';
 
-const ZONE_DESCS = [
-  "The heart of the fallen city. Malechar's corruption bleeds through every cobblestone.",
-  "The blighted quarter reeks of sulfur. Wraiths haunt every hollow and alley.",
-  "Old neighborhoods twisted by ancient curse. The living avoid these streets.",
-  "Suburb ruins at the city's edge. Low monsters, but the ground whispers.",
-  "The borderlands stretch thin into quiet darkness. Mostly safe — for now.",
-];
+let CENTER, ZONES, ZONE_DESCS, BOSSES;
 
 const MOB_TYPES = [
   {name:'Lich Servant',    emoji:'💀', zone:0, hp:10000,  atk:1400, def:200,  xp:800,  gold:[150,300]},
@@ -1654,6 +1715,14 @@ const ITEMS = {
   "Wraith's Veil":           {emoji:'🌫', type:'accessory', tier:4, dodge:20,  hp:20000,                     cost:0, desc:'You are half-ghost now. Blades find only air.'},
   "Death's Ledger":          {emoji:'📖', type:'accessory', tier:4, atk:18000, crit:10,                      cost:0, desc:'Every soul you claim is recorded. Interest compounds.'},
   "Troll's Knuckle":         {emoji:'🪨', type:'accessory', tier:4, def:15000, hp:25000, atk:10000,          cost:0, desc:'Dense as the bridge it fell from. Heavy as regret.'},
+  // ── EPHRATA LEGENDARIES ──
+  "Gehman's Lantern":       {emoji:'🕯', type:'accessory', tier:4, resMax:150, atk:18000, hp:20000, cost:0, desc:'The founder\'s lantern burns with unholy light. Illuminates the darkest paths.'},
+  'Veil of the Pale Sister':{emoji:'🌫', type:'accessory', tier:4, dodge:18, hp:25000, def:8000,  cost:0, desc:'Woven from her burial shroud. You walk between worlds.'},
+  'Grinding Stone of Ruin': {emoji:'⚙',  type:'weapon',    tier:4, atk:52000, def:5000,             cost:0, desc:'Still grinding. Still hungry. The mill never stops.'},
+  'Harvest Reaper':         {emoji:'🌾', type:'weapon',    tier:4, atk:48000, crit:11, hp:15000,    cost:0, desc:'The fields yield only death now. Swings wide. Kills everything.'},
+  'Tome of Damnation':      {emoji:'📖', type:'accessory', tier:4, atk:22000, resMax:120, crit:8,   cost:0, desc:'Every page is a curse. Reading it changes you.'},
+  "Devil's Bargain":        {emoji:'📜', type:'accessory', tier:4, atk:30000, crit:15, def:-3000,   cost:0, desc:'Tremendous power. Terrible cost. The devil always collects.'},
+  'Wendigo Claw':           {emoji:'🦌', type:'accessory', tier:4, atk:20000, crit:10, dodge:12,    cost:0, desc:'Torn from the beast at the creek. Still warm. Still hungry.'},
 };
 
 const SKILL_TREE = {
@@ -2054,15 +2123,15 @@ function rollLootDrop(enemy, isBoss){
   return drops;
 }
 
-const BOSSES = [
-  {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar'},
-  {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:680000, atk:32000,def:5000,xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart"},
-  {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:520000, atk:28000,def:7000,xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost'},
-  {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:480000, atk:26000,def:4000,xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil'},
-  {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:340000, atk:22000,def:3500,xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil"},
-  {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:300000, atk:20000,def:5000,xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger"},
-  {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:260000, atk:18000,def:7000,xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle"},
-];
+function selectWorld(key){
+  selectedWorld = key;
+  const w = WORLDS[key];
+  CENTER = w.center;
+  ZONES = w.zones;
+  ZONE_DESCS = w.zoneDescs;
+  BOSSES = w.bosses.map(b=>({...b, defeated:false, maxHp:b.hp, statuses:[], poisonStacks:0}));
+}
+selectWorld('philadelphia');
 
 // ══════════════════════════════════════════════════════
 //  STAT ROLL SYSTEM
@@ -2847,8 +2916,8 @@ function startGPS(){
       const {latitude:lat,longitude:lng,accuracy}=pos.coords;
       const miFromPhilly=distMiles(lat,lng,CENTER.lat,CENTER.lng);
       if(miFromPhilly>50){
-        setGPSStatus('denied','NOT IN PHILLY');
-        if(!gpsFirstLock){ gpsFirstLock=true; addLog('⚠ GPS locked but you\'re outside Philadelphia. Get to the city.','ls'); }
+        setGPSStatus('denied','OUT OF RANGE');
+        if(!gpsFirstLock){ gpsFirstLock=true; addLog('⚠ GPS locked but you are outside the game area.','ls'); }
         return;
       }
       Player.lat=lat; Player.lng=lng;
@@ -3618,6 +3687,7 @@ function saveGame(){
       inventory: Player.inventory,
     },
     bossStates: BOSSES.map(b => b.defeated || false),
+    world: selectedWorld,
     savedAt: Date.now(),
   };
   localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -3680,8 +3750,9 @@ function continueGame(){
     xpNext: sp.xpNext || xpForLevel(sp.level||1),
   };
   selectedClass = save.player.className;
-  // Restore boss states
-  save.bossStates.forEach((defeated, i) => { BOSSES[i].defeated = defeated; });
+  // Restore world and boss states
+  selectWorld(save.world || 'philadelphia');
+  save.bossStates.forEach((defeated, i) => { if(BOSSES[i]) BOSSES[i].defeated = defeated; });
   // Skip to game
   document.getElementById('screen-title').classList.remove('active');
   document.getElementById('screen-game').classList.add('active');
@@ -3691,7 +3762,7 @@ function continueGame(){
   updateZone();
   gameLoop();
   setPUI();
-  addLog(`${Player.emoji} ${Player.name} returns to the Fallen City. Level ${Player.level}.`, 'lb');
+  addLog(`${Player.emoji} ${Player.name} enters ${WORLDS[selectedWorld].name}. Level ${Player.level}.`, 'lb');
   addLog(`The darkness remembers you.`, 'ls');
   startGPS();
   setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
@@ -3705,14 +3776,44 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
 }
 
-function goCreate(){
-  deleteSave();
-  // Reset boss states for new game
-  BOSSES.forEach(b => b.defeated = false);
+function showWorldSelect(){
   document.getElementById('screen-title').classList.remove('active');
+  document.getElementById('screen-world').classList.add('active');
+  renderWorldCards();
+}
+
+function renderWorldCards(){
+  const container = document.getElementById('world-cards');
+  container.innerHTML = Object.values(WORLDS).map(w=>`
+    <div onclick="pickWorld('${w.key}')" style="
+      background:linear-gradient(160deg,#1e1a30,#12101e);
+      border:2px solid #3a2a50; border-radius:12px;
+      padding:20px; cursor:pointer; transition:all .2s;
+      -webkit-tap-highlight-color:transparent;
+    " onpointerdown="this.style.borderColor='${w.key==='philadelphia'?'#cc3030':'#cc88ff'}';this.style.boxShadow='0 0 20px rgba(180,100,255,0.3)'"
+       onpointerup="this.style.borderColor='#3a2a50';this.style.boxShadow=''">
+      <div style="font-size:2.5rem;text-align:center;margin-bottom:8px;">${w.emoji}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);text-align:center;letter-spacing:.1em;">${w.name}</div>
+      <div style="font-size:.82rem;color:var(--crimson);text-align:center;letter-spacing:.3em;font-style:italic;margin:4px 0 10px;">${w.subtitle}</div>
+      <div style="font-size:.88rem;color:#a090b8;text-align:center;line-height:1.5;">${w.desc}</div>
+      <div style="margin-top:12px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:${w.key==='philadelphia'?'#ff4444':'#bb88ff'};letter-spacing:.1em;">
+        ${w.bosses.length} BOSSES · ${w.zones.length} ZONES
+      </div>
+    </div>
+  `).join('');
+}
+
+function pickWorld(key){
+  selectWorld(key);
+  document.getElementById('screen-world').classList.remove('active');
   document.getElementById('screen-create').classList.add('active');
   buildClassGrid();
   buildStatGrid();
+}
+
+function goCreate(){
+  deleteSave();
+  showWorldSelect();
 }
 
 function enterWorld(){
