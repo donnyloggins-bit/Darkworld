@@ -2142,7 +2142,10 @@ async function startAR(){
   window.addEventListener('deviceorientation',arOrientHandler,true);
   // Resize AR canvas
   const ac=document.getElementById('ar-canvas');
-  ac.width=window.innerWidth; ac.height=window.innerHeight;
+  const dpr=window.devicePixelRatio||1;
+  ac.width=window.innerWidth*dpr; ac.height=window.innerHeight*dpr;
+  ac.style.width=window.innerWidth+'px'; ac.style.height=window.innerHeight+'px';
+  ac.getContext('2d').scale(dpr,dpr);
   // Switch screens
   document.getElementById('screen-game').classList.remove('active');
   document.getElementById('screen-ar').classList.add('active');
@@ -2193,50 +2196,67 @@ function renderAR(){
   });
 
   // Draw each enemy
+  visible.sort((a,b)=>b.dist-a.dist); // far to near (near on top)
   visible.forEach(e=>{
     const x=W/2+(e.diff/(FOV/2))*(W/2);
     const proximity=1-e.dist/MAX_DIST;
-    const scale=0.5+proximity*0.7;
-    const sz=Math.floor(52*scale);
-    const yBase=H*0.42;
+    const scale=0.6+proximity*0.6;
+    const sz=Math.floor(W*0.14*scale);
+    const yBase=H*(0.28+proximity*0.15);
 
-    // Outer glow
-    const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*2);
-    grd.addColorStop(0,e.boss?'rgba(184,150,42,0.25)':'rgba(139,26,26,0.22)');
-    grd.addColorStop(1,'rgba(3,2,5,0)');
-    c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*2,0,Math.PI*2); c.fill();
+    // Glow
+    const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*1.8);
+    grd.addColorStop(0,e.boss?'rgba(184,150,42,0.35)':'rgba(180,30,30,0.3)');
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*1.8,0,Math.PI*2); c.fill();
 
     // Emoji
     c.font=`${sz}px serif`;
     c.textAlign='center'; c.textBaseline='middle';
     c.fillText(e.emoji,x,yBase);
 
-    // Name
-    const nameSize=Math.max(9,Math.floor(12*scale));
-    c.font=`${nameSize}px "Share Tech Mono",monospace`;
-    c.fillStyle=e.boss?'rgba(184,150,42,0.95)':'rgba(221,208,184,0.9)';
-    c.fillText(e.name.toUpperCase(),x,yBase+sz*0.65+nameSize);
+    // Info card background
+    const cardW=Math.min(W*0.55, 220);
+    const cardH=80;
+    const cardX=x-cardW/2;
+    const cardY=yBase+sz*0.6+8;
+    c.fillStyle='rgba(5,3,10,0.78)';
+    c.beginPath();
+    c.roundRect?c.roundRect(cardX,cardY,cardW,cardH,6):c.rect(cardX,cardY,cardW,cardH);
+    c.fill();
 
-    // Distance in feet
+    // Name
+    const nameSize=Math.max(14,Math.floor(18*scale));
+    c.font=`bold ${nameSize}px "Share Tech Mono",monospace`;
+    c.fillStyle=e.boss?'#f0c040':'#e8d8c0';
+    c.fillText(e.name.toUpperCase(),x,cardY+nameSize+4,cardW-12);
+
+    // Distance — large and readable
     const ft=Math.round(e.dist*5280);
-    c.font=`${Math.max(8,Math.floor(10*scale))}px "Share Tech Mono",monospace`;
-    c.fillStyle='rgba(107,0,0,0.85)';
-    c.fillText(ft<528?`${ft}ft`:`${(e.dist).toFixed(2)}mi`,x,yBase+sz*0.65+nameSize*2.4);
+    const distTxt=ft<528?`${ft} ft away`:`${(e.dist*5280|0)} ft away`;
+    const distSize=Math.max(16,Math.floor(20*scale));
+    c.font=`${distSize}px "Share Tech Mono",monospace`;
+    c.fillStyle=e.boss?'#ffaa00':'#ff4444';
+    c.fillText(distTxt,x,cardY+nameSize+distSize+10,cardW-12);
 
     // HP bar
-    const bw=sz*1.4,bh=3;
-    const bx=x-bw/2,by=yBase+sz*0.65+nameSize*3.6;
-    c.fillStyle='rgba(30,10,10,0.8)'; c.fillRect(bx,by,bw,bh);
-    c.fillStyle=e.boss?'#b8962a':'#6b0000';
+    const bw=cardW-16,bh=6;
+    const bx=cardX+8,by=cardY+cardH-14;
+    c.fillStyle='rgba(30,10,10,0.9)'; c.fillRect(bx,by,bw,bh);
+    c.fillStyle=e.boss?'#c8a030':'#aa2020';
     c.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
   });
 
   // No enemies message
   if(visible.length===0){
-    c.font='13px "Share Tech Mono",monospace';
-    c.fillStyle='rgba(58,42,74,0.7)';
+    const fs=Math.max(16,W*0.04);
+    c.font=`${fs}px "Share Tech Mono",monospace`;
+    c.fillStyle='rgba(180,150,220,0.7)';
     c.textAlign='center';
-    c.fillText('NO ENEMIES IN SIGHT — TURN TO HUNT',W/2,H*0.88);
+    c.fillText('NO ENEMIES IN SIGHT',W/2,H*0.5);
+    c.font=`${fs*0.7}px "Share Tech Mono",monospace`;
+    c.fillStyle='rgba(100,80,140,0.5)';
+    c.fillText('TURN TO HUNT',W/2,H*0.5+fs*1.4);
   }
 
   // Compass update
