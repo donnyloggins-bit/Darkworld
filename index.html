@@ -2458,6 +2458,33 @@ function buildPlayer() {
     equipped: { weapon: null, armor: null, accessory: null },
     inventory: [],
   };
+  applyStartingGear();
+}
+
+const STARTING_GEAR = {
+  'Fighter':    { weapon:'Iron Sword',   armor:'Leather Vest',  accessory:'Ring of Fortitude' },
+  'Paladin':    { weapon:'Iron Sword',   armor:'Leather Vest',  accessory:'Lucky Charm'        },
+  'Ranger':     { weapon:'Rusted Blade', armor:'Tattered Rags', accessory:'Amulet of Speed'    },
+  'Magic-User': { weapon:'Rusted Blade', armor:'Tattered Rags', accessory:'Arcane Focus'       },
+  'Illusionist':{ weapon:'Rusted Blade', armor:'Tattered Rags', accessory:'Shadow Ring'        },
+  'Cleric':     { weapon:'Iron Sword',   armor:'Leather Vest',  accessory:'Lucky Charm'        },
+  'Thief':      { weapon:'Rusted Blade', armor:'Tattered Rags', accessory:'Shadow Ring'        },
+  'Assassin':   { weapon:'Rusted Blade', armor:'Tattered Rags', accessory:'Amulet of Speed'    },
+  'Monk':       { weapon:null,           armor:'Tattered Rags', accessory:'Amulet of Speed'    },
+  'Druid':      { weapon:'Rusted Blade', armor:'Tattered Rags', accessory:'Lucky Charm'        },
+};
+
+function applyStartingGear(){
+  const gear = STARTING_GEAR[Player.className];
+  if(!gear) return;
+  ['weapon','armor','accessory'].forEach(slot=>{
+    const name = gear[slot];
+    if(!name) return;
+    const item = ITEMS[name];
+    if(!item) return;
+    Player.equipped[slot] = name;
+    applyItemBonus(item, 1);
+  });
 }
 
 // ══════════════════════════════════════════════════════
