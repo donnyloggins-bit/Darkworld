@@ -191,10 +191,19 @@ body::before {
   flex-direction:column;
   align-items:center;
   justify-content:flex-start;
-  background:radial-gradient(ellipse at top, #1e1838 0%, #0d0a1c 60%);
+  background:url('char-create-bg.jpeg') center center / cover no-repeat;
   overflow-y:auto;
   padding:30px 20px;
 }
+#screen-create::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:linear-gradient(to bottom, rgba(10,6,20,0.72) 0%, rgba(10,6,20,0.85) 100%);
+  pointer-events:none;
+  z-index:0;
+}
+#screen-create > * { position:relative; z-index:1; }
 
 .create-title {
   font-family:'Cinzel Decorative',serif;
