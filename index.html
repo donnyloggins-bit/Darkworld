@@ -2962,18 +2962,13 @@ function startGPS(){
   gpsWatchId=navigator.geolocation.watchPosition(
     pos=>{
       const {latitude:lat,longitude:lng,accuracy}=pos.coords;
-      const miFromPhilly=distMiles(lat,lng,CENTER.lat,CENTER.lng);
-      if(miFromPhilly>50){
-        setGPSStatus('denied','OUT OF RANGE');
-        if(!gpsFirstLock){ gpsFirstLock=true; addLog('⚠ GPS locked but you are outside the game area.','ls'); }
-        return;
-      }
       Player.lat=lat; Player.lng=lng;
       updateZone();
       if(!gpsFirstLock){
         gpsFirstLock=true;
+        genSpawns();
         centerOnPlayer();
-        addLog('⬤ GPS locked. The city tracks your movements.','lb');
+        addLog('⬤ GPS locked. Darkness finds you wherever you roam.','lb');
       }
       setGPSStatus('locked',`LOCKED · ±${Math.round(accuracy)}m`);
     },
