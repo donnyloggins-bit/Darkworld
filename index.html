@@ -612,6 +612,14 @@ body::before {
   cursor:pointer; z-index:5;
 }
 #menu-btn:hover { border-color:var(--gold); color:var(--gold); }
+#inv-btn {
+  position:absolute; bottom:16px; left:90px;
+  background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
+  color:#9a88b8; font-family:'Share Tech Mono',monospace;
+  font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
+  cursor:pointer; z-index:5;
+}
+#inv-btn:hover { border-color:var(--gold); color:var(--gold); }
 
 #sb-title {
   padding:14px 16px 10px;
@@ -1313,6 +1321,7 @@ body::before {
     <button id="ar-btn" onclick="startAR()">👁 AR VIEW</button>
     <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER ON ME</button>
     <button id="menu-btn" onclick="toggleSidebar()">☰ STATS</button>
+    <button id="inv-btn" onclick="openInventory()">⚔ GEAR</button>
     <div id="legend">
       <div class="lg-title">⚔ THREAT ZONES</div>
       <div class="lg-item"><div class="lg-dot" style="background:#6b0000"></div>Hellmouth · Boss Tier</div>
