@@ -2437,6 +2437,10 @@ function mi2px(mi){ return mi*(mapH/2)/5*zoom; }
 function ri(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function fmt(n){ return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'K':n.toString(); }
 
+const mapBgImg = new Image();
+mapBgImg.onload = ()=>{ if(Player) render(); };
+mapBgImg.src = 'map-bg.jpeg';
+
 let spawns=[];
 function genSpawns(){
   spawns=[];
@@ -2492,10 +2496,17 @@ function resize(){
 
 function render(){
   ctx.clearRect(0,0,mapW,mapH);
-  // Background gradient
-  const bg=ctx.createRadialGradient(mapW/2+viewX,mapH/2+viewY,0,mapW/2+viewX,mapH/2+viewY,mi2px(6));
-  bg.addColorStop(0,'#0d0a14'); bg.addColorStop(1,'#030205');
-  ctx.fillStyle=bg; ctx.fillRect(0,0,mapW,mapH);
+  // Background image
+  if(mapBgImg.complete && mapBgImg.naturalWidth){
+    ctx.globalAlpha=1;
+    ctx.drawImage(mapBgImg,0,0,mapW,mapH);
+    ctx.fillStyle='rgba(8,5,16,0.72)';
+    ctx.fillRect(0,0,mapW,mapH);
+  } else {
+    const bg=ctx.createRadialGradient(mapW/2,mapH/2,0,mapW/2,mapH/2,mi2px(6));
+    bg.addColorStop(0,'#0d0a14'); bg.addColorStop(1,'#030205');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,mapW,mapH);
+  }
 
   drawGrid(); drawZones(); drawPaths();
   spawns.forEach(s=>{ if(!s.defeated)drawMob(s); });
