@@ -1506,7 +1506,7 @@ const CLASSES = {
   Fighter: {
     emoji:'⚔️', desc:'Master of arms and armor. Highest HP, wears any weapon or armor, unmatched in sustained physical damage. Simple but devastating.',
     resource:'Rage', resColor:'linear-gradient(90deg,#4a0000,#cc2200)', resMax:100, resStart:0, resRegen:-5,
-    stats:{hp:8000,atk:850,def:400,crit:8,dodge:5},
+    stats:{hp:100,atk:11,def:5,crit:8,dodge:5},
     statMods:{STR:1.5,CON:1.3,DEX:0.8,INT:0.6,WIS:0.7,CHA:0.9},
     abilities:[
       {name:'Cleave',       emoji:'⚔️', type:'Basic',     cost:0,   costType:'none',  cd:0,  dmgMult:1.0,  desc:'Basic strike. Generates 15 Rage.',      effect:'rage+15'},
@@ -1518,7 +1518,7 @@ const CLASSES = {
   Paladin: {
     emoji:'🛡', desc:'Holy warrior bound by sacred oath. Strong fighter with healing and divine powers. Bonus damage against undead and demons.',
     resource:'Holy Power', resColor:'linear-gradient(90deg,#3a2a00,#ddaa00)', resMax:5, resStart:0, resRegen:0,
-    stats:{hp:7500,atk:750,def:380,crit:7,dodge:6},
+    stats:{hp:94,atk:9,def:5,crit:7,dodge:6},
     statMods:{STR:1.3,CON:1.2,WIS:1.4,INT:0.8,DEX:0.7,CHA:1.2},
     abilities:[
       {name:'Judgement',     emoji:'⚡', type:'Basic',     cost:0,  costType:'none', cd:0, dmgMult:1.1, desc:'Holy strike. Generates 1 Holy Power.',    effect:'hp+1'},
@@ -1530,7 +1530,7 @@ const CLASSES = {
   Ranger: {
     emoji:'🏹', desc:'Swift hunter of the wilds. Dual wields, high crit chance, bonus vs specific monster types. Lethal from a distance.',
     resource:'Focus', resColor:'linear-gradient(90deg,#002a00,#00aa44)', resMax:100, resStart:0, resRegen:8,
-    stats:{hp:6500,atk:900,def:280,crit:18,dodge:14},
+    stats:{hp:81,atk:11,def:4,crit:18,dodge:14},
     statMods:{DEX:1.5,STR:1.1,CON:1.0,WIS:1.0,INT:0.8,CHA:0.9},
     abilities:[
       {name:'Aimed Shot',    emoji:'🎯', type:'Basic',     cost:0,  costType:'none', cd:0, dmgMult:1.2, desc:'Precise shot. Generates 20 Focus.',       effect:'focus+20'},
@@ -1542,7 +1542,7 @@ const CLASSES = {
   'Magic-User': {
     emoji:'🌑', desc:'Master of arcane destruction. Lowest HP, no armor, but spells devastate entire battlefields. Mana must be managed carefully.',
     resource:'Mana', resColor:'linear-gradient(90deg,#001040,#0038aa)', resMax:600, resStart:600, resRegen:30,
-    stats:{hp:4500,atk:1400,def:150,crit:12,dodge:8},
+    stats:{hp:56,atk:18,def:2,crit:12,dodge:8},
     statMods:{INT:1.8,WIS:1.1,DEX:1.0,CON:0.6,STR:0.5,CHA:1.0},
     abilities:[
       {name:'Frost Bolt',    emoji:'❄️', type:'Basic',     cost:40, costType:'mana', cd:0, dmgMult:1.4, desc:'Ice lance. Reliable arcane damage.'},
@@ -1554,7 +1554,7 @@ const CLASSES = {
   Illusionist: {
     emoji:'👁', desc:'Master of the mind and perception. Builds illusion stacks that multiply damage. Confuses enemies, causes them to harm themselves.',
     resource:'Mana', resColor:'linear-gradient(90deg,#001040,#0038aa)', resMax:500, resStart:500, resRegen:25,
-    stats:{hp:4200,atk:1200,def:140,crit:20,dodge:16},
+    stats:{hp:53,atk:15,def:2,crit:20,dodge:16},
     statMods:{INT:1.6,DEX:1.3,WIS:1.0,CHA:1.1,CON:0.6,STR:0.4},
     abilities:[
       {name:'Phantasm',      emoji:'👻', type:'Basic',     cost:30, costType:'mana', cd:0, dmgMult:1.0, desc:'Illusory attack. Builds 1 Illusion stack.', effect:'stack+1'},
@@ -1566,7 +1566,7 @@ const CLASSES = {
   Cleric: {
     emoji:'✝️', desc:'Servant of forgotten gods. Turn undead, powerful heals, strong buffs. Medium armor, moderate damage but keeps the party alive.',
     resource:'Faith', resColor:'linear-gradient(90deg,#2a2200,#ccaa00)', resMax:100, resStart:50, resRegen:10,
-    stats:{hp:6000,atk:600,def:350,crit:6,dodge:7},
+    stats:{hp:75,atk:8,def:4,crit:6,dodge:7},
     statMods:{WIS:1.6,CON:1.3,STR:1.0,CHA:1.2,INT:0.9,DEX:0.7},
     abilities:[
       {name:'Smite',         emoji:'✨', type:'Basic',     cost:10, costType:'faith',cd:0, dmgMult:1.0, desc:'Holy smite. +100% vs undead.',           undead:true},
@@ -1578,7 +1578,7 @@ const CLASSES = {
   Thief: {
     emoji:'🗡', desc:'Shadows and speed. High dodge, high crit. Backstab can one-shot normal enemies. Energy regens every turn automatically.',
     resource:'Energy', resColor:'linear-gradient(90deg,#1a1a00,#aaaa00)', resMax:100, resStart:100, resRegen:25,
-    stats:{hp:5000,atk:950,def:220,crit:28,dodge:22},
+    stats:{hp:63,atk:12,def:3,crit:28,dodge:22},
     statMods:{DEX:1.7,STR:1.0,INT:0.9,CON:0.8,WIS:0.7,CHA:1.1},
     abilities:[
       {name:'Quick Strike',  emoji:'⚡', type:'Basic',     cost:15, costType:'energy',cd:0, dmgMult:0.9, desc:'Fast hit. Low cost, good crit chance.'},
@@ -1590,7 +1590,7 @@ const CLASSES = {
   Assassin: {
     emoji:'☠️', desc:'Poison and precision. Builds poison stacks on enemies that compound each turn. First strike ability. Terrifying burst damage.',
     resource:'Energy', resColor:'linear-gradient(90deg,#1a1a00,#aaaa00)', resMax:100, resStart:100, resRegen:20,
-    stats:{hp:5200,atk:1050,def:210,crit:24,dodge:18},
+    stats:{hp:65,atk:13,def:3,crit:24,dodge:18},
     statMods:{DEX:1.5,STR:1.1,INT:1.0,CON:0.8,WIS:0.7,CHA:0.9},
     abilities:[
       {name:'Envenom',       emoji:'🐍', type:'Basic',     cost:20, costType:'energy',cd:0, dmgMult:0.8, desc:'Applies 1 poison stack to enemy.',        effect:'poison+1'},
@@ -1602,7 +1602,7 @@ const CLASSES = {
   Monk: {
     emoji:'👊', desc:'Unarmed master. Chi builds through strikes, explodes through finishers. Faster than any class. Fists get stronger every level.',
     resource:'Chi', resColor:'linear-gradient(90deg,#001a2a,#00aacc)', resMax:100, resStart:0, resRegen:0,
-    stats:{hp:6200,atk:800,def:260,crit:15,dodge:20},
+    stats:{hp:78,atk:10,def:3,crit:15,dodge:20},
     statMods:{DEX:1.4,STR:1.2,CON:1.1,WIS:1.1,INT:0.8,CHA:0.9},
     abilities:[
       {name:'Tiger Strike', emoji:'🐯', type:'Basic',     cost:0,  costType:'none', cd:0, dmgMult:1.0, desc:'Swift unarmed hit. Generates 20 Chi.',   effect:'chi+20'},
@@ -1614,7 +1614,7 @@ const CLASSES = {
   Druid: {
     emoji:'🌿', desc:'Shape-shifter and nature mage. Unique playstyle — different abilities in different stances. Versatile but complex.',
     resource:'Mana', resColor:'linear-gradient(90deg,#001a00,#00aa44)', resMax:500, resStart:500, resRegen:20,
-    stats:{hp:5500,atk:700,def:300,crit:10,dodge:10},
+    stats:{hp:69,atk:9,def:4,crit:10,dodge:10},
     statMods:{WIS:1.4,CON:1.3,INT:1.1,STR:1.0,DEX:1.0,CHA:0.9},
     abilities:[
       {name:'Moonfire',     emoji:'🌙', type:'Basic',     cost:35, costType:'mana', cd:0, dmgMult:1.1, desc:'Lunar strike. DoT for 2 turns.',          effect:'dot2'},
@@ -1652,13 +1652,13 @@ const WORLDS = {
       "The borderlands stretch thin into quiet darkness. Mostly safe — for now.",
     ],
     bosses: [
-      {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar', portrait:'0_0.jpeg'},
-      {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:680000, atk:32000,def:5000,xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart", portrait:'jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.png'},
-      {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:520000, atk:28000,def:7000,xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost', portrait:'iron ghost.png'},
-      {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:480000, atk:26000,def:4000,xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil', portrait:'plague mother.png'},
-      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:340000, atk:22000,def:3500,xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil", portrait:'RIVER WRATH.png'},
-      {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:300000, atk:20000,def:5000,xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger", portrait:'GRAVEMASTER.png'},
-      {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:260000, atk:18000,def:7000,xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle", portrait:'BRIDGE TROLL.png'},
+      {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:31250,atk:563,def:100,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar', portrait:'0_0.jpeg'},
+      {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:8500, atk:400,def:63, xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart", portrait:'jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.png'},
+      {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:6500, atk:350,def:88, xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost', portrait:'iron ghost.png'},
+      {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:6000, atk:325,def:50, xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil', portrait:'plague mother.png'},
+      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:4250, atk:275,def:44, xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil", portrait:'RIVER WRATH.png'},
+      {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:3750, atk:250,def:63, xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger", portrait:'GRAVEMASTER.png'},
+      {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:3250, atk:225,def:88, xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle", portrait:'BRIDGE TROLL.png'},
     ],
   },
   ephrata: {
@@ -1684,13 +1684,13 @@ const WORLDS = {
       "The flat plains stretch toward Lancaster. Safer here, but the dark follows you.",
     ],
     bosses: [
-      {name:'BROTHER GEHMAN THE UNDYING', landmark:'Ephrata Cloister',        emoji:'☩',  lat:40.1793,lng:-76.1794, hp:2000000,atk:40000,def:7000,xp:5000,gold:[900,1800],  type:'WORLD BOSS · UNDEAD',       zone:0,isWorld:true, color:'#cc88ff', uniqueDrop:"Gehman's Lantern"},
-      {name:'SISTER ANASTASIA THE PALE',  landmark:'Cloister Cemetery',       emoji:'👰', lat:40.1810,lng:-76.1720, hp:620000, atk:30000,def:4500,xp:2400,gold:[480,960],   type:'ZONE BOSS · SPECTER',       zone:0, color:'#aaaaff',          uniqueDrop:'Veil of the Pale Sister'},
-      {name:'THE MILL DEMON',             landmark:'Old Ephrata Mill',         emoji:'⚙',  lat:40.1600,lng:-76.1850, hp:500000, atk:26000,def:6500,xp:2100,gold:[380,850],   type:'ZONE BOSS · CONSTRUCT',     zone:1, color:'#885500',          uniqueDrop:'Grinding Stone of Ruin'},
-      {name:'THE HARVEST LORD',           landmark:'Dark Cornfields',          emoji:'🌽', lat:40.2050,lng:-76.1600, hp:450000, atk:24000,def:3800,xp:2600,gold:[500,1000],  type:'ZONE BOSS · ANCIENT',       zone:1, color:'#886600',          uniqueDrop:'Harvest Reaper'},
-      {name:'THE CURSED PREACHER',        landmark:'Abandoned Church',         emoji:'📖', lat:40.1950,lng:-76.2100, hp:320000, atk:20000,def:3200,xp:1700,gold:[280,650],   type:'ZONE BOSS · UNDEAD',        zone:2, color:'#666688',          uniqueDrop:'Tome of Damnation'},
-      {name:'THE CROSSROADS DEVIL',       landmark:'Route 322 Crossing',       emoji:'😈', lat:40.1400,lng:-76.1900, hp:280000, atk:17000,def:4500,xp:1500,gold:[220,520],   type:'ZONE BOSS · DEMON',         zone:3, color:'#cc2200',          uniqueDrop:"Devil's Bargain"},
-      {name:'THE WENDIGO OF MUDDY CREEK', landmark:'Muddy Creek Hollow',       emoji:'🦌', lat:40.2200,lng:-76.1500, hp:240000, atk:15000,def:3000,xp:1300,gold:[180,450],   type:'ZONE BOSS · BEAST',         zone:3, color:'#336633',          uniqueDrop:'Wendigo Claw'},
+      {name:'BROTHER GEHMAN THE UNDYING', landmark:'Ephrata Cloister',        emoji:'☩',  lat:40.1793,lng:-76.1794, hp:25000,atk:500,def:88, xp:5000,gold:[900,1800],  type:'WORLD BOSS · UNDEAD',       zone:0,isWorld:true, color:'#cc88ff', uniqueDrop:"Gehman's Lantern"},
+      {name:'SISTER ANASTASIA THE PALE',  landmark:'Cloister Cemetery',       emoji:'👰', lat:40.1810,lng:-76.1720, hp:7750, atk:375,def:56, xp:2400,gold:[480,960],   type:'ZONE BOSS · SPECTER',       zone:0, color:'#aaaaff',          uniqueDrop:'Veil of the Pale Sister'},
+      {name:'THE MILL DEMON',             landmark:'Old Ephrata Mill',         emoji:'⚙',  lat:40.1600,lng:-76.1850, hp:6250, atk:325,def:81, xp:2100,gold:[380,850],   type:'ZONE BOSS · CONSTRUCT',     zone:1, color:'#885500',          uniqueDrop:'Grinding Stone of Ruin'},
+      {name:'THE HARVEST LORD',           landmark:'Dark Cornfields',          emoji:'🌽', lat:40.2050,lng:-76.1600, hp:5625, atk:300,def:48, xp:2600,gold:[500,1000],  type:'ZONE BOSS · ANCIENT',       zone:1, color:'#886600',          uniqueDrop:'Harvest Reaper'},
+      {name:'THE CURSED PREACHER',        landmark:'Abandoned Church',         emoji:'📖', lat:40.1950,lng:-76.2100, hp:4000, atk:250,def:40, xp:1700,gold:[280,650],   type:'ZONE BOSS · UNDEAD',        zone:2, color:'#666688',          uniqueDrop:'Tome of Damnation'},
+      {name:'THE CROSSROADS DEVIL',       landmark:'Route 322 Crossing',       emoji:'😈', lat:40.1400,lng:-76.1900, hp:3500, atk:213,def:56, xp:1500,gold:[220,520],   type:'ZONE BOSS · DEMON',         zone:3, color:'#cc2200',          uniqueDrop:"Devil's Bargain"},
+      {name:'THE WENDIGO OF MUDDY CREEK', landmark:'Muddy Creek Hollow',       emoji:'🦌', lat:40.2200,lng:-76.1500, hp:3000, atk:188,def:38, xp:1300,gold:[180,450],   type:'ZONE BOSS · BEAST',         zone:3, color:'#336633',          uniqueDrop:'Wendigo Claw'},
     ],
   },
   lansdowne: {
@@ -1716,13 +1716,13 @@ const WORLDS = {
       "The Delaware Mist rolls in from the county border. Most things here are merely lost. Most.",
     ],
     bosses: [
-      {name:'THE PHANTASM KING',        landmark:'Lansdowne Theater',        emoji:'🎭', lat:39.9403,lng:-75.2726, hp:2200000,atk:42000,def:7500,xp:5000,gold:[950,1900], type:'WORLD BOSS · SPECTER',      zone:0,isWorld:true, color:'#00ccff', uniqueDrop:'Crown of Illusions'},
-      {name:'THE PROJECTIONIST',        landmark:'Lansdowne Theater Stage',  emoji:'🎞', lat:39.9405,lng:-75.2730, hp:600000, atk:29000,def:5000,xp:2500,gold:[500,1000], type:'ZONE BOSS · UNDEAD',        zone:0, color:'#0088aa',          uniqueDrop:'Reel of Lost Souls'},
-      {name:'THE VICTORIAN WIDOW',      landmark:'Highland Avenue',          emoji:'🕸', lat:39.9418,lng:-75.2710, hp:480000, atk:25000,def:4200,xp:2300,gold:[440,920],  type:'ZONE BOSS · SPECTER',       zone:1, color:'#7700cc',          uniqueDrop:'Ring of Eternal Mourning'},
-      {name:'THE QUAKER SHADE',         landmark:'Lansdowne Friends Meeting',emoji:'📿', lat:39.9420,lng:-75.2756, hp:440000, atk:23000,def:4800,xp:2100,gold:[400,850],  type:'ZONE BOSS · SPECTER',       zone:1, color:'#888800',          uniqueDrop:'Staff of Silent Wrath'},
-      {name:'MOTHER NAYLOR',            landmark:"Naylor's Run Park",        emoji:'🌿', lat:39.9358,lng:-75.2780, hp:350000, atk:21000,def:3500,xp:1800,gold:[300,700],  type:'ZONE BOSS · ANCIENT',       zone:2, color:'#226633',          uniqueDrop:"Naylor's Creek Stone"},
-      {name:'THE IRON CONDUCTOR',       landmark:'Lansdowne Station',        emoji:'🚂', lat:39.9383,lng:-75.2668, hp:290000, atk:18000,def:6000,xp:1600,gold:[240,580],  type:'ZONE BOSS · CONSTRUCT',     zone:3, color:'#445566',          uniqueDrop:'Ghost Ticket'},
-      {name:'THE BOROUGH BEAST',        landmark:'Lansdowne Park',           emoji:'🐾', lat:39.9370,lng:-75.2740, hp:260000, atk:16000,def:3200,xp:1400,gold:[200,500],  type:'ZONE BOSS · BEAST',         zone:3, color:'#336633',          uniqueDrop:"Beast's Collar"},
+      {name:'THE PHANTASM KING',        landmark:'Lansdowne Theater',        emoji:'🎭', lat:39.9403,lng:-75.2726, hp:27500,atk:525,def:94, xp:5000,gold:[950,1900], type:'WORLD BOSS · SPECTER',      zone:0,isWorld:true, color:'#00ccff', uniqueDrop:'Crown of Illusions'},
+      {name:'THE PROJECTIONIST',        landmark:'Lansdowne Theater Stage',  emoji:'🎞', lat:39.9405,lng:-75.2730, hp:7500, atk:363,def:63, xp:2500,gold:[500,1000], type:'ZONE BOSS · UNDEAD',        zone:0, color:'#0088aa',          uniqueDrop:'Reel of Lost Souls'},
+      {name:'THE VICTORIAN WIDOW',      landmark:'Highland Avenue',          emoji:'🕸', lat:39.9418,lng:-75.2710, hp:6000, atk:313,def:53, xp:2300,gold:[440,920],  type:'ZONE BOSS · SPECTER',       zone:1, color:'#7700cc',          uniqueDrop:'Ring of Eternal Mourning'},
+      {name:'THE QUAKER SHADE',         landmark:'Lansdowne Friends Meeting',emoji:'📿', lat:39.9420,lng:-75.2756, hp:5500, atk:288,def:60, xp:2100,gold:[400,850],  type:'ZONE BOSS · SPECTER',       zone:1, color:'#888800',          uniqueDrop:'Staff of Silent Wrath'},
+      {name:'MOTHER NAYLOR',            landmark:"Naylor's Run Park",        emoji:'🌿', lat:39.9358,lng:-75.2780, hp:4375, atk:263,def:44, xp:1800,gold:[300,700],  type:'ZONE BOSS · ANCIENT',       zone:2, color:'#226633',          uniqueDrop:"Naylor's Creek Stone"},
+      {name:'THE IRON CONDUCTOR',       landmark:'Lansdowne Station',        emoji:'🚂', lat:39.9383,lng:-75.2668, hp:3625, atk:225,def:75, xp:1600,gold:[240,580],  type:'ZONE BOSS · CONSTRUCT',     zone:3, color:'#445566',          uniqueDrop:'Ghost Ticket'},
+      {name:'THE BOROUGH BEAST',        landmark:'Lansdowne Park',           emoji:'🐾', lat:39.9370,lng:-75.2740, hp:3250, atk:200,def:40, xp:1400,gold:[200,500],  type:'ZONE BOSS · BEAST',         zone:3, color:'#336633',          uniqueDrop:"Beast's Collar"},
     ],
   },
 };
@@ -1732,19 +1732,19 @@ let selectedWorld = 'philadelphia';
 let CENTER, ZONES, ZONE_DESCS, BOSSES;
 
 const MOB_TYPES = [
-  {name:'Lich Servant',    emoji:'💀', zone:0, hp:10000,  atk:1400, def:200,  xp:800,  gold:[150,300]},
-  {name:'Void Shade',      emoji:'🌑', zone:0, hp:8000,   atk:1600, def:150,  xp:700,  gold:[120,250]},
-  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:5500,   atk:800,  def:80,   xp:400,  gold:[80,180]},
-  {name:'Plague Hound',    emoji:'🐺', zone:1, hp:4500,   atk:850,  def:60,   xp:350,  gold:[60,140]},
-  {name:'Bone Archer',     emoji:'🏹', zone:1, hp:4000,   atk:900,  def:40,   xp:380,  gold:[70,160]},
-  {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:2500,   atk:500,  def:100,  xp:250,  gold:[50,120]},
-  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:2000,   atk:600,  def:50,   xp:220,  gold:[40,100]},
-  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:3000,   atk:420,  def:180,  xp:280,  gold:[50,110]},
-  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:900,    atk:120,  def:15,   xp:120,  gold:[20,60]},
-  {name:'Bog Specter',     emoji:'💨', zone:3, hp:1100,   atk:140,  def:10,   xp:140,  gold:[20,70]},
-  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:600,    atk:90,   def:5,    xp:80,   gold:[10,40]},
-  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:250,    atk:40,   def:0,    xp:50,   gold:[5,25]},
-  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:200,    atk:50,   def:0,    xp:45,   gold:[5,25]},
+  {name:'Lich Servant',    emoji:'💀', zone:0, hp:125, atk:18, def:3, xp:800,  gold:[150,300]},
+  {name:'Void Shade',      emoji:'🌑', zone:0, hp:100, atk:20, def:2, xp:700,  gold:[120,250]},
+  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:69,  atk:10, def:1, xp:400,  gold:[80,180]},
+  {name:'Plague Hound',    emoji:'🐺', zone:1, hp:56,  atk:11, def:1, xp:350,  gold:[60,140]},
+  {name:'Bone Archer',     emoji:'🏹', zone:1, hp:50,  atk:11, def:1, xp:380,  gold:[70,160]},
+  {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:31,  atk:6,  def:1, xp:250,  gold:[50,120]},
+  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:25,  atk:8,  def:1, xp:220,  gold:[40,100]},
+  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:38,  atk:5,  def:2, xp:280,  gold:[50,110]},
+  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:11,  atk:2,  def:0, xp:120,  gold:[20,60]},
+  {name:'Bog Specter',     emoji:'💨', zone:3, hp:14,  atk:2,  def:0, xp:140,  gold:[20,70]},
+  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:8,   atk:1,  def:0, xp:80,   gold:[10,40]},
+  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:3,   atk:1,  def:0, xp:50,   gold:[5,25]},
+  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:3,   atk:1,  def:0, xp:45,   gold:[5,25]},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -1752,33 +1752,33 @@ const MOB_TYPES = [
 // ══════════════════════════════════════════════════════
 const ITEMS = {
   // ── WEAPONS ──
-  'Rusted Blade':   {emoji:'🗡', type:'weapon',    tier:1, atk:800,          cost:120,  desc:'A blade left to rot in the dark.'},
-  'Iron Sword':     {emoji:'⚔', type:'weapon',    tier:1, atk:2000,         cost:280,  desc:'Standard iron. Reliable.'},
-  'Bone Cleaver':   {emoji:'🪓', type:'weapon',    tier:2, atk:5500,         cost:750,  desc:'Carved from a giant\'s femur.'},
-  'Cursed Blade':   {emoji:'🗡', type:'weapon',    tier:2, atk:9000,  crit:5, cost:1400, desc:'Drips with dark energy. +5% crit.'},
-  'Vampiric Blade': {emoji:'🗡', type:'weapon',    tier:2, atk:8000,  hp:3000,  cost:950,  desc:'Drains life. +8,000 ATK, +3,000 HP.'},
-  'Soul Reaper':    {emoji:'☠', type:'weapon',    tier:3, atk:22000, crit:8, cost:4500, desc:'It hungers eternally. +8% crit.'},
-  'Void Blade':     {emoji:'🌀', type:'weapon',    tier:3, atk:32000, crit:10,  cost:5500, desc:'Cuts through reality itself.'},
+  'Rusted Blade':   {emoji:'🗡', type:'weapon',    tier:1, atk:10,          cost:120,  desc:'A blade left to rot in the dark.'},
+  'Iron Sword':     {emoji:'⚔', type:'weapon',    tier:1, atk:25,          cost:280,  desc:'Standard iron. Reliable.'},
+  'Bone Cleaver':   {emoji:'🪓', type:'weapon',    tier:2, atk:69,          cost:750,  desc:'Carved from a giant\'s femur.'},
+  'Cursed Blade':   {emoji:'🗡', type:'weapon',    tier:2, atk:113, crit:5, cost:1400, desc:'Drips with dark energy. +5% crit.'},
+  'Vampiric Blade': {emoji:'🗡', type:'weapon',    tier:2, atk:100, hp:38,  cost:950,  desc:'Drains life. +100 ATK, +38 HP.'},
+  'Soul Reaper':    {emoji:'☠', type:'weapon',    tier:3, atk:275, crit:8, cost:4500, desc:'It hungers eternally. +8% crit.'},
+  'Void Blade':     {emoji:'🌀', type:'weapon',    tier:3, atk:400, crit:10, cost:5500, desc:'Cuts through reality itself.'},
   // ── ARMOR ──
-  'Tattered Rags':  {emoji:'🧥', type:'armor',     tier:1, def:400,   hp:800,   cost:100,  desc:'Better than nothing.'},
-  'Leather Vest':   {emoji:'🦺', type:'armor',     tier:1, def:1000,  hp:2000,  cost:260,  desc:'Crude but effective.'},
-  'Chain Mail':     {emoji:'🛡', type:'armor',     tier:2, def:3000,  hp:6000,  cost:700,  desc:'Heavy iron links.'},
-  'Mithril Shield': {emoji:'🛡', type:'armor',     tier:2, def:5000,  hp:4000,  cost:850,  desc:'Mithril-forged. +5,000 DEF, +4,000 HP.'},
-  'Cloak of Shadows':{emoji:'🌑', type:'armor',    tier:2, dodge:8, crit:4, def:1500, cost:820, desc:'+8% dodge, +4% crit, +1,500 DEF.'},
-  'Shadow Plate':   {emoji:'🖤', type:'armor',     tier:3, def:8000,  hp:15000, cost:4000, desc:'Forged in the void itself.'},
-  'Dragonscale Mail':{emoji:'🐲', type:'armor',    tier:3, def:13000, hp:22000, cost:5800, desc:'Scales of the last dragon.'},
+  'Tattered Rags':  {emoji:'🧥', type:'armor',     tier:1, def:5,   hp:10,  cost:100,  desc:'Better than nothing.'},
+  'Leather Vest':   {emoji:'🦺', type:'armor',     tier:1, def:13,  hp:25,  cost:260,  desc:'Crude but effective.'},
+  'Chain Mail':     {emoji:'🛡', type:'armor',     tier:2, def:38,  hp:75,  cost:700,  desc:'Heavy iron links.'},
+  'Mithril Shield': {emoji:'🛡', type:'armor',     tier:2, def:63,  hp:50,  cost:850,  desc:'Mithril-forged. +63 DEF, +50 HP.'},
+  'Cloak of Shadows':{emoji:'🌑', type:'armor',    tier:2, dodge:8, crit:4, def:19,    cost:820, desc:'+8% dodge, +4% crit, +19 DEF.'},
+  'Shadow Plate':   {emoji:'🖤', type:'armor',     tier:3, def:100, hp:188, cost:4000, desc:'Forged in the void itself.'},
+  'Dragonscale Mail':{emoji:'🐲', type:'armor',    tier:3, def:163, hp:275, cost:5800, desc:'Scales of the last dragon.'},
   // ── ACCESSORIES ──
   'Lucky Charm':    {emoji:'🍀', type:'accessory', tier:1, crit:4,            cost:180,  desc:'+4% crit chance.'},
   'Shadow Ring':    {emoji:'💍', type:'accessory', tier:1, dodge:5,           cost:180,  desc:'+5% dodge.'},
-  'Ring of Fortitude': {emoji:'💍', type:'accessory', tier:1, hp:2000, def:300,         cost:220,  desc:'+2,000 HP and +300 DEF.'},
-  'Amulet of Speed':   {emoji:'📿', type:'accessory', tier:1, dodge:5, crit:3,           cost:200,  desc:'+5% dodge, +3% crit.'},
-  'Blood Amulet':   {emoji:'🩸', type:'accessory', tier:2, hp:8000,           cost:600,  desc:'+8,000 max HP.'},
+  'Ring of Fortitude': {emoji:'💍', type:'accessory', tier:1, hp:25,  def:4,  cost:220,  desc:'+25 HP and +4 DEF.'},
+  'Amulet of Speed':   {emoji:'📿', type:'accessory', tier:1, dodge:5, crit:3, cost:200, desc:'+5% dodge, +3% crit.'},
+  'Blood Amulet':   {emoji:'🩸', type:'accessory', tier:2, hp:100,            cost:600,  desc:'+100 max HP.'},
   'Arcane Focus':   {emoji:'🔮', type:'accessory', tier:2, resMax:60,         cost:550,  desc:'+60 max resource.'},
-  'Ring of Power':      {emoji:'💎', type:'accessory', tier:2, atk:3000, resMax:40,       cost:780,  desc:'+3,000 ATK, +40 resource max.'},
-  'Berserker Charm':    {emoji:'😡', type:'accessory', tier:2, atk:6000, def:-500,        cost:680,  desc:'+6,000 ATK but -500 DEF. High risk.'},
-  'Death\'s Sigil': {emoji:'💀', type:'accessory', tier:3, atk:6000, crit:6,  cost:3800, desc:'+ATK and +6% crit.'},
-  "Lich's Phylactery":  {emoji:'💀', type:'accessory', tier:3, atk:16000, hp:12000,       cost:5200, desc:'Contains a sliver of undeath.'},
-  'Eye of the Storm':   {emoji:'🌩', type:'accessory', tier:3, crit:12, dodge:10, atk:9000, cost:4800, desc:'Perfect focus. See everything.'},
+  'Ring of Power':      {emoji:'💎', type:'accessory', tier:2, atk:38,  resMax:40, cost:780, desc:'+38 ATK, +40 resource max.'},
+  'Berserker Charm':    {emoji:'😡', type:'accessory', tier:2, atk:75,  def:-6,    cost:680, desc:'+75 ATK but -6 DEF. High risk.'},
+  'Death\'s Sigil': {emoji:'💀', type:'accessory', tier:3, atk:75,  crit:6,  cost:3800, desc:'+75 ATK and +6% crit.'},
+  "Lich's Phylactery":  {emoji:'💀', type:'accessory', tier:3, atk:200, hp:150,    cost:5200, desc:'Contains a sliver of undeath.'},
+  'Eye of the Storm':   {emoji:'🌩', type:'accessory', tier:3, crit:12, dodge:10, atk:113, cost:4800, desc:'Perfect focus. See everything.'},
   'Tome of Devastation':{emoji:'📕', type:'accessory', tier:3, resMax:80, atk:14000,      cost:4500, desc:'+80 resource, +14,000 ATK.'},
   // ── POTIONS ──
   'Minor Heal':     {emoji:'🧪', type:'potion',    tier:1, healPct:0.25,      cost:75,   desc:'Restores 25% HP.'},
@@ -1786,39 +1786,39 @@ const ITEMS = {
   'Full Restore':   {emoji:'✨', type:'potion',    tier:3, healPct:1.00,      cost:580,  desc:'Fully restores HP.'},
   'Elixir':         {emoji:'💫', type:'potion',    tier:2, resPct:0.50,       cost:160,  desc:'Restores 50% resource.'},
   // ── CLASS WEAPONS (legendary, class-locked, drop-only) ──
-  'Bloodreaver':      {emoji:'🩸', type:'weapon', tier:4, classReq:'Fighter',     atk:45000, crit:10,           cost:0, desc:'Drinks deep. The more you kill, the stronger it grows.'},
-  'Lightbringer':     {emoji:'⚡', type:'weapon', tier:4, classReq:'Paladin',     atk:38000, hp:20000,          cost:0, desc:'Radiates holy judgment. Burns the unholy.'},
-  'Shadowbow':        {emoji:'🏹', type:'weapon', tier:4, classReq:'Ranger',      atk:40000, crit:14, dodge:8,  cost:0, desc:'Never misses. Never forgives.'},
-  'Mind Shard':       {emoji:'🔮', type:'weapon', tier:4, classReq:'Illusionist', atk:50000, resMax:200,        cost:0, desc:'Fractures reality on impact. Your illusions become lethal.'},
-  'Divine Mace':      {emoji:'☩',  type:'weapon', tier:4, classReq:'Cleric',      atk:35000, hp:25000,          cost:0, desc:'Blessed by the last god standing.'},
-  'Shadowfang':       {emoji:'🗡', type:'weapon', tier:4, classReq:'Thief',       atk:42000, crit:16, dodge:10, cost:0, desc:'Kills before the shadow falls.'},
-  'Venom Edge':       {emoji:'🐍', type:'weapon', tier:4, classReq:'Assassin',    atk:48000, crit:12,           cost:0, desc:'The poison compounds. The target always dies.'},
-  'Dragon Fist Wraps':{emoji:'🐉', type:'weapon', tier:4, classReq:'Monk',        atk:55000, crit:8,            cost:0, desc:'Strike of ten thousand deaths. Your chi is now fire.'},
-  "Nature's Fury":    {emoji:'🌿', type:'weapon', tier:4, classReq:'Druid',       atk:38000, resMax:150, hp:12000, cost:0, desc:'The wild answers your call. Grow. Devour.'},
+  'Bloodreaver':      {emoji:'🩸', type:'weapon', tier:4, classReq:'Fighter',     atk:563, crit:10,            cost:0, desc:'Drinks deep. The more you kill, the stronger it grows.'},
+  'Lightbringer':     {emoji:'⚡', type:'weapon', tier:4, classReq:'Paladin',     atk:475, hp:250,             cost:0, desc:'Radiates holy judgment. Burns the unholy.'},
+  'Shadowbow':        {emoji:'🏹', type:'weapon', tier:4, classReq:'Ranger',      atk:500, crit:14, dodge:8,   cost:0, desc:'Never misses. Never forgives.'},
+  'Mind Shard':       {emoji:'🔮', type:'weapon', tier:4, classReq:'Illusionist', atk:625, resMax:200,         cost:0, desc:'Fractures reality on impact. Your illusions become lethal.'},
+  'Divine Mace':      {emoji:'☩',  type:'weapon', tier:4, classReq:'Cleric',      atk:438, hp:313,             cost:0, desc:'Blessed by the last god standing.'},
+  'Shadowfang':       {emoji:'🗡', type:'weapon', tier:4, classReq:'Thief',       atk:525, crit:16, dodge:10,  cost:0, desc:'Kills before the shadow falls.'},
+  'Venom Edge':       {emoji:'🐍', type:'weapon', tier:4, classReq:'Assassin',    atk:600, crit:12,            cost:0, desc:'The poison compounds. The target always dies.'},
+  'Dragon Fist Wraps':{emoji:'🐉', type:'weapon', tier:4, classReq:'Monk',        atk:688, crit:8,             cost:0, desc:'Strike of ten thousand deaths. Your chi is now fire.'},
+  "Nature's Fury":    {emoji:'🌿', type:'weapon', tier:4, classReq:'Druid',       atk:475, resMax:150, hp:150,  cost:0, desc:'The wild answers your call. Grow. Devour.'},
   // ── BOSS UNIQUE DROPS (legendary accessories, any class) ──
-  'Crown of Malechar':       {emoji:'👑', type:'accessory', tier:4, hp:50000, atk:15000, crit:10,            cost:0, desc:'The Lich-King\'s crown. Cold with ancient malice.'},
-  "Demon's Heart":           {emoji:'🫀', type:'accessory', tier:4, atk:25000, crit:8,                       cost:0, desc:'Still beating. Fuels a rage that never fades.'},
-  'Soul of the Iron Ghost':  {emoji:'⚙',  type:'accessory', tier:4, def:12000, hp:30000,                     cost:0, desc:'The ghost\'s will made manifest in iron and silence.'},
-  'Plague Sigil':            {emoji:'🕸', type:'accessory', tier:4, atk:20000, crit:12, dodge:8,             cost:0, desc:'Vexara\'s mark. Death follows where you walk.'},
-  "Wraith's Veil":           {emoji:'🌫', type:'accessory', tier:4, dodge:20,  hp:20000,                     cost:0, desc:'You are half-ghost now. Blades find only air.'},
-  "Death's Ledger":          {emoji:'📖', type:'accessory', tier:4, atk:18000, crit:10,                      cost:0, desc:'Every soul you claim is recorded. Interest compounds.'},
-  "Troll's Knuckle":         {emoji:'🪨', type:'accessory', tier:4, def:15000, hp:25000, atk:10000,          cost:0, desc:'Dense as the bridge it fell from. Heavy as regret.'},
+  'Crown of Malechar':       {emoji:'👑', type:'accessory', tier:4, hp:625, atk:188, crit:10,             cost:0, desc:'The Lich-King\'s crown. Cold with ancient malice.'},
+  "Demon's Heart":           {emoji:'🫀', type:'accessory', tier:4, atk:313, crit:8,                      cost:0, desc:'Still beating. Fuels a rage that never fades.'},
+  'Soul of the Iron Ghost':  {emoji:'⚙',  type:'accessory', tier:4, def:150, hp:375,                      cost:0, desc:'The ghost\'s will made manifest in iron and silence.'},
+  'Plague Sigil':            {emoji:'🕸', type:'accessory', tier:4, atk:250, crit:12, dodge:8,            cost:0, desc:'Vexara\'s mark. Death follows where you walk.'},
+  "Wraith's Veil":           {emoji:'🌫', type:'accessory', tier:4, dodge:20, hp:250,                     cost:0, desc:'You are half-ghost now. Blades find only air.'},
+  "Death's Ledger":          {emoji:'📖', type:'accessory', tier:4, atk:225, crit:10,                     cost:0, desc:'Every soul you claim is recorded. Interest compounds.'},
+  "Troll's Knuckle":         {emoji:'🪨', type:'accessory', tier:4, def:188, hp:313, atk:125,             cost:0, desc:'Dense as the bridge it fell from. Heavy as regret.'},
   // ── EPHRATA LEGENDARIES ──
-  "Gehman's Lantern":       {emoji:'🕯', type:'accessory', tier:4, resMax:150, atk:18000, hp:20000, cost:0, desc:'The founder\'s lantern burns with unholy light. Illuminates the darkest paths.'},
-  'Veil of the Pale Sister':{emoji:'🌫', type:'accessory', tier:4, dodge:18, hp:25000, def:8000,  cost:0, desc:'Woven from her burial shroud. You walk between worlds.'},
-  'Grinding Stone of Ruin': {emoji:'⚙',  type:'weapon',    tier:4, atk:52000, def:5000,             cost:0, desc:'Still grinding. Still hungry. The mill never stops.'},
-  'Harvest Reaper':         {emoji:'🌾', type:'weapon',    tier:4, atk:48000, crit:11, hp:15000,    cost:0, desc:'The fields yield only death now. Swings wide. Kills everything.'},
-  'Tome of Damnation':      {emoji:'📖', type:'accessory', tier:4, atk:22000, resMax:120, crit:8,   cost:0, desc:'Every page is a curse. Reading it changes you.'},
-  "Devil's Bargain":        {emoji:'📜', type:'accessory', tier:4, atk:30000, crit:15, def:-3000,   cost:0, desc:'Tremendous power. Terrible cost. The devil always collects.'},
-  'Wendigo Claw':           {emoji:'🦌', type:'accessory', tier:4, atk:20000, crit:10, dodge:12,    cost:0, desc:'Torn from the beast at the creek. Still warm. Still hungry.'},
+  "Gehman's Lantern":       {emoji:'🕯', type:'accessory', tier:4, resMax:150, atk:225, hp:250, cost:0, desc:'The founder\'s lantern burns with unholy light. Illuminates the darkest paths.'},
+  'Veil of the Pale Sister':{emoji:'🌫', type:'accessory', tier:4, dodge:18, hp:313, def:100,  cost:0, desc:'Woven from her burial shroud. You walk between worlds.'},
+  'Grinding Stone of Ruin': {emoji:'⚙',  type:'weapon',    tier:4, atk:650, def:63,              cost:0, desc:'Still grinding. Still hungry. The mill never stops.'},
+  'Harvest Reaper':         {emoji:'🌾', type:'weapon',    tier:4, atk:600, crit:11, hp:188,     cost:0, desc:'The fields yield only death now. Swings wide. Kills everything.'},
+  'Tome of Damnation':      {emoji:'📖', type:'accessory', tier:4, atk:275, resMax:120, crit:8,  cost:0, desc:'Every page is a curse. Reading it changes you.'},
+  "Devil's Bargain":        {emoji:'📜', type:'accessory', tier:4, atk:375, crit:15, def:-38,    cost:0, desc:'Tremendous power. Terrible cost. The devil always collects.'},
+  'Wendigo Claw':           {emoji:'🦌', type:'accessory', tier:4, atk:250, crit:10, dodge:12,   cost:0, desc:'Torn from the beast at the creek. Still warm. Still hungry.'},
   // ── LANSDOWNE LEGENDARIES ──
-  'Crown of Illusions':       {emoji:'👑', type:'accessory', tier:4, atk:22000, crit:14, dodge:12,   cost:0, desc:'The Phantasm King\'s crown. Nothing is real while you wear it.'},
-  'Reel of Lost Souls':       {emoji:'🎞', type:'accessory', tier:4, atk:20000, hp:18000, resMax:80, cost:0, desc:'Each frame holds a screaming soul. They empower you.'},
-  'Ring of Eternal Mourning': {emoji:'💍', type:'accessory', tier:4, hp:30000, def:9000, dodge:10,   cost:0, desc:'She never stopped weeping. Her grief is now your shield.'},
-  'Staff of Silent Wrath':    {emoji:'🪄', type:'weapon',    tier:4, atk:46000, crit:9, resMax:100,  cost:0, desc:'No words. No mercy. The Quaker\'s silence cuts deeper than steel.'},
-  "Naylor's Creek Stone":     {emoji:'🪨', type:'accessory', tier:4, hp:22000, def:7000, atk:12000,  cost:0, desc:'Pulled from the creek bed. Older than the borough. Warm to the touch.'},
-  'Ghost Ticket':             {emoji:'🎫', type:'accessory', tier:4, dodge:16, crit:10, atk:16000,   cost:0, desc:'One-way fare. The train it summons goes somewhere worse.'},
-  "Beast's Collar":           {emoji:'🦮', type:'accessory', tier:4, atk:18000, def:8000, hp:20000,  cost:0, desc:'Still has teeth marks. Whatever it held is still angry.'},
+  'Crown of Illusions':       {emoji:'👑', type:'accessory', tier:4, atk:275, crit:14, dodge:12,   cost:0, desc:'The Phantasm King\'s crown. Nothing is real while you wear it.'},
+  'Reel of Lost Souls':       {emoji:'🎞', type:'accessory', tier:4, atk:250, hp:225, resMax:80,   cost:0, desc:'Each frame holds a screaming soul. They empower you.'},
+  'Ring of Eternal Mourning': {emoji:'💍', type:'accessory', tier:4, hp:375, def:113, dodge:10,    cost:0, desc:'She never stopped weeping. Her grief is now your shield.'},
+  'Staff of Silent Wrath':    {emoji:'🪄', type:'weapon',    tier:4, atk:575, crit:9, resMax:100,  cost:0, desc:'No words. No mercy. The Quaker\'s silence cuts deeper than steel.'},
+  "Naylor's Creek Stone":     {emoji:'🪨', type:'accessory', tier:4, hp:275, def:88, atk:150,      cost:0, desc:'Pulled from the creek bed. Older than the borough. Warm to the touch.'},
+  'Ghost Ticket':             {emoji:'🎫', type:'accessory', tier:4, dodge:16, crit:10, atk:200,   cost:0, desc:'One-way fare. The train it summons goes somewhere worse.'},
+  "Beast's Collar":           {emoji:'🦮', type:'accessory', tier:4, atk:225, def:100, hp:250,     cost:0, desc:'Still has teeth marks. Whatever it held is still angry.'},
 };
 
 const SKILL_TREE = {
@@ -3339,7 +3339,7 @@ function playerAct(ability){
     curEnemy.hp=Math.max(0,curEnemy.hp-dmg);
     showDamageNum(fmt(dmg),getDmgClass(dmg),'right');
     if(overkill) setTimeout(()=>showDamageNum('OVERKILL','dmg-overkill','right'),400);
-    if(dmg>=100000) flashScreen('white');
+    if(dmg>=1000) flashScreen('white');
     if(dmg>=500000||ability.type==='Signature') shakeScreen();
     const msgs=[`${ability.name} strikes for ${fmt(dmg)} damage!`,`${ability.emoji} ${ability.name} — ${fmt(dmg)} dmg!`];
     setCLog(msgs[Math.floor(Math.random()*msgs.length)]);
@@ -3438,10 +3438,10 @@ function calcDamage(ability){
 }
 
 function getDmgClass(dmg){
-  if(dmg>=1000000)return 'dmg-crit';
-  if(dmg>=100000) return 'dmg-red';
-  if(dmg>=10000)  return 'dmg-orange';
-  if(dmg>=1000)   return 'dmg-yellow';
+  if(dmg>=500)  return 'dmg-crit';
+  if(dmg>=100)  return 'dmg-red';
+  if(dmg>=30)   return 'dmg-orange';
+  if(dmg>=10)   return 'dmg-yellow';
   return 'dmg-white';
 }
 
@@ -3572,10 +3572,10 @@ let luSpent = 0;
 let luOnClose = null;
 
 const STAT_EFFECTS = {
-  STR: '+80 ATK',
+  STR: '+1 ATK',
   DEX: '+1.5% CRIT & DODGE',
-  INT: '+15 RES MAX, +40 ATK',
-  CON: '+800 MAX HP',
+  INT: '+15 RES MAX, +1 ATK',
+  CON: '+10 MAX HP',
   WIS: '+20 RES MAX, +heal bonus',
   CHA: '+gold & XP bonus',
 };
@@ -3646,10 +3646,10 @@ function confirmStats(){
     Player[s] += n;
     // Apply stat effects
     for(let i=0;i<n;i++){
-      if(s==='STR'){ Player.atk += 80; }
+      if(s==='STR'){ Player.atk += 1; }
       if(s==='DEX'){ Player.crit=Math.min(75,Player.crit+1.5); Player.dodge=Math.min(75,Player.dodge+1.5); }
-      if(s==='INT'){ Player.maxRes+=15; Player.atk+=40; }
-      if(s==='CON'){ Player.maxHp+=800; Player.hp=Math.min(Player.maxHp,Player.hp+800); }
+      if(s==='INT'){ Player.maxRes+=15; Player.atk+=1; }
+      if(s==='CON'){ Player.maxHp+=10; Player.hp=Math.min(Player.maxHp,Player.hp+10); }
       if(s==='WIS'){ Player.maxRes+=20; Player.healBonus=(Player[s]-bs[s])*0.04; }
       if(s==='CHA'){
         Player.goldBonus=(Player[s]-bs[s])*0.08;
