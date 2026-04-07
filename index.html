@@ -532,7 +532,7 @@ body::before {
   z-index:4; letter-spacing:.2em; white-space:nowrap;
 }
 #ar-btn {
-  position:absolute; bottom:54px; right:14px;
+  position:absolute; bottom:60px; right:14px;
   background:rgba(13,10,20,0.92);
   border:1px solid #4a3a60;
   border-bottom:2px solid var(--blood);
@@ -605,7 +605,7 @@ body::before {
 }
 #sidebar-close:hover { color:var(--crimson); }
 #menu-btn {
-  position:absolute; bottom:94px; right:14px;
+  position:absolute; bottom:108px; right:14px;
   background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
   color:#9a88b8; font-family:'Share Tech Mono',monospace;
   font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
@@ -613,7 +613,7 @@ body::before {
 }
 #menu-btn:hover { border-color:var(--gold); color:var(--gold); }
 #inv-btn {
-  position:absolute; bottom:134px; right:14px;
+  position:absolute; bottom:156px; right:14px;
   background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
   color:#9a88b8; font-family:'Share Tech Mono',monospace;
   font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
@@ -2721,7 +2721,7 @@ function headingLabel(h){
 // ══════════════════════════════════════════════════════
 //  AR ENGINE
 // ══════════════════════════════════════════════════════
-let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[];
+let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[],arLastFrameTime=0,arEnemyPositions={};
 
 async function startAR(){
   if(!Player)return;
@@ -2797,7 +2797,7 @@ function stopAR(){
   }
   const ac=document.getElementById('ar-canvas');
   if(ac._arTapHandler){ ac.removeEventListener('touchend',ac._arTapHandler); ac._arTapHandler=null; }
-  arVisibleEnemies=[];
+  arVisibleEnemies=[]; arEnemyPositions={};
   document.getElementById('screen-ar').classList.remove('active');
   document.getElementById('screen-game').classList.add('active');
 }
@@ -2810,11 +2810,18 @@ function renderAR(){
   const c=canvas.getContext('2d');
   const W=canvas.width,H=canvas.height;
 
-  // Smooth heading heavily — damp out sensor jitter
+  // Time-based heading smoothing — consistent regardless of frame rate
+  const now=performance.now();
+  const dt=Math.min(now-arLastFrameTime,100)/1000; // seconds, cap at 100ms
+  arLastFrameTime=now;
   let diff=arTargetHeading-arHeading;
   if(diff>180) diff-=360;
   if(diff<-180) diff+=360;
-  arHeading=(arHeading+diff*0.05+360)%360;
+  // Ignore sub-0.5° jitter; 120ms time constant for smooth but responsive feel
+  if(Math.abs(diff)>0.5){
+    const alpha=1-Math.exp(-dt/0.12);
+    arHeading=(arHeading+diff*alpha+360)%360;
+  }
 
   c.clearRect(0,0,W,H);
 
@@ -2848,7 +2855,12 @@ function renderAR(){
   // Draw each enemy
   visible.sort((a,b)=>b.dist-a.dist); // far to near (near on top)
   visible.forEach(e=>{
-    const x=W/2+(e.diff/(FOV/2))*(W/2);
+    const targetX=W/2+(e.diff/(FOV/2))*(W/2);
+    const key=e.entity.id!==undefined?e.entity.id:e.name;
+    const prevX=arEnemyPositions[key]??targetX;
+    const sx=prevX+(targetX-prevX)*Math.min(1,dt/0.08);
+    arEnemyPositions[key]=sx;
+    const x=sx;
     const proximity=1-e.dist/MAX_DIST;
     const scale=0.6+proximity*0.6;
     const sz=Math.floor(W*0.14*scale);
