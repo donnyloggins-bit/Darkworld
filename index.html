@@ -406,6 +406,23 @@ body::before {
 .enter-btn:hover { background:var(--gold); color:var(--void); box-shadow:0 0 40px rgba(184,150,42,0.4); }
 .enter-btn:disabled { opacity:.3; cursor:not-allowed; }
 
+.name-section { width:100%; max-width:500px; margin:10px auto 4px; text-align:center; }
+.char-name-input {
+  width:100%; max-width:340px;
+  background:#0d0a14;
+  border:1px solid var(--gold);
+  color:var(--ghost);
+  font-family:'IM Fell English',serif;
+  font-size:1.2rem;
+  text-align:center;
+  padding:10px 16px;
+  margin-top:8px;
+  outline:none;
+  letter-spacing:.08em;
+}
+.char-name-input::placeholder { color:rgba(180,150,80,0.35); }
+.char-name-input:focus { border-color:var(--crimson); box-shadow:0 0 12px rgba(139,26,26,0.4); }
+
 /* ══════════════════════════════════════════════
    GAME SCREEN
 ══════════════════════════════════════════════ */
@@ -1254,6 +1271,12 @@ body::before {
     <div class="stat-roll-grid" id="stat-grid"></div>
     <button class="roll-btn" id="roll-btn" onclick="rollStats()">🎲 ROLL THE BONES</button>
     <span id="reroll-info" class="reroll-note"></span>
+  </div>
+
+  <!-- NAME INPUT -->
+  <div class="name-section">
+    <div class="roller-title">☠ NAME YOUR SOUL</div>
+    <input type="text" id="char-name-input" class="char-name-input" maxlength="20" placeholder="Enter your name..." oninput="checkEnterReady()" autocomplete="off" spellcheck="false" />
   </div>
 
   <button class="enter-btn" id="enter-btn" onclick="enterWorld()" disabled>⚔ ENTER THE FALLEN CITY</button>
@@ -2255,8 +2278,10 @@ function rollStats() {
   setTimeout(checkCanEnter, STAT_NAMES.length*120+400);
 }
 
-function checkCanEnter(){
-  document.getElementById('enter-btn').disabled = !(selectedClass && rolledStats);
+function checkCanEnter(){ checkEnterReady(); }
+function checkEnterReady(){
+  const name = document.getElementById('char-name-input').value.trim();
+  document.getElementById('enter-btn').disabled = !(selectedClass && rolledStats && name.length > 0);
 }
 
 // ══════════════════════════════════════════════════════
@@ -2332,8 +2357,9 @@ function buildPlayer() {
   const hpBonus = Math.floor(cls.stats.hp * (CON-10) * 0.05);
   const atkBonus = Math.floor(cls.stats.atk * (STR-10) * 0.04);
 
+  const inputName = document.getElementById('char-name-input').value.trim();
   Player = {
-    name: selectedClass.toUpperCase(),
+    name: inputName || selectedClass.toUpperCase(),
     className: selectedClass,
     cls,
     emoji: cls.emoji,
