@@ -105,9 +105,10 @@ body::before {
 .title-runes {
   font-family:'Share Tech Mono',monospace;
   font-size:.88rem;
-  color:rgba(200,60,60,0.5);
+  color:rgba(220,60,60,0.85);
   letter-spacing:.5em;
   margin-bottom:30px;
+  text-shadow:0 0 10px rgba(200,0,0,0.7);
   animation:flicker 4s ease infinite;
 }
 
@@ -118,12 +119,13 @@ body::before {
 .main-title {
   font-family:'Cinzel Decorative',serif;
   font-size:clamp(1.6rem, 10vw, 5rem);
-  color:var(--ghost);
+  color:#fff;
   letter-spacing:clamp(.05em, .5vw, .15em);
   text-shadow:
-    0 0 40px rgba(139,26,26,0.8),
-    0 0 80px rgba(139,26,26,0.4),
-    0 0 120px rgba(100,0,0,0.3);
+    0 2px 4px rgba(0,0,0,0.9),
+    0 0 40px rgba(180,20,20,1),
+    0 0 80px rgba(139,26,26,0.7),
+    0 0 140px rgba(100,0,0,0.5);
   margin-bottom:8px;
   animation:titlePulse 3s ease infinite;
 }
@@ -135,18 +137,19 @@ body::before {
 
 .main-subtitle {
   font-family:'IM Fell English',serif;
-  font-size:clamp(.6rem, 2.5vw, 1rem);
-  color:var(--crimson);
+  font-size:clamp(.75rem, 2.5vw, 1.1rem);
+  color:#e8c0c0;
   letter-spacing:.4em;
   text-transform:uppercase;
   margin-bottom:clamp(24px, 6vh, 60px);
   font-style:italic;
+  text-shadow:0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(150,20,20,0.6);
 }
 
 .begin-btn {
-  background:transparent;
-  border:1px solid var(--crimson);
-  color:var(--pale);
+  background:rgba(80,0,0,0.55);
+  border:1px solid #cc2222;
+  color:#f0d0d0;
   font-family:'Cinzel Decorative',serif;
   font-size:clamp(.7rem, 2vw, .9rem);
   letter-spacing:.2em;
@@ -155,6 +158,8 @@ body::before {
   position:relative;
   transition:all .3s ease;
   text-transform:uppercase;
+  text-shadow:0 0 10px rgba(255,80,80,0.5);
+  box-shadow:0 0 20px rgba(150,0,0,0.4);
 }
 
 .begin-btn::before {
