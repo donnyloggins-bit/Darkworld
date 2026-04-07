@@ -1327,6 +1327,7 @@ body::before {
 
     <!-- ENEMY TOP -->
     <div id="cb-top">
+      <img id="boss-portrait" src="" alt="" style="display:none;width:100%;max-height:220px;object-fit:cover;object-position:top;border-bottom:2px solid #b8962a;margin-bottom:6px;">
       <div id="cb-name">ENEMY</div>
       <div id="cb-type">TYPE</div>
       <span id="e-spr" class="c-sprite">💀</span>
@@ -1597,7 +1598,7 @@ const WORLDS = {
       "The borderlands stretch thin into quiet darkness. Mostly safe — for now.",
     ],
     bosses: [
-      {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar'},
+      {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar', portrait:'lord-malachar.png'},
       {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:680000, atk:32000,def:5000,xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart"},
       {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:520000, atk:28000,def:7000,xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost'},
       {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:480000, atk:26000,def:4000,xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil'},
@@ -3010,6 +3011,9 @@ function startCombat(ent,boss){
   const attackInterval = boss ? 4000 : 5500;
   curEnemy.nextAttackAt = Date.now() + attackInterval;
 
+  const portrait = document.getElementById('boss-portrait');
+  if(boss && ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; }
+  else { portrait.src=''; portrait.style.display='none'; }
   document.getElementById('cb-name').textContent=ent.name;
   document.getElementById('cb-type').textContent=ent.type||(ZONES[ent.zone]?.name?.toUpperCase()+' MONSTER');
   document.getElementById('e-spr').textContent=ent.emoji;
