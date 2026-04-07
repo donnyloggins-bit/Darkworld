@@ -2,33 +2,36 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DARKWORLD — The Fallen City</title>
-<link rel="manifest" href="/manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#030205">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DARKWORLD">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon.svg">
+<title>DARKWORLD — The Fallen City</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English:ital@0;1&family=Share+Tech+Mono&display=swap');
 
 :root {
-  --void:    #030205;
-  --abyss:   #07060a;
-  --pit:     #0d0b12;
-  --shadow:  #14111c;
-  --dark:    #1c1826;
-  --muted:   #2a2438;
-  --blood:   #6b0000;
-  --crimson: #8b1a1a;
-  --ember:   #b54a00;
-  --gold:    #b8962a;
-  --pale:    #c9b99a;
-  --bone:    #ddd0b8;
-  --ghost:   #f0e8d8;
-  --soul:    rgba(180,160,220,0.08);
+  --void:    #0d0a14;
+  --abyss:   #141020;
+  --pit:     #1a1628;
+  --shadow:  #221e30;
+  --dark:    #2a253a;
+  --muted:   #3a3452;
+  --blood:   #aa1a1a;
+  --crimson: #cc3030;
+  --ember:   #d06010;
+  --gold:    #d4a830;
+  --pale:    #ddd0b8;
+  --bone:    #ede0c8;
+  --ghost:   #f8f0e4;
+  --soul:    rgba(200,180,240,0.12);
 }
 
+html { font-size: 20px; }
 *{margin:0;padding:0;box-sizing:border-box;}
 
 body {
@@ -52,6 +55,32 @@ body::before {
   opacity:0.6;
 }
 
+/* ── LANDSCAPE WARNING ── */
+@media (orientation: landscape) {
+  #rotate-warn {
+    display:flex !important;
+  }
+}
+#rotate-warn {
+  display:none;
+  position:fixed; inset:0; z-index:10000;
+  background:#0d0a14;
+  flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:20px;
+  text-align:center;
+}
+#rotate-warn .rw-icon { font-size:4rem; }
+#rotate-warn .rw-text {
+  font-family:'Cinzel Decorative',serif;
+  font-size:1rem; color:var(--gold);
+  letter-spacing:.1em; line-height:1.6;
+}
+#rotate-warn .rw-sub {
+  font-family:'Share Tech Mono',monospace;
+  font-size:1.05rem; color:#9080a8;
+}
+
 /* ══════════════════════════════════════════════
    SCREENS
 ══════════════════════════════════════════════ */
@@ -63,13 +92,13 @@ body::before {
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  background:radial-gradient(ellipse at center, #0d0a14 0%, #030205 70%);
+  background:radial-gradient(ellipse at center, #201838 0%, #0d0a1c 70%);
 }
 
 .title-runes {
   font-family:'Share Tech Mono',monospace;
-  font-size:.55rem;
-  color:rgba(139,26,26,0.3);
+  font-size:.88rem;
+  color:rgba(200,60,60,0.5);
   letter-spacing:.5em;
   margin-bottom:30px;
   animation:flicker 4s ease infinite;
@@ -81,9 +110,9 @@ body::before {
 
 .main-title {
   font-family:'Cinzel Decorative',serif;
-  font-size:5rem;
+  font-size:clamp(1.6rem, 10vw, 5rem);
   color:var(--ghost);
-  letter-spacing:.15em;
+  letter-spacing:clamp(.05em, .5vw, .15em);
   text-shadow:
     0 0 40px rgba(139,26,26,0.8),
     0 0 80px rgba(139,26,26,0.4),
@@ -99,11 +128,11 @@ body::before {
 
 .main-subtitle {
   font-family:'IM Fell English',serif;
-  font-size:1rem;
-  color:var(--blood);
-  letter-spacing:.5em;
+  font-size:clamp(.6rem, 2.5vw, 1rem);
+  color:var(--crimson);
+  letter-spacing:.4em;
   text-transform:uppercase;
-  margin-bottom:60px;
+  margin-bottom:clamp(24px, 6vh, 60px);
   font-style:italic;
 }
 
@@ -112,9 +141,9 @@ body::before {
   border:1px solid var(--crimson);
   color:var(--pale);
   font-family:'Cinzel Decorative',serif;
-  font-size:.9rem;
+  font-size:clamp(.7rem, 2vw, .9rem);
   letter-spacing:.2em;
-  padding:16px 50px;
+  padding:clamp(10px,2vh,16px) clamp(24px,6vw,50px);
   cursor:pointer;
   position:relative;
   transition:all .3s ease;
@@ -137,6 +166,7 @@ body::before {
 }
 .begin-btn:hover::before { opacity:1; }
 
+
 .skull-divider {
   color:rgba(139,26,26,0.4);
   font-size:1.2rem;
@@ -149,7 +179,7 @@ body::before {
   flex-direction:column;
   align-items:center;
   justify-content:flex-start;
-  background:radial-gradient(ellipse at top, #0f0c18 0%, #030205 60%);
+  background:radial-gradient(ellipse at top, #1e1838 0%, #0d0a1c 60%);
   overflow-y:auto;
   padding:30px 20px;
 }
@@ -164,7 +194,7 @@ body::before {
 }
 
 .create-sub {
-  font-size:.75rem;
+  font-size:1.1rem;
   color:var(--blood);
   letter-spacing:.4em;
   text-transform:uppercase;
@@ -183,8 +213,8 @@ body::before {
 }
 
 .class-card {
-  background:linear-gradient(160deg,#0f0c18,#070510);
-  border:1px solid #1c1826;
+  background:linear-gradient(160deg,#1c1830,#120e22);
+  border:1px solid #3a3050;
   padding:14px 10px;
   cursor:pointer;
   text-align:center;
@@ -203,29 +233,29 @@ body::before {
   transition:transform .2s ease;
 }
 
-.class-card:hover { border-color:#3a2a4a; background:linear-gradient(160deg,#16122a,#0d0b18); }
+.class-card:hover { border-color:#6a5a88; background:linear-gradient(160deg,#24203c,#1a1630); }
 .class-card:hover::after { transform:scaleX(1); }
-.class-card.selected { border-color:var(--gold); background:linear-gradient(160deg,#1e1830,#100d20); }
+.class-card.selected { border-color:var(--gold); background:linear-gradient(160deg,#2c2848,#1e1a38); }
 .class-card.selected::after { transform:scaleX(1); background:var(--gold); }
 
 .class-emoji { font-size:1.8rem; margin-bottom:6px; display:block; }
-.class-card-name { font-family:'Cinzel Decorative',serif; font-size:.55rem; color:var(--pale); letter-spacing:.05em; margin-bottom:4px; }
-.class-card-type { font-size:.6rem; color:#4a3a5a; font-style:italic; }
+.class-card-name { font-family:'Cinzel Decorative',serif; font-size:.88rem; color:var(--pale); letter-spacing:.05em; margin-bottom:4px; }
+.class-card-type { font-size:.95rem; color:#8878a8; font-style:italic; }
 .class-card.selected .class-card-name { color:var(--gold); }
 
 /* STAT ROLLER */
 .roller-section {
   width:100%;
   max-width:900px;
-  background:linear-gradient(160deg,#0d0b14,#070510);
-  border:1px solid #1c1826;
+  background:linear-gradient(160deg,#1c1830,#120e22);
+  border:1px solid #3a3050;
   padding:24px;
   margin-bottom:20px;
 }
 
 .roller-title {
   font-family:'Cinzel Decorative',serif;
-  font-size:.85rem;
+  font-size:1.2rem;
   color:var(--gold);
   letter-spacing:.1em;
   margin-bottom:18px;
@@ -249,8 +279,8 @@ body::before {
 }
 
 .stat-roll-box {
-  background:#07060a;
-  border:1px solid #1a1526;
+  background:#181428;
+  border:1px solid #3a3050;
   padding:12px 8px;
   text-align:center;
   position:relative;
@@ -258,8 +288,8 @@ body::before {
 
 .stat-roll-label {
   font-family:'Share Tech Mono',monospace;
-  font-size:.6rem;
-  color:#4a3a5a;
+  font-size:.95rem;
+  color:#9080a8;
   letter-spacing:.2em;
   margin-bottom:8px;
   display:block;
@@ -285,7 +315,7 @@ body::before {
 
 .stat-roll-mod {
   font-family:'Share Tech Mono',monospace;
-  font-size:.6rem;
+  font-size:.95rem;
   margin-top:4px;
   display:block;
 }
@@ -299,14 +329,14 @@ body::before {
 
 .die {
   width:14px; height:14px;
-  background:#12101a;
-  border:1px solid #2a1a3a;
-  font-size:.55rem;
+  background:#201c34;
+  border:1px solid #4a3a60;
+  font-size:.88rem;
   display:flex;
   align-items:center;
   justify-content:center;
   font-family:'Share Tech Mono',monospace;
-  color:#4a3a6a;
+  color:#8878aa;
 }
 
 .roll-btn {
@@ -314,7 +344,7 @@ body::before {
   border:1px solid var(--crimson);
   color:var(--pale);
   font-family:'Cinzel Decorative',serif;
-  font-size:.75rem;
+  font-size:1.1rem;
   letter-spacing:.15em;
   padding:11px 30px;
   cursor:pointer;
@@ -325,8 +355,8 @@ body::before {
 .roll-btn:hover { border-color:var(--gold); color:var(--gold); box-shadow:0 0 20px rgba(184,150,42,0.2); }
 
 .reroll-note {
-  font-size:.65rem;
-  color:#3a2a4a;
+  font-size:1rem;
+  color:#7a6a9a;
   font-style:italic;
   margin-top:10px;
 }
@@ -335,8 +365,8 @@ body::before {
 .class-info-panel {
   width:100%;
   max-width:900px;
-  background:linear-gradient(160deg,#0d0b14,#070510);
-  border:1px solid #1c1826;
+  background:linear-gradient(160deg,#1c1830,#120e22);
+  border:1px solid #3a3050;
   padding:20px 24px;
   margin-bottom:20px;
   display:none;
@@ -345,26 +375,26 @@ body::before {
 .class-info-panel.visible { display:block; }
 
 .cip-name { font-family:'Cinzel Decorative',serif; font-size:1.1rem; color:var(--gold); margin-bottom:4px; }
-.cip-desc { font-size:.85rem; color:#7a6a8a; font-style:italic; margin-bottom:14px; line-height:1.6; }
+.cip-desc { font-size:1.2rem; color:#b0a0c8; font-style:italic; margin-bottom:14px; line-height:1.6; }
 .cip-abilities { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
 
 .ability-card {
-  background:#07060a;
-  border:1px solid #1a1526;
+  background:#181428;
+  border:1px solid #3a3050;
   padding:10px;
 }
 
-.ab-name { font-family:'Cinzel Decorative',serif; font-size:.55rem; color:var(--pale); margin-bottom:4px; }
-.ab-type { font-size:.6rem; color:var(--crimson); font-style:italic; margin-bottom:4px; }
-.ab-desc { font-size:.65rem; color:#5a4a6a; line-height:1.4; }
-.ab-cost { font-family:'Share Tech Mono',monospace; font-size:.55rem; color:#3a6aaa; margin-top:4px; }
+.ab-name { font-family:'Cinzel Decorative',serif; font-size:.88rem; color:var(--pale); margin-bottom:4px; }
+.ab-type { font-size:.95rem; color:var(--crimson); font-style:italic; margin-bottom:4px; }
+.ab-desc { font-size:1rem; color:#9a8ab8; line-height:1.4; }
+.ab-cost { font-family:'Share Tech Mono',monospace; font-size:.88rem; color:#6a9acc; margin-top:4px; }
 
 .enter-btn {
   background:linear-gradient(135deg,#1a0800,#0d0500);
   border:1px solid var(--gold);
   color:var(--gold);
   font-family:'Cinzel Decorative',serif;
-  font-size:.9rem;
+  font-size:1.25rem;
   letter-spacing:.2em;
   padding:14px 50px;
   cursor:pointer;
@@ -399,26 +429,110 @@ body::before {
 
 #coord-hud {
   position:absolute; top:12px; left:12px;
-  background:rgba(3,2,5,0.9);
-  border:1px solid #1c1220;
+  background:rgba(13,10,20,0.92);
+  border:1px solid #3a2a50;
   border-left:2px solid var(--blood);
   padding:6px 12px;
   font-family:'Share Tech Mono',monospace;
-  font-size:.6rem;
-  color:#3a2a4a;
+  font-size:.95rem;
+  color:#a090b8;
   z-index:5;
 }
 
 #hint-hud {
   position:absolute; top:12px; right:12px;
-  background:rgba(3,2,5,0.9);
-  border:1px solid #1c1220;
+  background:rgba(13,10,20,0.92);
+  border:1px solid #3a2a50;
   padding:6px 10px;
-  font-size:.58rem;
-  color:#2a1a3a;
+  font-size:.92rem;
+  color:#8878a0;
   z-index:5;
   line-height:1.8;
 }
+
+/* AR SCREEN */
+#screen-ar { background:#000; }
+#ar-video {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover; z-index:1;
+}
+#ar-canvas {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  z-index:2;
+}
+#ar-back {
+  position:absolute; top:20px; left:16px;
+  background:rgba(3,2,5,0.85);
+  border:1px solid #3a2a4a;
+  border-left:2px solid var(--blood);
+  color:var(--pale);
+  font-family:'Share Tech Mono',monospace;
+  font-size:1rem; letter-spacing:.1em;
+  padding:10px 16px; cursor:pointer; z-index:4;
+}
+#ar-status {
+  position:absolute; top:20px; right:16px;
+  background:rgba(13,10,20,0.88);
+  border:1px solid #4a2a2a;
+  border-right:2px solid var(--blood);
+  padding:10px 14px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.88rem; color:#dd4444; z-index:4;
+  animation:flicker 4s ease infinite;
+}
+#ar-compass {
+  position:absolute; bottom:28px; left:50%;
+  transform:translateX(-50%);
+  background:rgba(3,2,5,0.85);
+  border:1px solid #2a1a3a;
+  border-bottom:2px solid var(--gold);
+  padding:7px 22px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.95rem; color:var(--gold);
+  z-index:4; letter-spacing:.2em; white-space:nowrap;
+}
+#ar-btn {
+  position:absolute; bottom:54px; right:14px;
+  background:rgba(13,10,20,0.92);
+  border:1px solid #4a3a60;
+  border-bottom:2px solid var(--blood);
+  padding:8px 16px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.95rem; color:#9080b0;
+  cursor:pointer; z-index:5; letter-spacing:.08em;
+}
+#ar-btn:hover { color:var(--bone); border-bottom-color:var(--gold); }
+
+/* GPS */
+#gps-hud {
+  position:absolute; top:46px; left:12px;
+  background:rgba(3,2,5,0.9);
+  border:1px solid #1c1220;
+  border-left:2px solid #1a2a1a;
+  padding:5px 12px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.88rem;
+  z-index:5;
+  display:flex; align-items:center; gap:7px;
+}
+.gps-dot { width:6px; height:6px; border-radius:50%; background:#2a4a2a; flex-shrink:0; transition:background .4s; }
+#gps-txt { color:#6a9a6a; transition:color .4s; }
+#gps-btn {
+  position:absolute; bottom:14px; right:14px;
+  background:rgba(13,10,20,0.92);
+  border:1px solid #4a3a60;
+  border-bottom:2px solid var(--blood);
+  padding:8px 16px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.95rem;
+  color:#9080b0;
+  cursor:pointer;
+  z-index:5;
+  letter-spacing:.08em;
+}
+#gps-btn:hover { color:var(--bone); border-bottom-color:var(--gold); }
 
 /* LEGEND */
 #legend {
@@ -429,24 +543,41 @@ body::before {
   padding:10px 14px;
   z-index:5;
 }
-.lg-title { font-family:'Cinzel Decorative',serif; font-size:.5rem; color:var(--gold); letter-spacing:.2em; margin-bottom:8px; }
-.lg-item { display:flex; align-items:center; gap:8px; margin-bottom:3px; font-size:.65rem; color:#4a3a5a; }
+.lg-title { font-family:'Cinzel Decorative',serif; font-size:.82rem; color:var(--gold); letter-spacing:.2em; margin-bottom:8px; }
+.lg-item { display:flex; align-items:center; gap:8px; margin-bottom:3px; font-size:1rem; color:#a090b8; }
 .lg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 
-/* SIDEBAR */
+/* SIDEBAR — always an overlay so map fills full screen */
 #sidebar {
-  width:280px;
-  background:linear-gradient(180deg,#07060a 0%,#030205 100%);
-  border-left:1px solid #12101a;
-  display:flex;
-  flex-direction:column;
-  z-index:10;
-  overflow:hidden;
+  position:fixed; top:0; right:0; bottom:0;
+  width:min(300px,88vw);
+  background:linear-gradient(180deg,#18142a 0%,#100d1e 100%);
+  border-left:1px solid #3a2a50;
+  display:flex; flex-direction:column;
+  z-index:50; overflow-y:auto; overflow-x:hidden;
+  transform:translateX(100%);
+  transition:transform .25s ease;
+  box-shadow:-4px 0 24px rgba(0,0,0,0.9);
 }
+#sidebar.open { transform:translateX(0); }
+#sidebar-close {
+  position:absolute; top:10px; right:12px;
+  background:transparent; border:none; color:#9a88b8;
+  font-size:1.1rem; cursor:pointer; padding:4px 8px;
+}
+#sidebar-close:hover { color:var(--crimson); }
+#menu-btn {
+  position:absolute; bottom:16px; left:12px;
+  background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
+  color:#9a88b8; font-family:'Share Tech Mono',monospace;
+  font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
+  cursor:pointer; z-index:5;
+}
+#menu-btn:hover { border-color:var(--gold); color:var(--gold); }
 
 #sb-title {
   padding:14px 16px 10px;
-  border-bottom:1px solid #12101a;
+  border-bottom:1px solid #3a2a50;
   text-align:center;
 }
 
@@ -459,8 +590,8 @@ body::before {
 }
 
 #sb-title .city {
-  font-size:.6rem;
-  color:var(--blood);
+  font-size:.95rem;
+  color:var(--crimson);
   letter-spacing:.3em;
   text-transform:uppercase;
   font-style:italic;
@@ -470,7 +601,7 @@ body::before {
 /* PLAYER PANEL */
 #player-panel {
   padding:12px 14px;
-  border-bottom:1px solid #12101a;
+  border-bottom:1px solid #3a2a50;
 }
 
 .p-class-row {
@@ -484,7 +615,7 @@ body::before {
 
 .p-name {
   font-family:'Cinzel Decorative',serif;
-  font-size:.75rem;
+  font-size:1.1rem;
   color:var(--ghost);
 }
 
@@ -493,20 +624,20 @@ body::before {
   background:var(--blood);
   color:var(--gold);
   font-family:'Cinzel Decorative',serif;
-  font-size:.5rem;
+  font-size:.82rem;
   padding:2px 7px;
   letter-spacing:.05em;
 }
 
 .bar-row { display:flex; align-items:center; gap:7px; margin-bottom:4px; }
-.bar-lbl { font-family:'Share Tech Mono',monospace; font-size:.55rem; color:#3a2a4a; width:24px; }
-.bar-bg { flex:1; height:6px; background:#07060a; border:1px solid #12101a; overflow:hidden; }
+.bar-lbl { font-family:'Share Tech Mono',monospace; font-size:.88rem; color:#9080a8; width:24px; }
+.bar-bg { flex:1; height:6px; background:#1a1628; border:1px solid #3a2a50; overflow:hidden; }
 .bar-fill { height:100%; transition:width .4s ease; }
-.bar-hp  { background:linear-gradient(90deg,#4a0000,#aa1800); }
-.bar-mp  { background:linear-gradient(90deg,#001040,#0038aa); }
-.bar-res { background:linear-gradient(90deg,#2a1800,#aa6600); }
-.bar-xp  { background:linear-gradient(90deg,#1a1200,#886600); }
-.bar-val { font-family:'Share Tech Mono',monospace; font-size:.55rem; color:#3a2a4a; width:80px; text-align:right; }
+.bar-hp  { background:linear-gradient(90deg,#7a0000,#dd2800); }
+.bar-mp  { background:linear-gradient(90deg,#001a60,#0050cc); }
+.bar-res { background:linear-gradient(90deg,#3a2000,#cc8000); }
+.bar-xp  { background:linear-gradient(90deg,#2a1e00,#aa8800); }
+.bar-val { font-family:'Share Tech Mono',monospace; font-size:.88rem; color:#9080a8; width:80px; text-align:right; }
 
 .stat-chips {
   display:flex;
@@ -517,24 +648,24 @@ body::before {
 
 .chip {
   font-family:'Share Tech Mono',monospace;
-  font-size:.55rem;
-  color:#3a2a4a;
-  background:#07060a;
-  border:1px solid #12101a;
+  font-size:.88rem;
+  color:#a090b8;
+  background:#1a1628;
+  border:1px solid #3a2a50;
   padding:2px 6px;
 }
 
-.chip span { color:#7a5a3a; }
+.chip span { color:#c8a060; }
 
 /* ZONE PANEL */
 #zone-panel {
   padding:10px 14px;
-  border-bottom:1px solid #12101a;
+  border-bottom:1px solid #3a2a50;
   min-height:70px;
 }
-.z-name { font-family:'Cinzel Decorative',serif; font-size:.7rem; margin-bottom:2px; }
-.z-danger { font-size:.55rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:4px; }
-.z-desc { font-size:.7rem; color:#3a2a4a; font-style:italic; line-height:1.5; }
+.z-name { font-family:'Cinzel Decorative',serif; font-size:1.05rem; margin-bottom:2px; }
+.z-danger { font-size:.88rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:4px; }
+.z-desc { font-size:1.05rem; color:#9080a8; font-style:italic; line-height:1.5; }
 
 /* LOG */
 #log-panel {
@@ -546,183 +677,228 @@ body::before {
   gap:2px;
 }
 #log-panel::-webkit-scrollbar { width:3px; }
-#log-panel::-webkit-scrollbar-thumb { background:#1c1220; }
+#log-panel::-webkit-scrollbar-thumb { background:#3a2a50; }
 
-.log-e { font-size:.7rem; line-height:1.4; padding:2px 0; border-bottom:1px solid #0a080f; animation:fadeIn .25s ease; }
+.log-e { font-size:1.05rem; line-height:1.4; padding:2px 0; border-bottom:1px solid #221e30; animation:fadeIn .25s ease; }
 @keyframes fadeIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
-.ls { color:#2a1a3a; font-style:italic; }
-.lc { color:#8a3a2a; }
+.ls { color:#8070a0; font-style:italic; }
+.lc { color:#cc6644; }
 .lb { color:var(--gold); font-weight:600; }
-.ll { color:#2a6a4a; }
-.ld { color:#aa1800; font-weight:600; }
-.li { color:#3a3a7a; }
+.ll { color:#4aaa6a; }
+.ld { color:#ee3300; font-weight:600; }
+.li { color:#6868cc; }
 
 /* ══════════════════════════════════════════════
-   COMBAT MODAL
+   COMBAT MODAL — Pokemon Go style
 ══════════════════════════════════════════════ */
 #combat-modal {
-  display:none;
-  position:fixed; inset:0;
-  background:rgba(1,1,3,0.92);
-  z-index:100;
-  align-items:center;
-  justify-content:center;
-  backdrop-filter:blur(8px) brightness(0.4);
+  display:none; position:fixed; inset:0;
+  background:#100d1e; z-index:100;
+  overflow:hidden;
 }
-#combat-modal.active { display:flex; }
+#combat-modal.active { display:flex; flex-direction:column; }
 
 #combat-box {
-  width:680px;
-  max-width:97vw;
-  background:linear-gradient(160deg,#0d0b14 0%,#07060a 100%);
-  border:1px solid #1c1220;
-  border-top:2px solid var(--crimson);
-  position:relative;
-  box-shadow:
-    0 0 80px rgba(107,0,0,0.5),
-    0 0 200px rgba(0,0,0,0.9),
-    inset 0 0 60px rgba(0,0,0,0.5);
+  width:100%; flex:1;
+  display:flex; flex-direction:column;
+  position:relative; overflow:hidden;
+  min-height:0;
 }
 
-/* Corner ornaments */
-#combat-box::before, #combat-box::after {
-  content:'✦';
-  position:absolute;
-  top:8px;
-  font-size:.7rem;
-  color:rgba(107,0,0,0.5);
+/* TOP: Enemy */
+#cb-top {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:16px 20px 8px;
+  background:radial-gradient(ellipse at 50% 30%, #1e1838 0%, #100d1e 75%);
+  position:relative; min-height:0; overflow:hidden;
 }
-#combat-box::before { left:12px; }
-#combat-box::after  { right:12px; }
-
-.cb-head {
-  background:linear-gradient(90deg,#07040c,#0f0818,#07040c);
-  padding:14px 24px;
-  border-bottom:1px solid #1c1220;
-  text-align:center;
-}
-
-.cb-head h2 {
+#cb-name {
   font-family:'Cinzel Decorative',serif;
-  font-size:1rem;
-  color:var(--ghost);
-  text-shadow:0 0 20px rgba(200,180,150,0.3);
-  letter-spacing:.05em;
+  font-size:clamp(.75rem,3.5vw,1.1rem);
+  color:var(--ghost); text-align:center;
+  text-shadow:0 0 20px rgba(180,150,100,0.3);
+  letter-spacing:.05em; margin-bottom:2px;
 }
-
-.cb-head .etype {
+#cb-type {
   font-family:'Share Tech Mono',monospace;
-  font-size:.55rem;
-  letter-spacing:.3em;
-  color:var(--blood);
-  margin-top:3px;
+  font-size:.82rem; color:var(--blood);
+  letter-spacing:.3em; margin-bottom:10px;
 }
-
-/* ARENA */
-.cb-arena {
-  display:grid;
-  grid-template-columns:1fr 60px 1fr;
-  padding:20px 24px 10px;
-  align-items:center;
-  gap:0;
-  position:relative;
+#e-spr {
+  font-size:clamp(3rem,14vw,5.5rem);
+  display:block; margin-bottom:8px;
+  filter:drop-shadow(0 0 20px rgba(107,0,0,0.5));
 }
-
-.combatant { text-align:center; }
-
-.c-sprite {
-  font-size:3.2rem;
-  display:block;
-  margin-bottom:8px;
-  filter:drop-shadow(0 0 12px rgba(0,0,0,0.8));
-  transition:transform .15s ease;
-}
-
 .c-sprite.atk-anim { animation:cAtk .25s ease; }
 .c-sprite.hit-anim { animation:cHit .3s ease; }
-@keyframes cAtk { 0%{transform:scale(1)} 40%{transform:scale(1.3) translateX(12px)} 100%{transform:scale(1)} }
-@keyframes cHit { 0%,100%{transform:translateX(0) scale(1)} 20%{transform:translateX(-10px) scale(0.95)} 60%{transform:translateX(8px) scale(0.97)} }
-
-.c-name {
-  font-family:'Cinzel Decorative',serif;
-  font-size:.6rem;
-  color:var(--pale);
-  margin-bottom:8px;
-  letter-spacing:.05em;
+@keyframes cAtk { 0%{transform:scale(1)} 40%{transform:scale(1.25) translateY(-8px)} 100%{transform:scale(1)} }
+@keyframes cHit { 0%,100%{transform:translate(0) scale(1)} 25%{transform:translate(-12px,4px) scale(0.93)} 60%{transform:translate(8px,-2px) scale(0.97)} }
+#cb-ehp-wrap {
+  width:100%; max-width:320px; margin-bottom:3px;
 }
-
 .c-hpbar {
-  height:8px;
-  background:#07060a;
-  border:1px solid #1c1220;
-  margin-bottom:4px;
-  overflow:hidden;
+  height:9px; background:#1a1628;
+  border:1px solid #3a2a50; overflow:hidden; border-radius:2px;
 }
-
 .c-hpfill { height:100%; transition:width .5s ease; }
-.c-php { background:linear-gradient(90deg,#4a0000,#aa1800); }
-.c-ehp { background:linear-gradient(90deg,#3a1800,#8a3800); }
-
+.c-php { background:linear-gradient(90deg,#7a0000,#ee2800); }
+.c-ehp { background:linear-gradient(90deg,#5a2800,#cc5800); }
 .c-hptext {
   font-family:'Share Tech Mono',monospace;
-  font-size:.58rem;
-  color:#3a2a4a;
+  font-size:.88rem; color:#9080a8; text-align:right;
 }
-
-.vs-mid {
-  text-align:center;
-  font-family:'Cinzel Decorative',serif;
-  font-size:1.3rem;
-  color:var(--blood);
-  text-shadow:0 0 15px rgba(107,0,0,0.8);
-}
-
-/* Resource bar in combat */
-.c-resbar {
-  height:5px;
-  background:#07060a;
-  border:1px solid #1c1220;
-  margin-top:4px;
-  overflow:hidden;
-}
+.c-resbar { height:5px; background:#1a1628; border:1px solid #3a2a50; overflow:hidden; border-radius:2px; }
 .c-resfill { height:100%; transition:width .4s ease; }
+.c-name { font-family:'Cinzel Decorative',serif; font-size:.95rem; color:var(--pale); letter-spacing:.05em; }
+
+/* MIDDLE: Combat log */
+#cb-log {
+  flex-shrink:0; height:58px; overflow-y:auto;
+  padding:7px 16px; font-family:'IM Fell English',serif;
+  font-size:1.08rem; color:#c0a880; font-style:italic; line-height:1.4;
+  background:#18142a;
+  border-top:1px solid #3a2a50; border-bottom:1px solid #3a2a50;
+}
+
+/* BOTTOM: Player + abilities */
+#cb-bottom {
+  flex-shrink:0; padding:10px 12px env(safe-area-inset-bottom,10px);
+  background:linear-gradient(0deg,#141020 0%,#1a1630 100%);
+  border-top:2px solid var(--crimson);
+  max-height:55vh; overflow:hidden;
+}
+#cb-player-header {
+  display:flex; align-items:center; gap:8px; margin-bottom:7px;
+}
+#p-spr { font-size:1.6rem; }
+.cb-bar-row { display:flex; align-items:center; gap:7px; margin-bottom:3px; }
+.cb-bl { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#9080a8; width:18px; }
+
+/* Enemy attack timer */
+#enemy-timer-track {
+  height:3px; background:#1a1228; margin:7px 0 5px; border-radius:2px; overflow:hidden;
+}
+#enemy-timer-fill {
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--blood),#ff2200);
+}
+#turn-ind {
+  font-family:'Share Tech Mono',monospace; font-size:.82rem;
+  color:#9080a8; letter-spacing:.2em; text-align:center; margin-bottom:8px;
+}
+
+/* ABILITY BUTTONS */
+#ab-grid {
+  display:flex; gap:8px; overflow-x:auto;
+  padding:4px 2px 6px; -webkit-overflow-scrolling:touch;
+  align-items:flex-end;
+}
+#ab-grid::-webkit-scrollbar { height:3px; }
+#ab-grid::-webkit-scrollbar-thumb { background:#3a2a50; }
+
+.abtn {
+  flex:0 0 82px; height:100px;
+  background:linear-gradient(180deg,#1e1a30,#12101e);
+  border:2px solid #3a2a50; border-radius:10px;
+  cursor:pointer; position:relative; overflow:hidden;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:1px;
+  transition:border-color .15s, box-shadow .15s, transform .1s;
+  -webkit-tap-highlight-color:transparent;
+  padding:16px 2px 8px;
+}
+/* Type badge stripe at top */
+.abtn-type {
+  position:absolute; top:0; left:0; right:0;
+  font-family:'Share Tech Mono',monospace; font-size:.68rem;
+  letter-spacing:.08em; text-align:center; padding:3px 0;
+  font-weight:700; pointer-events:none;
+}
+.abtn-emoji { font-size:2.4rem; line-height:1; pointer-events:none; }
+.abtn-name {
+  font-family:'Share Tech Mono',monospace; font-size:.78rem;
+  color:#e8daf8; text-align:center; line-height:1.1;
+  pointer-events:none; padding:0 3px; font-weight:700;
+}
+.abtn-cost {
+  font-family:'Share Tech Mono',monospace; font-size:.68rem;
+  color:#a090c0; pointer-events:none;
+}
+/* Cooldown bar at bottom */
+.abtn-cd-track {
+  position:absolute; bottom:0; left:0; right:0; height:6px; background:#0a0818;
+}
+.abtn-cd-fill {
+  height:100%; width:0%;
+  background:linear-gradient(90deg,#cc2200,#ff5500);
+}
+/* CD number overlay (centred, shown only on cooldown) */
+.abtn-cd-overlay {
+  position:absolute; inset:0;
+  background:rgba(5,3,15,0.6);
+  pointer-events:none; display:none; border-radius:8px;
+  align-items:center; justify-content:center;
+}
+.abtn-cd-num {
+  font-family:'Share Tech Mono',monospace; font-size:1.1rem;
+  color:#ff7722; font-weight:700;
+  text-shadow:0 0 10px rgba(255,100,0,0.9);
+}
+.abtn.on-cooldown .abtn-cd-overlay { display:flex; }
+
+.abtn:active:not(:disabled) { transform:scale(.92); }
+.abtn:disabled:not(.on-cooldown) { opacity:.4; cursor:not-allowed; }
+
+/* Basic — free, always ready — green */
+.abtn.type-basic { border-color:#2a6a2a; }
+.abtn.type-basic .abtn-type { background:#1a4a1a; color:#6aee6a; }
+.abtn.type-basic.ready { border-color:#44cc44; box-shadow:0 0 8px rgba(60,200,60,0.35); }
+
+/* Core — resource cost — blue */
+.abtn.type-core { border-color:#2a3a8a; }
+.abtn.type-core .abtn-type { background:#18245a; color:#7aaaff; }
+.abtn.type-core.ready { border-color:#5580ee; box-shadow:0 0 8px rgba(80,120,240,0.35); }
+
+/* Signature — powerful, long CD — gold */
+.abtn.type-sig { border-color:#8a5a00; }
+.abtn.type-sig .abtn-type { background:#5a3800; color:#ffcc44; }
+.abtn.type-sig.ready { border-color:var(--gold); box-shadow:0 0 12px rgba(212,168,48,0.5); animation:sigPulse 2s ease infinite; }
+@keyframes sigPulse { 0%,100%{box-shadow:0 0 8px rgba(212,168,48,0.3)} 50%{box-shadow:0 0 20px rgba(255,200,0,0.7)} }
+
+/* Flee */
+.abtn.flee-btn { flex:0 0 66px; border-color:#6a2a2a; }
+.abtn.flee-btn .abtn-type { background:#3a1010; color:#ff7a7a; }
+.abtn.flee-btn:hover { border-color:#cc3333; }
+
+/* Potion */
+.abtn.potion-btn { flex:0 0 74px; border-color:#1a6a5a; }
+.abtn.potion-btn .abtn-type { background:#0a3a30; color:#44ddbb; }
+.abtn.potion-btn:not(:disabled):hover { border-color:#30ccaa; box-shadow:0 0 8px rgba(48,200,160,0.3); }
+.abtn.potion-btn:disabled { border-color:#1a3a30; opacity:.45; }
 
 /* DAMAGE NUMBERS */
-#dmg-layer {
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  overflow:hidden;
-}
-
+#dmg-layer { position:fixed; inset:0; pointer-events:none; z-index:300; }
 .dmg-num {
-  position:absolute;
-  font-family:'Cinzel Decorative',serif;
-  font-weight:900;
-  pointer-events:none;
-  animation:dmgFloat 1.4s ease forwards;
+  position:absolute; font-family:'Cinzel Decorative',serif; font-weight:900;
+  pointer-events:none; animation:dmgFloat 1.4s ease forwards;
   text-shadow:2px 2px 0 rgba(0,0,0,0.8), 0 0 20px currentColor;
-  white-space:nowrap;
-  z-index:200;
+  white-space:nowrap; z-index:200;
 }
-
 @keyframes dmgFloat {
   0%   { transform:translateY(0) scale(0.6); opacity:1; }
   15%  { transform:translateY(-15px) scale(1.2); opacity:1; }
   60%  { transform:translateY(-50px) scale(1); opacity:1; }
   100% { transform:translateY(-90px) scale(0.8); opacity:0; }
 }
-
-.dmg-white  { color:#e8e8e8; font-size:1.4rem; }
-.dmg-yellow { color:#ffd700; font-size:1.8rem; }
-.dmg-orange { color:#ff8800; font-size:2.2rem; }
-.dmg-red    { color:#ff2200; font-size:2.8rem; }
-.dmg-crit   { color:#ffd700; font-size:3.5rem; -webkit-text-stroke:2px #aa6600; animation:dmgCrit 1.6s ease forwards; }
+.dmg-white  { color:#ffe066; font-size:1.8rem; text-shadow:0 0 8px rgba(255,200,0,0.8); }
+.dmg-yellow { color:#ffd700; font-size:2.2rem; text-shadow:0 0 10px rgba(255,200,0,0.9); }
+.dmg-orange { color:#ff8800; font-size:2.6rem; text-shadow:0 0 12px rgba(255,120,0,0.9); }
+.dmg-red    { color:#ff3300; font-size:3rem;   text-shadow:0 0 14px rgba(255,40,0,0.9); }
+.dmg-crit   { color:#ffee00; font-size:3.8rem; -webkit-text-stroke:2px #aa6600; animation:dmgCrit 1.6s ease forwards; }
 .dmg-overkill { color:#cc00ff; font-size:2rem; }
-.dmg-miss   { color:#4a3a5a; font-size:.9rem; font-style:italic; }
 .dmg-dodge  { color:#3a6aaa; font-size:1rem; }
 .dmg-heal   { color:#22cc66; font-size:1.6rem; }
-
 @keyframes dmgCrit {
   0%   { transform:translateY(0) scale(0.4) rotate(-5deg); opacity:1; }
   10%  { transform:translateY(-10px) scale(1.5) rotate(2deg); opacity:1; }
@@ -730,111 +906,127 @@ body::before {
   70%  { transform:translateY(-60px) scale(1.1); opacity:1; }
   100% { transform:translateY(-110px) scale(0.9); opacity:0; }
 }
-
-/* SCREEN SHAKE */
 @keyframes screenShake {
-  0%,100%{transform:translate(0,0)}
-  20%{transform:translate(-6px,3px)}
-  40%{transform:translate(6px,-3px)}
-  60%{transform:translate(-4px,4px)}
-  80%{transform:translate(4px,-2px)}
+  0%,100%{transform:translate(0,0)} 20%{transform:translate(-6px,3px)}
+  40%{transform:translate(6px,-3px)} 60%{transform:translate(-4px,4px)} 80%{transform:translate(4px,-2px)}
 }
 .shaking { animation:screenShake .35s ease; }
 
-/* COMBAT LOG */
-.cb-log {
-  margin:8px 24px 14px;
-  background:#07060a;
-  border:1px solid #12101a;
-  border-left:2px solid var(--blood);
-  padding:8px 12px;
-  min-height:44px;
-  font-size:.75rem;
-  color:#7a5a3a;
-  font-style:italic;
-  line-height:1.5;
-}
-
-/* ABILITY BUTTONS */
-.ab-grid {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:6px;
-  padding:0 24px 16px;
-}
-
-.abtn {
-  background:linear-gradient(160deg,#0d0b14,#07060a);
-  border:1px solid #1c1220;
-  color:var(--bone);
-  font-family:'IM Fell English',serif;
-  font-size:.82rem;
-  padding:8px 12px;
-  cursor:pointer;
-  text-align:left;
-  transition:all .15s ease;
-  position:relative;
-  overflow:hidden;
-}
-
-.abtn::before {
-  content:'';
-  position:absolute;
-  left:0; top:0; bottom:0;
-  width:2px;
-  background:var(--crimson);
-  transform:scaleY(0);
-  transition:transform .2s ease;
-}
-
-.abtn:hover { border-color:#3a2a4a; background:linear-gradient(160deg,#16122a,#0d0b18); }
-.abtn:hover::before { transform:scaleY(1); }
-.abtn:active { transform:scale(.98); }
-.abtn:disabled { opacity:.3; cursor:not-allowed; }
-
-.abtn .an { display:block; font-size:.78rem; font-weight:600; }
-.abtn .ad { display:block; font-size:.58rem; color:#4a3a5a; margin-top:1px; }
-.abtn .ac { display:block; font-size:.55rem; color:#2a3a6a; }
-.abtn .acd { display:block; font-size:.5rem; color:#3a2a4a; }
-
-.abtn.on-cooldown { border-color:#1a1220; color:#3a2a4a; cursor:not-allowed; }
-.abtn.on-cooldown .an { color:#2a1a3a; }
-.abtn.signature { border-color:#3a1a00; }
-.abtn.signature:hover { border-color:var(--gold); }
-.abtn.signature::before { background:var(--gold); }
-
-.abtn.flee-btn { border-color:#1a1220; color:#3a2a4a; grid-column:span 2; text-align:center; }
-.abtn.flee-btn:hover { border-color:var(--blood); color:var(--crimson); }
-
-/* TURN INDICATOR */
-.turn-ind {
-  text-align:center;
-  font-family:'Share Tech Mono',monospace;
-  font-size:.58rem;
-  letter-spacing:.3em;
-  padding:7px 24px;
-  border-top:1px solid #12101a;
-  color:#3a2a4a;
-}
-.turn-ind.pt { color:var(--gold); }
-.turn-ind.et { color:var(--blood); }
-
-/* STATUS EFFECTS */
-.status-row {
-  display:flex;
-  gap:4px;
-  justify-content:center;
-  margin-top:5px;
-  flex-wrap:wrap;
-}
-
+/* STATUS */
+.status-row { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
 .status-chip {
-  font-size:.55rem;
-  font-family:'Share Tech Mono',monospace;
-  padding:1px 5px;
-  border-radius:1px;
-  background:#07060a;
-  border:1px solid #1c1220;
+  font-size:.82rem; font-family:'Share Tech Mono',monospace;
+  padding:1px 5px; background:#1a1628; border:1px solid #4a3a60;
+}
+
+/* placeholder */
+.cb-log { }
+.ab-grid { }
+
+/* SCREEN SHAKE (on combat box) */
+#combat-box.shaking { animation:screenShake .35s ease; }
+
+/* SIDEBAR BUTTONS */
+.sb-btns { display:flex; gap:6px; margin:8px 0 4px; }
+.sb-btn {
+  flex:1; background:transparent; border:1px solid #4a3a60;
+  color:#a090c0; font-family:'Share Tech Mono',monospace;
+  font-size:.95rem; letter-spacing:.1em; padding:6px 4px;
+  cursor:pointer; transition:all .2s;
+}
+.sb-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+/* INVENTORY / SHOP MODALS */
+#inv-modal, #shop-modal {
+  display:none; position:fixed; inset:0; z-index:150;
+  background:rgba(14,11,24,0.96); backdrop-filter:blur(8px);
+  flex-direction:column; align-items:center;
+  overflow-y:auto; padding:16px 12px 32px;
+}
+#inv-modal.active, #shop-modal.active { display:flex; }
+
+.modal-title {
+  font-family:'Cinzel Decorative',serif; font-size:1.2rem;
+  color:var(--gold); letter-spacing:.2em;
+  margin-bottom:14px; text-align:center;
+}
+.modal-close {
+  position:fixed; top:12px; right:14px;
+  background:transparent; border:1px solid #5a4a70;
+  color:#a090b8; font-size:1.1rem; padding:4px 10px;
+  cursor:pointer; font-family:'Share Tech Mono',monospace;
+  z-index:151;
+}
+.modal-close:hover { border-color:var(--crimson); color:var(--crimson); }
+
+/* EQUIPPED SLOTS */
+.equip-section { width:100%; max-width:380px; margin-bottom:14px; }
+.equip-label {
+  font-family:'Share Tech Mono',monospace; font-size:.88rem;
+  color:#9080a8; letter-spacing:.15em; margin-bottom:6px;
+}
+.equip-slots { display:flex; gap:6px; }
+.equip-slot {
+  flex:1; background:#181428; border:1px solid #3a3050;
+  padding:8px 6px; text-align:center; cursor:pointer;
+  transition:all .2s; min-height:64px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+}
+.equip-slot.filled { border-color:#6a4a88; }
+.equip-slot:hover { border-color:var(--crimson); }
+.equip-slot .slot-type { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#9080a8; }
+.equip-slot .slot-emoji { font-size:1.4rem; }
+.equip-slot .slot-name { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#8a7a9a; line-height:1.2; }
+
+/* BAG */
+.bag-section { width:100%; max-width:380px; }
+.bag-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.bag-item {
+  background:#181428; border:1px solid #3a3050;
+  padding:8px 4px; text-align:center; cursor:pointer;
+  transition:all .2s; display:flex; flex-direction:column;
+  align-items:center; gap:3px;
+}
+.bag-item:hover { border-color:var(--gold); }
+.bag-item .bi-emoji { font-size:1.2rem; }
+.bag-item .bi-name { font-family:'Share Tech Mono',monospace; font-size:1.08rem; color:#c0b0d8; line-height:1.2; }
+.bag-item .bi-stat { font-family:'Share Tech Mono',monospace; font-size:1.08rem; color:#7aaa7a; }
+.bag-item.potion { border-color:#3a6a3a; }
+.bag-item.potion:hover { border-color:#4acc6a; }
+.bag-item.legendary { border-color:#8a6a00; background:#1a1400; }
+.bag-item.legendary:hover { border-color:var(--gold); box-shadow:0 0 8px rgba(212,168,48,0.4); }
+.bi-req { font-family:'Share Tech Mono',monospace; font-size:1rem; color:#aa8800; margin-top:1px; }
+.bi-legendary { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:var(--gold); letter-spacing:.05em; }
+.bag-empty { font-family:'Share Tech Mono',monospace; font-size:.95rem; color:#7060a0; text-align:center; padding:20px; }
+
+/* SHOP */
+.shop-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; width:100%; max-width:380px; }
+.shop-item {
+  background:#181428; border:1px solid #3a3050;
+  padding:10px 8px; display:flex; flex-direction:column;
+  align-items:center; gap:4px; text-align:center;
+}
+.shop-item .si-emoji { font-size:1.5rem; }
+.shop-item .si-name { font-family:'Cinzel Decorative',serif; font-size:.82rem; color:var(--pale); }
+.shop-item .si-stat { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#7aaa7a; }
+.shop-item .si-desc { font-family:'IM Fell English',serif; font-size:.88rem; color:#9a8ab8; font-style:italic; }
+.shop-item .si-cost { font-family:'Share Tech Mono',monospace; font-size:.95rem; color:var(--gold); margin-top:2px; }
+.shop-btn {
+  background:transparent; border:1px solid #6a5a1a;
+  color:#b0981e; font-family:'Share Tech Mono',monospace;
+  font-size:.88rem; padding:4px 10px; cursor:pointer;
+  width:100%; margin-top:4px; transition:all .2s;
+}
+.shop-btn:hover:not(:disabled) { border-color:var(--gold); color:var(--gold); }
+.shop-btn:disabled { opacity:0.35; cursor:default; }
+.shop-section-title {
+  width:100%; max-width:380px; text-align:left;
+  font-family:'Share Tech Mono',monospace; font-size:.88rem;
+  color:#9080a8; letter-spacing:.15em; margin:12px 0 6px;
+}
+.gold-display {
+  font-family:'Share Tech Mono',monospace; font-size:1.05rem;
+  color:var(--gold); margin-bottom:12px;
 }
 
 /* DEATH */
@@ -853,13 +1045,13 @@ body::before {
 #death-screen h2 {
   font-family:'Cinzel Decorative',serif;
   font-size:3rem;
-  color:#6b0000;
+  color:#dd2222;
   text-shadow:0 0 40px rgba(107,0,0,0.9),0 0 80px rgba(107,0,0,0.5);
   letter-spacing:.1em;
   animation:deathPulse 2s ease infinite;
 }
 @keyframes deathPulse { 0%,100%{opacity:.8}50%{opacity:1} }
-#death-screen p { color:#3a1a1a; font-style:italic; font-size:.9rem; }
+#death-screen p { color:#c08080; font-style:italic; font-size:1.25rem; }
 #revive-btn {
   background:#0d0508;
   border:1px solid var(--gold);
@@ -880,8 +1072,8 @@ body::before {
   bottom:60px;
   left:50%;
   transform:translateX(-50%);
-  background:#07060a;
-  border:1px solid #1c1220;
+  background:#1a1628;
+  border:1px solid #4a3a60;
   border-top:2px solid var(--gold);
   padding:10px 24px;
   z-index:150;
@@ -889,7 +1081,7 @@ body::before {
   animation:slideUp .3s ease;
 }
 @keyframes slideUp{from{transform:translateX(-50%) translateY(16px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-.loot-t { font-family:'Cinzel Decorative',serif; font-size:.6rem; color:var(--gold); margin-bottom:4px; letter-spacing:.2em; }
+.loot-t { font-family:'Cinzel Decorative',serif; font-size:.95rem; color:var(--gold); margin-bottom:4px; letter-spacing:.2em; }
 .loot-i { font-size:.8rem; color:#2a6a4a; }
 
 /* FLASH OVERLAY */
@@ -898,9 +1090,126 @@ body::before {
 #flash.flash-red { background:rgba(139,0,0,0.3); opacity:1; animation:flashOut .4s ease forwards; }
 @keyframes flashOut { to{opacity:0;} }
 
+/* SKILLS MODAL */
+#skills-modal {
+  display:none; position:fixed; inset:0; z-index:150;
+  background:rgba(14,11,24,0.96); backdrop-filter:blur(8px);
+  flex-direction:column; align-items:center;
+  overflow-y:auto; padding:16px 12px 32px;
+}
+#skills-modal.active { display:flex; }
+#skills-content { width:100%; max-width:400px; }
+
+.skill-tier-header {
+  font-family:'Share Tech Mono',monospace; font-size:.88rem;
+  color:#9080a8; letter-spacing:.15em; margin:14px 0 6px;
+  border-bottom:1px solid #3a2a50; padding-bottom:4px;
+}
+.skill-tier-header .stier-badge {
+  background:var(--blood); color:var(--gold);
+  font-family:'Cinzel Decorative',serif; font-size:.78rem;
+  padding:1px 6px; margin-right:6px;
+}
+.skill-tier-header .stier-lock {
+  float:right; color:#5a4a70; font-size:.82rem;
+}
+.skill-card {
+  background:#181428; border:1px solid #3a3050;
+  padding:10px 12px; margin-bottom:6px; cursor:pointer;
+  transition:all .2s; display:flex; align-items:flex-start; gap:10px;
+}
+.skill-card:hover:not(.locked):not(.chosen) { border-color:var(--gold); }
+.skill-card.locked { opacity:.45; cursor:default; }
+.skill-card.chosen { border-color:#44aa44; background:#101e10; }
+.skill-card.choosable { border-color:var(--gold); animation:skillGlow 1.5s ease infinite; }
+@keyframes skillGlow { 0%,100%{box-shadow:0 0 4px rgba(212,168,48,0.3)} 50%{box-shadow:0 0 14px rgba(212,168,48,0.8)} }
+.skill-emoji { font-size:1.5rem; flex-shrink:0; }
+.skill-info { flex:1; }
+.skill-name { font-family:'Cinzel Decorative',serif; font-size:.88rem; color:var(--pale); margin-bottom:2px; }
+.skill-card.chosen .skill-name { color:#44cc44; }
+.skill-desc { font-size:1rem; color:#9a8ab8; font-style:italic; line-height:1.4; }
+.skill-chosen-badge { font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#44cc44; margin-top:3px; }
+.skill-class-section { margin-top:16px; border-top:1px solid #3a2a50; padding-top:10px; }
+
+/* LEVEL UP MODAL */
+#levelup-modal {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:rgba(5,3,12,0.92); backdrop-filter:blur(12px);
+  align-items:center; justify-content:center;
+  flex-direction:column;
+}
+#levelup-modal.active { display:flex; }
+.lu-card {
+  background:linear-gradient(160deg,#1e1a34,#141028);
+  border:1px solid var(--gold);
+  box-shadow:0 0 40px rgba(184,150,42,0.25);
+  padding:24px 20px; width:min(380px,92vw);
+  max-height:88vh; overflow-y:auto;
+}
+.lu-title {
+  font-family:'Cinzel Decorative',serif; font-size:1.8rem;
+  color:var(--gold); text-align:center; letter-spacing:.15em;
+  text-shadow:0 0 20px rgba(212,168,48,0.6); margin-bottom:4px;
+}
+.lu-level {
+  font-family:'Cinzel Decorative',serif; font-size:2.5rem;
+  color:var(--ghost); text-align:center; margin-bottom:4px;
+}
+.lu-sub {
+  font-size:1.05rem; color:#9080a8; text-align:center;
+  font-style:italic; margin-bottom:16px;
+}
+.lu-points-counter {
+  font-family:'Share Tech Mono',monospace; font-size:1rem;
+  color:var(--gold); text-align:center; margin-bottom:10px;
+}
+#lu-stat-grid { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.lu-stat-row {
+  display:flex; align-items:center; gap:8px;
+  background:#181428; border:1px solid #3a3050; padding:8px 10px;
+}
+.lu-stat-name {
+  font-family:'Share Tech Mono',monospace; font-size:.95rem;
+  color:#9080a8; width:36px; letter-spacing:.1em;
+}
+.lu-stat-val {
+  font-family:'Cinzel Decorative',serif; font-size:1.05rem;
+  color:var(--ghost); width:28px; text-align:center;
+}
+.lu-stat-effect { flex:1; font-size:.95rem; color:#7a6a9a; font-style:italic; }
+.lu-stat-btn {
+  background:transparent; border:1px solid #5a4a70;
+  color:#a090c0; font-size:1rem; width:28px; height:28px;
+  cursor:pointer; font-family:'Share Tech Mono',monospace;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.lu-stat-btn:hover { border-color:var(--gold); color:var(--gold); }
+.lu-stat-btn:disabled { opacity:.3; cursor:default; }
+.lu-confirm {
+  width:100%; background:linear-gradient(135deg,#1a0800,#0d0500);
+  border:1px solid var(--gold); color:var(--gold);
+  font-family:'Cinzel Decorative',serif; font-size:1rem;
+  letter-spacing:.15em; padding:12px; cursor:pointer;
+  transition:all .25s; margin-bottom:8px;
+}
+.lu-confirm:hover:not(:disabled) { background:var(--gold); color:var(--void); }
+.lu-confirm:disabled { opacity:.35; cursor:default; }
+.lu-skill-note {
+  font-family:'Share Tech Mono',monospace; font-size:.88rem;
+  color:#aa8800; text-align:center; min-height:1.2em;
+}
+
 </style>
 </head>
 <body>
+
+<!-- Landscape warning — CSS shows this in landscape orientation -->
+<div id="rotate-warn">
+  <div class="rw-icon">📱</div>
+  <div class="rw-text">ROTATE YOUR PHONE</div>
+  <div class="rw-sub">DARKWORLD requires portrait mode</div>
+</div>
 
 <div id="flash"></div>
 
@@ -910,7 +1219,18 @@ body::before {
   <h1 class="main-title">DARKWORLD</h1>
   <div class="main-subtitle">Philadelphia · The Fallen City</div>
   <div class="skull-divider">☠ ☠ ☠</div>
-  <button class="begin-btn" onclick="goCreate()">ENTER THE DARKNESS</button>
+  <button class="begin-btn" id="continue-btn" onclick="continueGame()" style="display:none;margin-bottom:10px"></button>
+  <button class="begin-btn" id="new-game-btn" onclick="goCreate()">ENTER THE DARKNESS</button>
+</div>
+
+<!-- ══ WORLD SELECT ══ -->
+<div id="screen-world" class="screen">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;gap:20px;background:radial-gradient(ellipse at center,#1a1430 0%,#0d0a1c 70%);">
+    <div style="font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);letter-spacing:.15em;text-align:center;text-shadow:0 0 20px rgba(212,168,48,0.5);">CHOOSE YOUR WORLD</div>
+    <div style="font-size:.95rem;color:#8878a8;font-style:italic;text-align:center;">Each city holds different darkness</div>
+    <div id="world-cards" style="display:flex;flex-direction:column;gap:16px;width:100%;max-width:360px;">
+    </div>
+  </div>
 </div>
 
 <!-- ══ CHARACTER CREATION ══ -->
@@ -944,7 +1264,11 @@ body::before {
   <div id="map-wrap">
     <canvas id="map-canvas"></canvas>
     <div id="coord-hud"><span id="coord-txt">RITTENHOUSE — HELLMOUTH</span></div>
+    <div id="gps-hud"><div class="gps-dot" id="gps-dot"></div><span id="gps-txt">GPS INACTIVE</span></div>
     <div id="hint-hud">DRAG · SCROLL · CLICK TO ENGAGE</div>
+    <button id="ar-btn" onclick="startAR()">👁 AR VIEW</button>
+    <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER ON ME</button>
+    <button id="menu-btn" onclick="toggleSidebar()">☰ STATS</button>
     <div id="legend">
       <div class="lg-title">⚔ THREAT ZONES</div>
       <div class="lg-item"><div class="lg-dot" style="background:#6b0000"></div>Hellmouth · Boss Tier</div>
@@ -965,6 +1289,7 @@ body::before {
     <div id="sb-title">
       <h1>DARKWORLD</h1>
       <div class="city">Philadelphia · The Fallen City</div>
+      <button id="sidebar-close" onclick="toggleSidebar()">✕</button>
     </div>
     <div id="player-panel">
       <div class="p-class-row">
@@ -976,6 +1301,11 @@ body::before {
       <div class="bar-row"><span class="bar-lbl" id="res-lbl">MP</span><div class="bar-bg"><div class="bar-fill bar-mp" id="b-mp" style="width:100%"></div></div><span class="bar-val" id="t-mp">500</span></div>
       <div class="bar-row"><span class="bar-lbl">XP</span><div class="bar-bg"><div class="bar-fill bar-xp" id="b-xp" style="width:0%"></div></div><span class="bar-val" id="t-xp">0 / 1000</span></div>
       <div class="stat-chips" id="stat-chips"></div>
+      <div class="sb-btns">
+        <button class="sb-btn" onclick="openInventory()">⚔ GEAR</button>
+        <button class="sb-btn" onclick="openShop()">🏪 SHOP</button>
+        <button class="sb-btn" onclick="openSkills()">🌟 SKILLS</button>
+      </div>
     </div>
     <div id="zone-panel">
       <div class="z-name" id="z-name" style="color:var(--gold)">⬡ RITTENHOUSE SQUARE</div>
@@ -994,31 +1324,44 @@ body::before {
 <div id="combat-modal">
   <div id="combat-box">
     <div id="dmg-layer"></div>
-    <div class="cb-head">
-      <h2 id="cb-name">BLOOD WRAITH</h2>
-      <div class="etype" id="cb-type">UNDEAD · BLIGHTED QUARTER</div>
+
+    <!-- ENEMY TOP -->
+    <div id="cb-top">
+      <img id="boss-portrait" src="" alt="" style="display:none;width:100%;max-height:220px;object-fit:cover;object-position:top;border-bottom:2px solid #b8962a;margin-bottom:6px;">
+      <div id="cb-name">ENEMY</div>
+      <div id="cb-type">TYPE</div>
+      <span id="e-spr" class="c-sprite">💀</span>
+      <div class="status-row" id="e-status"></div>
+      <div id="cb-ehp-wrap">
+        <div class="c-hpbar"><div class="c-hpfill c-ehp" id="c-ehp" style="width:100%"></div></div>
+        <div class="c-hptext" id="c-ehp-t">100%</div>
+      </div>
     </div>
-    <div class="cb-arena">
-      <div class="combatant">
-        <span class="c-sprite" id="p-spr">🧙</span>
-        <div class="c-name" id="p-cname">WANDERER</div>
-        <div class="c-hpbar"><div class="c-hpfill c-php" id="c-php" style="width:100%"></div></div>
-        <div class="c-hptext" id="c-php-t">8,000 / 8,000</div>
-        <div class="c-resbar"><div class="c-resfill" id="c-res" style="width:100%;background:linear-gradient(90deg,#001040,#0038aa)"></div></div>
+
+    <!-- COMBAT LOG -->
+    <div id="cb-log">The darkness stirs...</div>
+
+    <!-- PLAYER BOTTOM -->
+    <div id="cb-bottom">
+      <div id="cb-player-header">
+        <span id="p-spr" style="font-size:1.5rem">⚔</span>
+        <span class="c-name" id="p-cname">PLAYER</span>
         <div class="status-row" id="p-status"></div>
       </div>
-      <div class="vs-mid">☠</div>
-      <div class="combatant">
-        <span class="c-sprite" id="e-spr">💀</span>
-        <div class="c-name" id="e-cname">BLOOD WRAITH</div>
-        <div class="c-hpbar"><div class="c-hpfill c-ehp" id="c-ehp" style="width:100%"></div></div>
-        <div class="c-hptext" id="c-ehp-t">95,000 / 95,000</div>
-        <div class="status-row" id="e-status"></div>
+      <div class="cb-bar-row">
+        <span class="cb-bl">HP</span>
+        <div class="c-hpbar" style="flex:1"><div class="c-hpfill c-php" id="c-php" style="width:100%"></div></div>
+        <span class="c-hptext" id="c-php-t">100%</span>
       </div>
+      <div class="cb-bar-row">
+        <span class="cb-bl" id="res-lbl-cb">MP</span>
+        <div class="c-resbar" style="flex:1"><div class="c-resfill" id="c-res" style="width:100%"></div></div>
+        <span class="c-hptext" id="c-res-t">-</span>
+      </div>
+      <div id="enemy-timer-track"><div id="enemy-timer-fill"></div></div>
+      <div id="turn-ind"></div>
+      <div id="ab-grid"></div>
     </div>
-    <div class="cb-log" id="cb-log">The darkness stirs...</div>
-    <div class="ab-grid" id="ab-grid"></div>
-    <div class="turn-ind pt" id="turn-ind">YOUR TURN</div>
   </div>
 </div>
 
@@ -1033,6 +1376,72 @@ body::before {
 <div id="loot-popup">
   <div class="loot-t">⚰ SPOILS OF BATTLE</div>
   <div class="loot-i" id="loot-txt"></div>
+</div>
+
+<!-- ══ INVENTORY MODAL ══ -->
+<div id="inv-modal">
+  <button class="modal-close" onclick="closeInventory()">✕ CLOSE</button>
+  <div class="modal-title">⚔ EQUIPPED GEAR</div>
+  <div class="equip-section">
+    <div class="equip-label">EQUIPPED</div>
+    <div class="equip-slots">
+      <div class="equip-slot" id="slot-weapon" onclick="unequipSlot('weapon')">
+        <div class="slot-type">WEAPON</div>
+        <div class="slot-emoji" id="slot-weapon-emoji">—</div>
+        <div class="slot-name" id="slot-weapon-name">Empty</div>
+      </div>
+      <div class="equip-slot" id="slot-armor" onclick="unequipSlot('armor')">
+        <div class="slot-type">ARMOR</div>
+        <div class="slot-emoji" id="slot-armor-emoji">—</div>
+        <div class="slot-name" id="slot-armor-name">Empty</div>
+      </div>
+      <div class="equip-slot" id="slot-accessory" onclick="unequipSlot('accessory')">
+        <div class="slot-type">ACCESSORY</div>
+        <div class="slot-emoji" id="slot-accessory-emoji">—</div>
+        <div class="slot-name" id="slot-accessory-name">Empty</div>
+      </div>
+    </div>
+  </div>
+  <div class="bag-section">
+    <div class="equip-label">BAG <span id="bag-count" style="color:#3a2a5a"></span></div>
+    <div class="bag-grid" id="bag-grid"></div>
+  </div>
+</div>
+
+<!-- ══ SHOP MODAL ══ -->
+<div id="shop-modal">
+  <button class="modal-close" onclick="closeShop()">✕ CLOSE</button>
+  <div class="modal-title">🏪 BLACK MARKET</div>
+  <div class="gold-display" id="shop-gold">⚙ 0 GOLD</div>
+  <div id="shop-contents"></div>
+</div>
+
+<!-- ══ SKILLS MODAL ══ -->
+<div id="skills-modal">
+  <button class="modal-close" onclick="closeSkills()">✕ CLOSE</button>
+  <div class="modal-title">🌟 SKILL TREE</div>
+  <div id="skills-content"></div>
+</div>
+
+<!-- ══ LEVEL UP MODAL ══ -->
+<div id="levelup-modal">
+  <div class="lu-card">
+    <div class="lu-title">LEVEL UP!</div>
+    <div class="lu-level" id="lu-level-num"></div>
+    <div class="lu-sub">Allocate 2 stat points</div>
+    <div class="lu-points-counter" id="lu-points-counter">0 / 2 points spent</div>
+    <div id="lu-stat-grid"></div>
+    <button class="lu-confirm" id="lu-confirm-btn" onclick="confirmStats()" disabled>CONFIRM</button>
+    <div class="lu-skill-note" id="lu-skill-note"></div>
+  </div>
+</div>
+
+<div id="screen-ar" class="screen">
+  <video id="ar-video" autoplay playsinline muted></video>
+  <canvas id="ar-canvas"></canvas>
+  <button id="ar-back" onclick="stopAR()">◀ MAP</button>
+  <div id="ar-status">⬤ AR MODE · THE FALLEN CITY</div>
+  <div id="ar-compass" id="ar-compass"><span id="ar-heading-txt">--- °</span></div>
 </div>
 
 <script>
@@ -1166,49 +1575,564 @@ const CLASSES = {
 // ══════════════════════════════════════════════════════
 //  WORLD DATA
 // ══════════════════════════════════════════════════════
-const CENTER = {lat:39.9492, lng:-75.1719};
+const WORLDS = {
+  philadelphia: {
+    key: 'philadelphia',
+    name: 'PHILADELPHIA',
+    subtitle: 'THE FALLEN CITY',
+    emoji: '🏙',
+    desc: 'The ancient city rots under Malechar\'s curse. Venture into the heart of darkness.',
+    center: {lat:39.9492, lng:-75.1719},
+    zones: [
+      {max:0.5,  name:'Hellmouth',         danger:'EXTREME', color:'rgba(140,0,0,0.55)',     dc:'#ff2200'},
+      {max:1.5,  name:'Blighted Quarter',  danger:'HARD',    color:'rgba(160,60,0,0.40)',    dc:'#ff5500'},
+      {max:2.5,  name:'Cursed Wards',      danger:'MEDIUM',  color:'rgba(130,100,0,0.32)',   dc:'#ccaa00'},
+      {max:3.8,  name:'Haunted Outskirts', danger:'EASY',    color:'rgba(30,80,30,0.28)',    dc:'#44aa44'},
+      {max:5.2,  name:'Borderlands',       danger:'SAFE',    color:'rgba(15,35,70,0.22)',    dc:'#4488bb'},
+    ],
+    zoneDescs: [
+      "The heart of the fallen city. Malechar's corruption bleeds through every cobblestone.",
+      "The blighted quarter reeks of sulfur. Wraiths haunt every hollow and alley.",
+      "Old neighborhoods twisted by ancient curse. The living avoid these streets.",
+      "Suburb ruins at the city's edge. Low monsters, but the ground whispers.",
+      "The borderlands stretch thin into quiet darkness. Mostly safe — for now.",
+    ],
+    bosses: [
+      {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar', portrait:'lord-malachar.png'},
+      {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:680000, atk:32000,def:5000,xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart"},
+      {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:520000, atk:28000,def:7000,xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost'},
+      {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:480000, atk:26000,def:4000,xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil'},
+      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:340000, atk:22000,def:3500,xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil"},
+      {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:300000, atk:20000,def:5000,xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger"},
+      {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:260000, atk:18000,def:7000,xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle"},
+    ],
+  },
+  ephrata: {
+    key: 'ephrata',
+    name: 'EPHRATA',
+    subtitle: 'THE ANCIENT DARK',
+    emoji: '⛪',
+    desc: 'A colonial settlement consumed by a forgotten evil. The Cloister hides terrible secrets.',
+    center: {lat:40.1793, lng:-76.1794},
+    zones: [
+      {max:0.3,  name:'The Sanctum',        danger:'EXTREME', color:'rgba(100,0,80,0.55)',    dc:'#dd00aa'},
+      {max:0.8,  name:'Old Borough',        danger:'HARD',    color:'rgba(120,40,0,0.42)',    dc:'#ff6600'},
+      {max:1.6,  name:'Dark Farmlands',     danger:'MEDIUM',  color:'rgba(60,80,0,0.35)',     dc:'#aacc00'},
+      {max:2.8,  name:'Outer Fields',       danger:'EASY',    color:'rgba(20,60,20,0.28)',    dc:'#55aa55'},
+      {max:4.5,  name:'Lancaster Plains',   danger:'SAFE',    color:'rgba(15,30,60,0.22)',    dc:'#4477cc'},
+    ],
+    zoneDescs: [
+      "The Cloister grounds pulse with dark energy. Brother Gehman's spirit festers in the stone.",
+      "Colonial streets twisted by plague and prayer. The faithful became something else entirely.",
+      "Once fertile fields, now cursed earth. The scarecrows move at night.",
+      "Rolling hills haunted by the restless dead. Farmhouses stand empty — or seem to.",
+      "The flat plains stretch toward Lancaster. Safer here, but the dark follows you.",
+    ],
+    bosses: [
+      {name:'BROTHER GEHMAN THE UNDYING', landmark:'Ephrata Cloister',        emoji:'☩',  lat:40.1793,lng:-76.1794, hp:2000000,atk:40000,def:7000,xp:5000,gold:[900,1800],  type:'WORLD BOSS · UNDEAD',       zone:0,isWorld:true, color:'#cc88ff', uniqueDrop:"Gehman's Lantern"},
+      {name:'SISTER ANASTASIA THE PALE',  landmark:'Cloister Cemetery',       emoji:'👰', lat:40.1810,lng:-76.1720, hp:620000, atk:30000,def:4500,xp:2400,gold:[480,960],   type:'ZONE BOSS · SPECTER',       zone:0, color:'#aaaaff',          uniqueDrop:'Veil of the Pale Sister'},
+      {name:'THE MILL DEMON',             landmark:'Old Ephrata Mill',         emoji:'⚙',  lat:40.1600,lng:-76.1850, hp:500000, atk:26000,def:6500,xp:2100,gold:[380,850],   type:'ZONE BOSS · CONSTRUCT',     zone:1, color:'#885500',          uniqueDrop:'Grinding Stone of Ruin'},
+      {name:'THE HARVEST LORD',           landmark:'Dark Cornfields',          emoji:'🌽', lat:40.2050,lng:-76.1600, hp:450000, atk:24000,def:3800,xp:2600,gold:[500,1000],  type:'ZONE BOSS · ANCIENT',       zone:1, color:'#886600',          uniqueDrop:'Harvest Reaper'},
+      {name:'THE CURSED PREACHER',        landmark:'Abandoned Church',         emoji:'📖', lat:40.1950,lng:-76.2100, hp:320000, atk:20000,def:3200,xp:1700,gold:[280,650],   type:'ZONE BOSS · UNDEAD',        zone:2, color:'#666688',          uniqueDrop:'Tome of Damnation'},
+      {name:'THE CROSSROADS DEVIL',       landmark:'Route 322 Crossing',       emoji:'😈', lat:40.1400,lng:-76.1900, hp:280000, atk:17000,def:4500,xp:1500,gold:[220,520],   type:'ZONE BOSS · DEMON',         zone:3, color:'#cc2200',          uniqueDrop:"Devil's Bargain"},
+      {name:'THE WENDIGO OF MUDDY CREEK', landmark:'Muddy Creek Hollow',       emoji:'🦌', lat:40.2200,lng:-76.1500, hp:240000, atk:15000,def:3000,xp:1300,gold:[180,450],   type:'ZONE BOSS · BEAST',         zone:3, color:'#336633',          uniqueDrop:'Wendigo Claw'},
+    ],
+  },
+};
 
-const ZONES = [
-  {max:0.5,  name:'Hellmouth',         danger:'EXTREME', color:'rgba(80,0,0,0.3)',       dc:'#cc1100'},
-  {max:1.5,  name:'Blighted Quarter',  danger:'HARD',    color:'rgba(100,40,0,0.22)',    dc:'#aa3300'},
-  {max:2.5,  name:'Cursed Wards',      danger:'MEDIUM',  color:'rgba(80,60,0,0.18)',     dc:'#886600'},
-  {max:3.8,  name:'Haunted Outskirts', danger:'EASY',    color:'rgba(20,50,20,0.15)',    dc:'#336633'},
-  {max:5.2,  name:'Borderlands',       danger:'SAFE',    color:'rgba(10,20,40,0.13)',    dc:'#224455'},
-];
+let selectedWorld = 'philadelphia';
 
-const ZONE_DESCS = [
-  "The heart of the fallen city. Malechar's corruption bleeds through every cobblestone.",
-  "The blighted quarter reeks of sulfur. Wraiths haunt every hollow and alley.",
-  "Old neighborhoods twisted by ancient curse. The living avoid these streets.",
-  "Suburb ruins at the city's edge. Low monsters, but the ground whispers.",
-  "The borderlands stretch thin into quiet darkness. Mostly safe — for now.",
-];
+let CENTER, ZONES, ZONE_DESCS, BOSSES;
 
 const MOB_TYPES = [
-  {name:'Lich Servant',    emoji:'💀', zone:0, hp:180000, atk:2600, def:800,  xp:800,  gold:[150,300]},
-  {name:'Void Shade',      emoji:'🌑', zone:0, hp:140000, atk:3000, def:600,  xp:700,  gold:[120,250]},
-  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:95000,  atk:2000, def:400,  xp:400,  gold:[80,180]},
-  {name:'Plague Hound',    emoji:'🐺', zone:1, hp:80000,  atk:2200, def:300,  xp:350,  gold:[60,140]},
-  {name:'Bone Archer',     emoji:'🏹', zone:1, hp:70000,  atk:2400, def:200,  xp:380,  gold:[70,160]},
-  {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:55000,  atk:1500, def:600,  xp:250,  gold:[50,120]},
-  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:45000,  atk:1800, def:300,  xp:220,  gold:[40,100]},
-  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:70000,  atk:1200, def:1000, xp:280,  gold:[50,110]},
-  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:28000,  atk:1000, def:250,  xp:120,  gold:[20,60]},
-  {name:'Bog Specter',     emoji:'💨', zone:3, hp:35000,  atk:1100, def:150,  xp:140,  gold:[20,70]},
-  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:16000,  atk:800,  def:100,  xp:80,   gold:[10,40]},
-  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:12000,  atk:500,  def:100,  xp:50,   gold:[5,25]},
-  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:10000,  atk:600,  def:80,   xp:45,   gold:[5,25]},
+  {name:'Lich Servant',    emoji:'💀', zone:0, hp:10000,  atk:1400, def:200,  xp:800,  gold:[150,300]},
+  {name:'Void Shade',      emoji:'🌑', zone:0, hp:8000,   atk:1600, def:150,  xp:700,  gold:[120,250]},
+  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:5500,   atk:800,  def:80,   xp:400,  gold:[80,180]},
+  {name:'Plague Hound',    emoji:'🐺', zone:1, hp:4500,   atk:850,  def:60,   xp:350,  gold:[60,140]},
+  {name:'Bone Archer',     emoji:'🏹', zone:1, hp:4000,   atk:900,  def:40,   xp:380,  gold:[70,160]},
+  {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:2500,   atk:500,  def:100,  xp:250,  gold:[50,120]},
+  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:2000,   atk:600,  def:50,   xp:220,  gold:[40,100]},
+  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:3000,   atk:420,  def:180,  xp:280,  gold:[50,110]},
+  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:900,    atk:120,  def:15,   xp:120,  gold:[20,60]},
+  {name:'Bog Specter',     emoji:'💨', zone:3, hp:1100,   atk:140,  def:10,   xp:140,  gold:[20,70]},
+  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:600,    atk:90,   def:5,    xp:80,   gold:[10,40]},
+  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:250,    atk:40,   def:0,    xp:50,   gold:[5,25]},
+  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:200,    atk:50,   def:0,    xp:45,   gold:[5,25]},
 ];
 
-const BOSSES = [
-  {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:2500000,atk:45000,def:8000,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a'},
-  {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:680000, atk:32000,def:5000,xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200'},
-  {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:520000, atk:28000,def:7000,xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500'},
-  {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:480000, atk:26000,def:4000,xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500'},
-  {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:340000, atk:22000,def:3500,xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566'},
-  {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:300000, atk:20000,def:5000,xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422'},
-  {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:260000, atk:18000,def:7000,xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344'},
-];
+// ══════════════════════════════════════════════════════
+//  ITEMS
+// ══════════════════════════════════════════════════════
+const ITEMS = {
+  // ── WEAPONS ──
+  'Rusted Blade':   {emoji:'🗡', type:'weapon',    tier:1, atk:800,          cost:120,  desc:'A blade left to rot in the dark.'},
+  'Iron Sword':     {emoji:'⚔', type:'weapon',    tier:1, atk:2000,         cost:280,  desc:'Standard iron. Reliable.'},
+  'Bone Cleaver':   {emoji:'🪓', type:'weapon',    tier:2, atk:5500,         cost:750,  desc:'Carved from a giant\'s femur.'},
+  'Cursed Blade':   {emoji:'🗡', type:'weapon',    tier:2, atk:9000,  crit:5, cost:1400, desc:'Drips with dark energy. +5% crit.'},
+  'Vampiric Blade': {emoji:'🗡', type:'weapon',    tier:2, atk:8000,  hp:3000,  cost:950,  desc:'Drains life. +8,000 ATK, +3,000 HP.'},
+  'Soul Reaper':    {emoji:'☠', type:'weapon',    tier:3, atk:22000, crit:8, cost:4500, desc:'It hungers eternally. +8% crit.'},
+  'Void Blade':     {emoji:'🌀', type:'weapon',    tier:3, atk:32000, crit:10,  cost:5500, desc:'Cuts through reality itself.'},
+  // ── ARMOR ──
+  'Tattered Rags':  {emoji:'🧥', type:'armor',     tier:1, def:400,   hp:800,   cost:100,  desc:'Better than nothing.'},
+  'Leather Vest':   {emoji:'🦺', type:'armor',     tier:1, def:1000,  hp:2000,  cost:260,  desc:'Crude but effective.'},
+  'Chain Mail':     {emoji:'🛡', type:'armor',     tier:2, def:3000,  hp:6000,  cost:700,  desc:'Heavy iron links.'},
+  'Mithril Shield': {emoji:'🛡', type:'armor',     tier:2, def:5000,  hp:4000,  cost:850,  desc:'Mithril-forged. +5,000 DEF, +4,000 HP.'},
+  'Cloak of Shadows':{emoji:'🌑', type:'armor',    tier:2, dodge:8, crit:4, def:1500, cost:820, desc:'+8% dodge, +4% crit, +1,500 DEF.'},
+  'Shadow Plate':   {emoji:'🖤', type:'armor',     tier:3, def:8000,  hp:15000, cost:4000, desc:'Forged in the void itself.'},
+  'Dragonscale Mail':{emoji:'🐲', type:'armor',    tier:3, def:13000, hp:22000, cost:5800, desc:'Scales of the last dragon.'},
+  // ── ACCESSORIES ──
+  'Lucky Charm':    {emoji:'🍀', type:'accessory', tier:1, crit:4,            cost:180,  desc:'+4% crit chance.'},
+  'Shadow Ring':    {emoji:'💍', type:'accessory', tier:1, dodge:5,           cost:180,  desc:'+5% dodge.'},
+  'Ring of Fortitude': {emoji:'💍', type:'accessory', tier:1, hp:2000, def:300,         cost:220,  desc:'+2,000 HP and +300 DEF.'},
+  'Amulet of Speed':   {emoji:'📿', type:'accessory', tier:1, dodge:5, crit:3,           cost:200,  desc:'+5% dodge, +3% crit.'},
+  'Blood Amulet':   {emoji:'🩸', type:'accessory', tier:2, hp:8000,           cost:600,  desc:'+8,000 max HP.'},
+  'Arcane Focus':   {emoji:'🔮', type:'accessory', tier:2, resMax:60,         cost:550,  desc:'+60 max resource.'},
+  'Ring of Power':      {emoji:'💎', type:'accessory', tier:2, atk:3000, resMax:40,       cost:780,  desc:'+3,000 ATK, +40 resource max.'},
+  'Berserker Charm':    {emoji:'😡', type:'accessory', tier:2, atk:6000, def:-500,        cost:680,  desc:'+6,000 ATK but -500 DEF. High risk.'},
+  'Death\'s Sigil': {emoji:'💀', type:'accessory', tier:3, atk:6000, crit:6,  cost:3800, desc:'+ATK and +6% crit.'},
+  "Lich's Phylactery":  {emoji:'💀', type:'accessory', tier:3, atk:16000, hp:12000,       cost:5200, desc:'Contains a sliver of undeath.'},
+  'Eye of the Storm':   {emoji:'🌩', type:'accessory', tier:3, crit:12, dodge:10, atk:9000, cost:4800, desc:'Perfect focus. See everything.'},
+  'Tome of Devastation':{emoji:'📕', type:'accessory', tier:3, resMax:80, atk:14000,      cost:4500, desc:'+80 resource, +14,000 ATK.'},
+  // ── POTIONS ──
+  'Minor Heal':     {emoji:'🧪', type:'potion',    tier:1, healPct:0.25,      cost:75,   desc:'Restores 25% HP.'},
+  'Major Heal':     {emoji:'⚗', type:'potion',    tier:2, healPct:0.50,      cost:190,  desc:'Restores 50% HP.'},
+  'Full Restore':   {emoji:'✨', type:'potion',    tier:3, healPct:1.00,      cost:580,  desc:'Fully restores HP.'},
+  'Elixir':         {emoji:'💫', type:'potion',    tier:2, resPct:0.50,       cost:160,  desc:'Restores 50% resource.'},
+  // ── CLASS WEAPONS (legendary, class-locked, drop-only) ──
+  'Bloodreaver':      {emoji:'🩸', type:'weapon', tier:4, classReq:'Fighter',     atk:45000, crit:10,           cost:0, desc:'Drinks deep. The more you kill, the stronger it grows.'},
+  'Lightbringer':     {emoji:'⚡', type:'weapon', tier:4, classReq:'Paladin',     atk:38000, hp:20000,          cost:0, desc:'Radiates holy judgment. Burns the unholy.'},
+  'Shadowbow':        {emoji:'🏹', type:'weapon', tier:4, classReq:'Ranger',      atk:40000, crit:14, dodge:8,  cost:0, desc:'Never misses. Never forgives.'},
+  'Mind Shard':       {emoji:'🔮', type:'weapon', tier:4, classReq:'Illusionist', atk:50000, resMax:200,        cost:0, desc:'Fractures reality on impact. Your illusions become lethal.'},
+  'Divine Mace':      {emoji:'☩',  type:'weapon', tier:4, classReq:'Cleric',      atk:35000, hp:25000,          cost:0, desc:'Blessed by the last god standing.'},
+  'Shadowfang':       {emoji:'🗡', type:'weapon', tier:4, classReq:'Thief',       atk:42000, crit:16, dodge:10, cost:0, desc:'Kills before the shadow falls.'},
+  'Venom Edge':       {emoji:'🐍', type:'weapon', tier:4, classReq:'Assassin',    atk:48000, crit:12,           cost:0, desc:'The poison compounds. The target always dies.'},
+  'Dragon Fist Wraps':{emoji:'🐉', type:'weapon', tier:4, classReq:'Monk',        atk:55000, crit:8,            cost:0, desc:'Strike of ten thousand deaths. Your chi is now fire.'},
+  "Nature's Fury":    {emoji:'🌿', type:'weapon', tier:4, classReq:'Druid',       atk:38000, resMax:150, hp:12000, cost:0, desc:'The wild answers your call. Grow. Devour.'},
+  // ── BOSS UNIQUE DROPS (legendary accessories, any class) ──
+  'Crown of Malechar':       {emoji:'👑', type:'accessory', tier:4, hp:50000, atk:15000, crit:10,            cost:0, desc:'The Lich-King\'s crown. Cold with ancient malice.'},
+  "Demon's Heart":           {emoji:'🫀', type:'accessory', tier:4, atk:25000, crit:8,                       cost:0, desc:'Still beating. Fuels a rage that never fades.'},
+  'Soul of the Iron Ghost':  {emoji:'⚙',  type:'accessory', tier:4, def:12000, hp:30000,                     cost:0, desc:'The ghost\'s will made manifest in iron and silence.'},
+  'Plague Sigil':            {emoji:'🕸', type:'accessory', tier:4, atk:20000, crit:12, dodge:8,             cost:0, desc:'Vexara\'s mark. Death follows where you walk.'},
+  "Wraith's Veil":           {emoji:'🌫', type:'accessory', tier:4, dodge:20,  hp:20000,                     cost:0, desc:'You are half-ghost now. Blades find only air.'},
+  "Death's Ledger":          {emoji:'📖', type:'accessory', tier:4, atk:18000, crit:10,                      cost:0, desc:'Every soul you claim is recorded. Interest compounds.'},
+  "Troll's Knuckle":         {emoji:'🪨', type:'accessory', tier:4, def:15000, hp:25000, atk:10000,          cost:0, desc:'Dense as the bridge it fell from. Heavy as regret.'},
+  // ── EPHRATA LEGENDARIES ──
+  "Gehman's Lantern":       {emoji:'🕯', type:'accessory', tier:4, resMax:150, atk:18000, hp:20000, cost:0, desc:'The founder\'s lantern burns with unholy light. Illuminates the darkest paths.'},
+  'Veil of the Pale Sister':{emoji:'🌫', type:'accessory', tier:4, dodge:18, hp:25000, def:8000,  cost:0, desc:'Woven from her burial shroud. You walk between worlds.'},
+  'Grinding Stone of Ruin': {emoji:'⚙',  type:'weapon',    tier:4, atk:52000, def:5000,             cost:0, desc:'Still grinding. Still hungry. The mill never stops.'},
+  'Harvest Reaper':         {emoji:'🌾', type:'weapon',    tier:4, atk:48000, crit:11, hp:15000,    cost:0, desc:'The fields yield only death now. Swings wide. Kills everything.'},
+  'Tome of Damnation':      {emoji:'📖', type:'accessory', tier:4, atk:22000, resMax:120, crit:8,   cost:0, desc:'Every page is a curse. Reading it changes you.'},
+  "Devil's Bargain":        {emoji:'📜', type:'accessory', tier:4, atk:30000, crit:15, def:-3000,   cost:0, desc:'Tremendous power. Terrible cost. The devil always collects.'},
+  'Wendigo Claw':           {emoji:'🦌', type:'accessory', tier:4, atk:20000, crit:10, dodge:12,    cost:0, desc:'Torn from the beast at the creek. Still warm. Still hungry.'},
+};
+
+const SKILL_TREE = {
+  t1: [
+    { id:'power',    name:'Power Training',   emoji:'⚔️', desc:'+25% ATK permanently.',          effect:'atkPct25' },
+    { id:'iron',     name:'Iron Will',         emoji:'🛡', desc:'+20% DEF and +15% max HP.',      effect:'defHp20' },
+    { id:'arcane',   name:'Arcane Study',      emoji:'📖', desc:'+25 max resource, CDs -0.4s.',   effect:'arcane25' },
+  ],
+  t2: [
+    { id:'warlord',  name:'Warlord',           emoji:'🔥', desc:'+35% ATK, +8% crit.',            effect:'atkCrit35' },
+    { id:'fortress', name:'Fortress',          emoji:'🏰', desc:'+35% DEF, +25% max HP.',         effect:'defHp35' },
+    { id:'mastery',  name:'Spell Mastery',     emoji:'✨', desc:'All ability dmgMult +25%, heals +20%.', effect:'mastery' },
+  ],
+  t3: [
+    { id:'devastator',name:'Devastator',       emoji:'💥', desc:'+50% ATK, execute enemies below 20% HP for double damage.', effect:'devastator' },
+    { id:'titan',    name:'Titan',             emoji:'🗿', desc:'+50% DEF, +40% max HP, revive once per combat at 20% HP.', effect:'titan' },
+    { id:'archmage', name:'Archmage',          emoji:'🔮', desc:'All CDs -30%, resource max +60, Signature dmgMult ×1.5.', effect:'archmage' },
+  ],
+  classUnique: {
+    Fighter:    { name:'Bloodthirst',    emoji:'🩸', desc:'Heal 5% max HP on every kill.' },
+    Paladin:    { name:'Holy Shield',    emoji:'✝️', desc:'15% chance to block all incoming damage.' },
+    Ranger:     { name:'Eagle Eye',      emoji:'🦅', desc:'+12% crit, +8% dodge permanently.' },
+    'Magic-User':{ name:'Arcane Surge',  emoji:'⚡', desc:'Every 5th ability deals double damage.' },
+    Illusionist:{ name:'Phantom Step',   emoji:'👻', desc:'Start combat with 2 illusion stacks.' },
+    Cleric:     { name:'Divine Favor',   emoji:'💚', desc:'All heals restore 25% more HP.' },
+    Thief:      { name:'Shadow Strike',  emoji:'🗡', desc:'First hit each combat ignores DEF.' },
+    Assassin:   { name:'Deathmark',      emoji:'☠️', desc:'Poison damage +60%, stacks apply faster.' },
+    Monk:       { name:'Inner Peace',    emoji:'🧘', desc:'Resource regenerates 3× faster.' },
+    Druid:      { name:"Nature's Wrath", emoji:'🌿', desc:'DoT effects deal 50% more damage.' },
+  }
+};
+
+const BAG_SIZE = 12;
+
+function itemStatLine(item){
+  const parts=[];
+  if(item.atk)    parts.push(`+${fmt(item.atk)} ATK`);
+  if(item.def)    parts.push(`+${fmt(item.def)} DEF`);
+  if(item.hp)     parts.push(`+${fmt(item.hp)} HP`);
+  if(item.crit)   parts.push(`+${item.crit}% CRIT`);
+  if(item.dodge)  parts.push(`+${item.dodge}% DODGE`);
+  if(item.resMax) parts.push(`+${item.resMax} RES`);
+  if(item.healPct)parts.push(`HEAL ${item.healPct*100|0}%`);
+  if(item.resPct) parts.push(`RES ${item.resPct*100|0}%`);
+  return parts.join(' · ');
+}
+
+// ── EQUIP / UNEQUIP ──────────────────────────────────
+function applyItemBonus(item, sign){
+  if(item.atk)    Player.atk    = Math.max(1, Player.atk    + sign*item.atk);
+  if(item.def)    Player.def    = Math.max(0, Player.def    + sign*item.def);
+  if(item.crit)   Player.crit   = Math.max(0, Player.crit   + sign*item.crit);
+  if(item.dodge)  Player.dodge  = Math.max(0, Player.dodge  + sign*item.dodge);
+  if(item.hp){
+    Player.maxHp = Math.max(1, Player.maxHp + sign*item.hp);
+    if(sign > 0) Player.hp += item.hp;
+    else Player.hp = Math.min(Player.hp, Player.maxHp);
+  }
+  if(item.resMax){
+    Player.maxRes = Math.max(1, Player.maxRes + sign*item.resMax);
+    Player.res = Math.min(Player.res, Player.maxRes);
+  }
+}
+
+function equipItem(itemName){
+  const item = ITEMS[itemName];
+  if(!item || item.type==='potion') return;
+  if(item.classReq && item.classReq !== Player.className){
+    addLog(`⚠ Only a ${item.classReq} can wield ${itemName}.`,'ls'); return;
+  }
+  const slot = item.type; // 'weapon','armor','accessory'
+  // Unequip existing
+  if(Player.equipped[slot]){
+    const old = ITEMS[Player.equipped[slot]];
+    applyItemBonus(old, -1);
+    Player.inventory.push(Player.equipped[slot]);
+  }
+  // Remove from bag
+  const idx = Player.inventory.indexOf(itemName);
+  if(idx >= 0) Player.inventory.splice(idx, 1);
+  // Equip
+  Player.equipped[slot] = itemName;
+  applyItemBonus(item, 1);
+  addLog(`Equipped: ${item.emoji} ${itemName}.`, 'll');
+  setPUI(); renderInventory();
+}
+
+function unequipSlot(slot){
+  const itemName = Player.equipped[slot];
+  if(!itemName) return;
+  if(Player.inventory.length >= BAG_SIZE){ addLog('Bag is full!','ls'); return; }
+  const item = ITEMS[itemName];
+  applyItemBonus(item, -1);
+  Player.inventory.push(itemName);
+  Player.equipped[slot] = null;
+  addLog(`Unequipped: ${item.emoji} ${itemName}.`, 'ls');
+  setPUI(); renderInventory();
+}
+
+function usePotion(itemName){
+  const item = ITEMS[itemName];
+  if(!item || item.type!=='potion') return;
+  const idx = Player.inventory.indexOf(itemName);
+  if(idx < 0) return;
+  Player.inventory.splice(idx, 1);
+  if(item.healPct){
+    const h = Math.floor(Player.maxHp * item.healPct);
+    Player.hp = Math.min(Player.maxHp, Player.hp + h);
+    addLog(`${item.emoji} ${itemName}: +${fmt(h)} HP restored.`, 'll');
+  }
+  if(item.resPct){
+    const r = Math.floor(Player.maxRes * item.resPct);
+    Player.res = Math.min(Player.maxRes, Player.res + r);
+    addLog(`${item.emoji} ${itemName}: +${fmt(r)} ${Player.cls.resource} restored.`, 'll');
+  }
+  setPUI(); renderInventory();
+}
+
+// ── INVENTORY UI ────────────────────────────────────
+function openInventory(){
+  renderInventory();
+  document.getElementById('inv-modal').classList.add('active');
+}
+function closeInventory(){
+  document.getElementById('inv-modal').classList.remove('active');
+}
+
+function renderInventory(){
+  // Equipped slots
+  ['weapon','armor','accessory'].forEach(slot=>{
+    const name = Player.equipped[slot];
+    const item = name ? ITEMS[name] : null;
+    const el = document.getElementById(`slot-${slot}`);
+    document.getElementById(`slot-${slot}-emoji`).textContent = item ? item.emoji : '—';
+    document.getElementById(`slot-${slot}-name`).textContent  = name || 'Empty';
+    el.classList.toggle('filled', !!name);
+  });
+  // Bag
+  const grid = document.getElementById('bag-grid');
+  document.getElementById('bag-count').textContent = `${Player.inventory.length}/${BAG_SIZE}`;
+  if(Player.inventory.length === 0){
+    grid.innerHTML = '<div class="bag-empty" style="grid-column:1/-1">Your bag is empty.</div>';
+    return;
+  }
+  grid.innerHTML = Player.inventory.map((name,i)=>{
+    const item = ITEMS[name];
+    if(!item) return '';
+    const isPotion = item.type==='potion';
+    const isLegendary = item.tier === 4;
+    const wrongClass = item.classReq && item.classReq !== Player.className;
+    let cls = 'bag-item';
+    if(isPotion) cls += ' potion';
+    if(isLegendary) cls += ' legendary';
+    const extra = isLegendary
+      ? `<div class="bi-legendary">✦ LEGENDARY${item.classReq ? ' · '+item.classReq.toUpperCase() : ''}</div>`
+      : (wrongClass ? `<div class="bi-req">REQ: ${item.classReq}</div>` : '');
+    return `<div class="${cls}" onclick="${isPotion?`usePotion('${name}')`:`equipItem('${name}')`}">
+      <div class="bi-emoji">${item.emoji}</div>
+      <div class="bi-name">${name}</div>
+      <div class="bi-stat">${itemStatLine(item)}</div>
+      ${extra}
+    </div>`;
+  }).join('');
+}
+
+// ── SHOP UI ─────────────────────────────────────────
+function openShop(){
+  renderShop();
+  document.getElementById('shop-modal').classList.add('active');
+}
+function closeShop(){
+  document.getElementById('shop-modal').classList.remove('active');
+}
+
+function renderShop(){
+  document.getElementById('shop-gold').textContent = `⚙ ${fmt(Player.gold)} GOLD`;
+  const maxTier = Player.level >= 10 ? 3 : Player.level >= 5 ? 2 : 1;
+  const contents = document.getElementById('shop-contents');
+
+  const byType = {weapon:[], armor:[], accessory:[], potion:[]};
+  Object.entries(ITEMS).forEach(([name,item])=>{
+    if(item.tier <= maxTier && item.tier < 4) byType[item.type]?.push([name,item]);
+  });
+
+  const typeLabels = {weapon:'⚔ WEAPONS', armor:'🛡 ARMOR', accessory:'💍 ACCESSORIES', potion:'🧪 CONSUMABLES'};
+  contents.innerHTML = Object.entries(byType).map(([type, list])=>{
+    if(!list.length) return '';
+    const items = list.map(([name,item])=>{
+      const canAfford = Player.gold >= item.cost;
+      const bagFull = item.type!=='potion'
+        ? (Player.inventory.length >= BAG_SIZE && !Player.equipped[item.type])
+        : Player.inventory.length >= BAG_SIZE;
+      const disabled = !canAfford || bagFull;
+      const reason = !canAfford ? 'NO GOLD' : bagFull ? 'BAG FULL' : 'BUY';
+      return `<div class="shop-item">
+        <div class="si-emoji">${item.emoji}</div>
+        <div class="si-name">${name}</div>
+        <div class="si-stat">${itemStatLine(item)}</div>
+        <div class="si-desc">${item.desc}</div>
+        <div class="si-cost">⚙ ${fmt(item.cost)} gold</div>
+        <button class="shop-btn" ${disabled?'disabled':''} onclick="buyItem('${name}')">${reason}</button>
+      </div>`;
+    }).join('');
+    return `<div class="shop-section-title">${typeLabels[type]}</div><div class="shop-grid">${items}</div>`;
+  }).join('');
+}
+
+function buyItem(itemName){
+  const item = ITEMS[itemName];
+  if(!item) return;
+  if(Player.gold < item.cost){ addLog('Not enough gold.','ls'); return; }
+  if(Player.inventory.length >= BAG_SIZE){ addLog('Bag is full!','ls'); return; }
+  Player.gold -= item.cost;
+  Player.inventory.push(itemName);
+  addLog(`Purchased: ${item.emoji} ${itemName} for ${fmt(item.cost)} gold.`, 'll');
+  saveGame();
+  renderShop();
+  setPUI();
+}
+
+// ── SKILLS UI ────────────────────────────────────────
+function openSkills(){
+  renderSkills();
+  document.getElementById('skills-modal').classList.add('active');
+}
+function closeSkills(){
+  document.getElementById('skills-modal').classList.remove('active');
+}
+
+function renderSkills(){
+  if(!Player) return;
+  const lvl = Player.level;
+  const sk = Player.skills || {};
+  const content = document.getElementById('skills-content');
+  let html = '';
+
+  // Tier 1 (level 5)
+  const t1Lock = lvl < 5;
+  html += `<div class="skill-tier-header"><span class="stier-badge">T1</span>COMBAT TRAINING<span class="stier-lock">${t1Lock?'🔒 LV 5':''}</span></div>`;
+  SKILL_TREE.t1.forEach(skill=>{
+    const locked = t1Lock;
+    const chosen = sk.t1 === skill.id;
+    const choosable = !locked && !sk.t1;
+    let cls = 'skill-card';
+    if(locked) cls+=' locked';
+    else if(chosen) cls+=' chosen';
+    else if(choosable) cls+=' choosable';
+    const click = (!locked && !sk.t1) ? `onclick="chooseSkill('t1','${skill.id}')"` : '';
+    html += `<div class="${cls}" ${click}>
+      <div class="skill-emoji">${skill.emoji}</div>
+      <div class="skill-info">
+        <div class="skill-name">${skill.name}</div>
+        <div class="skill-desc">${skill.desc}</div>
+        ${chosen?'<div class="skill-chosen-badge">✓ ACTIVE</div>':''}
+        ${choosable?'<div class="skill-chosen-badge" style="color:var(--gold)">TAP TO CHOOSE</div>':''}
+      </div>
+    </div>`;
+  });
+
+  // Tier 2 (level 15)
+  const t2Lock = lvl < 15;
+  html += `<div class="skill-tier-header"><span class="stier-badge">T2</span>ADVANCED PATH<span class="stier-lock">${t2Lock?'🔒 LV 15':''}</span></div>`;
+  SKILL_TREE.t2.forEach(skill=>{
+    const locked = t2Lock;
+    const chosen = sk.t2 === skill.id;
+    const choosable = !locked && !sk.t2;
+    let cls = 'skill-card';
+    if(locked) cls+=' locked';
+    else if(chosen) cls+=' chosen';
+    else if(choosable) cls+=' choosable';
+    const click = (!locked && !sk.t2) ? `onclick="chooseSkill('t2','${skill.id}')"` : '';
+    html += `<div class="${cls}" ${click}>
+      <div class="skill-emoji">${skill.emoji}</div>
+      <div class="skill-info">
+        <div class="skill-name">${skill.name}</div>
+        <div class="skill-desc">${skill.desc}</div>
+        ${chosen?'<div class="skill-chosen-badge">✓ ACTIVE</div>':''}
+        ${choosable?'<div class="skill-chosen-badge" style="color:var(--gold)">TAP TO CHOOSE</div>':''}
+      </div>
+    </div>`;
+  });
+
+  // Tier 3 (level 30)
+  const t3Lock = lvl < 30;
+  html += `<div class="skill-tier-header"><span class="stier-badge">T3</span>MASTERY<span class="stier-lock">${t3Lock?'🔒 LV 30':''}</span></div>`;
+  SKILL_TREE.t3.forEach(skill=>{
+    const locked = t3Lock;
+    const chosen = sk.t3 === skill.id;
+    const choosable = !locked && !sk.t3;
+    let cls = 'skill-card';
+    if(locked) cls+=' locked';
+    else if(chosen) cls+=' chosen';
+    else if(choosable) cls+=' choosable';
+    const click = (!locked && !sk.t3) ? `onclick="chooseSkill('t3','${skill.id}')"` : '';
+    html += `<div class="${cls}" ${click}>
+      <div class="skill-emoji">${skill.emoji}</div>
+      <div class="skill-info">
+        <div class="skill-name">${skill.name}</div>
+        <div class="skill-desc">${skill.desc}</div>
+        ${chosen?'<div class="skill-chosen-badge">✓ ACTIVE</div>':''}
+        ${choosable?'<div class="skill-chosen-badge" style="color:var(--gold)">TAP TO CHOOSE</div>':''}
+      </div>
+    </div>`;
+  });
+
+  // Class Unique (level 10)
+  const cuLock = lvl < 10;
+  const cuData = SKILL_TREE.classUnique[Player.className];
+  if(cuData){
+    html += `<div class="skill-class-section">`;
+    html += `<div class="skill-tier-header"><span class="stier-badge">★</span>CLASS PASSIVE<span class="stier-lock">${cuLock?'🔒 LV 10':''}</span></div>`;
+    const chosen = sk.classUnique;
+    const choosable = !cuLock && !chosen;
+    let cls = 'skill-card';
+    if(cuLock) cls+=' locked';
+    else if(chosen) cls+=' chosen';
+    else if(choosable) cls+=' choosable';
+    const click = choosable ? `onclick="chooseSkill('classUnique','${Player.className}')"` : '';
+    html += `<div class="${cls}" ${click}>
+      <div class="skill-emoji">${cuData.emoji}</div>
+      <div class="skill-info">
+        <div class="skill-name">${cuData.name}</div>
+        <div class="skill-desc">${cuData.desc}</div>
+        ${chosen?'<div class="skill-chosen-badge">✓ ACTIVE</div>':''}
+        ${choosable?'<div class="skill-chosen-badge" style="color:var(--gold)">TAP TO UNLOCK</div>':''}
+      </div>
+    </div>`;
+    html += `</div>`;
+  }
+
+  content.innerHTML = html;
+}
+
+function chooseSkill(tier, skillId){
+  if(!Player) return;
+  const sk = Player.skills || {};
+  const lvl = Player.level;
+  if(tier==='t1' && lvl<5){ addLog('Tier 1 unlocks at level 5.','ls'); return; }
+  if(tier==='t2' && lvl<15){ addLog('Tier 2 unlocks at level 15.','ls'); return; }
+  if(tier==='t3' && lvl<30){ addLog('Tier 3 unlocks at level 30.','ls'); return; }
+  if(tier==='classUnique' && lvl<10){ addLog('Class passive unlocks at level 10.','ls'); return; }
+  if(tier!=='classUnique' && sk[tier]){ addLog('You already chose a skill for this tier.','ls'); return; }
+  if(tier==='classUnique' && sk.classUnique){ addLog('Class passive already unlocked.','ls'); return; }
+
+  if(tier==='classUnique'){
+    Player.skills.classUnique = true;
+    addLog(`★ ${SKILL_TREE.classUnique[Player.className].name} unlocked!`,'lb');
+  } else {
+    Player.skills[tier] = skillId;
+    const skill = SKILL_TREE[tier].find(s=>s.id===skillId);
+    addLog(`${skill.emoji} ${skill.name} chosen!`,'lb');
+  }
+  applySkillBonuses();
+  renderSkills();
+  saveGame();
+}
+
+// ── LOOT DROP ───────────────────────────────────────
+const ZONE_DROP_TIERS = [1, 1, 2, 2, 2]; // by zone index
+
+function ownsItem(name){
+  return Player.inventory.includes(name) || Object.values(Player.equipped).includes(name);
+}
+
+function rollLootDrop(enemy, isBoss){
+  const drops = [];
+
+  if(isBoss){
+    // Guaranteed unique boss drop (first kill only)
+    if(enemy.uniqueDrop && !ownsItem(enemy.uniqueDrop)){
+      drops.push(enemy.uniqueDrop);
+    }
+    // 40% chance to drop your class weapon from any zone boss
+    if(!enemy.isWorld){
+      const classWeapon = Object.keys(ITEMS).find(n => ITEMS[n].classReq === Player.className);
+      if(classWeapon && !ownsItem(classWeapon) && Math.random() < 0.40){
+        drops.push(classWeapon);
+      }
+    }
+  }
+
+  // Regular random loot drop (tier 1-3 only)
+  const dropChance = isBoss ? 0.60 : 0.25;
+  if(Math.random() < dropChance){
+    const zone = enemy.zone ?? 2;
+    const maxTier = Math.min(3, ZONE_DROP_TIERS[zone] + (isBoss ? 1 : 0));
+    const eligible = Object.entries(ITEMS).filter(([n,item])=>
+      item.type !== 'potion' && item.tier <= maxTier && item.tier < 4 && !drops.includes(n)
+    );
+    if(eligible.length){
+      const [name] = eligible[Math.floor(Math.random()*eligible.length)];
+      drops.push(name);
+    }
+  }
+
+  // Add to inventory (respect bag limit)
+  drops.forEach(name => { if(Player.inventory.length < BAG_SIZE) Player.inventory.push(name); });
+  return drops;
+}
+
+function selectWorld(key){
+  selectedWorld = key;
+  const w = WORLDS[key];
+  CENTER = w.center;
+  ZONES = w.zones;
+  ZONE_DESCS = w.zoneDescs;
+  BOSSES = w.bosses.map(b=>({...b, defeated:false, maxHp:b.hp, statuses:[], poisonStacks:0}));
+}
+selectWorld('philadelphia');
 
 // ══════════════════════════════════════════════════════
 //  STAT ROLL SYSTEM
@@ -1340,6 +2264,63 @@ function checkCanEnter(){
 // ══════════════════════════════════════════════════════
 let Player = null;
 
+function xpForLevel(lvl){ return Math.floor(120 * Math.pow(lvl, 1.85)); }
+
+function applySkillBonuses(){
+  if(!Player) return;
+  const sk = Player.skills;
+  // DEF/HP passives applied as flat multiplier adjustments
+  // These are applied by resetting to base and recomputing, but simpler: just apply the difference
+  // We track via a flag to avoid double-applying
+  if(sk.t1 === 'iron' && !Player._appliedT1Iron){
+    Player.def = Math.floor(Player.def * 1.20);
+    Player.maxHp = Math.floor(Player.maxHp * 1.15);
+    Player.hp = Math.min(Player.hp, Player.maxHp);
+    Player._appliedT1Iron = true;
+  }
+  if(sk.t2 === 'fortress' && !Player._appliedT2Fortress){
+    Player.def = Math.floor(Player.def * 1.35);
+    Player.maxHp = Math.floor(Player.maxHp * 1.25);
+    Player.hp = Math.min(Player.hp, Player.maxHp);
+    Player._appliedT2Fortress = true;
+  }
+  if(sk.t1 === 'power' && !Player._appliedT1Power){
+    Player.atk = Math.floor(Player.atk * 1.25);
+    Player._appliedT1Power = true;
+  }
+  if(sk.t1 === 'arcane' && !Player._appliedT1Arcane){
+    Player.maxRes += 25;
+    Player._appliedT1Arcane = true;
+  }
+  if(sk.t2 === 'warlord' && !Player._appliedT2Warlord){
+    Player.atk = Math.floor(Player.atk * 1.35);
+    Player.crit = Math.min(75, Player.crit + 8);
+    Player._appliedT2Warlord = true;
+  }
+  if(sk.t3 === 'devastator' && !Player._appliedT3Devastator){
+    Player.atk = Math.floor(Player.atk * 1.50);
+    Player._appliedT3Devastator = true;
+  }
+  if(sk.t3 === 'titan' && !Player._appliedT3Titan){
+    Player.def = Math.floor(Player.def * 1.50);
+    Player.maxHp = Math.floor(Player.maxHp * 1.40);
+    Player.hp = Math.min(Player.hp, Player.maxHp);
+    Player._appliedT3Titan = true;
+  }
+  if(sk.t3 === 'archmage' && !Player._appliedT3Archmage){
+    Player.maxRes += 60;
+    Player._appliedT3Archmage = true;
+  }
+  if(sk.classUnique && !Player._appliedClassUnique){
+    if(Player.className === 'Ranger'){
+      Player.crit = Math.min(75, Player.crit + 12);
+      Player.dodge = Math.min(75, Player.dodge + 8);
+    }
+    Player._appliedClassUnique = true;
+  }
+  setPUI();
+}
+
 function buildPlayer() {
   const cls = CLASSES[selectedClass];
   const stats = rolledStats;
@@ -1364,13 +2345,20 @@ function buildPlayer() {
     def: cls.def || cls.stats.def,
     crit: cls.stats.crit + statMod(DEX),
     dodge: cls.stats.dodge + statMod(DEX),
-    xp: 0, xpNext: 1000, level: 1, gold: 0,
+    xp: 0, xpNext: xpForLevel(1), level: 1, gold: 0,
     lat: 39.9492, lng: -75.1740,
     cooldowns: {},
     statuses: [],
     poisonStacks: 0,
     illusionStacks: 0,
     STR,INT,WIS,DEX,CON,CHA,
+    statPoints: 0,
+    baseStats: {STR,DEX,INT,CON,WIS,CHA},
+    skills: { t1: null, t2: null, t3: null, classUnique: false },
+    healBonus: 0, goldBonus: 0, xpBonus: 0,
+    surgeCount: 0, titanUsed: false, shadowStrikeUsed: false,
+    equipped: { weapon: null, armor: null, accessory: null },
+    inventory: [],
   };
 }
 
@@ -1379,7 +2367,7 @@ function buildPlayer() {
 // ══════════════════════════════════════════════════════
 const canvas = document.getElementById('map-canvas');
 const ctx = canvas.getContext('2d');
-let mapW,mapH,viewX=0,viewY=0,zoom=1.0;
+let mapW,mapH,viewX=0,viewY=0,zoom=2.0;
 let dragging=false,dragStart={x:0,y:0},dragView={x:0,y:0};
 
 function ll2px(lat,lng){
@@ -1396,24 +2384,47 @@ function fmt(n){ return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).t
 let spawns=[];
 function genSpawns(){
   spawns=[];
-  const counts=[8,18,22,20,12];
-  ZONES.forEach((z,zi)=>{
-    const minR=zi?ZONES[zi-1].max:0.3;
-    const mobs=MOB_TYPES.filter(m=>m.zone===zi);
-    if(!mobs.length)return;
-    for(let i=0;i<counts[zi];i++){
-      const angle=Math.random()*2*Math.PI;
-      const r=minR+Math.random()*(z.max-minR);
-      const lat=CENTER.lat+(r/69.11)*Math.cos(angle);
-      const lng=CENTER.lng+(r/(69.11*Math.cos(CENTER.lat*Math.PI/180)))*Math.sin(angle);
-      const t=mobs[Math.floor(Math.random()*mobs.length)];
-      const mult=1+Math.random()*0.4;
+  const outsidePhilly = Player && distMiles(Player.lat,Player.lng,CENTER.lat,CENTER.lng) > 3;
+
+  if(outsidePhilly){
+    // Outside Philadelphia: spawn 30 easy mobs (zones 3-4) within 100 feet of the player
+    const MAX_FEET = 100;
+    const MAX_MILES = MAX_FEET / 5280;
+    const total = 30;
+    const easyMobs = MOB_TYPES.filter(m=>m.zone>=3);
+    for(let i=0;i<total;i++){
+      const angle = Math.random()*2*Math.PI;
+      const r = Math.random()*MAX_MILES;
+      const lat = Player.lat + (r/69.11)*Math.cos(angle);
+      const lng = Player.lng + (r/(69.11*Math.cos(Player.lat*Math.PI/180)))*Math.sin(angle);
+      const t = easyMobs[Math.floor(Math.random()*easyMobs.length)];
+      const mult = 1+Math.random()*0.4;
       spawns.push({...t,lat,lng,
         hp:Math.floor(t.hp*mult),maxHp:Math.floor(t.hp*mult),
         atk:Math.floor(t.atk*mult),def:Math.floor(t.def*mult),
         id:spawns.length,defeated:false,statuses:[]});
     }
-  });
+  } else {
+    // Inside Philadelphia: spawn by zone rings as normal
+    const counts=[8,18,22,20,12];
+    ZONES.forEach((z,zi)=>{
+      const minR=zi?ZONES[zi-1].max:0.3;
+      const mobs=MOB_TYPES.filter(m=>m.zone===zi);
+      if(!mobs.length)return;
+      for(let i=0;i<counts[zi];i++){
+        const angle=Math.random()*2*Math.PI;
+        const r=minR+Math.random()*(z.max-minR);
+        const lat=CENTER.lat+(r/69.11)*Math.cos(angle);
+        const lng=CENTER.lng+(r/(69.11*Math.cos(CENTER.lat*Math.PI/180)))*Math.sin(angle);
+        const t=mobs[Math.floor(Math.random()*mobs.length)];
+        const mult=1+Math.random()*0.4;
+        spawns.push({...t,lat,lng,
+          hp:Math.floor(t.hp*mult),maxHp:Math.floor(t.hp*mult),
+          atk:Math.floor(t.atk*mult),def:Math.floor(t.def*mult),
+          id:spawns.length,defeated:false,statuses:[]});
+      }
+    });
+  }
 }
 
 function resize(){
@@ -1438,7 +2449,7 @@ function render(){
 
 function drawGrid(){
   const step=mi2px(0.15);
-  ctx.strokeStyle='rgba(20,14,28,0.8)'; ctx.lineWidth=0.5;
+  ctx.strokeStyle='rgba(50,35,70,0.5)'; ctx.lineWidth=0.8;
   const cx=mapW/2+viewX, cy=mapH/2+viewY;
   for(let x=cx%step-step;x<mapW;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,mapH);ctx.stroke();}
   for(let y=cy%step-step;y<mapH;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(mapW,y);ctx.stroke();}
@@ -1454,7 +2465,7 @@ function drawZones(){
     ctx.lineWidth=1; ctx.setLineDash([4,5]); ctx.stroke(); ctx.setLineDash([]);
     if(zoom>0.4){
       ctx.font=`${Math.max(7,8*zoom)}px "Share Tech Mono"`;
-      ctx.fillStyle='rgba(184,150,42,0.25)'; ctx.textAlign='center';
+      ctx.fillStyle='rgba(220,180,60,0.6)'; ctx.textAlign='center';
       ctx.fillText(z.name.toUpperCase(),c.x,c.y-r+13);
     }
   });
@@ -1472,21 +2483,19 @@ function drawPaths(){
 
 function drawMob(s){
   const p=ll2px(s.lat,s.lng);
-  const r=Math.max(4,6*zoom);
+  const r=Math.max(8,10*zoom);
   const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r*2.5);
-  g.addColorStop(0,'rgba(80,50,100,0.35)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  g.addColorStop(0,'rgba(140,80,180,0.5)'); g.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,r*2.5,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
-  ctx.fillStyle='#1a1228'; ctx.fill();
-  ctx.strokeStyle='#3a2a5a'; ctx.lineWidth=1; ctx.stroke();
-  if(zoom>0.7){
-    ctx.font=`${Math.floor(9*zoom)}px serif`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(s.emoji,p.x,p.y);
-  }
-  if(zoom>1.2){
-    ctx.font=`${Math.max(6,6*zoom)}px "Share Tech Mono"`;
-    ctx.fillStyle='rgba(140,110,170,0.55)'; ctx.textBaseline='top';
+  ctx.fillStyle='#2a1a40'; ctx.fill();
+  ctx.strokeStyle='#7a5aaa'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.font=`${Math.floor(Math.max(12,12*zoom))}px serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(s.emoji,p.x,p.y);
+  if(zoom>1.0){
+    ctx.font=`${Math.max(8,8*zoom)}px "Share Tech Mono"`;
+    ctx.fillStyle='rgba(180,150,220,0.8)'; ctx.textBaseline='top';
     ctx.fillText(s.name,p.x,p.y+r+3);
   }
 }
@@ -1532,6 +2541,12 @@ function drawPlayer(){
   ctx.font=`${Math.floor(10*zoom)}px serif`;
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(Player.emoji,p.x,p.y);
+  if(gpsFirstLock){
+    const engageR=mi2px(ENGAGE_MILES);
+    ctx.beginPath(); ctx.arc(p.x,p.y,engageR,0,Math.PI*2);
+    ctx.strokeStyle='rgba(42,100,70,0.18)'; ctx.lineWidth=1;
+    ctx.setLineDash([3,4]); ctx.stroke(); ctx.setLineDash([]);
+  }
   if(zoom>0.8){
     ctx.font=`${Math.max(6,6*zoom)}px "Share Tech Mono"`;
     ctx.fillStyle='#2a6a4a'; ctx.textBaseline='top';
@@ -1546,20 +2561,313 @@ canvas.addEventListener('mousedown',e=>{dragging=true;dragStart={x:e.clientX,y:e
 canvas.addEventListener('mousemove',e=>{if(!dragging)return;viewX=dragView.x+(e.clientX-dragStart.x);viewY=dragView.y+(e.clientY-dragStart.y);render();updateZone();});
 canvas.addEventListener('mouseup',e=>{const mv=Math.abs(e.clientX-dragStart.x)+Math.abs(e.clientY-dragStart.y);dragging=false;if(mv<5)handleClick(e.clientX,e.clientY);});
 canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(0.3,Math.min(4,zoom*(e.deltaY>0?0.85:1.18)));render();},{passive:false});
-canvas.addEventListener('touchstart',e=>{dragStart={x:e.touches[0].clientX,y:e.touches[0].clientY};dragView={x:viewX,y:viewY};},{passive:true});
-canvas.addEventListener('touchmove',e=>{e.preventDefault();viewX=dragView.x+(e.touches[0].clientX-dragStart.x);viewY=dragView.y+(e.touches[0].clientY-dragStart.y);render();},{passive:false});
-canvas.addEventListener('touchend',e=>{const t=e.changedTouches[0];if(Math.abs(t.clientX-dragStart.x)+Math.abs(t.clientY-dragStart.y)<10)handleClick(t.clientX,t.clientY);});
+let pinchDist=0, pinchZoom=1, isPinching=false;
+function touchDist(t){ return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY); }
+function touchMid(t){ return {x:(t[0].clientX+t[1].clientX)/2, y:(t[0].clientY+t[1].clientY)/2}; }
+
+canvas.addEventListener('touchstart',e=>{
+  if(e.touches.length===2){
+    isPinching=true;
+    pinchDist=touchDist(e.touches);
+    pinchZoom=zoom;
+    dragView={x:viewX,y:viewY};
+    dragStart=touchMid(e.touches);
+  } else {
+    isPinching=false;
+    dragStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
+    dragView={x:viewX,y:viewY};
+  }
+},{passive:true});
+
+canvas.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(e.touches.length===2){
+    isPinching=true;
+    const dist=touchDist(e.touches);
+    const mid=touchMid(e.touches);
+    const newZoom=Math.max(0.3,Math.min(4, pinchZoom*(dist/pinchDist)));
+    // Zoom toward pinch midpoint
+    const zoomRatio=newZoom/zoom;
+    viewX=mid.x-(mid.x-viewX)*zoomRatio + (mid.x-dragStart.x);
+    viewY=mid.y-(mid.y-viewY)*zoomRatio + (mid.y-dragStart.y);
+    zoom=newZoom;
+    render();
+  } else if(!isPinching){
+    viewX=dragView.x+(e.touches[0].clientX-dragStart.x);
+    viewY=dragView.y+(e.touches[0].clientY-dragStart.y);
+    render();
+  }
+},{passive:false});
+
+canvas.addEventListener('touchend',e=>{
+  if(e.touches.length<2) isPinching=false;
+  if(e.changedTouches.length===1&&!isPinching){
+    const t=e.changedTouches[0];
+    if(Math.abs(t.clientX-dragStart.x)+Math.abs(t.clientY-dragStart.y)<10) handleClick(t.clientX,t.clientY);
+  }
+});
+
+const ENGAGE_MILES=0.1;
 
 function handleClick(cx,cy){
   if(inCombat)return;
-  for(const b of BOSSES){ if(b.defeated)continue; const p=ll2px(b.lat,b.lng); if(Math.hypot(cx-p.x,cy-p.y)<(b.isWorld?22:16)){startCombat(b,true);return;} }
-  for(const s of spawns){ if(s.defeated)continue; const p=ll2px(s.lat,s.lng); if(Math.hypot(cx-p.x,cy-p.y)<Math.max(10,10*zoom)){startCombat(s,false);return;} }
+  for(const b of BOSSES){
+    if(b.defeated)continue;
+    const p=ll2px(b.lat,b.lng);
+    if(Math.hypot(cx-p.x,cy-p.y)<(b.isWorld?22:16)){
+      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,b.lat,b.lng)>ENGAGE_MILES){
+        addLog('⚠ Move closer to engage this enemy.','ls'); return;
+      }
+      startCombat(b,true); return;
+    }
+  }
+  for(const s of spawns){
+    if(s.defeated)continue;
+    const p=ll2px(s.lat,s.lng);
+    if(Math.hypot(cx-p.x,cy-p.y)<Math.max(10,10*zoom)){
+      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,s.lat,s.lng)>ENGAGE_MILES){
+        addLog('⚠ Move closer to engage this enemy.','ls'); return;
+      }
+      startCombat(s,false); return;
+    }
+  }
 }
 
 function distMiles(lat1,lng1,lat2,lng2){
   const R=3958.8,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function bearing(lat1,lng1,lat2,lng2){
+  const dLng=(lng2-lng1)*Math.PI/180;
+  const φ1=lat1*Math.PI/180,φ2=lat2*Math.PI/180;
+  const y=Math.sin(dLng)*Math.cos(φ2);
+  const x=Math.cos(φ1)*Math.sin(φ2)-Math.sin(φ1)*Math.cos(φ2)*Math.cos(dLng);
+  return(Math.atan2(y,x)*180/Math.PI+360)%360;
+}
+
+function headingLabel(h){
+  return['N','NE','E','SE','S','SW','W','NW','N'][Math.round(h/45)%8];
+}
+
+// ══════════════════════════════════════════════════════
+//  AR ENGINE
+// ══════════════════════════════════════════════════════
+let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[];
+
+async function startAR(){
+  if(!Player)return;
+  // iOS compass permission
+  if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
+    try{ await DeviceOrientationEvent.requestPermission(); }
+    catch(e){ addLog('⚠ Compass permission denied.','ls'); return; }
+  }
+  // Camera
+  try{
+    arStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+    const vid=document.getElementById('ar-video');
+    vid.srcObject=arStream;
+    vid.setAttribute('playsinline','');
+    vid.setAttribute('muted','');
+    await vid.play().catch(()=>{});
+  }catch(e){
+    addLog(`⚠ Camera: ${e.message||'access denied'}. Check browser permissions.`,'ls'); return;
+  }
+  // Compass
+  arOrientHandler=e=>{
+    let raw;
+    if(e.webkitCompassHeading!==undefined){
+      raw=e.webkitCompassHeading;
+    } else {
+      raw=(360-(e.alpha||0))%360;
+    }
+    // Store raw target; smoothing applied during render
+    arTargetHeading=raw;
+  };
+  window.addEventListener('deviceorientationabsolute',arOrientHandler,true);
+  window.addEventListener('deviceorientation',arOrientHandler,true);
+  // Resize AR canvas
+  const ac=document.getElementById('ar-canvas');
+  ac.width=window.innerWidth; ac.height=window.innerHeight;
+  // Tap-to-fight handler
+  ac._arTapHandler=e=>{
+    e.preventDefault();
+    if(inCombat)return;
+    const t=e.changedTouches[0];
+    const rect=ac.getBoundingClientRect();
+    const tx=t.clientX-rect.left;
+    const ty=t.clientY-rect.top;
+    let best=null, bestDist=Infinity;
+    for(const v of arVisibleEnemies){
+      // Check FIGHT button rect first (primary target)
+      if(v.btnY!==undefined){
+        const inBtn = Math.abs(tx-v.x)<v.btnW/2+16 && Math.abs(ty-v.btnY)<v.btnH/2+16;
+        if(inBtn){ best=v; break; }
+      }
+      // Fallback: large radius around sprite
+      const d=Math.hypot(tx-v.x, ty-v.yBase);
+      if(d<v.sz*2.5 && d<bestDist){ best=v; bestDist=d; }
+    }
+    if(best){
+      stopAR();
+      startCombat(best.entity, best.isBoss);
+    }
+  };
+  ac.addEventListener('touchend', ac._arTapHandler, {passive:false});
+  // Switch screens
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-ar').classList.add('active');
+  renderAR();
+}
+
+function stopAR(){
+  if(arAnimId){cancelAnimationFrame(arAnimId);arAnimId=null;}
+  if(arStream){arStream.getTracks().forEach(t=>t.stop());arStream=null;}
+  if(arOrientHandler){
+    window.removeEventListener('deviceorientationabsolute',arOrientHandler,true);
+    window.removeEventListener('deviceorientation',arOrientHandler,true);
+  }
+  const ac=document.getElementById('ar-canvas');
+  if(ac._arTapHandler){ ac.removeEventListener('touchend',ac._arTapHandler); ac._arTapHandler=null; }
+  arVisibleEnemies=[];
+  document.getElementById('screen-ar').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+}
+
+function renderAR(){
+  // Schedule next frame FIRST so there is never a gap between frames
+  arAnimId=requestAnimationFrame(renderAR);
+
+  const canvas=document.getElementById('ar-canvas');
+  const c=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+
+  // Smooth heading heavily — damp out sensor jitter
+  let diff=arTargetHeading-arHeading;
+  if(diff>180) diff-=360;
+  if(diff<-180) diff+=360;
+  arHeading=(arHeading+diff*0.05+360)%360;
+
+  c.clearRect(0,0,W,H);
+
+  const FOV=65,MAX_DIST=0.5;
+  arVisibleEnemies=[]; // reset hit-test targets each frame
+
+  // Atmospheric vignette
+  const vgrd=c.createLinearGradient(0,0,0,H);
+  vgrd.addColorStop(0,'rgba(3,2,5,0.5)');
+  vgrd.addColorStop(0.4,'rgba(3,2,5,0)');
+  vgrd.addColorStop(1,'rgba(3,2,5,0.6)');
+  c.fillStyle=vgrd; c.fillRect(0,0,W,H);
+
+  // Collect enemies in FOV — keep reference to original entity object
+  const visible=[];
+  BOSSES.filter(b=>!b.defeated).forEach(b=>{
+    const dist=distMiles(Player.lat,Player.lng,b.lat,b.lng);
+    if(dist>MAX_DIST)return;
+    let diff=bearing(Player.lat,Player.lng,b.lat,b.lng)-arHeading;
+    if(diff>180)diff-=360; if(diff<-180)diff+=360;
+    if(Math.abs(diff)<FOV/2) visible.push({name:b.name,emoji:b.emoji,hp:b.hp,maxHp:b.maxHp,dist,diff,boss:true,entity:b});
+  });
+  spawns.filter(s=>!s.defeated).forEach(s=>{
+    const dist=distMiles(Player.lat,Player.lng,s.lat,s.lng);
+    if(dist>MAX_DIST)return;
+    let diff=bearing(Player.lat,Player.lng,s.lat,s.lng)-arHeading;
+    if(diff>180)diff-=360; if(diff<-180)diff+=360;
+    if(Math.abs(diff)<FOV/2) visible.push({name:s.name,emoji:s.emoji,hp:s.hp,maxHp:s.maxHp,dist,diff,boss:false,entity:s});
+  });
+
+  // Draw each enemy
+  visible.sort((a,b)=>b.dist-a.dist); // far to near (near on top)
+  visible.forEach(e=>{
+    const x=W/2+(e.diff/(FOV/2))*(W/2);
+    const proximity=1-e.dist/MAX_DIST;
+    const scale=0.6+proximity*0.6;
+    const sz=Math.floor(W*0.14*scale);
+    const yBase=H*(0.25+proximity*0.1);
+    // Store screen position for tap hit-testing
+    arVisibleEnemies.push({entity:e.entity,isBoss:e.boss,x,yBase,sz});
+
+    // Glow
+    const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*1.8);
+    grd.addColorStop(0,e.boss?'rgba(184,150,42,0.35)':'rgba(180,30,30,0.3)');
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*1.8,0,Math.PI*2); c.fill();
+
+    // Emoji
+    c.font=`${sz}px serif`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(e.emoji,x,yBase);
+
+    // Info card background
+    const cardW=Math.min(W*0.55, 220);
+    const cardH=80;
+    const cardX=x-cardW/2;
+    const cardY=yBase+sz*0.6+8;
+    c.fillStyle='rgba(5,3,10,0.78)';
+    c.beginPath();
+    c.roundRect?c.roundRect(cardX,cardY,cardW,cardH,6):c.rect(cardX,cardY,cardW,cardH);
+    c.fill();
+
+    // Name
+    const nameSize=Math.max(14,Math.floor(18*scale));
+    c.font=`bold ${nameSize}px "Share Tech Mono",monospace`;
+    c.fillStyle=e.boss?'#f0c040':'#e8d8c0';
+    c.fillText(e.name.toUpperCase(),x,cardY+nameSize+4,cardW-12);
+
+    // Distance — large and readable
+    const ft=Math.round(e.dist*5280);
+    const distTxt=ft<528?`${ft} ft away`:`${(e.dist*5280|0)} ft away`;
+    const distSize=Math.max(16,Math.floor(20*scale));
+    c.font=`${distSize}px "Share Tech Mono",monospace`;
+    c.fillStyle=e.boss?'#ffaa00':'#ff4444';
+    c.fillText(distTxt,x,cardY+nameSize+distSize+10,cardW-12);
+
+    // HP bar
+    const bw=cardW-16,bh=6;
+    const bx=cardX+8,by=cardY+cardH-14;
+    c.fillStyle='rgba(30,10,10,0.9)'; c.fillRect(bx,by,bw,bh);
+    c.fillStyle=e.boss?'#c8a030':'#aa2020';
+    c.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
+
+    // FIGHT button below card — large tap target
+    const btnW=Math.min(cardW, 180);
+    const btnH=38;
+    const btnX=x-btnW/2;
+    const btnY=cardY+cardH+8;
+    const btnColor=e.boss?'rgba(200,150,0,0.92)':'rgba(180,30,30,0.92)';
+    c.fillStyle=btnColor;
+    c.beginPath();
+    c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,8):c.rect(btnX,btnY,btnW,btnH);
+    c.fill();
+    c.strokeStyle=e.boss?'rgba(255,220,60,0.9)':'rgba(255,80,80,0.9)';
+    c.lineWidth=1.5; c.stroke();
+    const btnFontSize=Math.max(14,Math.floor(17*scale));
+    c.font=`bold ${btnFontSize}px "Share Tech Mono",monospace`;
+    c.fillStyle='#ffffff';
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('⚔ FIGHT',x,btnY+btnH/2);
+    // Store button centre for hit-testing (use button centre, not sprite)
+    arVisibleEnemies[arVisibleEnemies.length-1].btnY=btnY+btnH/2;
+    arVisibleEnemies[arVisibleEnemies.length-1].btnW=btnW;
+    arVisibleEnemies[arVisibleEnemies.length-1].btnH=btnH;
+  });
+
+  // No enemies message
+  if(visible.length===0){
+    const fs=Math.max(16,W*0.04);
+    c.font=`${fs}px "Share Tech Mono",monospace`;
+    c.fillStyle='rgba(180,150,220,0.7)';
+    c.textAlign='center';
+    c.fillText('NO ENEMIES IN SIGHT',W/2,H*0.5);
+    c.font=`${fs*0.7}px "Share Tech Mono",monospace`;
+    c.fillStyle='rgba(100,80,140,0.5)';
+    c.fillText('TURN TO HUNT',W/2,H*0.5+fs*1.4);
+  }
+
+  // Compass update
+  document.getElementById('ar-heading-txt').textContent=`${Math.round(arHeading)}° ${headingLabel(arHeading)}`;
 }
 
 function updateZone(){
@@ -1576,33 +2884,150 @@ function updateZone(){
 }
 
 // ══════════════════════════════════════════════════════
-//  COMBAT SYSTEM
+//  GPS
 // ══════════════════════════════════════════════════════
-let inCombat=false, curEnemy=null, isBoss=false, cturn='player';
-let eCooldowns={}, eStatuses=[];
+let gpsWatchId=null, gpsFirstLock=false;
+
+function setGPSStatus(state,txt){
+  const dot=document.getElementById('gps-dot');
+  const label=document.getElementById('gps-txt');
+  const colors={searching:'#b8962a',locked:'#2a6a4a',denied:'#6b0000'};
+  dot.style.background=colors[state]||'#1a2a1a';
+  label.textContent=txt;
+  label.style.color=colors[state]||'#2a3a2a';
+}
+
+function centerOnPlayer(){
+  if(!Player)return;
+  const ppm=(mapH/2)/5;
+  viewX=-(Player.lng-CENTER.lng)*69.11*Math.cos(CENTER.lat*Math.PI/180)*ppm*zoom;
+  viewY=(Player.lat-CENTER.lat)*69.11*ppm*zoom;
+  render();
+}
+
+function startGPS(){
+  if(!navigator.geolocation){
+    setGPSStatus('denied','GPS UNAVAILABLE');
+    addLog('⚠ GPS not supported on this device.','ls');
+    return;
+  }
+  setGPSStatus('searching','SEARCHING...');
+  gpsWatchId=navigator.geolocation.watchPosition(
+    pos=>{
+      const {latitude:lat,longitude:lng,accuracy}=pos.coords;
+      const miFromPhilly=distMiles(lat,lng,CENTER.lat,CENTER.lng);
+      if(miFromPhilly>50){
+        setGPSStatus('denied','OUT OF RANGE');
+        if(!gpsFirstLock){ gpsFirstLock=true; addLog('⚠ GPS locked but you are outside the game area.','ls'); }
+        return;
+      }
+      Player.lat=lat; Player.lng=lng;
+      updateZone();
+      if(!gpsFirstLock){
+        gpsFirstLock=true;
+        centerOnPlayer();
+        addLog('⬤ GPS locked. The city tracks your movements.','lb');
+      }
+      setGPSStatus('locked',`LOCKED · ±${Math.round(accuracy)}m`);
+    },
+    err=>{
+      const msgs={1:'GPS DENIED',2:'GPS UNAVAILABLE',3:'GPS TIMEOUT'};
+      setGPSStatus('denied',msgs[err.code]||'GPS ERROR');
+      addLog(`⚠ GPS: ${err.message}`,'ls');
+    },
+    {enableHighAccuracy:true,maximumAge:5000,timeout:15000}
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  COMBAT SYSTEM — real-time cooldowns
+// ══════════════════════════════════════════════════════
+let inCombat=false, curEnemy=null, isBoss=false;
+let eStatuses=[];
+let combatInterval=null, lastStatusTick=0, lastResRegen=0;
+const CD_SCALE=1800; // ms per "cd unit"
+
+function startCombatTimer(){
+  if(combatInterval) clearInterval(combatInterval);
+  lastStatusTick=Date.now(); lastResRegen=Date.now();
+  combatInterval=setInterval(combatTick,100);
+}
+function stopCombatTimer(){
+  if(combatInterval){ clearInterval(combatInterval); combatInterval=null; }
+}
+
+function combatTick(){
+  if(!inCombat){ stopCombatTimer(); return; }
+  const now=Date.now();
+  const attackInterval = isBoss ? 4000 : 5500;
+
+  // Enemy attack timer bar
+  const elapsed = now-(curEnemy.nextAttackAt - attackInterval);
+  const pct = Math.min(100, (elapsed/attackInterval)*100);
+  const fill=document.getElementById('enemy-timer-fill');
+  if(fill) fill.style.width=pct+'%';
+
+  // Enemy attack
+  if(now >= curEnemy.nextAttackAt){
+    curEnemy.nextAttackAt = now + attackInterval;
+    doEnemyAttack();
+    return; // setCBUI called inside
+  }
+
+  // Status ticks every ~3 seconds
+  if(now - lastStatusTick > 3000){
+    lastStatusTick=now;
+    tickStatuses('player');
+    tickStatuses('enemy');
+    eStatuses=eStatuses.filter(s=>s.turns>0);
+    Player.statuses=Player.statuses.filter(s=>s.turns>0);
+    if(!inCombat) return;
+  }
+
+  // Resource regen every 2s (Inner Peace: 3x for Monk with skill)
+  if(now - lastResRegen > 2000){
+    lastResRegen=now;
+    if(Player.cls.resRegen>0){
+      const innerPeace = Player.skills?.classUnique && Player.className==='Monk';
+      gainRes(Player.cls.resRegen * (innerPeace ? 3 : 1));
+    }
+  }
+
+  updateCooldownDisplay();
+  setCBUI();
+}
 
 function startCombat(ent,boss){
   inCombat=true; isBoss=boss; curEnemy=ent;
-  cturn='player'; eCooldowns={}; eStatuses=[];
-  Player.statuses=[];
-  // Reset cooldowns
+  eStatuses=[]; Player.statuses=[];
   Player.cooldowns={};
+  Player.titanUsed = false;
+  Player.shadowStrikeUsed = false;
+  Player.surgeCount = Player.surgeCount || 0;
+  // Phantom Step: start combat with 2 illusion stacks
+  if(Player.skills?.classUnique && Player.className==='Illusionist'){
+    Player.illusionStacks = (Player.illusionStacks||0) + 2;
+  }
+  const attackInterval = boss ? 4000 : 5500;
+  curEnemy.nextAttackAt = Date.now() + attackInterval;
 
+  const portrait = document.getElementById('boss-portrait');
+  if(boss && ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; }
+  else { portrait.src=''; portrait.style.display='none'; }
   document.getElementById('cb-name').textContent=ent.name;
   document.getElementById('cb-type').textContent=ent.type||(ZONES[ent.zone]?.name?.toUpperCase()+' MONSTER');
   document.getElementById('e-spr').textContent=ent.emoji;
-  document.getElementById('e-cname').textContent=ent.name;
   document.getElementById('p-spr').textContent=Player.emoji;
   document.getElementById('p-cname').textContent=Player.name;
-  document.getElementById('cb-log').textContent=boss
+  setCLog(boss
     ?`${ent.name} fixes its ancient gaze upon you. The world grows cold.`
-    :`A ${ent.name} emerges from the darkness. It hungers for your soul.`;
+    :`A ${ent.name} emerges from the darkness. It hungers for your soul.`);
 
   buildAbilityButtons();
   setCBUI();
-  setActions(true);
   document.getElementById('combat-modal').classList.add('active');
-  setTurn('player');
+  document.getElementById('turn-ind').textContent='USE ABILITIES · ENEMY ATTACKS WHEN BAR FILLS';
+  startCombatTimer();
   addLog(boss?`⚔ BOSS ENCOUNTER: ${ent.name}!`:`⚔ ${ent.name} appears!`,boss?'lb':'lc');
 }
 
@@ -1611,106 +3036,124 @@ function buildAbilityButtons(){
   grid.innerHTML='';
   Player.cls.abilities.forEach(a=>{
     const btn=document.createElement('button');
-    btn.className='abtn'+(a.type==='Signature'?' signature':'');
+    const typeKey = a.type==='Signature'?'sig':a.type==='Basic'?'basic':'core';
+    const typeLbl = a.type==='Signature'?'SIGNATURE':a.type==='Basic'?'BASIC':'CORE';
+    btn.className=`abtn type-${typeKey}`;
     btn.id=`abtn-${a.name.replace(/\s/g,'')}`;
-    btn.innerHTML=`<span class="an">${a.emoji} ${a.name}</span><span class="ad">${a.desc}</span><span class="ac">${a.cost>0?`${a.cost} ${a.costType.toUpperCase()}`:'Free'}</span><span class="acd">${a.cd>0?`${a.cd}-turn cooldown`:''}</span>`;
+    const costTxt = a.cost>0 ? `${a.cost} ${a.costType.toUpperCase().slice(0,3)}` : 'FREE';
+    btn.innerHTML=`
+      <div class="abtn-type">${typeLbl}</div>
+      <div class="abtn-emoji">${a.emoji}</div>
+      <div class="abtn-name">${a.name}</div>
+      <div class="abtn-cost">${costTxt}</div>
+      <div class="abtn-cd-track"><div class="abtn-cd-fill" id="abtnfill-${a.name.replace(/\s/g,'')}"></div></div>
+      <div class="abtn-cd-overlay" id="abtnov-${a.name.replace(/\s/g,'')}"><span class="abtn-cd-num" id="abtncd-${a.name.replace(/\s/g,'')}"></span></div>`;
     btn.onclick=()=>playerAct(a);
     grid.appendChild(btn);
   });
+  // Potion button
+  const pot=document.createElement('button');
+  pot.className='abtn potion-btn'; pot.id='potion-btn';
+  pot.innerHTML=`<div class="abtn-type">ITEM</div><div class="abtn-emoji">🧪</div><div class="abtn-name">POTION</div><div class="abtn-cost" id="pot-count"></div>`;
+  pot.onclick=useCombatPotion;
+  grid.appendChild(pot);
   // Flee
   const flee=document.createElement('button');
   flee.className='abtn flee-btn'; flee.id='flee-btn';
-  flee.innerHTML='<span class="an">↩ Flee into the Darkness</span>';
+  flee.innerHTML=`<div class="abtn-type">FLEE</div><div class="abtn-emoji">🏃</div><div class="abtn-name">ESCAPE</div>`;
   flee.onclick=doFlee;
   grid.appendChild(flee);
 }
 
 function setCBUI(){
-  // Player HP
+  if(!Player||!curEnemy) return;
   const php=Math.max(0,Player.hp/Player.maxHp*100);
   document.getElementById('c-php').style.width=php+'%';
-  document.getElementById('c-php-t').textContent=`${fmt(Player.hp)} / ${fmt(Player.maxHp)}`;
-  // Player resource
+  document.getElementById('c-php-t').textContent=`${fmt(Player.hp)}/${fmt(Player.maxHp)}`;
   const rp=Math.max(0,Player.res/Player.maxRes*100);
   document.getElementById('c-res').style.width=rp+'%';
   document.getElementById('c-res').style.background=Player.cls.resColor;
-  // Enemy HP
+  const resTxt=document.getElementById('c-res-t');
+  if(resTxt) resTxt.textContent=`${Math.floor(Player.res)}/${Player.maxRes}`;
+  const lbl=document.getElementById('res-lbl-cb');
+  if(lbl) lbl.textContent=Player.cls.resource.slice(0,3).toUpperCase();
   const ehp=Math.max(0,curEnemy.hp/curEnemy.maxHp*100);
   document.getElementById('c-ehp').style.width=ehp+'%';
-  document.getElementById('c-ehp-t').textContent=`${fmt(curEnemy.hp)} / ${fmt(curEnemy.maxHp)}`;
-  // Statuses
-  updateStatusDisplay();
+  document.getElementById('c-ehp-t').textContent=`${fmt(curEnemy.hp)}/${fmt(curEnemy.maxHp)}`;
+  const ps=document.getElementById('p-status');
+  const es=document.getElementById('e-status');
+  if(ps) ps.innerHTML=Player.statuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
+  if(es) es.innerHTML=eStatuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
+  // Potion count
+  const potions=Player.inventory.filter(n=>ITEMS[n]?.type==='potion');
+  const potBtn=document.getElementById('potion-btn');
+  if(potBtn) potBtn.disabled=potions.length===0;
+  const potCount=document.getElementById('pot-count');
+  if(potCount) potCount.textContent=`×${potions.length}`;
   setPUI();
 }
 
-function updateStatusDisplay(){
-  const ps=document.getElementById('p-status');
-  const es=document.getElementById('e-status');
-  ps.innerHTML=Player.statuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
-  es.innerHTML=eStatuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
-}
-
-function setCLog(m){ document.getElementById('cb-log').textContent=m; }
-
-function setActions(on){
-  document.querySelectorAll('.abtn:not(.flee-btn)').forEach(btn=>btn.disabled=!on);
-  if(on) updateCooldownDisplay();
-}
-
 function updateCooldownDisplay(){
+  const now=Date.now();
   Player.cls.abilities.forEach(a=>{
     const btn=document.getElementById(`abtn-${a.name.replace(/\s/g,'')}`);
-    if(!btn)return;
-    const cd=Player.cooldowns[a.name]||0;
-    const hasRes = a.costType==='none' || getRes()>=a.cost;
-    if(cd>0){
+    const fill=document.getElementById(`abtnfill-${a.name.replace(/\s/g,'')}`);
+    const cdNum=document.getElementById(`abtncd-${a.name.replace(/\s/g,'')}`);
+    if(!btn) return;
+    const endTime=Player.cooldowns[a.name]||0;
+    const remaining=Math.max(0, endTime-now);
+    const hasRes = a.cost===0 || a.costType==='none' || Player.res>=a.cost;
+    if(remaining>0){
+      const totalMs=a.cd*CD_SCALE;
+      const pct=(remaining/totalMs)*100;
+      if(fill) fill.style.width=pct+'%';
+      if(cdNum) cdNum.textContent=(remaining/1000).toFixed(1)+'s';
       btn.disabled=true;
       btn.classList.add('on-cooldown');
-      btn.querySelector('.acd').textContent=`COOLDOWN: ${cd} turns`;
+      btn.classList.remove('ready');
     } else {
+      if(fill) fill.style.width='0%';
+      if(cdNum) cdNum.textContent='';
       btn.classList.remove('on-cooldown');
       btn.disabled=!hasRes;
-      btn.querySelector('.acd').textContent=a.cd>0?`${a.cd}-turn cooldown`:'';
+      btn.classList.toggle('ready', hasRes);
     }
   });
+}
+
+function setCLog(m){
+  const log=document.getElementById('cb-log');
+  log.textContent=m;
 }
 
 function getRes(){ return Player.res; }
 function spendRes(amt){ Player.res=Math.max(0,Player.res-amt); }
 function gainRes(amt){ Player.res=Math.min(Player.maxRes,Player.res+amt); }
 
-function setTurn(who){
-  const ind=document.getElementById('turn-ind');
-  if(who==='player'){
-    cturn='player';
-    ind.textContent='YOUR TURN — CHOOSE YOUR FATE';
-    ind.className='turn-ind pt';
-    setActions(true);
-    // Tick cooldowns
-    Object.keys(Player.cooldowns).forEach(k=>{ if(Player.cooldowns[k]>0)Player.cooldowns[k]--; });
-    // Regen resource
-    if(Player.cls.resRegen>0) gainRes(Player.cls.resRegen);
-    updateCooldownDisplay();
-    // Tick player statuses
-    tickStatuses('player');
-  } else {
-    cturn='enemy';
-    ind.textContent='ENEMY TURN';
-    ind.className='turn-ind et';
-    setActions(false);
-  }
-  setCBUI();
-}
-
 function tickStatuses(who){
   const arr=who==='player'?Player.statuses:eStatuses;
   const target=who==='player'?Player:curEnemy;
+  const natWrathActive = Player.skills?.classUnique && Player.className==='Druid';
+  const deathmarkActive = Player.skills?.classUnique && Player.className==='Assassin';
   for(let i=arr.length-1;i>=0;i--){
     const s=arr[i];
-    if(s.type==='bleed'||s.type==='dot'||s.type==='regen'){
-      const amt=Math.floor(target.maxHp*0.05);
-      if(s.type==='regen'){ target.hp=Math.min(target.maxHp,target.hp+amt); addLog(`${s.type==='regen'?'Rejuvenation':s.name}: +${fmt(amt)} HP`,'ll'); }
-      else { target.hp=Math.max(0,target.hp-amt); showDamageNum(fmt(amt),'dmg-orange',who==='enemy'?'left':'right'); }
+    if(s.type==='bleed'||s.type==='dot'||s.type==='regen'||s.type==='poison'){
+      let amt=Math.floor(target.maxHp*0.05);
+      // Nature's Wrath: DoT does 50% more
+      if(natWrathActive && (s.type==='dot'||s.type==='bleed') && who==='enemy') amt=Math.floor(amt*1.5);
+      // Deathmark: poison does 60% more
+      if(deathmarkActive && s.type==='poison' && who==='enemy') amt=Math.floor(amt*1.6);
+      // Divine Favor: heals restore 25% more
+      if(s.type==='regen'){
+        let healAmt = amt;
+        if(Player.skills?.classUnique && Player.className==='Cleric') healAmt=Math.floor(healAmt*1.25);
+        healAmt = Math.floor(healAmt*(1+(Player.healBonus||0)));
+        target.hp=Math.min(target.maxHp,target.hp+healAmt);
+        addLog(`Rejuvenation: +${fmt(healAmt)} HP`,'ll');
+      } else {
+        target.hp=Math.max(0,target.hp-amt);
+        showDamageNum(fmt(amt),'dmg-orange',who==='enemy'?'left':'right');
+      }
     }
     s.turns--;
     if(s.turns<=0) arr.splice(i,1);
@@ -1719,104 +3162,127 @@ function tickStatuses(who){
 
 // ── PLAYER ACTION ─────────────────────────────────────
 function playerAct(ability){
-  if(cturn!=='player'||!inCombat)return;
-  if(Player.cooldowns[ability.name]>0) return;
-
-  // Check if enemy is stunned/confused
-  const eStunned=eStatuses.find(s=>s.type==='stun');
-  const eConfused=eStatuses.find(s=>s.type==='confuse');
-
-  // Check resource
-  if(ability.costType!=='none'&&getRes()<ability.cost){ setCLog(`Not enough ${Player.cls.resource}!`); return; }
+  if(!inCombat) return;
+  const now=Date.now();
+  if((Player.cooldowns[ability.name]||0) > now) return;
+  if(ability.cost>0 && ability.costType!=='none' && getRes()<ability.cost){
+    setCLog(`Not enough ${Player.cls.resource}!`); return;
+  }
 
   spendRes(ability.cost);
+  if(ability.cd>0){
+    let cdMs = ability.cd * CD_SCALE;
+    if(Player.skills?.t1==='arcane') cdMs = Math.max(0, cdMs - 400);
+    if(Player.skills?.t3==='archmage') cdMs = Math.floor(cdMs * 0.70);
+    Player.cooldowns[ability.name] = now + cdMs;
+  }
 
-  // Set cooldown
-  if(ability.cd>0) Player.cooldowns[ability.name]=ability.cd;
+  // Resource generation effects
+  if(ability.effect?.startsWith('rage+'))  gainRes(parseInt(ability.effect.split('+')[1]));
+  if(ability.effect?.startsWith('hp+'))    gainRes(parseInt(ability.effect.split('+')[1]));
+  if(ability.effect?.startsWith('focus+')) gainRes(parseInt(ability.effect.split('+')[1]));
+  if(ability.effect?.startsWith('chi+'))   gainRes(parseInt(ability.effect.split('+')[1]));
 
-  // Handle special effects
-  if(ability.effect?.startsWith('rage+')) gainRes(parseInt(ability.effect.split('+')[1]));
-  if(ability.effect?.startsWith('hp+'))   gainRes(parseInt(ability.effect.split('+')[1]));
-  if(ability.effect?.startsWith('focus+'))gainRes(parseInt(ability.effect.split('+')[1]));
-  if(ability.effect?.startsWith('chi+'))  gainRes(parseInt(ability.effect.split('+')[1]));
-
-  // Healing abilities
+  // Healing
   if(ability.effect?.startsWith('heal')){
     const pct=parseInt(ability.effect.replace('heal',''))/100;
-    const h=Math.floor(Player.maxHp*pct);
+    let h=Math.floor(Player.maxHp*pct);
+    // Divine Favor: +25%
+    if(Player.skills?.classUnique && Player.className==='Cleric') h=Math.floor(h*1.25);
+    // Mastery: +20% heals
+    if(Player.skills?.t2==='mastery') h=Math.floor(h*1.20);
+    // WIS heal bonus
+    h=Math.floor(h*(1+(Player.healBonus||0)));
     Player.hp=Math.min(Player.maxHp,Player.hp+h);
     setCLog(`${ability.name}: Restored ${fmt(h)} HP!`);
     showDamageNum(`+${fmt(h)}`,'dmg-heal','left');
     anim('p-spr','atk-anim');
-    setCBUI();
-    setTimeout(()=>setTurn('enemy'),800);
-    setTimeout(()=>enemyTurn(),1400);
-    return;
+    setCBUI(); return;
   }
 
   // Status effects
-  if(ability.effect==='stun1') eStatuses.push({name:'STUNNED',icon:'⭐',type:'stun',turns:1,color:'#ffff44'});
-  if(ability.effect==='slow1') eStatuses.push({name:'SLOWED',icon:'🐌',type:'slow',turns:1,color:'#88aacc'});
-  if(ability.effect==='bleed3') eStatuses.push({name:'BLEED',icon:'🩸',type:'bleed',turns:3,color:'#cc2200'});
-  if(ability.effect==='evade2') Player.statuses.push({name:'EVASION',icon:'💨',type:'evade',turns:2,color:'#88ccff'});
-  if(ability.effect==='dodge2') Player.statuses.push({name:'MIRROR',icon:'🪞',type:'dodge',turns:2,color:'#ccaaff'});
+  if(ability.effect==='stun1')    eStatuses.push({name:'STUNNED',icon:'⭐',type:'stun',turns:1,color:'#ffff44'});
+  if(ability.effect==='slow1')    eStatuses.push({name:'SLOWED',icon:'🐌',type:'slow',turns:1,color:'#88aacc'});
+  if(ability.effect==='bleed3')   eStatuses.push({name:'BLEED',icon:'🩸',type:'bleed',turns:3,color:'#cc2200'});
+  if(ability.effect==='evade2')   Player.statuses.push({name:'EVASION',icon:'💨',type:'evade',turns:2,color:'#88ccff'});
+  if(ability.effect==='dodge2')   Player.statuses.push({name:'MIRROR',icon:'🪞',type:'dodge',turns:2,color:'#ccaaff'});
   if(ability.effect==='confuse1') eStatuses.push({name:'CONFUSED',icon:'🌀',type:'confuse',turns:1,color:'#cc88ff'});
-  if(ability.effect==='dot2') eStatuses.push({name:'MOONFIRE',icon:'🌙',type:'dot',turns:2,color:'#8888ff'});
-  if(ability.effect==='regen3') Player.statuses.push({name:'REGEN',icon:'🍃',type:'regen',turns:3,color:'#22cc66'});
-  if(ability.effect==='poison+1'||ability.effect?.startsWith('stack+')){
-    if(ability.effect==='poison+1'){ curEnemy.poisonStacks=(curEnemy.poisonStacks||0)+1; eStatuses.push({name:`POISON×${curEnemy.poisonStacks}`,icon:'🐍',type:'poison',turns:3,color:'#66cc44'}); }
-    if(ability.effect?.startsWith('stack+')){ Player.illusionStacks=(Player.illusionStacks||0)+1; }
-  }
+  if(ability.effect==='dot2')     eStatuses.push({name:'MOONFIRE',icon:'🌙',type:'dot',turns:2,color:'#8888ff'});
+  if(ability.effect==='regen3')   Player.statuses.push({name:'REGEN',icon:'🍃',type:'regen',turns:3,color:'#22cc66'});
+  if(ability.effect==='poison+1'){ curEnemy.poisonStacks=(curEnemy.poisonStacks||0)+1; eStatuses.push({name:`POISON×${curEnemy.poisonStacks}`,icon:'🐍',type:'poison',turns:3,color:'#66cc44'}); }
+  if(ability.effect?.startsWith('stack+')){ Player.illusionStacks=(Player.illusionStacks||0)+1; }
   if(ability.effect==='detonate'&&curEnemy.poisonStacks>0){
-    const bonusMult=curEnemy.poisonStacks*1.5;
-    ability = {...ability, dmgMult:ability.dmgMult*bonusMult};
-    curEnemy.poisonStacks=0;
-    eStatuses=eStatuses.filter(s=>s.type!=='poison');
+    ability={...ability, dmgMult:ability.dmgMult*curEnemy.poisonStacks*1.5};
+    curEnemy.poisonStacks=0; eStatuses=eStatuses.filter(s=>s.type!=='poison');
   }
 
-  // DAMAGE
+  // Damage
   if(ability.dmgMult>0){
     let dmg=calcDamage(ability);
-    const overkill=curEnemy.hp>0 && dmg>curEnemy.hp*1.5;
+    const overkill=curEnemy.hp>0&&dmg>curEnemy.hp*1.5;
     curEnemy.hp=Math.max(0,curEnemy.hp-dmg);
-
-    const dmgClass=getDmgClass(dmg);
-    showDamageNum(fmt(dmg),dmgClass,'right');
+    showDamageNum(fmt(dmg),getDmgClass(dmg),'right');
     if(overkill) setTimeout(()=>showDamageNum('OVERKILL','dmg-overkill','right'),400);
-
-    // Big hit effects
     if(dmg>=100000) flashScreen('white');
-    if(dmg>=500000 || ability.type==='Signature') shakeScreen();
-
-    const msgs=[
-      `${ability.name} strikes for ${fmt(dmg)} damage!`,
-      `${ability.emoji} ${ability.name} — ${fmt(dmg)} damage dealt!`,
-      `You unleash ${ability.name}! The enemy takes ${fmt(dmg)} damage!`,
-    ];
+    if(dmg>=500000||ability.type==='Signature') shakeScreen();
+    const msgs=[`${ability.name} strikes for ${fmt(dmg)} damage!`,`${ability.emoji} ${ability.name} — ${fmt(dmg)} dmg!`];
     setCLog(msgs[Math.floor(Math.random()*msgs.length)]);
     addLog(`${ability.name}: ${fmt(dmg)} dmg`,'lc');
   }
 
-  anim('p-spr','atk-anim');
-  anim('e-spr','hit-anim');
+  anim('p-spr','atk-anim'); anim('e-spr','hit-anim');
   setCBUI();
+  if(curEnemy.hp<=0){ setTimeout(()=>victory(),500); }
+}
 
-  if(curEnemy.hp<=0){ setTimeout(()=>victory(),600); return; }
-  setActions(false);
-  setTimeout(()=>setTurn('enemy'),700);
-  setTimeout(()=>enemyTurn(),1300);
+function useCombatPotion(){
+  const healPots=['Full Restore','Major Heal','Minor Heal'];
+  let used=null;
+  for(const name of healPots){
+    const idx=Player.inventory.indexOf(name);
+    if(idx>=0){ Player.inventory.splice(idx,1); used=name; break; }
+  }
+  if(!used){
+    // Try any potion
+    const idx=Player.inventory.findIndex(n=>ITEMS[n]?.type==='potion');
+    if(idx>=0){ used=Player.inventory.splice(idx,1)[0]; }
+  }
+  if(!used){ setCLog('No potions left!'); return; }
+  const item=ITEMS[used];
+  if(item.healPct){
+    let h=Math.floor(Player.maxHp*item.healPct);
+    if(Player.skills?.classUnique && Player.className==='Cleric') h=Math.floor(h*1.25);
+    h=Math.floor(h*(1+(Player.healBonus||0)));
+    Player.hp=Math.min(Player.maxHp,Player.hp+h);
+    showDamageNum(`+${fmt(h)}`,'dmg-heal','left');
+    setCLog(`${item.emoji} ${used}: +${fmt(h)} HP!`);
+  }
+  if(item.resPct){
+    const r=Math.floor(Player.maxRes*item.resPct);
+    Player.res=Math.min(Player.maxRes,Player.res+r);
+    setCLog(`${item.emoji} ${used}: +${fmt(r)} ${Player.cls.resource}!`);
+  }
+  anim('p-spr','atk-anim');
+  setCBUI();
 }
 
 function calcDamage(ability){
-  const base=Math.floor(Player.atk*ability.dmgMult);
+  const sk = Player.skills || {};
+  let dmgMult = ability.dmgMult;
+  // Mastery: +25% to all ability damage
+  if(sk.t2==='mastery') dmgMult *= 1.25;
+
+  const base=Math.floor(Player.atk*dmgMult);
   const variance=0.15;
   let dmg=Math.floor(base*(1-variance+Math.random()*variance*2));
 
-  // Crit
+  // Skill ATK bonuses (atkPct25 already applied via applySkillBonuses to Player.atk)
+  // atkCrit35 also already applied; but add crit bonus at check time
   let critChance=Player.crit+(ability.critBonus||0);
+  if(sk.t2==='atkCrit35') critChance+=8; // extra 8% crit from skill
   if(ability.forceCrit) critChance=100;
   if(Math.random()*100<critChance){
-    const critMult=2.5+Math.random()*2; // 2.5x to 4.5x
+    const critMult=2.5+Math.random()*2;
     dmg=Math.floor(dmg*critMult);
     setTimeout(()=>showDamageNum('CRITICAL!','dmg-crit','right'),200);
     flashScreen('white');
@@ -1825,8 +3291,33 @@ function calcDamage(ability){
   // Illusion stacks
   if(Player.illusionStacks>0){ dmg=Math.floor(dmg*(1+Player.illusionStacks*0.5)); }
 
-  // Defense mitigation (flat reduction)
-  dmg=Math.max(1,dmg-Math.floor(curEnemy.def*0.3));
+  // Arcane Surge: every 5th ability deals double damage
+  if(sk.classUnique && Player.className==='Magic-User'){
+    Player.surgeCount = (Player.surgeCount||0) + 1;
+    if(Player.surgeCount % 5 === 0){ dmg = Math.floor(dmg * 2); showDamageNum('SURGE!','dmg-crit','right'); }
+  }
+
+  // Devastator: execute — double damage below 20% HP
+  if(sk.t3==='devastator' && curEnemy && curEnemy.hp/curEnemy.maxHp < 0.20){
+    dmg = Math.floor(dmg * 2);
+    showDamageNum('EXECUTE!','dmg-red','right');
+  }
+
+  // Archmage: Signature abilities deal 1.5x
+  if(sk.t3==='archmage' && ability.type==='Signature'){
+    dmg = Math.floor(dmg * 1.5);
+  }
+
+  // Shadow Strike: first hit ignores DEF
+  let ignoreDef = false;
+  if(sk.classUnique && Player.className==='Thief' && !Player.shadowStrikeUsed){
+    ignoreDef = true;
+    Player.shadowStrikeUsed = true;
+  }
+
+  // Defense mitigation
+  if(!ignoreDef) dmg=Math.max(1,dmg-Math.floor(curEnemy.def*0.3));
+  else dmg=Math.max(1,dmg);
   return dmg;
 }
 
@@ -1839,107 +3330,241 @@ function getDmgClass(dmg){
 }
 
 // ── ENEMY TURN ────────────────────────────────────────
-function enemyTurn(){
-  if(!inCombat)return;
+function doEnemyAttack(){
+  if(!inCombat) return;
   const e=curEnemy;
 
-  // Check stun
-  const stunned=eStatuses.find(s=>s.type==='stun');
-  if(stunned){ setCLog(`${e.name} is stunned! Lost their turn.`); eStatuses.forEach(s=>{if(s.turns>0)s.turns--;}); eStatuses=eStatuses.filter(s=>s.turns>0); setTurn('player'); return; }
-
+  // Stun — skip attack
+  if(eStatuses.find(s=>s.type==='stun')){
+    setCLog(`${e.name} is stunned and cannot attack!`);
+    return;
+  }
   // Confuse — attack self
-  const confused=eStatuses.find(s=>s.type==='confuse');
-  if(confused){
+  if(eStatuses.find(s=>s.type==='confuse')){
     const selfDmg=Math.floor(e.atk*1.2);
     e.hp=Math.max(0,e.hp-selfDmg);
     setCLog(`${e.name} is confused! It attacks itself for ${fmt(selfDmg)} damage!`);
     showDamageNum(fmt(selfDmg),'dmg-orange','right');
-    anim('e-spr','hit-anim');
-    eStatuses.forEach(s=>{if(s.turns>0)s.turns--;}); eStatuses=eStatuses.filter(s=>s.turns>0);
-    setCBUI();
-    if(e.hp<=0){ setTimeout(()=>victory(),500); return; }
-    setTimeout(()=>setTurn('player'),800);
+    anim('e-spr','hit-anim'); setCBUI();
+    if(e.hp<=0){ setTimeout(()=>victory(),400); }
     return;
   }
-
   // Dodge check
   const evading=Player.statuses.find(s=>s.type==='evade');
   const dodging=Player.statuses.find(s=>s.type==='dodge');
   const dodgeChance=Player.dodge+(evading?50:0)+(dodging?30:0);
   if(Math.random()*100<dodgeChance){
-    setCLog(`${e.name} attacks — but you dodge!`);
+    setCLog(`${e.name} attacks — you dodge!`);
     showDamageNum('DODGE','dmg-dodge','left');
-    anim('p-spr','hit-anim');
-    setTimeout(()=>setTurn('player'),800);
-    return;
+    anim('p-spr','hit-anim'); return;
+  }
+  // Holy Shield: 15% chance to block all damage
+  if(Player.skills?.classUnique && Player.className==='Paladin' && Math.random()<0.15){
+    setCLog(`Holy Shield! ${e.name}'s attack is blocked!`);
+    showDamageNum('BLOCKED!','dmg-dodge','left');
+    anim('p-spr','hit-anim'); return;
   }
 
-  // Boss special
-  const special=isBoss&&Math.random()<0.3;
-  let dmg=Math.floor(e.atk*(special?1.8:1.0)*(0.85+Math.random()*0.3));
-  dmg=Math.max(1,dmg-Math.floor(Player.def*0.4));
-
-  // Crit enemy
-  if(Math.random()<0.08){ dmg=Math.floor(dmg*2.2); showDamageNum('ENEMY CRIT!','dmg-crit','left'); }
-
+  // Damage
+  const special=isBoss&&Math.random()<0.15;
+  let dmg=Math.floor(e.atk*(special?1.5:1.0)*(0.85+Math.random()*0.3));
+  dmg=Math.max(1,dmg-Math.floor(Player.def*0.5));
+  if(Math.random()<0.04){ dmg=Math.floor(dmg*1.7); showDamageNum('ENEMY CRIT!','dmg-crit','left'); }
   Player.hp=Math.max(0,Player.hp-dmg);
-
-  const msg=special
-    ?`${e.name} unleashes a devastating assault! You take ${fmt(dmg)} damage!`
-    :`${e.name} strikes you for ${fmt(dmg)} damage.`;
-
-  setCLog(msg); addLog(msg,'lc');
+  setCLog(special?`${e.name} unleashes devastation! ${fmt(dmg)} damage!`:`${e.name} strikes for ${fmt(dmg)} damage.`);
+  addLog(`${e.name}: ${fmt(dmg)} dmg to you`,'lc');
   showDamageNum(fmt(dmg),getDmgClass(dmg),'left');
   anim('e-spr','atk-anim'); anim('p-spr','hit-anim');
   if(special) shakeScreen();
+
+  // Titan revive: if hp drops to 0 and titan skill and not yet used, revive at 20%
+  if(Player.hp<=0 && Player.skills?.t3==='titan' && !Player.titanUsed){
+    Player.hp = Math.floor(Player.maxHp*0.20);
+    Player.titanUsed = true;
+    setCLog(`TITAN: You rise from the brink at 20% HP!`);
+    showDamageNum('TITAN REVIVE!','dmg-heal','left');
+    setCBUI(); return;
+  }
+
   setCBUI();
-
-  // Tick enemy statuses
-  tickStatuses('enemy');
-  eStatuses=eStatuses.filter(s=>s.turns>0);
-
-  if(Player.hp<=0){ setTimeout(()=>dead(),600); return; }
-  setTimeout(()=>setTurn('player'),900);
+  if(Player.hp<=0){ setTimeout(()=>dead(),500); }
 }
 
 // ── VICTORY ───────────────────────────────────────────
 function victory(){
-  const xp=curEnemy.xp||100;
-  const gold=ri(curEnemy.gold[0],curEnemy.gold[1]);
+  const xpBase = curEnemy.xp||100;
+  const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0)));
+  const goldBase = ri(curEnemy.gold[0],curEnemy.gold[1]);
+  const gold = Math.floor(goldBase * (1 + (Player.goldBonus||0)));
   Player.xp+=xp; Player.gold+=gold;
   curEnemy.defeated=true; curEnemy.hp=0;
   curEnemy.poisonStacks=0;
+  // Bloodthirst: heal 5% max HP on kill
+  if(Player.skills?.classUnique && Player.className==='Fighter'){
+    const h=Math.floor(Player.maxHp*0.05);
+    Player.hp=Math.min(Player.maxHp,Player.hp+h);
+    addLog(`Bloodthirst: +${fmt(h)} HP`,'ll');
+  }
+  const drops = rollLootDrop(curEnemy, isBoss);
+  const dropStr = drops.map(n => `${ITEMS[n].emoji} ${n}`).join(' · ');
+  const lootTxt = drops.length
+    ? `+${fmt(xp)} XP · +${gold} Gold\n${dropStr}`
+    : `+${fmt(xp)} XP · +${gold} Gold`;
+  drops.forEach(n => addLog(`Found: ${ITEMS[n].emoji} ${n}${ITEMS[n].tier===4?' ✦ LEGENDARY':''}!`,'lb'));
   addLog(`Victory! +${fmt(xp)} XP · +${gold} Gold`,'ll');
-  showLoot(`+${fmt(xp)} XP  ·  +${gold} Gold`);
-  while(Player.xp>=Player.xpNext){ levelUp(); }
+  showLoot(lootTxt);
+  pendingLevelUps = [];
+  if(Player.level < 100){ while(Player.xp>=Player.xpNext && Player.level<100){ levelUp(); } }
+  inCombat=false; stopCombatTimer();
   document.getElementById('combat-modal').classList.remove('active');
-  inCombat=false; curEnemy=null;
+  curEnemy=null;
   setPUI(); render();
+  saveGame();
+  // Show level-up modals after a brief delay
+  if(pendingLevelUps.length > 0) setTimeout(showNextLevelUp, 400);
 }
 
+// Pending level-ups queue (shown after combat ends)
+let pendingLevelUps = [];
+
 function levelUp(){
-  Player.xp-=Player.xpNext;
+  if(Player.level >= 100) return;
+  Player.xp -= Player.xpNext;
   Player.level++;
-  Player.xpNext=Math.floor(Player.xpNext*1.6);
-  Player.maxHp=Math.floor(Player.maxHp*1.25);
-  Player.hp=Player.maxHp;
-  Player.maxRes=Math.floor(Player.maxRes*1.1);
-  Player.atk=Math.floor(Player.atk*1.2);
-  Player.def=Math.floor(Player.def*1.15);
-  Player.crit=Math.min(50,Player.crit+1);
-  addLog(`⬆ LEVEL UP! Now Level ${Player.level}! Stats increased dramatically.`,'lb');
+  Player.xpNext = xpForLevel(Player.level);
+  // Base stat scaling
+  Player.maxHp  = Math.floor(Player.maxHp  * 1.12);
+  Player.hp     = Player.maxHp;
+  Player.maxRes = Math.floor(Player.maxRes  * 1.06);
+  Player.atk    = Math.floor(Player.atk    * 1.10);
+  Player.def    = Math.floor(Player.def    * 1.08);
+  Player.crit   = Math.min(50, Player.crit + 0.5);
+  Player.statPoints = (Player.statPoints || 0) + 2;
+  addLog(`⬆ LEVEL UP! Now Level ${Player.level}!`, 'lb');
+  pendingLevelUps.push(Player.level);
+}
+
+function showNextLevelUp(){
+  if(pendingLevelUps.length === 0) return;
+  const lvl = pendingLevelUps.shift();
+  openLevelUpModal(lvl, ()=>{ showNextLevelUp(); });
+}
+
+// Temp stat allocation vars
+let luTempStats = {};
+let luSpent = 0;
+let luOnClose = null;
+
+const STAT_EFFECTS = {
+  STR: '+80 ATK',
+  DEX: '+1.5% CRIT & DODGE',
+  INT: '+15 RES MAX, +40 ATK',
+  CON: '+800 MAX HP',
+  WIS: '+20 RES MAX, +heal bonus',
+  CHA: '+gold & XP bonus',
+};
+
+function openLevelUpModal(lvl, onClose){
+  luOnClose = onClose || null;
+  luSpent = 0;
+  luTempStats = {STR:0, DEX:0, INT:0, CON:0, WIS:0, CHA:0};
+  document.getElementById('lu-level-num').textContent = `LEVEL ${lvl}`;
+  renderLUStatGrid();
+  updateLUCounter();
+  // Skill tier notifications
+  let note = '';
+  if(lvl === 5)  note = '🌟 Tier 1 skills unlocked! Open SKILLS to choose.';
+  if(lvl === 10) note = '🌟 Class unique skill unlocked! Open SKILLS.';
+  if(lvl === 15) note = '🌟 Tier 2 skills unlocked! Open SKILLS to choose.';
+  if(lvl === 30) note = '🌟 Tier 3 skills unlocked! Open SKILLS to choose.';
+  document.getElementById('lu-skill-note').textContent = note;
+  document.getElementById('levelup-modal').classList.add('active');
+}
+
+function renderLUStatGrid(){
+  const grid = document.getElementById('lu-stat-grid');
+  const stats = ['STR','DEX','INT','CON','WIS','CHA'];
+  grid.innerHTML = stats.map(s=>`
+    <div class="lu-stat-row">
+      <span class="lu-stat-name">${s}</span>
+      <span class="lu-stat-val" id="lu-v-${s}">${Player[s] + luTempStats[s]}</span>
+      <span class="lu-stat-effect">${STAT_EFFECTS[s]}</span>
+      <button class="lu-stat-btn" onclick="luAdjust('${s}',-1)" id="lu-m-${s}">−</button>
+      <button class="lu-stat-btn" onclick="luAdjust('${s}',+1)" id="lu-p-${s}">+</button>
+    </div>
+  `).join('');
+  updateLUButtons();
+}
+
+function luAdjust(stat, dir){
+  if(dir > 0 && luSpent >= 2) return;
+  if(dir < 0 && luTempStats[stat] <= 0) return;
+  luTempStats[stat] += dir;
+  luSpent += dir;
+  document.getElementById(`lu-v-${stat}`).textContent = Player[stat] + luTempStats[stat];
+  updateLUCounter();
+  updateLUButtons();
+}
+
+function updateLUCounter(){
+  document.getElementById('lu-points-counter').textContent = `${luSpent} / 2 points spent`;
+  document.getElementById('lu-confirm-btn').disabled = luSpent < 2;
+}
+
+function updateLUButtons(){
+  const stats = ['STR','DEX','INT','CON','WIS','CHA'];
+  stats.forEach(s=>{
+    const pm = document.getElementById(`lu-m-${s}`);
+    const pp = document.getElementById(`lu-p-${s}`);
+    if(pm) pm.disabled = luTempStats[s] <= 0;
+    if(pp) pp.disabled = luSpent >= 2;
+  });
+}
+
+function confirmStats(){
+  if(luSpent < 2) return;
+  // Apply temp stats
+  const bs = Player.baseStats;
+  Object.entries(luTempStats).forEach(([s,n])=>{
+    if(n === 0) return;
+    Player[s] += n;
+    // Apply stat effects
+    for(let i=0;i<n;i++){
+      if(s==='STR'){ Player.atk += 80; }
+      if(s==='DEX'){ Player.crit=Math.min(75,Player.crit+1.5); Player.dodge=Math.min(75,Player.dodge+1.5); }
+      if(s==='INT'){ Player.maxRes+=15; Player.atk+=40; }
+      if(s==='CON'){ Player.maxHp+=800; Player.hp=Math.min(Player.maxHp,Player.hp+800); }
+      if(s==='WIS'){ Player.maxRes+=20; Player.healBonus=(Player[s]-bs[s])*0.04; }
+      if(s==='CHA'){
+        Player.goldBonus=(Player[s]-bs[s])*0.08;
+        Player.xpBonus=(Player[s]-bs[s])*0.05;
+      }
+    }
+  });
+  Player.statPoints = Math.max(0, (Player.statPoints||0) - 2);
+  document.getElementById('levelup-modal').classList.remove('active');
+  setPUI();
+  saveGame();
+  if(luOnClose) luOnClose();
 }
 
 function doFlee(){
-  if(Math.random()<0.6){ inCombat=false; document.getElementById('combat-modal').classList.remove('active'); addLog('You vanish into the shadows...','ls'); }
-  else{ addLog('Failed to flee!','lc'); setCLog('You failed to escape! The enemy presses its assault!'); setActions(false); setTimeout(()=>setTurn('enemy'),400); setTimeout(()=>enemyTurn(),1000); }
+  if(Math.random()<0.6){
+    inCombat=false; stopCombatTimer();
+    document.getElementById('combat-modal').classList.remove('active');
+    addLog('You vanish into the shadows...','ls');
+  } else {
+    setCLog('You failed to escape!');
+    addLog('Failed to flee!','lc');
+  }
 }
 
 function dead(){
-  inCombat=false;
+  inCombat=false; stopCombatTimer();
   document.getElementById('combat-modal').classList.remove('active');
   document.getElementById('death-screen').classList.add('active');
   addLog('YOU HAVE FALLEN. The void swallows your soul.','ld');
+  saveGame();
 }
 
 function revive(){
@@ -1950,6 +3575,7 @@ function revive(){
   document.getElementById('death-screen').classList.remove('active');
   addLog('You claw back from the darkness. Weakened. Burning with vengeance.','ls');
   setPUI();
+  saveGame();
 }
 
 // ── DAMAGE NUMBERS ────────────────────────────────────
@@ -1957,8 +3583,9 @@ function showDamageNum(text, cls, side){
   const layer=document.getElementById('dmg-layer');
   const div=document.createElement('div');
   div.className=`dmg-num ${cls}`;
-  const x=side==='right'?60+Math.random()*120:Math.random()*120;
-  const y=40+Math.random()*60;
+  // Keep numbers on screen: enemy side = right half, player side = left half
+  const x = side==='right' ? 55+Math.random()*25 : 20+Math.random()*25;
+  const y = 25+Math.random()*35;
   div.style.left=x+'%';
   div.style.top=y+'%';
   div.style.transform='translateX(-50%)';
@@ -2020,13 +3647,177 @@ function showLoot(txt){
 }
 
 // ══════════════════════════════════════════════════════
+//  SAVE SYSTEM
+// ══════════════════════════════════════════════════════
+const SAVE_KEY = 'darkworld_save_v1';
+
+function saveGame(){
+  if(!Player) return;
+  const data = {
+    player: {
+      name: Player.name,
+      className: Player.className,
+      emoji: Player.emoji,
+      hp: Player.hp, maxHp: Player.maxHp,
+      res: Player.res, maxRes: Player.maxRes,
+      atk: Player.atk, def: Player.def,
+      crit: Player.crit, dodge: Player.dodge,
+      xp: Player.xp, xpNext: Player.xpNext,
+      level: Player.level, gold: Player.gold,
+      lat: Player.lat, lng: Player.lng,
+      poisonStacks: Player.poisonStacks,
+      illusionStacks: Player.illusionStacks,
+      STR: Player.STR, INT: Player.INT, WIS: Player.WIS,
+      DEX: Player.DEX, CON: Player.CON, CHA: Player.CHA,
+      statPoints: Player.statPoints || 0,
+      baseStats: Player.baseStats || {STR:Player.STR,DEX:Player.DEX,INT:Player.INT,CON:Player.CON,WIS:Player.WIS,CHA:Player.CHA},
+      skills: Player.skills || {t1:null,t2:null,t3:null,classUnique:false},
+      healBonus: Player.healBonus || 0,
+      goldBonus: Player.goldBonus || 0,
+      xpBonus: Player.xpBonus || 0,
+      surgeCount: Player.surgeCount || 0,
+      titanUsed: Player.titanUsed || false,
+      shadowStrikeUsed: Player.shadowStrikeUsed || false,
+      _appliedT1Iron: Player._appliedT1Iron || false,
+      _appliedT2Fortress: Player._appliedT2Fortress || false,
+      _appliedT1Power: Player._appliedT1Power || false,
+      _appliedT1Arcane: Player._appliedT1Arcane || false,
+      _appliedT2Warlord: Player._appliedT2Warlord || false,
+      _appliedT3Devastator: Player._appliedT3Devastator || false,
+      _appliedT3Titan: Player._appliedT3Titan || false,
+      _appliedT3Archmage: Player._appliedT3Archmage || false,
+      _appliedClassUnique: Player._appliedClassUnique || false,
+      equipped: Player.equipped,
+      inventory: Player.inventory,
+    },
+    bossStates: BOSSES.map(b => b.defeated || false),
+    world: selectedWorld,
+    savedAt: Date.now(),
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+}
+
+function loadSave(){
+  const raw = localStorage.getItem(SAVE_KEY);
+  if(!raw) return null;
+  try { return JSON.parse(raw); } catch(e) { return null; }
+}
+
+function deleteSave(){
+  localStorage.removeItem(SAVE_KEY);
+}
+
+function initTitleScreen(){
+  const save = loadSave();
+  if(save){
+    const d = new Date(save.savedAt);
+    const timeStr = d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' · Lv ' + save.player.level + ' ' + save.player.name;
+    const btn = document.getElementById('continue-btn');
+    btn.style.display = '';
+    btn.textContent = `⚔ CONTINUE — ${timeStr}`;
+    document.getElementById('new-game-btn').textContent = '+ NEW GAME';
+  }
+}
+
+function continueGame(){
+  const save = loadSave();
+  if(!save) return;
+  // Restore player
+  const cls = CLASSES[save.player.className];
+  const sp = save.player;
+  Player = {
+    ...sp,
+    cls,
+    cooldowns: {},
+    statuses: [],
+    equipped: sp.equipped || { weapon: null, armor: null, accessory: null },
+    inventory: sp.inventory || [],
+    statPoints: sp.statPoints || 0,
+    baseStats: sp.baseStats || {STR:sp.STR,DEX:sp.DEX,INT:sp.INT,CON:sp.CON,WIS:sp.WIS,CHA:sp.CHA},
+    skills: sp.skills || {t1:null,t2:null,t3:null,classUnique:false},
+    healBonus: sp.healBonus || 0,
+    goldBonus: sp.goldBonus || 0,
+    xpBonus: sp.xpBonus || 0,
+    surgeCount: sp.surgeCount || 0,
+    titanUsed: sp.titanUsed || false,
+    shadowStrikeUsed: sp.shadowStrikeUsed || false,
+    _appliedT1Iron: sp._appliedT1Iron || false,
+    _appliedT2Fortress: sp._appliedT2Fortress || false,
+    _appliedT1Power: sp._appliedT1Power || false,
+    _appliedT1Arcane: sp._appliedT1Arcane || false,
+    _appliedT2Warlord: sp._appliedT2Warlord || false,
+    _appliedT3Devastator: sp._appliedT3Devastator || false,
+    _appliedT3Titan: sp._appliedT3Titan || false,
+    _appliedT3Archmage: sp._appliedT3Archmage || false,
+    _appliedClassUnique: sp._appliedClassUnique || false,
+    // Ensure xpNext uses formula if it's a new enough save
+    xpNext: sp.xpNext || xpForLevel(sp.level||1),
+  };
+  selectedClass = save.player.className;
+  // Restore world and boss states
+  selectWorld(save.world || 'philadelphia');
+  save.bossStates.forEach((defeated, i) => { if(BOSSES[i]) BOSSES[i].defeated = defeated; });
+  // Skip to game
+  document.getElementById('screen-title').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  genSpawns();
+  window.addEventListener('resize', resize);
+  resize();
+  updateZone();
+  gameLoop();
+  setPUI();
+  addLog(`${Player.emoji} ${Player.name} enters ${WORLDS[selectedWorld].name}. Level ${Player.level}.`, 'lb');
+  addLog(`The darkness remembers you.`, 'ls');
+  startGPS();
+  setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
+  setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)render(); }, 60000);
+}
+
+// ══════════════════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════════════════
-function goCreate(){
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function showWorldSelect(){
   document.getElementById('screen-title').classList.remove('active');
+  document.getElementById('screen-world').classList.add('active');
+  renderWorldCards();
+}
+
+function renderWorldCards(){
+  const container = document.getElementById('world-cards');
+  container.innerHTML = Object.values(WORLDS).map(w=>`
+    <div onclick="pickWorld('${w.key}')" style="
+      background:linear-gradient(160deg,#1e1a30,#12101e);
+      border:2px solid #3a2a50; border-radius:12px;
+      padding:20px; cursor:pointer; transition:all .2s;
+      -webkit-tap-highlight-color:transparent;
+    " onpointerdown="this.style.borderColor='${w.key==='philadelphia'?'#cc3030':'#cc88ff'}';this.style.boxShadow='0 0 20px rgba(180,100,255,0.3)'"
+       onpointerup="this.style.borderColor='#3a2a50';this.style.boxShadow=''">
+      <div style="font-size:2.5rem;text-align:center;margin-bottom:8px;">${w.emoji}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);text-align:center;letter-spacing:.1em;">${w.name}</div>
+      <div style="font-size:.82rem;color:var(--crimson);text-align:center;letter-spacing:.3em;font-style:italic;margin:4px 0 10px;">${w.subtitle}</div>
+      <div style="font-size:.88rem;color:#a090b8;text-align:center;line-height:1.5;">${w.desc}</div>
+      <div style="margin-top:12px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:${w.key==='philadelphia'?'#ff4444':'#bb88ff'};letter-spacing:.1em;">
+        ${w.bosses.length} BOSSES · ${w.zones.length} ZONES
+      </div>
+    </div>
+  `).join('');
+}
+
+function pickWorld(key){
+  selectWorld(key);
+  document.getElementById('screen-world').classList.remove('active');
   document.getElementById('screen-create').classList.add('active');
   buildClassGrid();
   buildStatGrid();
+}
+
+function goCreate(){
+  deleteSave();
+  showWorldSelect();
 }
 
 function enterWorld(){
@@ -2043,6 +3834,7 @@ function enterWorld(){
   setPUI();
   addLog(`${Player.emoji} ${Player.name} enters the Fallen City.`,'lb');
   addLog(`The darkness watches. The hunt begins.`,'ls');
+  startGPS();
 
   // MP regen timer
   setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } },5000);
@@ -2053,13 +3845,21 @@ function enterWorld(){
 //  GAME LOOP
 // ══════════════════════════════════════════════════════
 function gameLoop(){ if(!inCombat)render(); requestAnimationFrame(gameLoop); }
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js');
+
+// ── SERVICE WORKER ─────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js').catch(err=>console.warn('SW registration failed:',err));
   });
 }
+
+// ── ORIENTATION LOCK ──────────────────────────────────
+if(screen.orientation && screen.orientation.lock){
+  screen.orientation.lock('portrait').catch(()=>{});
+}
+
+// ── INIT ───────────────────────────────────────────────
+initTitleScreen();
 </script>
 </body>
 </html>
