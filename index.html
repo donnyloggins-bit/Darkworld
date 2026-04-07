@@ -798,6 +798,36 @@ body::before {
 .c-resfill { height:100%; transition:width .4s ease; }
 .c-name { font-family:'Cinzel Decorative',serif; font-size:.95rem; color:var(--pale); letter-spacing:.05em; }
 
+/* COMBO COUNTER */
+#combo-wrap {
+  flex-shrink:0; text-align:center; padding:6px 0 4px;
+  background:linear-gradient(180deg,#100d1e,#18142a);
+  border-top:1px solid #2a1a3a; border-bottom:1px solid #2a1a3a;
+  width:100%;
+}
+#combo-label-txt {
+  font-family:'Share Tech Mono',monospace; font-size:.7rem;
+  letter-spacing:.35em; color:#4a3a68; margin-bottom:0;
+}
+#combo-count {
+  font-family:'Cinzel Decorative',serif; font-size:2.8rem;
+  font-weight:900; line-height:1; color:#3a3060;
+  text-shadow:0 0 0px currentColor;
+  transition:color .15s ease, text-shadow .15s ease;
+}
+#combo-hint {
+  font-family:'Share Tech Mono',monospace; font-size:.68rem;
+  color:#4a3a68; letter-spacing:.08em; margin-top:1px;
+}
+#combo-count.c1  { color:#c8b8f0; text-shadow:0 0 10px rgba(180,140,255,0.4); }
+#combo-count.c3  { color:#ffe066; text-shadow:0 0 12px rgba(255,200,0,0.5); }
+#combo-count.c5  { color:#ff8800; text-shadow:0 0 16px rgba(255,120,0,0.6); }
+#combo-count.c7  { color:#ff3300; text-shadow:0 0 20px rgba(255,50,0,0.7); }
+#combo-count.c10 { color:#ffcc00; text-shadow:0 0 24px rgba(255,200,0,0.9); animation:comboPulse 1s ease infinite; }
+@keyframes comboPulse { 0%,100%{text-shadow:0 0 16px rgba(255,200,0,0.7)} 50%{text-shadow:0 0 32px rgba(255,220,0,1)} }
+@keyframes comboBump { 0%{transform:scale(1)} 40%{transform:scale(1.35)} 100%{transform:scale(1)} }
+.combo-bump { animation:comboBump .18s ease; }
+
 /* MIDDLE: Combat log */
 #cb-log {
   flex-shrink:0; height:58px; overflow-y:auto;
@@ -1389,6 +1419,13 @@ body::before {
         <div class="c-hpbar"><div class="c-hpfill c-ehp" id="c-ehp" style="width:100%"></div></div>
         <div class="c-hptext" id="c-ehp-t">100%</div>
       </div>
+    </div>
+
+    <!-- COMBO COUNTER -->
+    <div id="combo-wrap">
+      <div id="combo-label-txt">COMBO</div>
+      <div id="combo-count">0</div>
+      <div id="combo-hint">Build chain · Signature unleashes it</div>
     </div>
 
     <!-- COMBAT LOG -->
@@ -3088,6 +3125,7 @@ function startGPS(){
 let inCombat=false, curEnemy=null, isBoss=false;
 let eStatuses=[];
 let combatInterval=null, lastStatusTick=0, lastResRegen=0;
+let playerCombo=0;
 const CD_SCALE=1800; // ms per "cd unit"
 
 function startCombatTimer(){
@@ -3166,8 +3204,9 @@ function startCombat(ent,boss){
     ?`${ent.name} fixes its ancient gaze upon you. The world grows cold.`
     :`A ${ent.name} emerges from the darkness. It hungers for your soul.`);
 
+  playerCombo=0;
   buildAbilityButtons();
-  setCBUI();
+  setCBUI(); updateComboDisplay();
   document.getElementById('combat-modal').classList.add('active');
   document.getElementById('turn-ind').textContent='USE ABILITIES · ENEMY ATTACKS WHEN BAR FILLS';
   startCombatTimer();
@@ -3362,14 +3401,29 @@ function playerAct(ability){
   // Damage
   if(ability.dmgMult>0){
     let dmg=calcDamage(ability);
+    // Combo multiplier for Signature
+    let comboUsed=0;
+    if(ability.type==='Signature' && playerCombo>0){
+      comboUsed=playerCombo;
+      dmg=Math.floor(dmg*(1+comboUsed*0.4));
+    }
     const overkill=curEnemy.hp>0&&dmg>curEnemy.hp*1.5;
     curEnemy.hp=Math.max(0,curEnemy.hp-dmg);
     showDamageNum(fmt(dmg),getDmgClass(dmg),'right');
     if(overkill) setTimeout(()=>showDamageNum('OVERKILL','dmg-overkill','right'),400);
+    if(comboUsed>0){
+      setTimeout(()=>showDamageNum(`COMBO ×${comboUsed}!`,'dmg-crit','right'),250);
+      shakeScreen();
+      playerCombo=0;
+    } else if(ability.type==='Basic'){
+      playerCombo=Math.min(playerCombo+2,15);
+    } else if(ability.type==='Core'){
+      playerCombo=Math.min(playerCombo+1,15);
+    }
+    updateComboDisplay();
     if(dmg>=1000) flashScreen('white');
-    if(dmg>=500000||ability.type==='Signature') shakeScreen();
-    const msgs=[`${ability.name} strikes for ${fmt(dmg)} damage!`,`${ability.emoji} ${ability.name} — ${fmt(dmg)} dmg!`];
-    setCLog(msgs[Math.floor(Math.random()*msgs.length)]);
+    if(ability.type==='Signature') shakeScreen();
+    setCLog(`${ability.emoji} ${ability.name} — ${fmt(dmg)} dmg!`);
     addLog(`${ability.name}: ${fmt(dmg)} dmg`,'lc');
   }
 
@@ -3409,26 +3463,41 @@ function useCombatPotion(){
   setCBUI();
 }
 
+function updateComboDisplay(){
+  const el=document.getElementById('combo-count');
+  const hint=document.getElementById('combo-hint');
+  if(!el) return;
+  el.textContent=playerCombo;
+  // Colour tiers
+  el.className='';
+  if(playerCombo>=10)     el.classList.add('c10');
+  else if(playerCombo>=7) el.classList.add('c7');
+  else if(playerCombo>=5) el.classList.add('c5');
+  else if(playerCombo>=3) el.classList.add('c3');
+  else if(playerCombo>=1) el.classList.add('c1');
+  // Hint text
+  if(hint){
+    if(playerCombo===0) hint.textContent='Build chain · Signature unleashes it';
+    else { const mult=(1+playerCombo*0.4).toFixed(1); hint.textContent=`Signature hits ${mult}× · keep building or unleash!`; }
+  }
+  // Bump animation
+  el.classList.remove('combo-bump');
+  void el.offsetWidth;
+  el.classList.add('combo-bump');
+}
+
 function calcDamage(ability){
   const sk = Player.skills || {};
   let dmgMult = ability.dmgMult;
-  // Mastery: +25% to all ability damage
   if(sk.t2==='mastery') dmgMult *= 1.25;
 
-  const base=Math.floor(Player.atk*dmgMult);
-  const variance=0.15;
-  let dmg=Math.floor(base*(1-variance+Math.random()*variance*2));
+  // No variance — fully deterministic
+  let dmg=Math.floor(Player.atk*dmgMult);
 
-  // Skill ATK bonuses (atkPct25 already applied via applySkillBonuses to Player.atk)
-  // atkCrit35 also already applied; but add crit bonus at check time
-  let critChance=Player.crit+(ability.critBonus||0);
-  if(sk.t2==='atkCrit35') critChance+=8; // extra 8% crit from skill
-  if(ability.forceCrit) critChance=100;
-  if(Math.random()*100<critChance){
-    const critMult=2.5+Math.random()*2;
-    dmg=Math.floor(dmg*critMult);
-    setTimeout(()=>showDamageNum('CRITICAL!','dmg-crit','right'),200);
-    flashScreen('white');
+  // forceCrit abilities get a flat 2× bonus instead of RNG
+  if(ability.forceCrit){
+    dmg=Math.floor(dmg*2);
+    setTimeout(()=>showDamageNum('PRECISE!','dmg-crit','right'),200);
   }
 
   // Illusion stacks
@@ -3514,6 +3583,13 @@ function doEnemyAttack(){
   dmg=Math.max(1,dmg-Math.floor(Player.def*0.5));
   if(Math.random()<0.04){ dmg=Math.floor(dmg*1.7); showDamageNum('ENEMY CRIT!','dmg-crit','left'); }
   Player.hp=Math.max(0,Player.hp-dmg);
+  // Hit breaks combo
+  if(playerCombo>0){
+    const lost=Math.min(2,playerCombo);
+    playerCombo=Math.max(0,playerCombo-2);
+    updateComboDisplay();
+    if(lost>0) setTimeout(()=>showDamageNum(`-${lost} COMBO`,'dmg-dodge','left'),300);
+  }
   setCLog(special?`${e.name} unleashes devastation! ${fmt(dmg)} damage!`:`${e.name} strikes for ${fmt(dmg)} damage.`);
   addLog(`${e.name}: ${fmt(dmg)} dmg to you`,'lc');
   showDamageNum(fmt(dmg),getDmgClass(dmg),'left');
@@ -3535,6 +3611,7 @@ function doEnemyAttack(){
 
 // ── VICTORY ───────────────────────────────────────────
 function victory(){
+  playerCombo=0;
   const xpBase = curEnemy.xp||100;
   const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0)));
   const goldBase = ri(curEnemy.gold[0],curEnemy.gold[1]);
