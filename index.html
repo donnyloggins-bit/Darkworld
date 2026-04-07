@@ -304,7 +304,8 @@ body::before {
   align-items:center;
   justify-content:flex-start;
   overflow-y:auto;
-  padding:30px 20px 40px;
+  overflow-x:hidden;
+  padding:16px 12px 24px;
   background-size:cover;
   background-position:center center;
   background-repeat:no-repeat;
@@ -354,19 +355,19 @@ body::before {
 
 .create-title {
   font-family:'Metal Mania',cursive;
-  font-size:2rem;
+  font-size:clamp(1.3rem,5vw,1.8rem);
   color:var(--gold);
   letter-spacing:.02em;
-  margin-bottom:4px;
+  margin-bottom:2px;
   text-shadow:0 0 30px rgba(184,150,42,0.6), 0 0 60px rgba(184,100,20,0.3);
 }
 
 .create-sub {
-  font-size:1.1rem;
+  font-size:.85rem;
   color:var(--blood);
-  letter-spacing:.4em;
+  letter-spacing:.3em;
   text-transform:uppercase;
-  margin-bottom:30px;
+  margin-bottom:14px;
   font-style:italic;
 }
 
@@ -374,16 +375,16 @@ body::before {
 .class-grid {
   display:grid;
   grid-template-columns:repeat(5,1fr);
-  gap:10px;
+  gap:6px;
   width:100%;
   max-width:900px;
-  margin-bottom:30px;
+  margin-bottom:12px;
 }
 
 .class-card {
   background:linear-gradient(160deg,#1c1830,#120e22);
   border:1px solid #3a3050;
-  padding:14px 10px;
+  padding:8px 4px;
   cursor:pointer;
   text-align:center;
   transition:all .2s ease;
@@ -406,9 +407,9 @@ body::before {
 .class-card.selected { border-color:var(--gold); background:linear-gradient(160deg,#2c2848,#1e1a38); }
 .class-card.selected::after { transform:scaleX(1); background:var(--gold); }
 
-.class-emoji { font-size:1.8rem; margin-bottom:6px; display:block; }
-.class-card-name { font-family:'Metal Mania',cursive; font-size:1rem; color:var(--pale); letter-spacing:.02em; margin-bottom:4px; }
-.class-card-type { font-size:.95rem; color:#8878a8; font-style:italic; }
+.class-emoji { font-size:1.4rem; margin-bottom:3px; display:block; }
+.class-card-name { font-family:'Metal Mania',cursive; font-size:.75rem; color:var(--pale); letter-spacing:.01em; margin-bottom:2px; }
+.class-card-type { font-size:.65rem; color:#8878a8; font-style:italic; }
 .class-card.selected .class-card-name { color:var(--gold); }
 
 /* STAT ROLLER */
@@ -417,16 +418,16 @@ body::before {
   max-width:900px;
   background:linear-gradient(160deg,#1c1830,#120e22);
   border:1px solid #3a3050;
-  padding:24px;
-  margin-bottom:20px;
+  padding:14px;
+  margin-bottom:14px;
 }
 
 .roller-title {
   font-family:'Metal Mania',cursive;
-  font-size:1.3rem;
+  font-size:1rem;
   color:var(--gold);
   letter-spacing:.02em;
-  margin-bottom:18px;
+  margin-bottom:12px;
   display:flex;
   align-items:center;
   gap:12px;
@@ -441,15 +442,15 @@ body::before {
 
 .stat-roll-grid {
   display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:12px;
-  margin-bottom:20px;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-bottom:14px;
 }
 
 .stat-roll-box {
   background:#181428;
   border:1px solid #3a3050;
-  padding:12px 8px;
+  padding:8px 6px;
   text-align:center;
   position:relative;
 }
@@ -465,12 +466,12 @@ body::before {
 
 .stat-roll-val {
   font-family:'Metal Mania',cursive;
-  font-size:1.8rem;
+  font-size:1.4rem;
   color:var(--ghost);
   display:block;
   transition:all .15s ease;
-  min-height:44px;
-  line-height:44px;
+  min-height:34px;
+  line-height:34px;
 }
 
 .stat-roll-val.rolling { animation:diceRoll .08s ease infinite; color:var(--gold); }
@@ -535,16 +536,16 @@ body::before {
   max-width:900px;
   background:linear-gradient(160deg,#1c1830,#120e22);
   border:1px solid #3a3050;
-  padding:20px 24px;
-  margin-bottom:20px;
+  padding:12px 14px;
+  margin-bottom:12px;
   display:none;
 }
 
 .class-info-panel.visible { display:block; }
 
-.cip-name { font-family:'Metal Mania',cursive; font-size:1.1rem; color:var(--gold); margin-bottom:4px; }
-.cip-desc { font-size:1.2rem; color:#b0a0c8; font-style:italic; margin-bottom:14px; line-height:1.6; }
-.cip-abilities { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.cip-name { font-family:'Metal Mania',cursive; font-size:1rem; color:var(--gold); margin-bottom:2px; }
+.cip-desc { font-size:.9rem; color:#b0a0c8; font-style:italic; margin-bottom:10px; line-height:1.5; }
+.cip-abilities { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
 
 .ability-card {
   background:#181428;
@@ -552,10 +553,10 @@ body::before {
   padding:10px;
 }
 
-.ab-name { font-family:'Metal Mania',cursive; font-size:1rem; color:var(--pale); margin-bottom:4px; }
-.ab-type { font-size:.95rem; color:var(--crimson); font-style:italic; margin-bottom:4px; }
-.ab-desc { font-size:1rem; color:#9a8ab8; line-height:1.4; }
-.ab-cost { font-family:'Share Tech Mono',monospace; font-size:.88rem; color:#6a9acc; margin-top:4px; }
+.ab-name { font-family:'Metal Mania',cursive; font-size:.85rem; color:var(--pale); margin-bottom:2px; }
+.ab-type { font-size:.75rem; color:var(--crimson); font-style:italic; margin-bottom:2px; }
+.ab-desc { font-size:.78rem; color:#9a8ab8; line-height:1.4; }
+.ab-cost { font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#6a9acc; margin-top:3px; }
 
 .enter-btn {
   background:linear-gradient(135deg,#1a0800,#0d0500);
@@ -572,7 +573,7 @@ body::before {
 .enter-btn:hover { background:var(--gold); color:var(--void); box-shadow:0 0 40px rgba(184,150,42,0.4); }
 .enter-btn:disabled { opacity:.3; cursor:not-allowed; }
 
-.name-section { width:100%; max-width:500px; margin:10px auto 4px; text-align:center; }
+.name-section { width:100%; max-width:500px; margin:6px auto 4px; text-align:center; }
 .char-name-input {
   width:100%; max-width:340px;
   background:#0d0a14;
