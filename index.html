@@ -640,7 +640,20 @@ body::before {
   position:absolute; inset:0;
   width:100%; height:100%;
   object-fit:cover; z-index:1;
+  transition:filter 1.2s ease;
 }
+#ar-filter-btn {
+  position:absolute; bottom:60px; left:14px;
+  background:rgba(13,10,20,0.92);
+  border:1px solid #4a3a60;
+  border-bottom:2px solid var(--blood);
+  padding:8px 14px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.8rem; color:#9080b0;
+  cursor:pointer; z-index:5; letter-spacing:.08em;
+  white-space:nowrap;
+}
+#ar-filter-btn:hover { color:var(--bone); border-bottom-color:var(--gold); }
 #ar-canvas {
   position:absolute; inset:0;
   width:100%; height:100%;
@@ -1740,7 +1753,8 @@ body::before {
   <canvas id="ar-canvas"></canvas>
   <button id="ar-back" onclick="stopAR()">◀ MAP</button>
   <div id="ar-status">⬤ AR MODE · THE FALLEN CITY</div>
-  <div id="ar-compass" id="ar-compass"><span id="ar-heading-txt">--- °</span></div>
+  <div id="ar-compass"><span id="ar-heading-txt">--- °</span></div>
+  <button id="ar-filter-btn" onclick="cycleARFilter()">👁 HELLVIEW</button>
 </div>
 
 <script>
@@ -3041,6 +3055,63 @@ function headingLabel(h){
 // ══════════════════════════════════════════════════════
 let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[],arLastFrameTime=0,arEnemyPositions={};
 
+// ══════════════════════════════════════════════════════
+//  AR FILTER ENVIRONMENTS
+// ══════════════════════════════════════════════════════
+const AR_FILTERS = [
+  {
+    name:'OFF',
+    label:'👁 HELLVIEW',          // label shown AFTER switching to this (= what's next)
+    filter:'none',
+    overlay:null
+  },
+  {
+    name:'HELLVIEW',
+    label:'🩸 BLOODMOON',
+    filter:'saturate(1.8) contrast(1.3) hue-rotate(340deg) brightness(0.75)',
+    overlay:'rgba(140,10,0,0.18)'
+  },
+  {
+    name:'BLOODMOON',
+    label:'☠ CURSED',
+    filter:'saturate(0.3) contrast(1.6) brightness(0.55) sepia(0.4)',
+    overlay:'rgba(80,0,0,0.28)'
+  },
+  {
+    name:'CURSED',
+    label:'🌿 SHADOW REALM',
+    filter:'saturate(2.2) hue-rotate(80deg) brightness(0.5) contrast(1.5)',
+    overlay:'rgba(0,60,10,0.2)'
+  },
+  {
+    name:'SHADOW REALM',
+    label:'🌑 OFF',
+    filter:'saturate(0) brightness(0.4) contrast(2)',
+    overlay:'rgba(20,0,40,0.35)'
+  }
+];
+
+let arFilterIdx = 0;
+
+function getTimeOfDayFilterIdx(){
+  const h = new Date().getHours();
+  if(h >= 5  && h < 8)  return 4; // dawn  → shadow realm (cold/dark)
+  if(h >= 8  && h < 17) return 0; // day   → off (subtle)
+  if(h >= 17 && h < 20) return 1; // dusk  → hellview (warm)
+  return 2;                        // night → bloodmoon (deep red)
+}
+
+function applyARFilter(){
+  const f = AR_FILTERS[arFilterIdx];
+  document.getElementById('ar-video').style.filter = f.filter;
+  document.getElementById('ar-filter-btn').textContent = f.label;
+}
+
+function cycleARFilter(){
+  arFilterIdx = (arFilterIdx + 1) % AR_FILTERS.length;
+  applyARFilter();
+}
+
 async function startAR(){
   if(!Player)return;
   // iOS compass permission
@@ -3103,6 +3174,8 @@ async function startAR(){
   // Switch screens
   document.getElementById('screen-game').classList.remove('active');
   document.getElementById('screen-ar').classList.add('active');
+  arFilterIdx = getTimeOfDayFilterIdx();
+  applyARFilter();
   renderAR();
 }
 
@@ -3152,6 +3225,17 @@ function renderAR(){
   vgrd.addColorStop(0.4,'rgba(3,2,5,0)');
   vgrd.addColorStop(1,'rgba(3,2,5,0.6)');
   c.fillStyle=vgrd; c.fillRect(0,0,W,H);
+
+  // Filter color overlay tint
+  const arTint = AR_FILTERS[arFilterIdx].overlay;
+  if(arTint){ c.fillStyle=arTint; c.fillRect(0,0,W,H); }
+
+  // Radial edge vignette (intensified for dark filters)
+  const vigStrength = arFilterIdx===0 ? 0.55 : 0.75;
+  const rvgrd=c.createRadialGradient(W/2,H/2,H*0.25,W/2,H/2,H*0.8);
+  rvgrd.addColorStop(0,'rgba(0,0,0,0)');
+  rvgrd.addColorStop(1,`rgba(0,0,0,${vigStrength})`);
+  c.fillStyle=rvgrd; c.fillRect(0,0,W,H);
 
   // Collect enemies in FOV — keep reference to original entity object
   const visible=[];
