@@ -188,22 +188,65 @@ body::before {
 
 /* ── CHARACTER CREATION ── */
 #screen-create {
+  position:relative;
+  overflow:hidden;
+}
+
+.create-page {
+  display:none;
+  position:absolute;
+  inset:0;
   flex-direction:column;
   align-items:center;
   justify-content:flex-start;
-  background:url('char-create-bg.jpeg') center center / cover no-repeat;
   overflow-y:auto;
-  padding:30px 20px;
+  padding:30px 20px 40px;
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
 }
-#screen-create::before {
+.create-page.active { display:flex; }
+.create-page::before {
   content:'';
   position:fixed;
   inset:0;
-  background:linear-gradient(to bottom, rgba(10,6,20,0.72) 0%, rgba(10,6,20,0.85) 100%);
+  background:linear-gradient(to bottom, rgba(10,6,20,0.72) 0%, rgba(10,6,20,0.88) 100%);
   pointer-events:none;
   z-index:0;
 }
-#screen-create > * { position:relative; z-index:1; }
+.create-page > * { position:relative; z-index:1; }
+
+#create-page-1 { background-image:url('title3.jpeg'); }
+#create-page-2 { background-image:url('title4.jpeg'); }
+
+.create-page-nav {
+  display:flex;
+  gap:16px;
+  margin-top:20px;
+  margin-bottom:10px;
+  align-items:center;
+}
+.page-btn {
+  background:rgba(80,0,0,0.55);
+  border:1px solid #cc2222;
+  color:#f0d0d0;
+  font-family:'Metal Mania',cursive;
+  font-size:clamp(.75rem,2vw,.95rem);
+  letter-spacing:.15em;
+  padding:10px 28px;
+  cursor:pointer;
+  transition:all .3s ease;
+}
+.page-btn:hover { border-color:var(--gold); color:var(--gold); }
+.page-btn:disabled { opacity:.3; cursor:not-allowed; }
+.page-dots { display:flex; gap:8px; }
+.page-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:#3a2a50;
+  border:1px solid #5a4a70;
+  transition:all .3s ease;
+}
+.page-dot.active { background:var(--crimson); border-color:var(--gold); box-shadow:0 0 8px rgba(184,150,42,0.4); }
 
 .create-title {
   font-family:'Metal Mania',cursive;
@@ -415,13 +458,11 @@ body::before {
   border:1px solid var(--gold);
   color:var(--gold);
   font-family:'Metal Mania',cursive;
-  font-size:1.25rem;
-  letter-spacing:.2em;
-  padding:14px 50px;
+  font-size:clamp(.75rem,2vw,.95rem);
+  letter-spacing:.15em;
+  padding:10px 22px;
   cursor:pointer;
   transition:all .3s ease;
-  margin-top:10px;
-  margin-bottom:30px;
 }
 
 .enter-btn:hover { background:var(--gold); color:var(--void); box-shadow:0 0 40px rgba(184,150,42,0.4); }
@@ -1311,34 +1352,56 @@ body::before {
 
 <!-- ══ CHARACTER CREATION ══ -->
 <div id="screen-create" class="screen">
-  <div class="create-title">FORGE YOUR SOUL</div>
-  <div class="create-sub">Choose your path · Roll your fate</div>
 
-  <!-- CLASS SELECT -->
-  <div class="class-grid" id="class-grid"></div>
+  <!-- PAGE 1: CHOOSE YOUR CLASS -->
+  <div id="create-page-1" class="create-page active">
+    <div class="create-title">FORGE YOUR SOUL</div>
+    <div class="create-sub">Choose your path</div>
 
-  <!-- CLASS INFO -->
-  <div class="class-info-panel" id="class-info-panel">
-    <div class="cip-name" id="cip-name"></div>
-    <div class="cip-desc" id="cip-desc"></div>
-    <div class="cip-abilities" id="cip-abilities"></div>
+    <div class="class-grid" id="class-grid"></div>
+
+    <div class="class-info-panel" id="class-info-panel">
+      <div class="cip-name" id="cip-name"></div>
+      <div class="cip-desc" id="cip-desc"></div>
+      <div class="cip-abilities" id="cip-abilities"></div>
+    </div>
+
+    <div class="create-page-nav">
+      <div class="page-dots">
+        <div class="page-dot active" id="pdot-1"></div>
+        <div class="page-dot" id="pdot-2"></div>
+      </div>
+      <button class="page-btn" id="next-page-btn" onclick="goCreatePage(2)" disabled>NEXT &#x2192;</button>
+    </div>
   </div>
 
-  <!-- STAT ROLLER -->
-  <div class="roller-section">
-    <div class="roller-title">⚄ ROLL YOUR ATTRIBUTES — 3d6 Down the Line</div>
-    <div class="stat-roll-grid" id="stat-grid"></div>
-    <button class="roll-btn" id="roll-btn" onclick="rollStats()">🎲 ROLL THE BONES</button>
-    <span id="reroll-info" class="reroll-note"></span>
+  <!-- PAGE 2: ROLL STATS & NAME -->
+  <div id="create-page-2" class="create-page">
+    <div class="create-title">SHAPE YOUR FATE</div>
+    <div class="create-sub">Roll your fate · Name your soul</div>
+
+    <div class="roller-section">
+      <div class="roller-title">⚄ ROLL YOUR ATTRIBUTES — 3d6 Down the Line</div>
+      <div class="stat-roll-grid" id="stat-grid"></div>
+      <button class="roll-btn" id="roll-btn" onclick="rollStats()">🎲 ROLL THE BONES</button>
+      <span id="reroll-info" class="reroll-note"></span>
+    </div>
+
+    <div class="name-section">
+      <div class="roller-title">☠ NAME YOUR SOUL</div>
+      <input type="text" id="char-name-input" class="char-name-input" maxlength="20" placeholder="Enter your name..." oninput="checkEnterReady()" autocomplete="off" spellcheck="false" />
+    </div>
+
+    <div class="create-page-nav">
+      <button class="page-btn" onclick="goCreatePage(1)">&#x2190; BACK</button>
+      <div class="page-dots">
+        <div class="page-dot" id="pdot-1b"></div>
+        <div class="page-dot active" id="pdot-2b"></div>
+      </div>
+      <button class="enter-btn" id="enter-btn" onclick="enterWorld()" disabled>⚔ ENTER</button>
+    </div>
   </div>
 
-  <!-- NAME INPUT -->
-  <div class="name-section">
-    <div class="roller-title">☠ NAME YOUR SOUL</div>
-    <input type="text" id="char-name-input" class="char-name-input" maxlength="20" placeholder="Enter your name..." oninput="checkEnterReady()" autocomplete="off" spellcheck="false" />
-  </div>
-
-  <button class="enter-btn" id="enter-btn" onclick="enterWorld()" disabled>⚔ ENTER THE FALLEN CITY</button>
 </div>
 
 <!-- ══ GAME ══ -->
@@ -2317,6 +2380,7 @@ function selectClass(name) {
     </div>
   `).join('');
   checkCanEnter();
+  document.getElementById('next-page-btn').disabled = false;
 }
 
 function buildStatGrid() {
@@ -2391,6 +2455,17 @@ function checkCanEnter(){ checkEnterReady(); }
 function checkEnterReady(){
   const name = document.getElementById('char-name-input').value.trim();
   document.getElementById('enter-btn').disabled = !(selectedClass && rolledStats && name.length > 0);
+}
+
+function goCreatePage(n){
+  document.getElementById('create-page-1').classList.toggle('active', n===1);
+  document.getElementById('create-page-2').classList.toggle('active', n===2);
+  // dot states
+  document.getElementById('pdot-1').classList.toggle('active', n===1);
+  document.getElementById('pdot-2').classList.toggle('active', n===2);
+  document.getElementById('pdot-1b').classList.toggle('active', n===1);
+  document.getElementById('pdot-2b').classList.toggle('active', n===2);
+  if(n===2) buildStatGrid();
 }
 
 // ══════════════════════════════════════════════════════
@@ -4022,8 +4097,14 @@ function pickWorld(key){
   selectWorld(key);
   document.getElementById('screen-world').classList.remove('active');
   document.getElementById('screen-create').classList.add('active');
+  goCreatePage(1);
+  selectedClass = null;
+  rolledStats = null;
+  hasRolled = false;
+  rerollsLeft = 1;
+  document.getElementById('next-page-btn').disabled = true;
+  document.getElementById('enter-btn').disabled = true;
   buildClassGrid();
-  buildStatGrid();
 }
 
 function goCreate(){
