@@ -87,6 +87,111 @@ body::before {
 .screen { display:none; position:fixed; inset:0; z-index:10; }
 .screen.active { display:flex; }
 
+/* ── INTRO / LORE SCREEN ── */
+#screen-intro {
+  background:#000;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  cursor:pointer;
+}
+
+.intro-slide {
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  opacity:0;
+  transition:opacity 1.2s ease;
+  pointer-events:none;
+}
+.intro-slide.visible { opacity:1; pointer-events:auto; }
+
+.intro-bg {
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+  transition:opacity 1.2s ease;
+}
+.intro-bg::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top,
+    rgba(0,0,0,0.92) 0%,
+    rgba(0,0,0,0.55) 40%,
+    rgba(0,0,0,0.2) 100%);
+}
+
+.intro-text-block {
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:640px;
+  padding:0 28px 60px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.intro-line {
+  font-family:'IM Fell English',serif;
+  font-size:clamp(.9rem,2.8vw,1.15rem);
+  color:#e8d8c0;
+  line-height:1.7;
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity .7s ease, transform .7s ease;
+  text-shadow:0 1px 8px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8);
+}
+.intro-line.show { opacity:1; transform:translateY(0); }
+.intro-line.accent {
+  font-family:'Metal Mania',cursive;
+  font-size:clamp(.75rem,2.2vw,.95rem);
+  color:var(--crimson);
+  letter-spacing:.2em;
+}
+.intro-line.location {
+  font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.7rem,2vw,.85rem);
+  color:var(--gold);
+  letter-spacing:.3em;
+  text-transform:uppercase;
+}
+
+.intro-tap-hint {
+  position:absolute;
+  bottom:18px;
+  right:24px;
+  z-index:3;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.75rem;
+  color:rgba(255,255,255,0.3);
+  letter-spacing:.15em;
+  animation:introHintPulse 2s ease infinite;
+}
+@keyframes introHintPulse { 0%,100%{opacity:.2} 50%{opacity:.6} }
+
+.intro-skip {
+  position:absolute;
+  top:18px;
+  right:18px;
+  z-index:10;
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.35);
+  font-family:'Share Tech Mono',monospace;
+  font-size:.7rem;
+  letter-spacing:.1em;
+  padding:6px 14px;
+  cursor:pointer;
+}
+.intro-skip:hover { color:rgba(255,255,255,0.6); }
+
 /* ── TITLE SCREEN ── */
 #screen-title {
   flex-direction:column;
@@ -1330,8 +1435,49 @@ body::before {
 
 <div id="flash"></div>
 
+<!-- ══ INTRO / LORE ══ -->
+<div id="screen-intro" class="screen active" onclick="introAdvance()">
+  <button class="intro-skip" onclick="event.stopPropagation();introSkip()">SKIP</button>
+  <div class="intro-tap-hint" id="intro-tap-hint">TAP TO CONTINUE</div>
+
+  <!-- SLIDE 1: Exterior -->
+  <div class="intro-slide" id="intro-slide-0">
+    <div class="intro-bg" style="background-image:url('papi1.jpeg')"></div>
+    <div class="intro-text-block">
+      <div class="intro-line location">Leigh &amp; Tioga &mdash; North Philadelphia</div>
+      <div class="intro-line">That papi shop on the corner's been there longer than anyone can remember.</div>
+      <div class="intro-line">New owners every few years. Sign never changes.</div>
+      <div class="intro-line">The lights in the basement always flickered different than the rest of the store.</div>
+      <div class="intro-line">Always have.</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Basement -->
+  <div class="intro-slide" id="intro-slide-1">
+    <div class="intro-bg" style="background-image:url('papi2.jpeg'); background-position:center top;"></div>
+    <div class="intro-text-block">
+      <div class="intro-line accent">2009.</div>
+      <div class="intro-line">New delivery came in. Boxes nobody ordered. No return address.</div>
+      <div class="intro-line">He stacked them in the basement. Didn't ask questions.</div>
+      <div class="intro-line">Three days later his nephew went down for cases of water.</div>
+      <div class="intro-line">Didn't come back up.</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: The door -->
+  <div class="intro-slide" id="intro-slide-2">
+    <div class="intro-bg" style="background-image:url('papi2.jpeg'); background-position:right bottom; background-size:200%;"></div>
+    <div class="intro-text-block">
+      <div class="intro-line">That was fifteen years ago.</div>
+      <div class="intro-line">Papi padlocked the door. Something's been pushing from the other side ever since.</div>
+      <div class="intro-line">Now they're everywhere.</div>
+      <div class="intro-line accent">He's still open. Cash only.</div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ TITLE ══ -->
-<div id="screen-title" class="screen active">
+<div id="screen-title" class="screen">
   <div class="title-runes">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ ᛏ ᛒ ᛖ ᛗ ᛚ ᛜ ᛞ ᛟ</div>
   <h1 class="main-title">DARKWORLD</h1>
   <div class="main-subtitle">Philadelphia · The Fallen City</div>
@@ -3993,6 +4139,74 @@ function deleteSave(){
   localStorage.removeItem(SAVE_KEY);
 }
 
+// ══════════════════════════════════════════════════════
+//  INTRO SEQUENCE
+// ══════════════════════════════════════════════════════
+const INTRO_SLIDES = [
+  { lines: 4, delay: 500 },
+  { lines: 5, delay: 400 },
+  { lines: 4, delay: 400 }
+];
+let introSlide = 0;
+let introLineShown = 0;
+let introAnimating = false;
+
+function introStart(){
+  introSlide = 0;
+  introLineShown = 0;
+  introAnimating = false;
+  document.getElementById('intro-tap-hint').style.opacity = '0';
+  showIntroSlide(0);
+}
+
+function showIntroSlide(n){
+  document.querySelectorAll('.intro-slide').forEach((s,i)=>{
+    s.classList.toggle('visible', i===n);
+  });
+  // reset all lines in this slide
+  const lines = document.querySelectorAll(`#intro-slide-${n} .intro-line`);
+  lines.forEach(l => l.classList.remove('show'));
+  introLineShown = 0;
+  introAnimating = true;
+  showNextIntroLine(n);
+}
+
+function showNextIntroLine(slideIdx){
+  const lines = document.querySelectorAll(`#intro-slide-${slideIdx} .intro-line`);
+  if(introLineShown >= lines.length){
+    introAnimating = false;
+    document.getElementById('intro-tap-hint').style.opacity = '1';
+    return;
+  }
+  lines[introLineShown].classList.add('show');
+  introLineShown++;
+  const delay = introLineShown === 1 ? 800 : 650;
+  setTimeout(()=>{ if(introSlide===slideIdx) showNextIntroLine(slideIdx); }, delay);
+}
+
+function introAdvance(){
+  if(introAnimating){
+    // skip to showing all lines in current slide
+    const lines = document.querySelectorAll(`#intro-slide-${introSlide} .intro-line`);
+    lines.forEach(l => l.classList.add('show'));
+    introAnimating = false;
+    document.getElementById('intro-tap-hint').style.opacity = '1';
+    return;
+  }
+  if(introSlide < 2){
+    introSlide++;
+    document.getElementById('intro-tap-hint').style.opacity = '0';
+    showIntroSlide(introSlide);
+  } else {
+    introSkip();
+  }
+}
+
+function introSkip(){
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-title').classList.add('active');
+}
+
 function initTitleScreen(){
   const save = loadSave();
   if(save){
@@ -4002,6 +4216,11 @@ function initTitleScreen(){
     btn.style.display = '';
     btn.textContent = `⚔ CONTINUE — ${timeStr}`;
     document.getElementById('new-game-btn').textContent = '+ NEW GAME';
+    // If returning player, skip intro
+    introSkip();
+  } else {
+    // New player — show intro
+    introStart();
   }
 }
 
