@@ -3396,14 +3396,14 @@ function renderAR(){
     if(dist>MAX_DIST)return;
     let diff=bearing(Player.lat,Player.lng,b.lat,b.lng)-arHeading;
     if(diff>180)diff-=360; if(diff<-180)diff+=360;
-    if(Math.abs(diff)<FOV/2) visible.push({name:b.name,emoji:b.emoji,hp:b.hp,maxHp:b.maxHp,dist,diff,boss:true,entity:b});
+    if(Math.abs(diff)<FOV/2) visible.push({name:b.name,hp:b.hp,maxHp:b.maxHp,dist,diff,boss:true,entity:b});
   });
   spawns.filter(s=>!s.defeated).forEach(s=>{
     const dist=distMiles(Player.lat,Player.lng,s.lat,s.lng);
     if(dist>MAX_DIST)return;
     let diff=bearing(Player.lat,Player.lng,s.lat,s.lng)-arHeading;
     if(diff>180)diff-=360; if(diff<-180)diff+=360;
-    if(Math.abs(diff)<FOV/2) visible.push({name:s.name,emoji:s.emoji,hp:s.hp,maxHp:s.maxHp,dist,diff,boss:false,entity:s});
+    if(Math.abs(diff)<FOV/2) visible.push({name:s.name,hp:s.hp,maxHp:s.maxHp,dist,diff,boss:false,entity:s});
   });
 
   // Draw each enemy
@@ -3428,10 +3428,28 @@ function renderAR(){
     grd.addColorStop(1,'rgba(0,0,0,0)');
     c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*1.8,0,Math.PI*2); c.fill();
 
-    // Emoji
-    c.font=`${sz}px serif`;
-    c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(e.emoji,x,yBase);
+    // Portrait (circular clip) or fallback silhouette
+    const arImg = e.entity.portrait ? getImg(e.entity.portrait) : null;
+    if(arImg){
+      c.save();
+      c.beginPath(); c.arc(x,yBase,sz*0.62,0,Math.PI*2); c.clip();
+      c.drawImage(arImg, x-sz*0.62, yBase-sz*0.62, sz*1.24, sz*1.24);
+      c.restore();
+      // Ring border
+      c.beginPath(); c.arc(x,yBase,sz*0.62,0,Math.PI*2);
+      c.strokeStyle=e.boss?'rgba(255,200,60,0.8)':'rgba(200,60,60,0.7)';
+      c.lineWidth=2; c.stroke();
+    } else {
+      // Fallback: dark circle with initial
+      c.beginPath(); c.arc(x,yBase,sz*0.55,0,Math.PI*2);
+      c.fillStyle=e.boss?'rgba(60,40,10,0.9)':'rgba(60,10,10,0.9)'; c.fill();
+      c.strokeStyle=e.boss?'rgba(200,160,40,0.8)':'rgba(180,40,40,0.7)';
+      c.lineWidth=2; c.stroke();
+      c.font=`bold ${Math.floor(sz*0.5)}px "Share Tech Mono",monospace`;
+      c.fillStyle=e.boss?'#f0c040':'#e06060';
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(e.name[0], x, yBase);
+    }
 
     // Info card background
     const cardW=Math.min(W*0.55, 220);
