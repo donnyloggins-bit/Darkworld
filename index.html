@@ -2052,19 +2052,19 @@ let selectedWorld = 'philadelphia';
 let CENTER, ZONES, ZONE_DESCS, BOSSES;
 
 const MOB_TYPES = [
-  {name:'Lich Servant',    emoji:'💀', zone:0, hp:190, atk:38, def:10, xp:800,  gold:[150,300]},
-  {name:'Void Shade',      emoji:'🌑', zone:0, hp:160, atk:42, def:8,  xp:700,  gold:[120,250]},
+  {name:'Lich Servant',    emoji:'💀', zone:0, hp:190, atk:38, def:10, xp:800,  gold:[150,300], portrait:'lichservant.jpeg'},
+  {name:'Void Shade',      emoji:'🌑', zone:0, hp:160, atk:42, def:8,  xp:700,  gold:[120,250], portrait:'voidshade.jpeg'},
   {name:'Blood Wraith',    emoji:'👻', zone:1, hp:130, atk:25, def:5,  xp:400,  gold:[80,180]},
-  {name:'Plague Hound',    emoji:'🐺', zone:1, hp:110, atk:28, def:4,  xp:350,  gold:[60,140]},
-  {name:'Bone Archer',     emoji:'🏹', zone:1, hp:100, atk:30, def:3,  xp:380,  gold:[70,160]},
-  {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:85,  atk:18, def:3,  xp:250,  gold:[50,120]},
-  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:70,  atk:20, def:2,  xp:220,  gold:[40,100]},
-  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:100, atk:16, def:6,  xp:280,  gold:[50,110]},
-  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:48,  atk:12, def:1,  xp:120,  gold:[20,60]},
-  {name:'Bog Specter',     emoji:'💨', zone:3, hp:52,  atk:14, def:1,  xp:140,  gold:[20,70]},
-  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:38,  atk:10, def:0,  xp:80,   gold:[10,40]},
-  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:22,  atk:6,  def:0,  xp:50,   gold:[5,25]},
-  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:20,  atk:7,  def:0,  xp:45,   gold:[5,25]},
+  {name:'Plague Hound',    emoji:'🐺', zone:1, hp:110, atk:28, def:4,  xp:350,  gold:[60,140],  portrait:'plaguehound.jpeg'},
+  {name:'Bone Archer',     emoji:'🏹', zone:1, hp:100, atk:30, def:3,  xp:380,  gold:[70,160],  portrait:'bonearcher.jpeg'},
+  {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:85,  atk:18, def:3,  xp:250,  gold:[50,120],  portrait:'hollowknight.jpeg'},
+  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:70,  atk:20, def:2,  xp:220,  gold:[40,100],  portrait:'wailingbanshee.jpeg'},
+  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:100, atk:16, def:6,  xp:280,  gold:[50,110],  portrait:'rotgolem.jpeg'},
+  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:48,  atk:12, def:1,  xp:120,  gold:[20,60],   portrait:'gravewanderer.jpeg'},
+  {name:'Bog Specter',     emoji:'💨', zone:3, hp:52,  atk:14, def:1,  xp:140,  gold:[20,70],   portrait:'bogspecter.jpeg'},
+  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:38,  atk:10, def:0,  xp:80,   gold:[10,40],   portrait:'cursedrat.jpeg'},
+  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:22,  atk:6,  def:0,  xp:50,   gold:[5,25],    portrait:'lostsoul.jpeg'},
+  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:20,  atk:7,  def:0,  xp:45,   gold:[5,25],    portrait:'shadowimp.jpeg'},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -3600,7 +3600,7 @@ function startCombat(ent,boss){ sndCombatStart();
   curEnemy.nextAttackAt = Date.now() + attackInterval;
 
   const portrait = document.getElementById('boss-portrait');
-  if(boss && ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; }
+  if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; portrait.style.borderBottomColor=boss?'#b8962a':'#3a2a50'; }
   else { portrait.src=''; portrait.style.display='none'; }
   document.getElementById('cb-name').textContent=ent.name;
   document.getElementById('cb-type').textContent=ent.type||(ZONES[ent.zone]?.name?.toUpperCase()+' MONSTER');
