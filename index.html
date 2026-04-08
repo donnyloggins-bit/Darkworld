@@ -1591,30 +1591,8 @@ body::before {
 <!-- ══ CHARACTER CREATION ══ -->
 <div id="screen-create" class="screen">
 
-  <!-- PAGE 1: CHOOSE YOUR CLASS -->
+  <!-- PAGE 1: ROLL STATS & NAME -->
   <div id="create-page-1" class="create-page active">
-    <div class="create-title">FORGE YOUR SOUL</div>
-    <div class="create-sub">Choose your path</div>
-
-    <div class="class-grid" id="class-grid"></div>
-
-    <div class="class-info-panel" id="class-info-panel">
-      <div class="cip-name" id="cip-name"></div>
-      <div class="cip-desc" id="cip-desc"></div>
-      <div class="cip-abilities" id="cip-abilities"></div>
-    </div>
-
-    <div class="create-page-nav">
-      <div class="page-dots">
-        <div class="page-dot active" id="pdot-1"></div>
-        <div class="page-dot" id="pdot-2"></div>
-      </div>
-      <button class="page-btn" id="next-page-btn" onclick="goCreatePage(2)" disabled>NEXT &#x2192;</button>
-    </div>
-  </div>
-
-  <!-- PAGE 2: ROLL STATS & NAME -->
-  <div id="create-page-2" class="create-page">
     <div class="create-title">SHAPE YOUR FATE</div>
     <div class="create-sub">Roll your fate · Name your soul</div>
 
@@ -1627,7 +1605,29 @@ body::before {
 
     <div class="name-section">
       <div class="roller-title">☠ NAME YOUR SOUL</div>
-      <input type="text" id="char-name-input" class="char-name-input" maxlength="20" placeholder="Enter your name..." oninput="checkEnterReady()" autocomplete="off" spellcheck="false" />
+      <input type="text" id="char-name-input" class="char-name-input" maxlength="20" placeholder="Enter your name..." oninput="checkNextReady()" autocomplete="off" spellcheck="false" />
+    </div>
+
+    <div class="create-page-nav">
+      <div class="page-dots">
+        <div class="page-dot active" id="pdot-1"></div>
+        <div class="page-dot" id="pdot-2"></div>
+      </div>
+      <button class="page-btn" id="next-page-btn" onclick="goCreatePage(2)" disabled>NEXT &#x2192;</button>
+    </div>
+  </div>
+
+  <!-- PAGE 2: CHOOSE YOUR CLASS -->
+  <div id="create-page-2" class="create-page">
+    <div class="create-title">FORGE YOUR SOUL</div>
+    <div class="create-sub">Choose your path</div>
+
+    <div class="class-grid" id="class-grid"></div>
+
+    <div class="class-info-panel" id="class-info-panel">
+      <div class="cip-name" id="cip-name"></div>
+      <div class="cip-desc" id="cip-desc"></div>
+      <div class="cip-abilities" id="cip-abilities"></div>
     </div>
 
     <div class="create-page-nav">
@@ -2612,8 +2612,7 @@ function selectClass(name) {
       <div class="ab-cost">${a.cost>0?`${a.cost} ${a.costType}`:'Free'} ${a.cd>0?`· ${a.cd}t CD`:''}</div>
     </div>
   `).join('');
-  checkCanEnter();
-  document.getElementById('next-page-btn').disabled = false;
+  checkEnterReady();
 }
 
 function buildStatGrid() {
@@ -2681,24 +2680,26 @@ function rollStats() {
   document.getElementById('roll-btn').textContent = rerollsLeft>0 ? '🎲 REROLL (1 left)' : '🎲 FATE IS SEALED';
   if(rerollsLeft===0) document.getElementById('roll-btn').style.opacity='0.4';
 
-  setTimeout(checkCanEnter, STAT_NAMES.length*120+400);
+  setTimeout(checkNextReady, STAT_NAMES.length*120+400);
 }
 
 function checkCanEnter(){ checkEnterReady(); }
-function checkEnterReady(){
+function checkNextReady(){
   const name = document.getElementById('char-name-input').value.trim();
-  document.getElementById('enter-btn').disabled = !(selectedClass && rolledStats && name.length > 0);
+  document.getElementById('next-page-btn').disabled = !(rolledStats && name.length > 0);
+}
+function checkEnterReady(){
+  document.getElementById('enter-btn').disabled = !selectedClass;
 }
 
 function goCreatePage(n){
   document.getElementById('create-page-1').classList.toggle('active', n===1);
   document.getElementById('create-page-2').classList.toggle('active', n===2);
-  // dot states
   document.getElementById('pdot-1').classList.toggle('active', n===1);
   document.getElementById('pdot-2').classList.toggle('active', n===2);
   document.getElementById('pdot-1b').classList.toggle('active', n===1);
   document.getElementById('pdot-2b').classList.toggle('active', n===2);
-  if(n===2) buildStatGrid();
+  if(n===2){ selectedClass=null; buildClassGrid(); }
 }
 
 // ══════════════════════════════════════════════════════
@@ -4658,14 +4659,14 @@ function pickWorld(key){
   selectWorld(key);
   document.getElementById('screen-world').classList.remove('active');
   document.getElementById('screen-create').classList.add('active');
-  goCreatePage(1);
   selectedClass = null;
   rolledStats = null;
   hasRolled = false;
   rerollsLeft = 1;
   document.getElementById('next-page-btn').disabled = true;
   document.getElementById('enter-btn').disabled = true;
-  buildClassGrid();
+  buildStatGrid();
+  goCreatePage(1);
 }
 
 function goCreate(){
