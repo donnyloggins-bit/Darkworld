@@ -2546,6 +2546,7 @@ function selectWorld(key){
   ZONES = w.zones;
   ZONE_DESCS = w.zoneDescs;
   BOSSES = w.bosses.map(b=>({...b, defeated:false, maxHp:b.hp, statuses:[], poisonStacks:0}));
+  setTimeout(preloadPortraits, 100);
 }
 selectWorld('philadelphia');
 
@@ -2832,12 +2833,17 @@ function getImg(src){
   if(!src) return null;
   if(!_imgCache[src]){
     const img = new Image();
+    _imgCache[src] = img;  // store before setting src to avoid race
+    img.onload = ()=>render();
     img.src = src;
-    img.onload = ()=>{ _imgCache[src]._ready=true; render(); };
-    img.onerror = ()=>{ _imgCache[src]._err=true; };
-    _imgCache[src] = img;
   }
-  return _imgCache[src]._ready ? _imgCache[src] : null;
+  const img = _imgCache[src];
+  return (img.complete && img.naturalWidth > 0) ? img : null;
+}
+
+function preloadPortraits(){
+  MOB_TYPES.forEach(m=>{ if(m.portrait) getImg(m.portrait); });
+  if(BOSSES) BOSSES.forEach(b=>{ if(b.portrait) getImg(b.portrait); });
 }
 
 function drawCirclePortrait(img, x, y, r){
