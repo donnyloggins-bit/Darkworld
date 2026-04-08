@@ -3204,7 +3204,7 @@ function headingLabel(h){
 // ══════════════════════════════════════════════════════
 //  AR ENGINE
 // ══════════════════════════════════════════════════════
-let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[],arLastFrameTime=0,arEnemyPositions={};
+let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[],arLastFrameTime=0,arEnemyPositions={},arEntityOpacity={};
 
 // ══════════════════════════════════════════════════════
 //  AR FILTER ENVIRONMENTS
@@ -3389,122 +3389,142 @@ function renderAR(){
   rvgrd.addColorStop(1,`rgba(0,0,0,${vigStrength})`);
   c.fillStyle=rvgrd; c.fillRect(0,0,W,H);
 
-  // Collect enemies in FOV — keep reference to original entity object
-  const visible=[];
+  // Collect candidates — bosses up to 0.5mi, mobs up to 0.15mi
+  const candidates=[];
   BOSSES.filter(b=>!b.defeated).forEach(b=>{
     const dist=distMiles(Player.lat,Player.lng,b.lat,b.lng);
     if(dist>MAX_DIST)return;
-    let diff=bearing(Player.lat,Player.lng,b.lat,b.lng)-arHeading;
-    if(diff>180)diff-=360; if(diff<-180)diff+=360;
-    if(Math.abs(diff)<FOV/2) visible.push({name:b.name,hp:b.hp,maxHp:b.maxHp,dist,diff,boss:true,entity:b});
+    let d=bearing(Player.lat,Player.lng,b.lat,b.lng)-arHeading;
+    if(d>180)d-=360; if(d<-180)d+=360;
+    if(Math.abs(d)<FOV/2+10) candidates.push({name:b.name,hp:b.hp,maxHp:b.maxHp,dist,diff:d,boss:true,entity:b});
   });
   spawns.filter(s=>!s.defeated).forEach(s=>{
     const dist=distMiles(Player.lat,Player.lng,s.lat,s.lng);
-    if(dist>MAX_DIST)return;
-    let diff=bearing(Player.lat,Player.lng,s.lat,s.lng)-arHeading;
-    if(diff>180)diff-=360; if(diff<-180)diff+=360;
-    if(Math.abs(diff)<FOV/2) visible.push({name:s.name,hp:s.hp,maxHp:s.maxHp,dist,diff,boss:false,entity:s});
+    if(dist>0.15)return;
+    let d=bearing(Player.lat,Player.lng,s.lat,s.lng)-arHeading;
+    if(d>180)d-=360; if(d<-180)d+=360;
+    if(Math.abs(d)<FOV/2+10) candidates.push({name:s.name,hp:s.hp,maxHp:s.maxHp,dist,diff:d,boss:false,entity:s});
   });
 
-  // Draw each enemy
-  visible.sort((a,b)=>b.dist-a.dist); // far to near (near on top)
+  // Bosses first, then closest mobs — cap at 3 total
+  candidates.sort((a,b)=>{
+    if(a.boss!==b.boss) return a.boss?-1:1;
+    return a.dist-b.dist;
+  });
+  const visible = candidates.slice(0,3);
+  const visKeys = new Set(visible.map(e=>e.entity.id??e.name));
+
+  // Fade opacity — in for visible, out for recently gone
+  Object.keys(arEntityOpacity).forEach(k=>{
+    if(!visKeys.has(isNaN(k)?k:Number(k)))
+      arEntityOpacity[k]=Math.max(0,arEntityOpacity[k]-dt*4);
+  });
   visible.forEach(e=>{
+    const k=e.entity.id??e.name;
+    arEntityOpacity[k]=Math.min(1,(arEntityOpacity[k]||0)+dt*3);
+  });
+
+  // Draw far→near
+  visible.sort((a,b)=>b.dist-a.dist);
+  visible.forEach((e,idx)=>{
+    const key=e.entity.id??e.name;
+    const opacity=arEntityOpacity[key]??0;
+    if(opacity<=0) return;
+
     const targetX=W/2+(e.diff/(FOV/2))*(W/2);
-    const key=e.entity.id!==undefined?e.entity.id:e.name;
     const prevX=arEnemyPositions[key]??targetX;
-    const sx=prevX+(targetX-prevX)*Math.min(1,dt/0.08);
+    const sx=prevX+(targetX-prevX)*Math.min(1,dt/0.1);
     arEnemyPositions[key]=sx;
     const x=sx;
     const proximity=1-e.dist/MAX_DIST;
-    const scale=0.6+proximity*0.6;
-    const sz=Math.floor(W*0.14*scale);
-    const yBase=H*(0.25+proximity*0.1);
-    // Store screen position for tap hit-testing
+    const scale=0.55+proximity*0.45;
+    const sz=Math.floor(W*0.13*scale);
+    const yBase=H*(0.22+proximity*0.08);
+
     arVisibleEnemies.push({entity:e.entity,isBoss:e.boss,x,yBase,sz});
 
-    // Glow
-    const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*1.8);
-    grd.addColorStop(0,e.boss?'rgba(184,150,42,0.35)':'rgba(180,30,30,0.3)');
-    grd.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*1.8,0,Math.PI*2); c.fill();
+    c.globalAlpha=opacity;
 
-    // Portrait (circular clip) or fallback silhouette
-    const arImg = e.entity.portrait ? getImg(e.entity.portrait) : null;
+    // Glow
+    const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*1.6);
+    grd.addColorStop(0,e.boss?'rgba(184,150,42,0.3)':'rgba(180,30,30,0.25)');
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*1.6,0,Math.PI*2); c.fill();
+
+    // Portrait circle
+    const r=sz*0.6;
+    const arImg=e.entity.portrait?getImg(e.entity.portrait):null;
     if(arImg){
       c.save();
-      c.beginPath(); c.arc(x,yBase,sz*0.62,0,Math.PI*2); c.clip();
-      c.drawImage(arImg, x-sz*0.62, yBase-sz*0.62, sz*1.24, sz*1.24);
+      c.beginPath(); c.arc(x,yBase,r,0,Math.PI*2); c.clip();
+      c.drawImage(arImg,x-r,yBase-r,r*2,r*2);
       c.restore();
-      // Ring border
-      c.beginPath(); c.arc(x,yBase,sz*0.62,0,Math.PI*2);
-      c.strokeStyle=e.boss?'rgba(255,200,60,0.8)':'rgba(200,60,60,0.7)';
-      c.lineWidth=2; c.stroke();
     } else {
-      // Fallback: dark circle with initial
-      c.beginPath(); c.arc(x,yBase,sz*0.55,0,Math.PI*2);
+      c.beginPath(); c.arc(x,yBase,r,0,Math.PI*2);
       c.fillStyle=e.boss?'rgba(60,40,10,0.9)':'rgba(60,10,10,0.9)'; c.fill();
-      c.strokeStyle=e.boss?'rgba(200,160,40,0.8)':'rgba(180,40,40,0.7)';
-      c.lineWidth=2; c.stroke();
-      c.font=`bold ${Math.floor(sz*0.5)}px "Share Tech Mono",monospace`;
+      c.font=`bold ${Math.floor(r)}px "Share Tech Mono",monospace`;
       c.fillStyle=e.boss?'#f0c040':'#e06060';
       c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(e.name[0], x, yBase);
+      c.fillText(e.name[0],x,yBase);
+    }
+    c.beginPath(); c.arc(x,yBase,r,0,Math.PI*2);
+    c.strokeStyle=e.boss?'rgba(255,200,60,0.9)':'rgba(200,60,60,0.8)';
+    c.lineWidth=2; c.stroke();
+
+    // Full info card only for closest (idx===visible.length-1 after far→near sort)
+    const isClosest = idx===visible.length-1;
+    const ft=Math.round(e.dist*5280);
+    const distTxt=ft<528?`${ft} ft`:`${ft} ft`;
+
+    if(isClosest){
+      const cardW=Math.min(W*0.5,200);
+      const cardH=72;
+      const cardX=x-cardW/2;
+      const cardY=yBase+r+6;
+      c.fillStyle='rgba(5,3,10,0.82)';
+      c.beginPath();
+      c.roundRect?c.roundRect(cardX,cardY,cardW,cardH,5):c.rect(cardX,cardY,cardW,cardH);
+      c.fill();
+      const ns=Math.max(12,Math.floor(15*scale));
+      c.font=`bold ${ns}px "Share Tech Mono",monospace`;
+      c.fillStyle=e.boss?'#f0c040':'#e8d8c0';
+      c.textAlign='center'; c.textBaseline='top';
+      c.fillText(e.name.toUpperCase(),x,cardY+8,cardW-10);
+      c.font=`${Math.max(11,Math.floor(13*scale))}px "Share Tech Mono",monospace`;
+      c.fillStyle=e.boss?'#ffaa00':'#ff5555';
+      c.fillText(distTxt,x,cardY+8+ns+4,cardW-10);
+      const bw=cardW-16,bh=5,bx=cardX+8,by=cardY+cardH-10;
+      c.fillStyle='rgba(30,10,10,0.9)'; c.fillRect(bx,by,bw,bh);
+      c.fillStyle=e.boss?'#c8a030':'#aa2020';
+      c.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
+
+      // Fight button
+      const btnW=Math.min(cardW,160),btnH=34;
+      const btnX=x-btnW/2,btnY=cardY+cardH+6;
+      const tooFar=e.boss&&gpsFirstLock&&e.dist>BOSS_ENGAGE_MILES;
+      c.fillStyle=tooFar?'rgba(40,30,60,0.85)':(e.boss?'rgba(200,150,0,0.92)':'rgba(180,30,30,0.92)');
+      c.beginPath();
+      c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,6):c.rect(btnX,btnY,btnW,btnH);
+      c.fill();
+      c.strokeStyle=tooFar?'rgba(120,80,160,0.6)':(e.boss?'rgba(255,220,60,0.9)':'rgba(255,80,80,0.9)');
+      c.lineWidth=1.5; c.stroke();
+      c.font=`bold ${Math.max(12,Math.floor(14*scale))}px "Share Tech Mono",monospace`;
+      c.fillStyle=tooFar?'rgba(180,140,220,0.7)':'#fff';
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(tooFar?'GET CLOSER':'FIGHT',x,btnY+btnH/2);
+      arVisibleEnemies[arVisibleEnemies.length-1].btnY=btnY+btnH/2;
+      arVisibleEnemies[arVisibleEnemies.length-1].btnW=btnW;
+      arVisibleEnemies[arVisibleEnemies.length-1].btnH=btnH;
+      arVisibleEnemies[arVisibleEnemies.length-1].tooFar=tooFar;
+    } else {
+      // Minimal label for background entities
+      c.font=`${Math.max(10,Math.floor(11*scale))}px "Share Tech Mono",monospace`;
+      c.fillStyle=e.boss?'rgba(255,200,60,0.7)':'rgba(220,150,150,0.6)';
+      c.textAlign='center'; c.textBaseline='top';
+      c.fillText(distTxt, x, yBase+r+4);
     }
 
-    // Info card background
-    const cardW=Math.min(W*0.55, 220);
-    const cardH=80;
-    const cardX=x-cardW/2;
-    const cardY=yBase+sz*0.6+8;
-    c.fillStyle='rgba(5,3,10,0.78)';
-    c.beginPath();
-    c.roundRect?c.roundRect(cardX,cardY,cardW,cardH,6):c.rect(cardX,cardY,cardW,cardH);
-    c.fill();
-
-    // Name
-    const nameSize=Math.max(14,Math.floor(18*scale));
-    c.font=`bold ${nameSize}px "Share Tech Mono",monospace`;
-    c.fillStyle=e.boss?'#f0c040':'#e8d8c0';
-    c.fillText(e.name.toUpperCase(),x,cardY+nameSize+4,cardW-12);
-
-    // Distance — large and readable
-    const ft=Math.round(e.dist*5280);
-    const distTxt=ft<528?`${ft} ft away`:`${(e.dist*5280|0)} ft away`;
-    const distSize=Math.max(16,Math.floor(20*scale));
-    c.font=`${distSize}px "Share Tech Mono",monospace`;
-    c.fillStyle=e.boss?'#ffaa00':'#ff4444';
-    c.fillText(distTxt,x,cardY+nameSize+distSize+10,cardW-12);
-
-    // HP bar
-    const bw=cardW-16,bh=6;
-    const bx=cardX+8,by=cardY+cardH-14;
-    c.fillStyle='rgba(30,10,10,0.9)'; c.fillRect(bx,by,bw,bh);
-    c.fillStyle=e.boss?'#c8a030':'#aa2020';
-    c.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
-
-    // FIGHT button below card — large tap target
-    const btnW=Math.min(cardW, 180);
-    const btnH=38;
-    const btnX=x-btnW/2;
-    const btnY=cardY+cardH+8;
-    const tooFar = e.boss && gpsFirstLock && e.dist > BOSS_ENGAGE_MILES;
-    const btnColor = tooFar ? 'rgba(40,30,60,0.85)' : (e.boss?'rgba(200,150,0,0.92)':'rgba(180,30,30,0.92)');
-    c.fillStyle=btnColor;
-    c.beginPath();
-    c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,8):c.rect(btnX,btnY,btnW,btnH);
-    c.fill();
-    c.strokeStyle=tooFar?'rgba(120,80,160,0.6)':(e.boss?'rgba(255,220,60,0.9)':'rgba(255,80,80,0.9)');
-    c.lineWidth=1.5; c.stroke();
-    const btnFontSize=Math.max(13,Math.floor(15*scale));
-    c.font=`bold ${btnFontSize}px "Share Tech Mono",monospace`;
-    c.fillStyle=tooFar?'rgba(180,140,220,0.7)':'#ffffff';
-    c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(tooFar?'⚠ GET CLOSER':'⚔ FIGHT',x,btnY+btnH/2);
-    // Store button data for hit-testing
-    arVisibleEnemies[arVisibleEnemies.length-1].btnY=btnY+btnH/2;
-    arVisibleEnemies[arVisibleEnemies.length-1].btnW=btnW;
-    arVisibleEnemies[arVisibleEnemies.length-1].btnH=btnH;
-    arVisibleEnemies[arVisibleEnemies.length-1].tooFar=tooFar;
+    c.globalAlpha=1;
   });
 
   // No enemies message
