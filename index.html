@@ -2052,19 +2052,19 @@ let selectedWorld = 'philadelphia';
 let CENTER, ZONES, ZONE_DESCS, BOSSES;
 
 const MOB_TYPES = [
-  {name:'Lich Servant',    emoji:'💀', zone:0, hp:125, atk:18, def:3, xp:800,  gold:[150,300]},
-  {name:'Void Shade',      emoji:'🌑', zone:0, hp:100, atk:20, def:2, xp:700,  gold:[120,250]},
-  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:69,  atk:10, def:1, xp:400,  gold:[80,180]},
-  {name:'Plague Hound',    emoji:'🐺', zone:1, hp:56,  atk:11, def:1, xp:350,  gold:[60,140]},
-  {name:'Bone Archer',     emoji:'🏹', zone:1, hp:50,  atk:11, def:1, xp:380,  gold:[70,160]},
-  {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:31,  atk:6,  def:1, xp:250,  gold:[50,120]},
-  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:25,  atk:8,  def:1, xp:220,  gold:[40,100]},
-  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:38,  atk:5,  def:2, xp:280,  gold:[50,110]},
-  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:11,  atk:2,  def:0, xp:120,  gold:[20,60]},
-  {name:'Bog Specter',     emoji:'💨', zone:3, hp:14,  atk:2,  def:0, xp:140,  gold:[20,70]},
-  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:8,   atk:1,  def:0, xp:80,   gold:[10,40]},
-  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:3,   atk:1,  def:0, xp:50,   gold:[5,25]},
-  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:3,   atk:1,  def:0, xp:45,   gold:[5,25]},
+  {name:'Lich Servant',    emoji:'💀', zone:0, hp:190, atk:38, def:10, xp:800,  gold:[150,300]},
+  {name:'Void Shade',      emoji:'🌑', zone:0, hp:160, atk:42, def:8,  xp:700,  gold:[120,250]},
+  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:130, atk:25, def:5,  xp:400,  gold:[80,180]},
+  {name:'Plague Hound',    emoji:'🐺', zone:1, hp:110, atk:28, def:4,  xp:350,  gold:[60,140]},
+  {name:'Bone Archer',     emoji:'🏹', zone:1, hp:100, atk:30, def:3,  xp:380,  gold:[70,160]},
+  {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:85,  atk:18, def:3,  xp:250,  gold:[50,120]},
+  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:70,  atk:20, def:2,  xp:220,  gold:[40,100]},
+  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:100, atk:16, def:6,  xp:280,  gold:[50,110]},
+  {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:48,  atk:12, def:1,  xp:120,  gold:[20,60]},
+  {name:'Bog Specter',     emoji:'💨', zone:3, hp:52,  atk:14, def:1,  xp:140,  gold:[20,70]},
+  {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:38,  atk:10, def:0,  xp:80,   gold:[10,40]},
+  {name:'Lost Soul',       emoji:'🕯', zone:4, hp:22,  atk:6,  def:0,  xp:50,   gold:[5,25]},
+  {name:'Shadow Imp',      emoji:'👿', zone:4, hp:20,  atk:7,  def:0,  xp:45,   gold:[5,25]},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -3585,7 +3585,7 @@ function combatTick(){
   setCBUI();
 }
 
-function startCombat(ent,boss){
+function startCombat(ent,boss){ sndCombatStart();
   inCombat=true; isBoss=boss; curEnemy=ent;
   eStatuses=[]; Player.statuses=[];
   Player.cooldowns={};
@@ -3820,12 +3820,14 @@ function playerAct(ability){
     if(overkill) setTimeout(()=>showDamageNum('OVERKILL','dmg-overkill','right'),400);
     if(comboUsed>0){
       setTimeout(()=>showDamageNum(`COMBO ×${comboUsed}!`,'dmg-crit','right'),250);
-      shakeScreen();
+      shakeScreen(); sndSignature();
       playerCombo=0;
     } else if(ability.type==='Basic'){
       playerCombo=Math.min(playerCombo+2,15);
+      sndPlayerAttack(); sndComboRise();
     } else if(ability.type==='Core'){
       playerCombo=Math.min(playerCombo+1,15);
+      sndPlayerAttack();
     }
     updateComboDisplay();
     if(dmg>=1000) flashScreen('white');
@@ -3975,6 +3977,7 @@ function doEnemyAttack(){
   if(Math.random()*100<dodgeChance){
     setCLog(`${e.name} attacks — you dodge!`);
     showDamageNum('DODGE','dmg-dodge','left');
+    sndDodge();
     anim('p-spr','hit-anim'); return;
   }
   // Holy Shield: 15% chance to block all damage
@@ -4037,8 +4040,11 @@ function triggerEnemyHit(e, dmg, special, isCrit){
                         : `${e.name} strikes for ${fmt(dmg)} damage.`;
   setCLog(label);
   addLog(`${e.name}: ${fmt(dmg)} dmg to you`,'lc');
-  if(isCrit) showDamageNum('ENEMY CRIT!','dmg-crit','left');
+  if(isCrit){ showDamageNum('ENEMY CRIT!','dmg-crit','left'); sndEnemyCrit(); }
+  else if(special){ sndEnemySpecial(); }
+  else { sndEnemyAttack(); }
   showDamageNum(fmt(dmg),getDmgClass(dmg),'left');
+  sndPlayerHit();
   anim('p-spr','hit-anim');
   if(special) flashEnemyAtk('flash-special');
 
@@ -4056,6 +4062,7 @@ function triggerEnemyHit(e, dmg, special, isCrit){
 
 // ── VICTORY ───────────────────────────────────────────
 function victory(){
+  sndVictory();
   playerCombo=0;
   const xpBase = curEnemy.xp||100;
   const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0)));
@@ -4093,6 +4100,7 @@ function victory(){
 let pendingLevelUps = [];
 
 function levelUp(){
+  sndLevelUp();
   if(Player.level >= 100) return;
   Player.xp -= Player.xpNext;
   Player.level++;
@@ -4224,7 +4232,7 @@ function doFlee(){
   }
 }
 
-function dead(){
+function dead(){ sndDeath();
   inCombat=false; stopCombatTimer();
   document.getElementById('combat-modal').classList.remove('active');
   document.getElementById('death-screen').classList.add('active');
@@ -4304,7 +4312,7 @@ function addLog(msg,cls='ls'){
   if(p.children.length>100)p.removeChild(p.children[0]);
 }
 
-function showLoot(txt){
+function showLoot(txt){ sndLoot();
   document.getElementById('loot-txt').textContent=txt;
   const pop=document.getElementById('loot-popup');
   pop.style.display='block';
@@ -4589,6 +4597,158 @@ function enterWorld(){
 //  GAME LOOP
 // ══════════════════════════════════════════════════════
 function gameLoop(){ if(!inCombat)render(); requestAnimationFrame(gameLoop); }
+
+// ══════════════════════════════════════════════════════
+//  SOUND ENGINE — Web Audio, no files
+// ══════════════════════════════════════════════════════
+let _audioCtx = null;
+let soundEnabled = true;
+
+function getAudioCtx(){
+  if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(_audioCtx.state==='suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+
+function playTone({ type='square', freq=220, freq2=null, gain=0.18, attack=0.01, decay=0.08, sustain=0.0, release=0.12, duration=0.25, detune=0, filter=null, filterFreq=800, filterQ=1 }={}){
+  if(!soundEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+
+    if(filter){
+      const f = ctx.createBiquadFilter();
+      f.type = filter;
+      f.frequency.value = filterFreq;
+      f.Q.value = filterQ;
+      osc.connect(f); f.connect(env);
+    } else {
+      osc.connect(env);
+    }
+    env.connect(ctx.destination);
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    if(freq2) osc.frequency.exponentialRampToValueAtTime(freq2, ctx.currentTime + duration);
+    if(detune) osc.detune.value = detune;
+
+    const t = ctx.currentTime;
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(gain, t + attack);
+    env.gain.linearRampToValueAtTime(gain * sustain, t + attack + decay);
+    env.gain.linearRampToValueAtTime(0, t + attack + decay + release);
+
+    osc.start(t);
+    osc.stop(t + attack + decay + release + 0.05);
+  } catch(e){}
+}
+
+function playNoise({ gain=0.15, attack=0.005, release=0.12, duration=0.15, filter='bandpass', filterFreq=400, filterQ=0.8 }={}){
+  if(!soundEnabled) return;
+  try{
+    const ctx = getAudioCtx();
+    const bufSize = ctx.sampleRate * (duration + release);
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i] = Math.random()*2-1;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const f = ctx.createBiquadFilter();
+    f.type = filter;
+    f.frequency.value = filterFreq;
+    f.Q.value = filterQ;
+    const env = ctx.createGain();
+    src.connect(f); f.connect(env); env.connect(ctx.destination);
+    const t = ctx.currentTime;
+    env.gain.setValueAtTime(0,t);
+    env.gain.linearRampToValueAtTime(gain, t+attack);
+    env.gain.exponentialRampToValueAtTime(0.001, t+attack+release);
+    src.start(t); src.stop(t+attack+release+0.05);
+  } catch(e){}
+}
+
+// ── SOUND EVENTS ──────────────────────────────────────
+
+function sndPlayerHit(){
+  playNoise({ gain:0.2, filterFreq:300, filterQ:1.2, attack:0.005, release:0.15 });
+  playTone({ type:'sawtooth', freq:180, freq2:80, gain:0.12, attack:0.005, decay:0.05, release:0.1, duration:0.15 });
+}
+
+function sndPlayerAttack(){
+  playNoise({ gain:0.12, filterFreq:900, filterQ:0.6, attack:0.002, release:0.07 });
+  playTone({ type:'square', freq:320, freq2:180, gain:0.08, attack:0.003, decay:0.04, release:0.06, duration:0.1 });
+}
+
+function sndCrit(){
+  playTone({ type:'sawtooth', freq:600, freq2:900, gain:0.22, attack:0.003, decay:0.05, release:0.18, duration:0.22 });
+  playNoise({ gain:0.25, filterFreq:2000, filterQ:0.5, attack:0.002, release:0.1 });
+}
+
+function sndSignature(){
+  // Rising power chord
+  playTone({ type:'sawtooth', freq:110, freq2:440, gain:0.25, attack:0.02, decay:0.1, release:0.3, duration:0.4 });
+  playTone({ type:'square',   freq:165, freq2:660, gain:0.15, attack:0.02, decay:0.1, release:0.3, duration:0.4, detune:7 });
+  playNoise({ gain:0.2, filterFreq:1200, filterQ:0.4, attack:0.01, release:0.25 });
+}
+
+function sndEnemyAttack(){
+  playTone({ type:'sawtooth', freq:90, freq2:60, gain:0.2, attack:0.008, decay:0.06, release:0.14, duration:0.2 });
+  playNoise({ gain:0.18, filterFreq:250, filterQ:1.5, attack:0.005, release:0.12 });
+}
+
+function sndEnemySpecial(){
+  playTone({ type:'sawtooth', freq:55, freq2:40, gain:0.3, attack:0.02, decay:0.15, release:0.4, duration:0.55 });
+  playNoise({ gain:0.28, filterFreq:180, filterQ:2.0, attack:0.01, release:0.35 });
+  setTimeout(()=>playTone({ type:'square', freq:200, freq2:80, gain:0.2, attack:0.005, decay:0.1, release:0.2, duration:0.3 }), 180);
+}
+
+function sndEnemyCrit(){
+  playTone({ type:'sawtooth', freq:400, freq2:100, gain:0.28, attack:0.003, decay:0.08, release:0.2, duration:0.28 });
+  playNoise({ gain:0.3, filterFreq:3000, filterQ:0.3, attack:0.002, release:0.15 });
+}
+
+function sndVictory(){
+  const notes = [261, 329, 392, 523];
+  notes.forEach((f,i) => setTimeout(()=>{
+    playTone({ type:'triangle', freq:f, gain:0.18, attack:0.02, decay:0.08, release:0.2, duration:0.3 });
+  }, i*90));
+}
+
+function sndDeath(){
+  playTone({ type:'sawtooth', freq:220, freq2:55, gain:0.3, attack:0.02, decay:0.3, release:0.8, duration:1.1 });
+  playNoise({ gain:0.2, filterFreq:150, filterQ:2, attack:0.01, release:0.7 });
+}
+
+function sndLevelUp(){
+  const notes = [392, 523, 659, 784];
+  notes.forEach((f,i) => setTimeout(()=>{
+    playTone({ type:'triangle', freq:f, gain:0.2, attack:0.01, decay:0.06, release:0.25, duration:0.3 });
+    playTone({ type:'sine', freq:f*2, gain:0.08, attack:0.01, decay:0.04, release:0.15, duration:0.2 });
+  }, i*80));
+}
+
+function sndCombatStart(){
+  playTone({ type:'sawtooth', freq:80, freq2:120, gain:0.22, attack:0.03, decay:0.2, release:0.4, duration:0.6 });
+  playNoise({ gain:0.15, filterFreq:200, filterQ:1, attack:0.02, release:0.3 });
+}
+
+function sndDodge(){
+  playTone({ type:'sine', freq:800, freq2:1200, gain:0.1, attack:0.003, decay:0.03, release:0.08, duration:0.11 });
+}
+
+function sndComboRise(){
+  playTone({ type:'sine', freq:440+(playerCombo*30), gain:0.07, attack:0.005, decay:0.02, release:0.06, duration:0.09 });
+}
+
+function sndLoot(){
+  playTone({ type:'triangle', freq:660, gain:0.14, attack:0.01, decay:0.05, release:0.18, duration:0.24 });
+  setTimeout(()=>playTone({ type:'triangle', freq:880, gain:0.12, attack:0.01, decay:0.04, release:0.15, duration:0.2 }), 120);
+}
+
+// Unlock audio context on first user interaction
+document.addEventListener('touchstart', ()=>getAudioCtx(), {once:true, passive:true});
+document.addEventListener('click',      ()=>getAudioCtx(), {once:true});
 
 // ── SERVICE WORKER ─────────────────────────────────────
 if('serviceWorker' in navigator){
