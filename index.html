@@ -974,10 +974,39 @@ body::before {
   display:block; margin-bottom:8px;
   filter:drop-shadow(0 0 20px rgba(107,0,0,0.5));
 }
-.c-sprite.atk-anim { animation:cAtk .25s ease; }
-.c-sprite.hit-anim { animation:cHit .3s ease; }
-@keyframes cAtk { 0%{transform:scale(1)} 40%{transform:scale(1.25) translateY(-8px)} 100%{transform:scale(1)} }
-@keyframes cHit { 0%,100%{transform:translate(0) scale(1)} 25%{transform:translate(-12px,4px) scale(0.93)} 60%{transform:translate(8px,-2px) scale(0.97)} }
+.c-sprite.atk-anim  { animation:cAtk .28s ease; }
+.c-sprite.hit-anim  { animation:cHit .32s ease; }
+.c-sprite.lunge-anim   { animation:eLunge .35s cubic-bezier(.2,0,.8,1); }
+.c-sprite.charge-anim  { animation:eCharge .4s ease; }
+.c-sprite.special-anim { animation:eSpecial .45s ease; }
+.c-sprite.crit-anim    { animation:eCrit .3s ease; }
+
+@keyframes cAtk    { 0%{transform:scale(1)} 40%{transform:scale(1.25) translateY(-8px)} 100%{transform:scale(1)} }
+@keyframes cHit    { 0%,100%{transform:translate(0) scale(1)} 25%{transform:translate(-14px,6px) scale(0.9)} 60%{transform:translate(8px,-3px) scale(0.97)} }
+@keyframes eLunge  { 0%{transform:scale(1) translateY(0)} 35%{transform:scale(1.35) translateY(28px)} 65%{transform:scale(1.15) translateY(18px)} 100%{transform:scale(1) translateY(0)} }
+@keyframes eCharge { 0%{transform:scale(1);filter:drop-shadow(0 0 0px transparent)} 60%{transform:scale(1.3);filter:drop-shadow(0 0 18px rgba(255,140,0,0.9))} 100%{transform:scale(1);filter:drop-shadow(0 0 0px transparent)} }
+@keyframes eSpecial{ 0%{transform:scale(1) translateY(0);filter:drop-shadow(0 0 0 transparent)} 20%{transform:scale(1.5) translateY(-6px);filter:drop-shadow(0 0 24px rgba(255,60,0,1))} 60%{transform:scale(1.6) translateY(36px);filter:drop-shadow(0 0 30px rgba(255,20,0,1))} 100%{transform:scale(1) translateY(0);filter:none} }
+@keyframes eCrit   { 0%{transform:scale(1);filter:none} 30%{transform:scale(1.8) translateY(20px);filter:drop-shadow(0 0 30px rgba(255,255,255,1)) brightness(3)} 70%{transform:scale(1.2) translateY(10px)} 100%{transform:scale(1) translateY(0);filter:none} }
+
+/* Hit flash overlays */
+#enemy-atk-flash {
+  position:absolute; inset:0; pointer-events:none; z-index:5; opacity:0;
+  background:radial-gradient(ellipse at 50% 80%, rgba(200,20,0,0.55) 0%, transparent 70%);
+}
+#enemy-atk-flash.flash-normal  { animation:flashNormal .35s ease; }
+#enemy-atk-flash.flash-special { animation:flashSpecial .5s ease; }
+#enemy-atk-flash.flash-crit    { animation:flashCrit .3s ease; }
+@keyframes flashNormal  { 0%{opacity:0} 20%{opacity:1} 100%{opacity:0} }
+@keyframes flashSpecial { 0%{opacity:0} 10%{opacity:0} 35%{opacity:1} 100%{opacity:0} }
+@keyframes flashCrit    { 0%{opacity:0} 15%{opacity:1} 40%{opacity:.7} 100%{opacity:0} }
+
+/* Boss charge warning — darkens top area */
+#boss-charge-veil {
+  position:absolute; inset:0; pointer-events:none; z-index:4; opacity:0;
+  background:rgba(0,0,0,0.65);
+  transition:opacity .25s ease;
+}
+#boss-charge-veil.active { opacity:1; }
 #cb-ehp-wrap {
   width:100%; max-width:320px; margin-bottom:3px;
 }
@@ -1661,6 +1690,8 @@ body::before {
 
     <!-- ENEMY TOP -->
     <div id="cb-top">
+      <div id="boss-charge-veil"></div>
+      <div id="enemy-atk-flash"></div>
       <img id="boss-portrait" src="" alt="" style="display:none;width:100%;max-height:220px;object-fit:cover;object-position:top;border-bottom:2px solid #b8962a;margin-bottom:6px;">
       <div id="cb-name">ENEMY</div>
       <div id="cb-type">TYPE</div>
@@ -3939,10 +3970,45 @@ function doEnemyAttack(){
   }
 
   // Damage
-  const special=isBoss&&Math.random()<0.15;
+  const isCrit = Math.random()<0.04;
+  const special = isBoss && Math.random()<0.15;
   let dmg=Math.floor(e.atk*(special?1.5:1.0)*(0.85+Math.random()*0.3));
   dmg=Math.max(1,dmg-Math.floor(Player.def*0.5));
-  if(Math.random()<0.04){ dmg=Math.floor(dmg*1.7); showDamageNum('ENEMY CRIT!','dmg-crit','left'); }
+  if(isCrit){ dmg=Math.floor(dmg*1.7); }
+
+  if(special){
+    // Boss special: charge-up veil → pause → slam
+    const veil=document.getElementById('boss-charge-veil');
+    veil.classList.add('active');
+    anim('e-spr','charge-anim');
+    setTimeout(()=>{
+      veil.classList.remove('active');
+      anim('e-spr','special-anim');
+      triggerEnemyHit(e, dmg, true, false);
+      shakeScreen(); shakeScreen();
+    }, 420);
+  } else if(isCrit){
+    anim('e-spr','crit-anim');
+    flashEnemyAtk('flash-crit');
+    setTimeout(()=>{ shakeScreen(); }, 100);
+    triggerEnemyHit(e, dmg, false, true);
+  } else {
+    anim('e-spr','lunge-anim');
+    flashEnemyAtk('flash-normal');
+    triggerEnemyHit(e, dmg, false, false);
+  }
+
+}
+
+function flashEnemyAtk(cls){
+  const f=document.getElementById('enemy-atk-flash');
+  f.className='';
+  void f.offsetWidth; // reflow
+  f.className=cls;
+  setTimeout(()=>{ f.className=''; },500);
+}
+
+function triggerEnemyHit(e, dmg, special, isCrit){
   Player.hp=Math.max(0,Player.hp-dmg);
   // Hit breaks combo
   if(playerCombo>0){
@@ -3951,13 +4017,17 @@ function doEnemyAttack(){
     updateComboDisplay();
     if(lost>0) setTimeout(()=>showDamageNum(`-${lost} COMBO`,'dmg-dodge','left'),300);
   }
-  setCLog(special?`${e.name} unleashes devastation! ${fmt(dmg)} damage!`:`${e.name} strikes for ${fmt(dmg)} damage.`);
+  const label = special ? `${e.name} unleashes devastation! ${fmt(dmg)} damage!`
+                        : isCrit ? `ENEMY CRIT! ${e.name} hits for ${fmt(dmg)}!`
+                        : `${e.name} strikes for ${fmt(dmg)} damage.`;
+  setCLog(label);
   addLog(`${e.name}: ${fmt(dmg)} dmg to you`,'lc');
+  if(isCrit) showDamageNum('ENEMY CRIT!','dmg-crit','left');
   showDamageNum(fmt(dmg),getDmgClass(dmg),'left');
-  anim('e-spr','atk-anim'); anim('p-spr','hit-anim');
-  if(special) shakeScreen();
+  anim('p-spr','hit-anim');
+  if(special) flashEnemyAtk('flash-special');
 
-  // Titan revive: if hp drops to 0 and titan skill and not yet used, revive at 20%
+  // Titan revive
   if(Player.hp<=0 && Player.skills?.t3==='titan' && !Player.titanUsed){
     Player.hp = Math.floor(Player.maxHp*0.20);
     Player.titanUsed = true;
@@ -3965,7 +4035,6 @@ function doEnemyAttack(){
     showDamageNum('TITAN REVIVE!','dmg-heal','left');
     setCBUI(); return;
   }
-
   setCBUI();
   if(Player.hp<=0){ setTimeout(()=>dead(),500); }
 }
