@@ -1555,6 +1555,17 @@ body::before {
       <div class="intro-line accent">He's still open. Cash only.</div>
     </div>
   </div>
+
+  <!-- SLIDE 4: The gate -->
+  <div class="intro-slide" id="intro-slide-3">
+    <div class="intro-bg" style="background-image:url('hellgate.png'); background-position:center center;"></div>
+    <div class="intro-text-block">
+      <div class="intro-line">Every basement door in the city leads somewhere now.</div>
+      <div class="intro-line">Every staircase down.</div>
+      <div class="intro-line">Every shadow that moves when nothing's there.</div>
+      <div class="intro-line accent">Philadelphia has fallen.</div>
+    </div>
+  </div>
 </div>
 
 <!-- ══ TITLE ══ -->
@@ -1955,6 +1966,7 @@ const WORLDS = {
     subtitle: 'THE FALLEN CITY',
     emoji: '🏙',
     color: '#cc3030',
+    cardBg: 'philly-skyline.png',
     desc: 'The ancient city rots under Malechar\'s curse. Venture into the heart of darkness.',
     center: {lat:39.9492, lng:-75.1719},
     zones: [
@@ -4515,7 +4527,7 @@ function introAdvance(){
     document.getElementById('intro-tap-hint').style.opacity = '1';
     return;
   }
-  if(introSlide < 2){
+  if(introSlide < 3){
     introSlide++;
     document.getElementById('intro-tap-hint').style.opacity = '0';
     showIntroSlide(introSlide);
@@ -4619,16 +4631,24 @@ function renderWorldCards(){
     <div onclick="pickWorld('${w.key}')" style="
       background:linear-gradient(160deg,#1e1a30,#12101e);
       border:2px solid #3a2a50; border-radius:12px;
-      padding:20px; cursor:pointer; transition:all .2s;
+      overflow:hidden; cursor:pointer; transition:all .2s;
       -webkit-tap-highlight-color:transparent;
     " onpointerdown="this.style.borderColor='${w.color}';this.style.boxShadow='0 0 20px ${w.color}44'"
        onpointerup="this.style.borderColor='#3a2a50';this.style.boxShadow=''">
-      <div style="font-size:2.5rem;text-align:center;margin-bottom:8px;">${w.emoji}</div>
-      <div style="font-family:'Metal Mania',cursive;font-size:1.1rem;color:var(--gold);text-align:center;letter-spacing:.1em;">${w.name}</div>
-      <div style="font-size:.82rem;color:var(--crimson);text-align:center;letter-spacing:.3em;font-style:italic;margin:4px 0 10px;">${w.subtitle}</div>
-      <div style="font-size:.88rem;color:#a090b8;text-align:center;line-height:1.5;">${w.desc}</div>
-      <div style="margin-top:12px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:${w.color};letter-spacing:.1em;">
-        ${w.bosses.length} BOSSES · ${w.zones.length} ZONES
+      ${w.cardBg ? `<div style="width:100%;height:140px;background-image:url('${w.cardBg}');background-size:cover;background-position:center top;position:relative;">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(13,10,28,0.95) 100%);"></div>
+        <div style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font-family:'Metal Mania',cursive;font-size:1.3rem;color:var(--gold);letter-spacing:.12em;text-shadow:0 0 12px rgba(0,0,0,0.9);">${w.name}</div>
+        <div style="position:absolute;bottom:-2px;left:0;right:0;text-align:center;font-size:.72rem;color:var(--crimson);letter-spacing:.3em;font-style:italic;text-shadow:0 0 8px rgba(0,0,0,0.9);">${w.subtitle}</div>
+      </div>` : `<div style="padding:20px 20px 0">
+        <div style="font-size:2.5rem;text-align:center;margin-bottom:8px;">${w.emoji}</div>
+        <div style="font-family:'Metal Mania',cursive;font-size:1.1rem;color:var(--gold);text-align:center;letter-spacing:.1em;">${w.name}</div>
+        <div style="font-size:.82rem;color:var(--crimson);text-align:center;letter-spacing:.3em;font-style:italic;margin:4px 0;">${w.subtitle}</div>
+      </div>`}
+      <div style="padding:12px 20px 16px;">
+        <div style="font-size:.88rem;color:#a090b8;text-align:center;line-height:1.5;">${w.desc}</div>
+        <div style="margin-top:10px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:${w.color};letter-spacing:.1em;">
+          ${w.bosses.length} BOSSES · ${w.zones.length} ZONES
+        </div>
       </div>
     </div>
   `).join('');
