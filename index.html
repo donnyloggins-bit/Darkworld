@@ -3051,48 +3051,63 @@ function checkBossHover(cx, cy){
   }
   if(bossTooltipVisible){ bossTooltip.style.display='none'; bossTooltipVisible=false; }
 }
-canvas.addEventListener('mousemove', e=>{ checkBossHover(e.clientX, e.clientY); });
-canvas.addEventListener('mouseleave', ()=>{ bossTooltip.style.display='none'; bossTooltipVisible=false; });
-canvas.addEventListener('touchmove', e=>{
-  if(e.touches.length===1 && !isPinching){
-    const t=e.touches[0];
-    checkBossHover(t.clientX, t.clientY);
-  }
-},{passive:true});
-let pinchDist=0, pinchZoom=1, isPinching=false, pinchStart={x:0,y:0}, pinchView={x:0,y:0};
+// Mouse pan
+let mouseDragging=false, mouseDragX=0, mouseDragY=0, mouseMoved=false;
+canvas.addEventListener('mousedown',e=>{ mouseDragging=true; mouseMoved=false; mouseDragX=e.clientX; mouseDragY=e.clientY; });
+canvas.addEventListener('mousemove',e=>{
+  checkBossHover(e.clientX, e.clientY);
+  if(!mouseDragging) return;
+  const dx=e.clientX-mouseDragX, dy=e.clientY-mouseDragY;
+  if(Math.abs(dx)>3||Math.abs(dy)>3) mouseMoved=true;
+  viewX+=dx; viewY+=dy; mouseDragX=e.clientX; mouseDragY=e.clientY; render();
+});
+canvas.addEventListener('mouseup',e=>{ if(!mouseMoved) handleClick(e.clientX,e.clientY); mouseDragging=false; });
+canvas.addEventListener('mouseleave',()=>{ mouseDragging=false; bossTooltip.style.display='none'; bossTooltipVisible=false; });
+
+// Touch pan + pinch zoom
+let pinchDist=0, pinchZoom=1, isPinching=false, pinchView={x:0,y:0};
+let touchStartX=0, touchStartY=0, touchMoved=false;
 function touchDist(t){ return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY); }
 function touchMid(t){ return {x:(t[0].clientX+t[1].clientX)/2, y:(t[0].clientY+t[1].clientY)/2}; }
 
 canvas.addEventListener('touchstart',e=>{
   if(e.touches.length===2){
-    isPinching=true;
+    isPinching=true; touchMoved=false;
     pinchDist=touchDist(e.touches);
     pinchZoom=zoom;
-    pinchStart=touchMid(e.touches);
     pinchView={x:viewX,y:viewY};
   } else {
-    isPinching=false;
+    isPinching=false; touchMoved=false;
+    touchStartX=e.touches[0].clientX;
+    touchStartY=e.touches[0].clientY;
   }
 },{passive:true});
 
 canvas.addEventListener('touchmove',e=>{
   if(e.touches.length===2){
     e.preventDefault();
-    isPinching=true;
+    isPinching=true; touchMoved=true;
     const dist=touchDist(e.touches);
     const mid=touchMid(e.touches);
     const newZoom=Math.max(0.3,Math.min(4, pinchZoom*(dist/pinchDist)));
     const zoomRatio=newZoom/zoom;
     viewX=mid.x-(mid.x-pinchView.x)*zoomRatio;
     viewY=mid.y-(mid.y-pinchView.y)*zoomRatio;
-    zoom=newZoom;
+    zoom=newZoom; render();
+  } else if(e.touches.length===1 && !isPinching){
+    const t=e.touches[0];
+    const dx=t.clientX-touchStartX, dy=t.clientY-touchStartY;
+    if(Math.abs(dx)>4||Math.abs(dy)>4){ touchMoved=true; }
+    viewX+=dx; viewY+=dy;
+    touchStartX=t.clientX; touchStartY=t.clientY;
+    checkBossHover(t.clientX, t.clientY);
     render();
   }
 },{passive:false});
 
 canvas.addEventListener('touchend',e=>{
   if(e.touches.length<2) isPinching=false;
-  if(e.changedTouches.length===1&&!isPinching){
+  if(!touchMoved && e.changedTouches.length===1){
     const t=e.changedTouches[0];
     handleClick(t.clientX,t.clientY);
   }
