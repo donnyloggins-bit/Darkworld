@@ -818,6 +818,15 @@ body::before {
   cursor:pointer; z-index:5;
 }
 #inv-btn:hover { border-color:var(--gold); color:var(--gold); }
+#quest-btn {
+  position:absolute; bottom:106px; right:14px;
+  background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
+  color:#9a88b8; font-family:'Share Tech Mono',monospace;
+  font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
+  cursor:pointer; z-index:5;
+}
+#quest-btn:hover { border-color:var(--gold); color:var(--gold); }
+#quest-btn.has-active { border-color:#d4a830; color:#d4a830; animation:sigPulse 2s ease infinite; }
 
 #sb-title {
   padding:14px 16px 10px;
@@ -1657,6 +1666,7 @@ body::before {
     <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER ON ME</button>
     <button id="menu-btn" onclick="toggleSidebar()">☰ STATS</button>
     <button id="inv-btn" onclick="openInventory()">⚔ GEAR</button>
+    <button id="quest-btn" onclick="openQuestLog()">📜 QUESTS</button>
   </div>
 
   <div id="sidebar">
@@ -1759,6 +1769,35 @@ body::before {
 <div id="loot-popup">
   <div class="loot-t">⚰ SPOILS OF BATTLE</div>
   <div class="loot-i" id="loot-txt"></div>
+</div>
+
+<!-- ══ NPC DIALOGUE MODAL ══ -->
+<div id="npc-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.85);display:none;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:30px;">
+  <div style="width:100%;max-width:400px;background:linear-gradient(170deg,#1a1528,#0d0a1c);border:1px solid #3a2a50;border-radius:14px 14px 0 0;padding:0 0 20px;overflow:hidden;">
+    <div id="npc-portrait-wrap" style="width:100%;height:160px;background-size:cover;background-position:center top;position:relative;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,#1a1528 100%);"></div>
+      <div style="position:absolute;bottom:10px;left:16px;">
+        <div id="npc-name" style="font-family:'Metal Mania',cursive;font-size:1.1rem;color:var(--gold);letter-spacing:.08em;text-shadow:0 0 10px rgba(0,0,0,0.9);"></div>
+        <div id="npc-title" style="font-size:.72rem;color:#8878a8;letter-spacing:.1em;margin-top:2px;"></div>
+      </div>
+    </div>
+    <div id="npc-lines" style="padding:14px 18px 0;min-height:80px;"></div>
+    <div style="padding:14px 18px 0;display:flex;gap:10px;">
+      <button id="npc-accept-btn" onclick="acceptQuestFromNPC()" style="display:none;flex:1;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:.85rem;letter-spacing:.08em;padding:10px;border-radius:6px;cursor:pointer;">ACCEPT QUEST</button>
+      <button onclick="closeNPC()" style="flex:1;background:transparent;border:1px solid #3a2a50;color:#8878a8;font-family:'Share Tech Mono',monospace;font-size:.85rem;letter-spacing:.08em;padding:10px;border-radius:6px;cursor:pointer;">LEAVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUEST LOG MODAL ══ -->
+<div id="quest-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.88);flex-direction:column;align-items:center;padding:20px 16px;overflow-y:auto;">
+  <div style="width:100%;max-width:400px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-family:'Metal Mania',cursive;font-size:1.2rem;color:var(--gold);letter-spacing:.15em;">QUEST LOG</div>
+      <button onclick="closeQuestLog()" style="background:transparent;border:1px solid #3a2a50;color:#8878a8;font-family:'Share Tech Mono',monospace;font-size:.8rem;padding:6px 12px;border-radius:6px;cursor:pointer;">✕ CLOSE</button>
+    </div>
+    <div id="quest-log-content"></div>
+  </div>
 </div>
 
 <!-- ══ INVENTORY MODAL ══ -->
@@ -2061,6 +2100,85 @@ const WORLDS = {
 
 let selectedWorld = 'philadelphia';
 
+// ══════════════════════════════════════════════════════
+//  NPCS
+// ══════════════════════════════════════════════════════
+const NPCS = [
+  {
+    id: 'chef_alonzo',
+    name: 'Chef Alonzo',
+    title: 'Head Chef · The Iron Meridian',
+    lat: 39.9476, lng: -75.1370,
+    portrait: 'chef-alonzo.png',
+    color: '#d4a830',
+    world: 'philadelphia',
+    dialogues: {
+      available:  ["Three nights now, something's moving below deck.", "I got a dinner service to run. I'm not going down there.", "You look capable. Take care of it — I'll make it worth your while."],
+      active_0:   ["You hear them at night? The sailors.", "They never left.", "Clear them out. Please."],
+      active_1:   ["The drowned — that's one thing.", "But there's an officer down there giving orders.", "He's the one you want."],
+      complete:   ["It's quiet tonight. First time in weeks.", "Don't tell anyone what you found down there.", "Here. You've earned it."],
+    },
+    quest: 'last_seating',
+  },
+];
+
+// ══════════════════════════════════════════════════════
+//  DUNGEONS
+// ══════════════════════════════════════════════════════
+const DUNGEONS = [
+  {
+    id: 'iron_meridian',
+    name: 'THE IRON MERIDIAN',
+    subtitle: 'Haunted Warship · Dinner Cruise',
+    lat: 39.9465, lng: -75.1374,
+    color: '#2255cc',
+    world: 'philadelphia',
+    locked: true,
+    lockMsg: 'Requires a party of 2+',
+    portrait: 'iron-meridian.png',
+  },
+];
+
+// ══════════════════════════════════════════════════════
+//  QUESTS
+// ══════════════════════════════════════════════════════
+const QUESTS = [
+  {
+    id: 'last_seating',
+    name: 'Last Seating',
+    location: 'The Iron Meridian · Delaware Waterfront',
+    type: 'SOLO',
+    color: '#d4a830',
+    world: 'philadelphia',
+    npcId: 'chef_alonzo',
+    stages: [
+      { desc: 'Speak with Chef Alonzo at the waterfront dock',          type: 'accept' },
+      { desc: 'Clear the lower deck',  detail: '0/3 Drowned Sailors',  type: 'kill',   mob: 'Drowned Sailor', count: 3 },
+      { desc: 'Defeat the Iron Officer on the main deck',               type: 'kill',   mob: 'Iron Officer',   count: 1 },
+    ],
+    reward: { xp: 3000, gold: [600, 1200] },
+    rewardDesc: '+3,000 XP  ·  600–1,200 Gold',
+  },
+  {
+    id: 'broken_treaty',
+    name: 'The Broken Treaty',
+    location: 'Penn Treaty Park · Fishtown',
+    type: 'BOSS CHAIN',
+    color: '#44bb55',
+    world: 'philadelphia',
+    npcId: null,
+    lat: 39.9731, lng: -75.1261,
+    stages: [
+      { desc: 'Defeat The River Wraith at the Delaware Waterfront',  type: 'boss', bossName: 'THE RIVER WRAITH' },
+      { desc: 'Defeat The Bridge Troll at Ben Franklin Bridge',      type: 'boss', bossName: 'THE BRIDGE TROLL' },
+    ],
+    reward: { xp: 5500, gold: [800, 1600] },
+    rewardDesc: '+5,500 XP  ·  800–1,600 Gold  ·  Penn Treaty Sigil',
+  },
+];
+
+let playerQuests = {}; // { questId: { stage, kills:{}, status:'available'|'active'|'complete' } }
+
 let CENTER, ZONES, ZONE_DESCS, BOSSES;
 
 const MOB_TYPES = [
@@ -2077,6 +2195,9 @@ const MOB_TYPES = [
   {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:38,  atk:10, def:0,  xp:80,   gold:[10,40],   portrait:'cursedrat.jpeg'},
   {name:'Lost Soul',       emoji:'🕯', zone:4, hp:22,  atk:6,  def:0,  xp:50,   gold:[5,25],    portrait:'lostsoul.jpeg'},
   {name:'Shadow Imp',      emoji:'👿', zone:4, hp:20,  atk:7,  def:0,  xp:45,   gold:[5,25],    portrait:'shadowimp.jpeg'},
+  // ── Quest mobs ──
+  {name:'Drowned Sailor',  emoji:'⚓', zone:1, hp:145, atk:30, def:7,  xp:460,  gold:[90,200],  portrait:'drowned-sailor.png', questOnly:true},
+  {name:'Iron Officer',    emoji:'🗡', zone:0, hp:390, atk:98, def:26, xp:1250, gold:[220,480], portrait:'iron-officer.png',   questOnly:true, isMini:true},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -2857,6 +2978,8 @@ function getImg(src){
 function preloadPortraits(){
   MOB_TYPES.forEach(m=>{ if(m.portrait) getImg(m.portrait); });
   if(BOSSES) BOSSES.forEach(b=>{ if(b.portrait) getImg(b.portrait); });
+  NPCS.forEach(n=>{ if(n.portrait) getImg(n.portrait); });
+  DUNGEONS.forEach(d=>{ if(d.portrait) getImg(d.portrait); });
 }
 
 function drawCirclePortrait(img, x, y, r){
@@ -2952,6 +3075,9 @@ function render(){
   drawGrid(); drawZones(); drawPaths();
   spawns.forEach(s=>{ if(!s.defeated)drawMob(s); });
   BOSSES.forEach(b=>{ if(!b.defeated)drawBoss(b); });
+  drawQuestMarkers();
+  drawNPCs();
+  drawDungeons();
   drawPlayer();
 }
 
@@ -3078,6 +3204,101 @@ function drawPlayer(){
   }
 }
 
+function drawNPCs(){
+  if(!selectedWorld) return;
+  const worldNpcs = NPCS.filter(n=>n.world===selectedWorld);
+  worldNpcs.forEach(npc=>{
+    const qs = playerQuests[npc.quest];
+    if(qs && qs.status==='complete') return; // hide NPC after quest done
+    const p=ll2px(npc.lat,npc.lng);
+    const r=Math.max(8,10*zoom);
+    const t=Date.now()/800;
+    // Glow pulse
+    const pulse=r*(1.5+0.3*Math.sin(t));
+    ctx.beginPath(); ctx.arc(p.x,p.y,pulse,0,Math.PI*2);
+    ctx.fillStyle='rgba(212,168,48,0.15)'; ctx.fill();
+    // Portrait circle
+    const img=getImg(npc.portrait);
+    if(img){ drawCirclePortrait(img,p.x,p.y,r); }
+    else {
+      ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+      ctx.fillStyle='#1a1528'; ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.strokeStyle='#d4a830'; ctx.lineWidth=2; ctx.stroke();
+    // ! badge
+    ctx.beginPath(); ctx.arc(p.x+r*0.7,p.y-r*0.7,r*0.45,0,Math.PI*2);
+    ctx.fillStyle=qs&&qs.status==='active'?'#4488ff':'#d4a830'; ctx.fill();
+    ctx.font=`bold ${Math.max(7,7*zoom)}px sans-serif`;
+    ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(qs&&qs.status==='active'?'?':'!',p.x+r*0.7,p.y-r*0.7);
+    if(zoom>0.7){
+      ctx.font=`${Math.max(6,6*zoom)}px "Share Tech Mono"`;
+      ctx.fillStyle='#d4a830'; ctx.textBaseline='top'; ctx.textAlign='center';
+      ctx.fillText(npc.name,p.x,p.y+r+3);
+    }
+  });
+}
+
+function drawQuestMarkers(){
+  if(!selectedWorld) return;
+  QUESTS.filter(q=>q.world===selectedWorld && !q.npcId && q.lat).forEach(q=>{
+    const qs=playerQuests[q.id];
+    if(qs&&qs.status==='complete') return;
+    const p=ll2px(q.lat,q.lng);
+    const r=Math.max(8,10*zoom);
+    const t=Date.now()/900;
+    ctx.beginPath(); ctx.arc(p.x,p.y,r*(1.4+0.3*Math.sin(t)),0,Math.PI*2);
+    ctx.fillStyle=`rgba(68,187,85,0.15)`; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fillStyle='#0d1a10'; ctx.fill();
+    ctx.strokeStyle=qs&&qs.status==='active'?'#4488ff':'#44bb55'; ctx.lineWidth=2; ctx.stroke();
+    ctx.font=`bold ${Math.max(8,9*zoom)}px serif`;
+    ctx.fillStyle=qs&&qs.status==='active'?'#4488ff':'#44bb55';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(qs&&qs.status==='active'?'?':'!',p.x,p.y);
+    if(zoom>0.7){
+      ctx.font=`${Math.max(6,6*zoom)}px "Share Tech Mono"`;
+      ctx.fillStyle='#44bb55'; ctx.textBaseline='top';
+      ctx.fillText(q.name,p.x,p.y+r+3);
+    }
+  });
+}
+
+function drawDungeons(){
+  if(!selectedWorld) return;
+  DUNGEONS.filter(d=>d.world===selectedWorld).forEach(d=>{
+    const p=ll2px(d.lat,d.lng);
+    const r=Math.max(11,14*zoom);
+    const t=Date.now()/1200;
+    ctx.beginPath(); ctx.arc(p.x,p.y,r*(1.3+0.2*Math.sin(t)),0,Math.PI*2);
+    ctx.fillStyle='rgba(34,85,204,0.15)'; ctx.fill();
+    const img=getImg(d.portrait);
+    if(img){ drawCirclePortrait(img,p.x,p.y,r); }
+    else {
+      ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+      ctx.fillStyle='#0a0d1a'; ctx.fill();
+      ctx.font=`${Math.max(10,12*zoom)}px serif`;
+      ctx.fillStyle='#2255cc'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('⚓',p.x,p.y);
+    }
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.strokeStyle='#2255cc'; ctx.lineWidth=2.5; ctx.stroke();
+    if(d.locked){
+      ctx.beginPath(); ctx.arc(p.x+r*0.65,p.y-r*0.65,r*0.4,0,Math.PI*2);
+      ctx.fillStyle='#112244'; ctx.fill();
+      ctx.font=`${Math.max(6,7*zoom)}px serif`;
+      ctx.fillStyle='#5577cc'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('🔒',p.x+r*0.65,p.y-r*0.65);
+    }
+    if(zoom>0.6){
+      ctx.font=`${Math.max(6,6*zoom)}px "Share Tech Mono"`;
+      ctx.fillStyle='#2255cc'; ctx.textBaseline='top'; ctx.textAlign='center';
+      ctx.fillText(d.name,p.x,p.y+r+3);
+    }
+  });
+}
+
 // ══════════════════════════════════════════════════════
 //  INPUT
 // ══════════════════════════════════════════════════════
@@ -3174,6 +3395,32 @@ const BOSS_ENGAGE_MILES=0.05; // ~264 ft — bosses must be approached
 
 function handleClick(cx,cy){
   if(inCombat)return;
+  // NPCs
+  for(const npc of NPCS){
+    if(npc.world!==selectedWorld)continue;
+    const qs=playerQuests[npc.quest];
+    if(qs&&qs.status==='complete')continue;
+    const p=ll2px(npc.lat,npc.lng);
+    if(Math.hypot(cx-p.x,cy-p.y)<Math.max(14,14*zoom)){
+      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,npc.lat,npc.lng)>ENGAGE_MILES){
+        addLog(`⚠ Move closer to speak with ${npc.name}.`,'ls'); return;
+      }
+      openNPCDialogue(npc); return;
+    }
+  }
+  // Quest markers (no NPC)
+  for(const q of QUESTS){
+    if(q.world!==selectedWorld||q.npcId||!q.lat)continue;
+    const qs=playerQuests[q.id];
+    if(qs&&qs.status==='complete')continue;
+    const p=ll2px(q.lat,q.lng);
+    if(Math.hypot(cx-p.x,cy-p.y)<Math.max(14,14*zoom)){
+      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,q.lat,q.lng)>ENGAGE_MILES){
+        addLog(`⚠ Move closer to the quest marker.`,'ls'); return;
+      }
+      openQuestMarkerDialogue(q); return;
+    }
+  }
   for(const b of BOSSES){
     if(b.defeated)continue;
     const p=ll2px(b.lat,b.lng);
@@ -4165,6 +4412,7 @@ function victory(){
   Player.xp+=xp; Player.gold+=gold;
   curEnemy.defeated=true; curEnemy.hp=0;
   curEnemy.poisonStacks=0;
+  onEntityKilled(curEnemy.name, isBoss);
   // Bloodthirst: heal 5% max HP on kill
   if(Player.skills?.classUnique && Player.className==='Fighter'){
     const h=Math.floor(Player.maxHp*0.05);
@@ -4459,6 +4707,7 @@ function saveGame(){
     },
     bossStates: BOSSES.map(b => b.defeated || false),
     world: selectedWorld,
+    quests: JSON.parse(JSON.stringify(playerQuests)),
     savedAt: Date.now(),
   };
   localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -4542,6 +4791,208 @@ function introSkip(){
   document.getElementById('screen-title').classList.add('active');
 }
 
+// ══════════════════════════════════════════════════════
+//  QUEST SYSTEM
+// ══════════════════════════════════════════════════════
+
+function initQuestState(){
+  // Ensure every quest has a state entry
+  QUESTS.forEach(q=>{
+    if(!playerQuests[q.id]){
+      playerQuests[q.id] = { status:'available', stage:0, kills:{} };
+    }
+  });
+  // Auto-accept quests with no NPC (reached by map tap)
+  updateQuestBtn();
+}
+
+function updateQuestBtn(){
+  const btn = document.getElementById('quest-btn');
+  if(!btn) return;
+  const hasActive = Object.values(playerQuests).some(q=>q.status==='active');
+  btn.classList.toggle('has-active', hasActive);
+}
+
+// ── NPC Dialogue ──────────────────────────────────────
+let _activeNPC = null;
+function openNPCDialogue(npc){
+  _activeNPC = npc;
+  const modal = document.getElementById('npc-modal');
+  const wrap  = document.getElementById('npc-portrait-wrap');
+  wrap.style.backgroundImage = `url('${npc.portrait}')`;
+  document.getElementById('npc-name').textContent  = npc.name;
+  document.getElementById('npc-title').textContent = npc.title;
+
+  const qs = playerQuests[npc.quest] || { status:'available', stage:0, kills:{} };
+  let lines = [];
+  if(qs.status==='complete')        lines = npc.dialogues.complete;
+  else if(qs.status==='active'){
+    const stageIdx = qs.stage - 1; // active means past accept
+    if(stageIdx <= 0)               lines = npc.dialogues.active_0;
+    else                            lines = npc.dialogues.active_1;
+  } else                            lines = npc.dialogues.available;
+
+  const linesEl = document.getElementById('npc-lines');
+  linesEl.innerHTML = lines.map(l=>`<div style="font-size:.9rem;color:#c8b8e0;line-height:1.6;margin-bottom:6px;">"${l}"</div>`).join('');
+
+  const acceptBtn = document.getElementById('npc-accept-btn');
+  acceptBtn.style.display = (qs.status==='available') ? 'block' : 'none';
+
+  modal.style.display='flex';
+}
+
+function closeNPC(){
+  document.getElementById('npc-modal').style.display='none';
+  _activeNPC = null;
+}
+
+function acceptQuestFromNPC(){
+  if(!_activeNPC) return;
+  const q = QUESTS.find(q=>q.id===_activeNPC.quest);
+  if(!q) return;
+  playerQuests[q.id] = { status:'active', stage:1, kills:{} };
+  addLog(`📜 Quest accepted: ${q.name}`,'lb');
+  closeNPC();
+  updateQuestBtn();
+  // Spawn quest mobs near the relevant area
+  spawnQuestMobs(q);
+  saveGame();
+}
+
+// ── Quest marker tap (no NPC) ─────────────────────────
+function openQuestMarkerDialogue(q){
+  const qs = playerQuests[q.id];
+  if(!qs || qs.status==='available'){
+    // Auto-accept when you tap the marker
+    playerQuests[q.id] = { status:'active', stage:0, kills:{} };
+    addLog(`📜 Quest accepted: ${q.name}`,'lb');
+    addLog(q.stages[0].desc,'ls');
+    updateQuestBtn();
+    saveGame();
+    render();
+  } else if(qs.status==='active'){
+    const stage = q.stages[qs.stage] || q.stages[q.stages.length-1];
+    addLog(`📜 ${q.name}: ${stage.desc}`,'ls');
+    if(stage.detail){
+      const kills = qs.kills[stage.mob]||0;
+      addLog(`  → ${kills}/${stage.count} ${stage.mob}s`, 'ls');
+    }
+  }
+}
+
+// ── Quest mob spawning ────────────────────────────────
+function spawnQuestMobs(q){
+  if(q.id !== 'last_seating') return;
+  // Spawn 4 Drowned Sailors near the ship + 1 Iron Officer
+  const shipLat=39.9465, shipLng=-75.1374;
+  const drowned = MOB_TYPES.find(m=>m.name==='Drowned Sailor');
+  const officer = MOB_TYPES.find(m=>m.name==='Iron Officer');
+  if(drowned){
+    for(let i=0;i<4;i++){
+      const a=Math.random()*Math.PI*2, r=0.02+Math.random()*0.04;
+      spawns.push({...drowned,
+        lat:shipLat+(r/69.11)*Math.cos(a), lng:shipLng+(r/(69.11*Math.cos(shipLat*Math.PI/180)))*Math.sin(a),
+        hp:drowned.hp, maxHp:drowned.hp, atk:drowned.atk, def:drowned.def,
+        id:spawns.length, defeated:false, statuses:[], questMob:true});
+    }
+  }
+  if(officer){
+    spawns.push({...officer,
+      lat:shipLat+0.0005, lng:shipLng+0.0003,
+      hp:officer.hp, maxHp:officer.hp, atk:officer.atk, def:officer.def,
+      id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
+  }
+  render();
+}
+
+// ── Kill tracking ─────────────────────────────────────
+function onEntityKilled(name, isBoss){
+  QUESTS.forEach(q=>{
+    const qs = playerQuests[q.id];
+    if(!qs || qs.status!=='active') return;
+    const stage = q.stages[qs.stage];
+    if(!stage) return;
+    if(stage.type==='kill' && stage.mob===name){
+      qs.kills[name] = (qs.kills[name]||0)+1;
+      const done = qs.kills[name];
+      const need = stage.count;
+      addLog(`📜 ${q.name}: ${name} ${done}/${need}`,'ls');
+      if(done>=need) advanceQuest(q.id);
+    } else if(stage.type==='boss' && isBoss && name===stage.bossName){
+      addLog(`📜 ${q.name}: ${name} defeated!`,'ls');
+      advanceQuest(q.id);
+    }
+  });
+  saveGame();
+}
+
+function advanceQuest(qId){
+  const q = QUESTS.find(q=>q.id===qId);
+  const qs = playerQuests[qId];
+  if(!q||!qs) return;
+  qs.stage++;
+  if(qs.stage >= q.stages.length){
+    // Complete!
+    qs.status = 'complete';
+    const xp   = q.reward.xp;
+    const gold = ri(q.reward.gold[0], q.reward.gold[1]);
+    Player.xp   += xp;
+    Player.gold += gold;
+    while(Player.xp >= Player.xpNext && Player.level < 100){ levelUp(); }
+    addLog(`✦ Quest Complete: ${q.name}!`, 'lb');
+    addLog(`  Reward: +${fmt(xp)} XP · +${gold} Gold`, 'll');
+    showDamageNum('QUEST COMPLETE!','dmg-heal','right');
+    sndLevelUp();
+  } else {
+    const next = q.stages[qs.stage];
+    addLog(`📜 ${q.name}: ${next.desc}`, 'ls');
+  }
+  updateQuestBtn();
+  setPUI(); render();
+  saveGame();
+}
+
+// ── Quest Log UI ──────────────────────────────────────
+function openQuestLog(){
+  buildQuestLog();
+  document.getElementById('quest-modal').style.display='flex';
+}
+function closeQuestLog(){
+  document.getElementById('quest-modal').style.display='none';
+}
+
+function buildQuestLog(){
+  const worldQuests = QUESTS.filter(q=>q.world===selectedWorld);
+  const el = document.getElementById('quest-log-content');
+  if(!worldQuests.length){ el.innerHTML='<div style="color:#4a3a60;text-align:center;padding:20px;">No quests available.</div>'; return; }
+  el.innerHTML = worldQuests.map(q=>{
+    const qs = playerQuests[q.id] || { status:'available', stage:0, kills:{} };
+    const statusColor = qs.status==='complete'?'#44aa44': qs.status==='active'?'#4488ff':'#d4a830';
+    const statusLabel = qs.status==='complete'?'COMPLETE': qs.status==='active'?'IN PROGRESS':'AVAILABLE';
+    const stages = q.stages.map((s,i)=>{
+      const done = qs.status==='complete' || i < qs.stage;
+      const current = qs.status==='active' && i===qs.stage;
+      const kills = qs.kills&&qs.kills[s.mob]||0;
+      const detail = s.type==='kill' ? ` (${qs.status==='active'&&current?kills:done?s.count:0}/${s.count})` : '';
+      return `<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;opacity:${done||current?1:0.4};">
+        <span style="color:${done?'#44aa44':current?'#4488ff':'#3a2a50'};flex-shrink:0;">${done?'✓':current?'▶':'○'}</span>
+        <span style="font-size:.82rem;color:${done?'#5a6a5a':current?'#c8d8f0':'#5a4a70'};">${s.desc}${detail}</span>
+      </div>`;
+    }).join('');
+    return `<div style="border:1px solid #3a2a50;border-radius:10px;padding:14px;margin-bottom:14px;background:linear-gradient(160deg,#1a1528,#0d0a1c);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <div style="font-family:'Metal Mania',cursive;font-size:1rem;color:var(--gold);letter-spacing:.08em;">${q.name}</div>
+          <div style="font-size:.72rem;color:#6a5a80;letter-spacing:.1em;margin-top:2px;">${q.location}</div>
+        </div>
+        <span style="font-size:.68rem;color:${statusColor};border:1px solid ${statusColor};padding:2px 7px;border-radius:4px;white-space:nowrap;letter-spacing:.08em;">${statusLabel}</span>
+      </div>
+      <div style="border-top:1px solid #2a1a3a;padding-top:8px;margin-bottom:8px;">${stages}</div>
+      <div style="font-size:.75rem;color:#6a5a80;font-family:'Share Tech Mono',monospace;">${q.rewardDesc}</div>
+    </div>`;
+  }).join('');
+}
+
 function initTitleScreen(){
   const save = loadSave();
   if(save){
@@ -4597,6 +5048,10 @@ function continueGame(){
   // Restore world and boss states
   selectWorld(save.world || 'philadelphia');
   save.bossStates.forEach((defeated, i) => { if(BOSSES[i]) BOSSES[i].defeated = defeated; });
+  if(save.quests) playerQuests = save.quests;
+  initQuestState();
+  // Respawn active quest mobs
+  QUESTS.forEach(q=>{ const qs=playerQuests[q.id]; if(qs&&qs.status==='active') spawnQuestMobs(q); });
   // Skip to game
   document.getElementById('screen-title').classList.remove('active');
   document.getElementById('screen-game').classList.add('active');
@@ -4677,6 +5132,8 @@ function goCreate(){
 function enterWorld(){
   if(!selectedClass||!rolledStats)return;
   buildPlayer();
+  playerQuests = {};
+  initQuestState();
   document.getElementById('screen-create').classList.remove('active');
   document.getElementById('screen-game').classList.add('active');
 
