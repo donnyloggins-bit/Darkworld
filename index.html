@@ -2825,6 +2825,27 @@ function applyStartingGear(){
 const canvas = document.getElementById('map-canvas');
 const ctx = canvas.getContext('2d');
 let mapW,mapH,viewX=0,viewY=0,zoom=2.0;
+
+// Portrait image cache — load once, reuse every frame
+const _imgCache = {};
+function getImg(src){
+  if(!src) return null;
+  if(!_imgCache[src]){
+    const img = new Image();
+    img.src = src;
+    img.onload = ()=>{ _imgCache[src]._ready=true; render(); };
+    img.onerror = ()=>{ _imgCache[src]._err=true; };
+    _imgCache[src] = img;
+  }
+  return _imgCache[src]._ready ? _imgCache[src] : null;
+}
+
+function drawCirclePortrait(img, x, y, r){
+  ctx.save();
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.clip();
+  ctx.drawImage(img, x-r, y-r, r*2, r*2);
+  ctx.restore();
+}
 let dragging=false,dragStart={x:0,y:0},dragView={x:0,y:0};
 
 function ll2px(lat,lng){
@@ -2952,18 +2973,28 @@ function drawPaths(){
 function drawMob(s){
   const p=ll2px(s.lat,s.lng);
   const r=Math.max(8,10*zoom);
+  // Glow
   const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r*2.5);
-  g.addColorStop(0,'rgba(140,80,180,0.5)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  g.addColorStop(0,'rgba(140,80,180,0.4)'); g.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,r*2.5,0,Math.PI*2); ctx.fill();
+  // Circle background
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
   ctx.fillStyle='#2a1a40'; ctx.fill();
+  // Portrait or emoji fallback
+  const img = s.portrait ? getImg(s.portrait) : null;
+  if(img){
+    drawCirclePortrait(img, p.x, p.y, r);
+  } else {
+    ctx.font=`${Math.floor(Math.max(12,12*zoom))}px serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(s.emoji,p.x,p.y);
+  }
+  // Border
+  ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
   ctx.strokeStyle='#7a5aaa'; ctx.lineWidth=1.5; ctx.stroke();
-  ctx.font=`${Math.floor(Math.max(12,12*zoom))}px serif`;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(s.emoji,p.x,p.y);
   if(zoom>1.0){
     ctx.font=`${Math.max(8,8*zoom)}px "Share Tech Mono"`;
-    ctx.fillStyle='rgba(180,150,220,0.8)'; ctx.textBaseline='top';
+    ctx.fillStyle='rgba(180,150,220,0.8)'; ctx.textBaseline='top'; ctx.textAlign='center';
     ctx.fillText(s.name,p.x,p.y+r+3);
   }
 }
@@ -2978,10 +3009,16 @@ function drawBoss(b){
   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,pr,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
   ctx.fillStyle='#0d0a10'; ctx.fill();
+  const bImg = b.portrait ? getImg(b.portrait) : null;
+  if(bImg){
+    drawCirclePortrait(bImg, p.x, p.y, r);
+  } else {
+    ctx.font=`${Math.floor((b.isWorld?14:10)*zoom)}px serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(b.emoji,p.x,p.y);
+  }
+  ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
   ctx.strokeStyle=b.color||'#aa3300'; ctx.lineWidth=b.isWorld?2.5:1.8; ctx.stroke();
-  ctx.font=`${Math.floor((b.isWorld?14:10)*zoom)}px serif`;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(b.emoji,p.x,p.y);
   if(zoom>0.4){
     const fs=Math.max(6,(b.isWorld?8:6)*zoom);
     ctx.font=`bold ${fs}px "Cinzel Decorative",serif`;
