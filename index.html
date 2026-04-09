@@ -3884,6 +3884,8 @@ let inCombat=false, curEnemy=null, isBoss=false;
 let eStatuses=[];
 let combatInterval=null, lastStatusTick=0, lastResRegen=0;
 let playerCombo=0;
+let playerActLocked=false; // global lockout between player actions
+const ACT_LOCKOUT=750; // ms between any player action
 const CD_SCALE=1800; // ms per "cd unit"
 
 function startCombatTimer(){
@@ -3962,7 +3964,7 @@ function startCombat(ent,boss){ sndCombatStart();
     ?`${ent.name} fixes its ancient gaze upon you. The world grows cold.`
     :`A ${ent.name} emerges from the darkness. It hungers for your soul.`);
 
-  playerCombo=0;
+  playerCombo=0; playerActLocked=false; _cbLogLines=[];
   buildAbilityButtons();
   setCBUI(); updateComboDisplay();
   document.getElementById('combat-modal').classList.add('active');
@@ -4061,9 +4063,13 @@ function updateCooldownDisplay(){
   });
 }
 
+let _cbLogLines=[];
 function setCLog(m){
   const log=document.getElementById('cb-log');
-  log.textContent=m;
+  _cbLogLines.push(m);
+  if(_cbLogLines.length>3) _cbLogLines.shift();
+  log.innerHTML=_cbLogLines.map((l,i)=>`<div style="opacity:${0.4+i*0.3}">${l}</div>`).join('');
+  log.scrollTop=log.scrollHeight;
 }
 
 function getRes(){ return Player.res; }
@@ -4103,11 +4109,15 @@ function tickStatuses(who){
 // ── PLAYER ACTION ─────────────────────────────────────
 function playerAct(ability){
   if(!inCombat) return;
+  if(playerActLocked){ return; }
   const now=Date.now();
   if((Player.cooldowns[ability.name]||0) > now) return;
   if(ability.cost>0 && ability.costType!=='none' && getRes()<ability.cost){
     setCLog(`Not enough ${Player.cls.resource}!`); return;
   }
+  // Lock actions briefly so each hit has weight
+  playerActLocked=true;
+  setTimeout(()=>{ playerActLocked=false; }, ACT_LOCKOUT);
 
   spendRes(ability.cost);
   if(ability.cd>0){
@@ -4189,7 +4199,11 @@ function playerAct(ability){
 
   anim('p-spr','atk-anim'); anim('e-spr','hit-anim');
   setCBUI();
-  if(curEnemy.hp<=0){ setTimeout(()=>victory(),500); }
+  if(curEnemy.hp<=0){
+    anim('e-spr','death-anim');
+    showDamageNum('SLAIN!','dmg-overkill','right');
+    setTimeout(()=>victory(), isBoss ? 1800 : 1200);
+  }
 }
 
 function useCombatPotion(){
