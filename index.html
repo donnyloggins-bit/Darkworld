@@ -1891,6 +1891,7 @@ body::before {
   <div id="ar-status">⬤ AR MODE · THE FALLEN CITY</div>
   <div id="ar-compass"><span id="ar-heading-txt">--- °</span></div>
   <button id="ar-filter-btn" onclick="cycleARFilter()">👁 HELLVIEW</button>
+  <button id="ar-quest-btn" onclick="arQuestTap()" style="display:none;position:absolute;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(180,130,0,0.92);border:2px solid rgba(255,210,60,0.9);color:#fff;font-family:'Share Tech Mono',monospace;font-size:1rem;letter-spacing:.1em;padding:14px 32px;border-radius:8px;z-index:50;min-width:200px;"></button>
 </div>
 
 <script>
@@ -3841,6 +3842,16 @@ async function startAR(){
   renderAR();
 }
 
+function arQuestTap(){
+  const btn=document.getElementById('ar-quest-btn');
+  const e=btn&&btn._questData;
+  if(!e) return;
+  if(gpsFirstLock&&e.dist>ENGAGE_MILES){ addLog('⚠ Move closer.','ls'); return; }
+  stopAR();
+  if(e.isNPC) openNPCDialogue(e.entity);
+  else openQuestMarkerDialogue(e.entity);
+}
+
 function stopAR(){
   if(arAnimId){cancelAnimationFrame(arAnimId);arAnimId=null;}
   if(arStream){arStream.getTracks().forEach(t=>t.stop());arStream=null;}
@@ -3851,6 +3862,7 @@ function stopAR(){
   const ac=document.getElementById('ar-canvas');
   if(ac._arTapHandler){ ac.removeEventListener('touchend',ac._arTapHandler); ac._arTapHandler=null; }
   arVisibleEnemies=[]; arVisibleQuests=[]; arEnemyPositions={};
+  const _qb=document.getElementById('ar-quest-btn'); if(_qb){_qb.style.display='none';_qb._questData=null;}
   document.getElementById('screen-ar').classList.remove('active');
   document.getElementById('screen-game').classList.add('active');
 }
@@ -4073,6 +4085,20 @@ function renderAR(){
     }
     arQuestCandidates.push({name:q.name,dist,diff:d,portrait:null,isNPC:false,entity:q});
   });
+  // Update the HTML quest button
+  const _arQBtn=document.getElementById('ar-quest-btn');
+  if(arQuestCandidates.length>0){
+    const _closest=arQuestCandidates.sort((a,b)=>a.dist-b.dist)[0];
+    const _tooFar=gpsFirstLock&&_closest.dist>ENGAGE_MILES;
+    _arQBtn.textContent=_tooFar?'GET CLOSER':(_closest.isNPC?`SPEAK · ${_closest.name.toUpperCase()}`:`ACCEPT · ${_closest.name.toUpperCase()}`);
+    _arQBtn.style.display='block';
+    _arQBtn.style.opacity=_tooFar?'0.5':'1';
+    _arQBtn._questData=_closest;
+  } else {
+    _arQBtn.style.display='none';
+    _arQBtn._questData=null;
+  }
+
   arQuestCandidates.sort((a,b)=>a.dist-b.dist).slice(0,2).forEach(e=>{
     const t=Date.now()/600;
     const targetX=W/2+(e.diff/(FOV/2))*(W/2);
