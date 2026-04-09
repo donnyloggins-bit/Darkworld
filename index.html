@@ -3652,7 +3652,7 @@ function headingLabel(h){
 // ══════════════════════════════════════════════════════
 //  AR ENGINE
 // ══════════════════════════════════════════════════════
-let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[],arLastFrameTime=0,arEnemyPositions={},arEntityOpacity={};
+let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[],arVisibleQuests=[],arLastFrameTime=0,arEnemyPositions={},arEntityOpacity={};
 
 // ══════════════════════════════════════════════════════
 //  AR FILTER ENVIRONMENTS
@@ -3753,19 +3753,31 @@ async function startAR(){
     const rect=ac.getBoundingClientRect();
     const tx=t.clientX-rect.left;
     const ty=t.clientY-rect.top;
+    // Check quest/NPC markers first
+    for(const v of arVisibleQuests){
+      if(v.btnY===undefined) continue;
+      const inBtn=Math.abs(tx-v.x)<v.btnW/2+16 && Math.abs(ty-v.btnY)<v.btnH/2+16;
+      const inSprite=Math.hypot(tx-v.x,ty-v.yBase)<v.sz*2.5;
+      if(inBtn||inSprite){
+        if(v.tooFar){ addLog('⚠ Move closer.','ls'); return; }
+        stopAR();
+        if(v.isNPC) openNPCDialogue(v.entity);
+        else openQuestMarkerDialogue(v.entity);
+        return;
+      }
+    }
+    // Then check enemies
     let best=null, bestDist=Infinity;
     for(const v of arVisibleEnemies){
-      // Check FIGHT button rect first (primary target)
       if(v.btnY!==undefined){
         const inBtn = Math.abs(tx-v.x)<v.btnW/2+16 && Math.abs(ty-v.btnY)<v.btnH/2+16;
         if(inBtn){ best=v; break; }
       }
-      // Fallback: large radius around sprite
       const d=Math.hypot(tx-v.x, ty-v.yBase);
       if(d<v.sz*2.5 && d<bestDist){ best=v; bestDist=d; }
     }
     if(best){
-      if(best.tooFar) return; // boss requires approach
+      if(best.tooFar) return;
       stopAR();
       startCombat(best.entity, best.isBoss);
     }
@@ -3788,7 +3800,7 @@ function stopAR(){
   }
   const ac=document.getElementById('ar-canvas');
   if(ac._arTapHandler){ ac.removeEventListener('touchend',ac._arTapHandler); ac._arTapHandler=null; }
-  arVisibleEnemies=[]; arEnemyPositions={};
+  arVisibleEnemies=[]; arVisibleQuests=[]; arEnemyPositions={};
   document.getElementById('screen-ar').classList.remove('active');
   document.getElementById('screen-game').classList.add('active');
 }
@@ -3817,7 +3829,7 @@ function renderAR(){
   c.clearRect(0,0,W,H);
 
   const FOV=65,MAX_DIST=0.5;
-  arVisibleEnemies=[]; // reset hit-test targets each frame
+  arVisibleEnemies=[]; arVisibleQuests=[]; // reset hit-test targets each frame
 
   // Atmospheric vignette
   const vgrd=c.createLinearGradient(0,0,0,H);
@@ -3973,6 +3985,80 @@ function renderAR(){
     }
 
     c.globalAlpha=1;
+  });
+
+  // ── Quest / NPC markers in AR ──
+  const arQuestCandidates=[];
+  // NPCs with available/active quests
+  NPCS.filter(n=>n.world===selectedWorld).forEach(n=>{
+    const qs=playerQuests[n.quest];
+    if(qs&&qs.status==='complete') return;
+    const dist=distMiles(Player.lat,Player.lng,n.lat,n.lng);
+    if(dist>0.3) return;
+    let d=bearing(Player.lat,Player.lng,n.lat,n.lng)-arHeading;
+    if(d>180)d-=360; if(d<-180)d+=360;
+    if(Math.abs(d)<FOV/2+10) arQuestCandidates.push({name:n.name,dist,diff:d,portrait:n.portrait,isNPC:true,entity:n});
+  });
+  // Map-based quest markers (no NPC)
+  QUESTS.filter(q=>q.world===selectedWorld&&!q.npcId&&q.lat).forEach(q=>{
+    const qs=playerQuests[q.id];
+    if(qs&&qs.status==='complete') return;
+    if(qs&&qs.status==='active') return; // already accepted, mob is spawned
+    const dist=distMiles(Player.lat,Player.lng,q.lat,q.lng);
+    if(dist>0.3) return;
+    let d=bearing(Player.lat,Player.lng,q.lat,q.lng)-arHeading;
+    if(d>180)d-=360; if(d<-180)d+=360;
+    if(Math.abs(d)<FOV/2+10) arQuestCandidates.push({name:q.name,dist,diff:d,portrait:null,isNPC:false,entity:q});
+  });
+  arQuestCandidates.sort((a,b)=>a.dist-b.dist).slice(0,2).forEach(e=>{
+    const t=Date.now()/600;
+    const targetX=W/2+(e.diff/(FOV/2))*(W/2);
+    const yBase=H*0.65;
+    const r=Math.floor(W*0.07);
+    // Pulsing gold glow
+    const pulse=r*(1.4+0.25*Math.sin(t));
+    const grd=c.createRadialGradient(targetX,yBase,0,targetX,yBase,pulse*1.5);
+    grd.addColorStop(0,'rgba(212,168,48,0.4)');
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=grd; c.beginPath(); c.arc(targetX,yBase,pulse*1.5,0,Math.PI*2); c.fill();
+    // Portrait or ! icon
+    const arImg=e.portrait?getImg(e.portrait):null;
+    if(arImg){
+      c.save(); c.beginPath(); c.arc(targetX,yBase,r,0,Math.PI*2); c.clip();
+      c.drawImage(arImg,targetX-r,yBase-r,r*2,r*2); c.restore();
+    } else {
+      c.beginPath(); c.arc(targetX,yBase,r,0,Math.PI*2);
+      c.fillStyle='rgba(20,12,5,0.88)'; c.fill();
+      c.font=`bold ${Math.floor(r*1.1)}px "Share Tech Mono",monospace`;
+      c.fillStyle='#d4a830'; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('!',targetX,yBase);
+    }
+    c.beginPath(); c.arc(targetX,yBase,r,0,Math.PI*2);
+    c.strokeStyle=`rgba(212,168,48,${0.7+0.3*Math.sin(t)})`;
+    c.lineWidth=2.5; c.stroke();
+    // Name label
+    c.font=`bold ${Math.max(11,Math.floor(W*0.032))}px "Share Tech Mono",monospace`;
+    c.fillStyle='#d4a830'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText(e.name.toUpperCase(),targetX,yBase+r+5,W*0.45);
+    // Distance
+    const ft=Math.round(e.dist*5280);
+    c.font=`${Math.max(10,Math.floor(W*0.027))}px "Share Tech Mono",monospace`;
+    c.fillStyle='rgba(212,168,48,0.65)';
+    c.fillText(`${ft} ft`,targetX,yBase+r+5+Math.max(13,Math.floor(W*0.035)));
+    // SPEAK / ACCEPT button
+    const btnW=Math.min(W*0.38,150),btnH=32;
+    const btnX=targetX-btnW/2,btnY=yBase+r+5+Math.max(13,Math.floor(W*0.035))+Math.max(13,Math.floor(W*0.032))+4;
+    const tooFar=gpsFirstLock&&e.dist>ENGAGE_MILES;
+    c.fillStyle=tooFar?'rgba(40,30,10,0.8)':'rgba(180,130,0,0.92)';
+    c.beginPath();
+    c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,6):c.rect(btnX,btnY,btnW,btnH);
+    c.fill();
+    c.strokeStyle=tooFar?'rgba(120,90,0,0.5)':'rgba(255,210,60,0.9)'; c.lineWidth=1.5; c.stroke();
+    c.font=`bold ${Math.max(11,Math.floor(W*0.03))}px "Share Tech Mono",monospace`;
+    c.fillStyle=tooFar?'rgba(200,160,60,0.5)':'#fff';
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(tooFar?'GET CLOSER':(e.isNPC?'SPEAK':'ACCEPT'),targetX,btnY+btnH/2);
+    arVisibleQuests.push({entity:e.entity,isNPC:e.isNPC,x:targetX,yBase,sz:r,btnY:btnY+btnH/2,btnW,btnH,tooFar});
   });
 
   // No enemies message
