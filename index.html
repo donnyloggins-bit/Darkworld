@@ -2245,7 +2245,7 @@ const QUESTS = [
     color: '#556677',
     world: 'philadelphia',
     npcId: null,
-    lat: 39.9503, lng: -75.1664,
+    lat: 39.9501, lng: -75.1668,
     stages: [
       { desc: 'A figure has been seen on the sales floor — it has never left',                     type: 'kill', mob: 'The Customer Who Never Left', count: 1 },
     ],
@@ -3198,7 +3198,7 @@ function genSpawns(){
     const MAX_FEET = 100;
     const MAX_MILES = MAX_FEET / 5280;
     const total = 30;
-    const easyMobs = MOB_TYPES.filter(m=>m.zone>=3);
+    const easyMobs = MOB_TYPES.filter(m=>m.zone>=3 && !m.questOnly);
     for(let i=0;i<total;i++){
       const angle = Math.random()*2*Math.PI;
       const r = Math.random()*MAX_MILES;
@@ -3216,7 +3216,7 @@ function genSpawns(){
     const counts=[8,18,22,20,12];
     ZONES.forEach((z,zi)=>{
       const minR=zi?ZONES[zi-1].max:0.3;
-      const mobs=MOB_TYPES.filter(m=>m.zone===zi);
+      const mobs=MOB_TYPES.filter(m=>m.zone===zi && !m.questOnly);
       if(!mobs.length)return;
       for(let i=0;i<counts[zi];i++){
         const angle=Math.random()*2*Math.PI;
