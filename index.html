@@ -3845,13 +3845,23 @@ function startGPS(){
     return;
   }
   setGPSStatus('searching','SEARCHING...');
+  const GPS_SMOOTH = 0.2; // 0=no update, 1=raw — lower = smoother
+  const GPS_MAX_ACCURACY = 50; // ignore readings worse than 50m
   gpsWatchId=navigator.geolocation.watchPosition(
     pos=>{
       const {latitude:lat,longitude:lng,accuracy}=pos.coords;
-      Player.lat=lat; Player.lng=lng;
+      if(accuracy > GPS_MAX_ACCURACY) return; // too noisy, skip
+      if(Player.lat && Player.lng){
+        // Low-pass smooth: blend toward new reading
+        Player.lat = Player.lat + (lat - Player.lat) * GPS_SMOOTH;
+        Player.lng = Player.lng + (lng - Player.lng) * GPS_SMOOTH;
+      } else {
+        Player.lat=lat; Player.lng=lng;
+      }
       updateZone();
       if(!gpsFirstLock){
         gpsFirstLock=true;
+        Player.lat=lat; Player.lng=lng; // snap exactly on first lock
         genSpawns();
         centerOnPlayer();
         addLog('⬤ GPS locked. Darkness finds you wherever you roam.','lb');
@@ -3863,7 +3873,7 @@ function startGPS(){
       setGPSStatus('denied',msgs[err.code]||'GPS ERROR');
       addLog(`⚠ GPS: ${err.message}`,'ls');
     },
-    {enableHighAccuracy:true,maximumAge:5000,timeout:15000}
+    {enableHighAccuracy:true,maximumAge:3000,timeout:15000}
   );
 }
 
