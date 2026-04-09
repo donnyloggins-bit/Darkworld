@@ -3989,13 +3989,15 @@ function renderAR(){
 
   // ── Quest / NPC markers in AR ──
   const arQuestCandidates=[];
+  // When GPS hasn't locked yet, use a generous radius so indoor players still see quests
+  const QUEST_AR_DIST = gpsFirstLock ? 0.3 : 2.0;
   // NPCs with available/active quests
   NPCS.filter(n=>n.world===selectedWorld).forEach(n=>{
     const qs=playerQuests[n.quest];
     if(qs&&qs.status==='complete') return;
-    const dist=distMiles(Player.lat,Player.lng,n.lat,n.lng);
-    if(dist>0.3) return;
-    let d=bearing(Player.lat,Player.lng,n.lat,n.lng)-arHeading;
+    const dist=distMiles(Player.lat||CENTER.lat,Player.lng||CENTER.lng,n.lat,n.lng);
+    if(dist>QUEST_AR_DIST) return;
+    let d=bearing(Player.lat||CENTER.lat,Player.lng||CENTER.lng,n.lat,n.lng)-arHeading;
     if(d>180)d-=360; if(d<-180)d+=360;
     if(Math.abs(d)<FOV/2+10) arQuestCandidates.push({name:n.name,dist,diff:d,portrait:n.portrait,isNPC:true,entity:n});
   });
@@ -4003,10 +4005,10 @@ function renderAR(){
   QUESTS.filter(q=>q.world===selectedWorld&&!q.npcId&&q.lat).forEach(q=>{
     const qs=playerQuests[q.id];
     if(qs&&qs.status==='complete') return;
-    if(qs&&qs.status==='active') return; // already accepted, mob is spawned
-    const dist=distMiles(Player.lat,Player.lng,q.lat,q.lng);
-    if(dist>0.3) return;
-    let d=bearing(Player.lat,Player.lng,q.lat,q.lng)-arHeading;
+    if(qs&&qs.status==='active') return;
+    const dist=distMiles(Player.lat||CENTER.lat,Player.lng||CENTER.lng,q.lat,q.lng);
+    if(dist>QUEST_AR_DIST) return;
+    let d=bearing(Player.lat||CENTER.lat,Player.lng||CENTER.lng,q.lat,q.lng)-arHeading;
     if(d>180)d-=360; if(d<-180)d+=360;
     if(Math.abs(d)<FOV/2+10) arQuestCandidates.push({name:q.name,dist,diff:d,portrait:null,isNPC:false,entity:q});
   });
