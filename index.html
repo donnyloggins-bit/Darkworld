@@ -2119,6 +2119,22 @@ let selectedWorld = 'philadelphia';
 // ══════════════════════════════════════════════════════
 const NPCS = [
   {
+    id: 'marcus_webb',
+    name: 'Marcus Webb',
+    title: "Night Security · Boyd's Department Store",
+    lat: 39.9499, lng: -75.1672,
+    portrait: 'marcus-webb.png',
+    color: '#cc8844',
+    world: 'philadelphia',
+    dialogues: {
+      available: ["Three in the morning. They just... stood up.", "I'm locked in the security booth. Second floor. Don't look them in the eyes.", "There are still customers in there. Please. Get them out."],
+      active_0:  ["Stay low. They respond to movement.", "The ones in Menswear are the worst. Watch your back.", "The big one — the Tailor — he's been here since the store opened. He's different."],
+      active_1:  ["You hear that sound? Like a suit being pressed.", "That's him. End it.", "I'll meet you downstairs when it's done."],
+      complete:  ["The cameras caught nothing. Nothing at all.", "I don't know how to explain what happened tonight.", "Take this. You earned it more than I did."],
+    },
+    quest: 'after_hours',
+  },
+  {
     id: 'chef_alonzo',
     name: 'Chef Alonzo',
     title: 'Head Chef · The Iron Meridian',
@@ -2133,6 +2149,22 @@ const NPCS = [
       complete:   ["It's quiet tonight. First time in weeks.", "Don't tell anyone what you found down there.", "Here. You've earned it."],
     },
     quest: 'last_seating',
+  },
+  {
+    id: 'edward',
+    name: 'Edward',
+    title: "Floor Manager · Boyd's Department Store",
+    lat: 39.9503, lng: -75.1664,
+    portrait: 'edward.jpeg',
+    color: '#8855cc',
+    world: 'philadelphia',
+    dialogues: {
+      available:  ["I found something in the back office. A ledger — but the numbers don't add up to anything human.", "Every shipment for the past year. Signed by someone called Malechar.", "This store has been a front. I think I'm the last one who didn't know."],
+      active_0:   ["They're still in the building. His agents.", "They look like men but they're not.", "Clear them out. Then read the last page of the ledger."],
+      active_1:   ["You felt it too, didn't you. That pull from Rittenhouse.", "He's there. He's been there the whole time.", "End this. Please."],
+      complete:   ["I'm closing the store. Permanently.", "Whatever you find at Rittenhouse — don't come back and tell me.", "Just make sure it's finished."],
+    },
+    quest: 'the_ledger',
   },
 ];
 
@@ -2157,6 +2189,22 @@ const DUNGEONS = [
 //  QUESTS
 // ══════════════════════════════════════════════════════
 const QUESTS = [
+  {
+    id: 'after_hours',
+    name: 'After Hours',
+    location: "Boyd's Department Store · Chestnut Street",
+    type: 'SOLO',
+    color: '#cc8844',
+    world: 'philadelphia',
+    npcId: 'marcus_webb',
+    stages: [
+      { desc: "Find Marcus Webb in the security booth",                              type: 'accept' },
+      { desc: 'Destroy the mannequins on the sales floor', detail: '0/5 Living Mannequins', type: 'kill', mob: 'Living Mannequin', count: 5 },
+      { desc: 'Face The Tailor before he escapes to the street',                     type: 'kill', mob: 'The Tailor', count: 1 },
+    ],
+    reward: { xp: 3500, gold: [600, 1200] },
+    rewardDesc: "+3,500 XP  ·  600–1,200 Gold  ·  Tailor's Thimble",
+  },
   {
     id: 'last_seating',
     name: 'Last Seating',
@@ -2188,6 +2236,22 @@ const QUESTS = [
     ],
     reward: { xp: 5500, gold: [800, 1600] },
     rewardDesc: '+5,500 XP  ·  800–1,600 Gold  ·  Penn Treaty Sigil',
+  },
+  {
+    id: 'the_ledger',
+    name: 'The Ledger',
+    location: "Boyd's Department Store · Chestnut Street",
+    type: 'BOSS CHAIN',
+    color: '#8855cc',
+    world: 'philadelphia',
+    npcId: 'edward',
+    stages: [
+      { desc: "Speak with Edward in the manager's office",                                    type: 'accept' },
+      { desc: "Purge Malechar's agents from the building", detail: '0/3 Cursed Accountants', type: 'kill', mob: 'Cursed Accountant', count: 3 },
+      { desc: 'Destroy the Ledger Wraith before it escapes',                                  type: 'kill', mob: 'The Ledger Wraith', count: 1 },
+    ],
+    reward: { xp: 4500, gold: [700, 1400] },
+    rewardDesc: "+4,500 XP  ·  700–1,400 Gold  ·  Malechar's Seal",
   },
   {
     id: 'graverobbers',
@@ -2242,8 +2306,12 @@ const MOB_TYPES = [
   {name:'Lost Soul',       emoji:'🕯', zone:4, hp:22,  atk:6,  def:0,  xp:50,   gold:[5,25],    portrait:'lostsoul.jpeg'},
   {name:'Shadow Imp',      emoji:'👿', zone:4, hp:20,  atk:7,  def:0,  xp:45,   gold:[5,25],    portrait:'shadowimp.jpeg'},
   // ── Quest mobs ──
-  {name:'Drowned Sailor',  emoji:'⚓', zone:1, hp:145, atk:30, def:7,  xp:460,  gold:[90,200],  portrait:'drowned-sailor.png', questOnly:true},
-  {name:'Iron Officer',    emoji:'🗡', zone:0, hp:390, atk:98, def:26, xp:1250, gold:[220,480], portrait:'iron-officer.png',   questOnly:true, isMini:true},
+  {name:'Drowned Sailor',  emoji:'⚓', zone:1, hp:145, atk:30, def:7,  xp:460,  gold:[90,200],  portrait:'drowned-sailor.png',   questOnly:true},
+  {name:'Iron Officer',    emoji:'🗡', zone:0, hp:390, atk:98, def:26, xp:1250, gold:[220,480], portrait:'iron-officer.png',     questOnly:true, isMini:true},
+  {name:'Living Mannequin',  emoji:'🪆', zone:2, hp:95,  atk:22, def:5,  xp:300,  gold:[55,130],  portrait:'living-mannequin.jpeg', questOnly:true},
+  {name:'The Tailor',        emoji:'🧵', zone:1, hp:850, atk:145,def:35, xp:1500, gold:[300,650], portrait:'the-tailor.png',        questOnly:true, isMini:true},
+  {name:'Cursed Accountant', emoji:'📒', zone:0, hp:220, atk:55, def:12, xp:600,  gold:[100,240], portrait:'lichservant.jpeg',      questOnly:true},
+  {name:'The Ledger Wraith', emoji:'📖', zone:0, hp:920, atk:165,def:40, xp:2000, gold:[400,800], portrait:'voidshade.jpeg',        questOnly:true, isMini:true},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -2267,6 +2335,7 @@ const ITEMS = {
   'Shadow Plate':   {emoji:'🖤', type:'armor',     tier:3, def:100, hp:188, cost:4000, desc:'Forged in the void itself.'},
   'Dragonscale Mail':{emoji:'🐲', type:'armor',    tier:3, def:163, hp:275, cost:5800, desc:'Scales of the last dragon.'},
   // ── ACCESSORIES ──
+  "Tailor's Thimble": {emoji:'🧵', type:'accessory', tier:3, atk:88, crit:6, dodge:5, cost:0, desc:"Worn by something that was never quite human. +88 ATK, +6% crit, +5% dodge."},
   'Lucky Charm':    {emoji:'🍀', type:'accessory', tier:1, crit:4,            cost:180,  desc:'+4% crit chance.'},
   'Shadow Ring':    {emoji:'💍', type:'accessory', tier:1, dodge:5,           cost:180,  desc:'+5% dodge.'},
   'Ring of Fortitude': {emoji:'💍', type:'accessory', tier:1, hp:25,  def:4,  cost:220,  desc:'+25 HP and +4 DEF.'},
@@ -4997,6 +5066,14 @@ function spawnQuestMobs(q){
   }
   else if(q.id === 'plague_ward'){
     spawnNear('Plague Hound', 6, 39.9683, -75.1726);
+  }
+  else if(q.id === 'after_hours'){
+    spawnNear('Living Mannequin', 7, 39.9499, -75.1672, 0.03);
+    const tailor = MOB_TYPES.find(m=>m.name==='The Tailor');
+    if(tailor) spawns.push({...tailor,
+      lat:39.9499+0.0003, lng:-75.1672+0.0002,
+      hp:tailor.hp, maxHp:tailor.hp, atk:tailor.atk, def:tailor.def,
+      id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
   }
   render();
 }
