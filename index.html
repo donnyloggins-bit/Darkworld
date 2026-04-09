@@ -2238,6 +2238,21 @@ const QUESTS = [
     rewardDesc: '+5,500 XP  ·  800–1,600 Gold  ·  Penn Treaty Sigil',
   },
   {
+    id: 'never_leave',
+    name: 'The Customer Who Never Left',
+    location: "Boyd's Department Store · Chestnut Street",
+    type: 'SOLO',
+    color: '#556677',
+    world: 'philadelphia',
+    npcId: null,
+    lat: 39.9503, lng: -75.1664,
+    stages: [
+      { desc: 'A figure has been seen on the sales floor — it has never left',                     type: 'kill', mob: 'The Customer Who Never Left', count: 1 },
+    ],
+    reward: { xp: 1200, gold: [150, 350] },
+    rewardDesc: '+1,200 XP  ·  150–350 Gold',
+  },
+  {
     id: 'the_ledger',
     name: 'The Ledger',
     location: "Boyd's Department Store · Chestnut Street",
@@ -2310,8 +2325,9 @@ const MOB_TYPES = [
   {name:'Iron Officer',    emoji:'🗡', zone:0, hp:390, atk:98, def:26, xp:1250, gold:[220,480], portrait:'iron-officer.png',     questOnly:true, isMini:true},
   {name:'Living Mannequin',  emoji:'🪆', zone:2, hp:95,  atk:22, def:5,  xp:300,  gold:[55,130],  portrait:'living-mannequin.jpeg', questOnly:true},
   {name:'The Tailor',        emoji:'🧵', zone:1, hp:850, atk:145,def:35, xp:1500, gold:[300,650], portrait:'the-tailor.png',        questOnly:true, isMini:true},
-  {name:'Cursed Accountant', emoji:'📒', zone:0, hp:220, atk:55, def:12, xp:600,  gold:[100,240], portrait:'lichservant.jpeg',      questOnly:true},
-  {name:'The Ledger Wraith', emoji:'📖', zone:0, hp:920, atk:165,def:40, xp:2000, gold:[400,800], portrait:'voidshade.jpeg',        questOnly:true, isMini:true},
+  {name:'Cursed Accountant',          emoji:'📒', zone:0, hp:220, atk:55, def:12, xp:600,  gold:[100,240], portrait:'lichservant.jpeg',  questOnly:true},
+  {name:'The Ledger Wraith',          emoji:'📖', zone:0, hp:920, atk:165,def:40, xp:2000, gold:[400,800], portrait:'voidshade.jpeg',   questOnly:true, isMini:true},
+  {name:'The Customer Who Never Left',emoji:'🎩', zone:3, hp:280, atk:45, def:8,  xp:750,  gold:[120,280], portrait:'the-hollow.png',   questOnly:true, isMini:true},
 ];
 
 // ══════════════════════════════════════════════════════
