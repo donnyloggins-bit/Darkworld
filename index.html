@@ -4982,13 +4982,16 @@ function buildQuestLog(){
     return `<div style="border:1px solid #3a2a50;border-radius:10px;padding:14px;margin-bottom:14px;background:linear-gradient(160deg,#1a1528,#0d0a1c);">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
         <div>
-          <div style="font-family:'Metal Mania',cursive;font-size:1rem;color:var(--gold);letter-spacing:.08em;">${q.name}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+            <div style="font-family:'Metal Mania',cursive;font-size:1rem;color:var(--gold);letter-spacing:.08em;">${q.name}</div>
+            <span style="font-size:.6rem;color:${q.color||'#d4a830'};border:1px solid ${q.color||'#d4a830'};padding:1px 6px;border-radius:3px;letter-spacing:.1em;opacity:.8;">${q.type}</span>
+          </div>
           <div style="font-size:.72rem;color:#6a5a80;letter-spacing:.1em;margin-top:2px;">${q.location}</div>
         </div>
         <span style="font-size:.68rem;color:${statusColor};border:1px solid ${statusColor};padding:2px 7px;border-radius:4px;white-space:nowrap;letter-spacing:.08em;">${statusLabel}</span>
       </div>
       <div style="border-top:1px solid #2a1a3a;padding-top:8px;margin-bottom:8px;">${stages}</div>
-      <div style="font-size:.75rem;color:#6a5a80;font-family:'Share Tech Mono',monospace;">${q.rewardDesc}</div>
+      <div style="font-size:.75rem;color:#6a5a80;font-family:'Share Tech Mono',monospace;">⚔ ${q.rewardDesc}</div>
     </div>`;
   }).join('');
 }
