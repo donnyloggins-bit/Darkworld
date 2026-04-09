@@ -4046,11 +4046,12 @@ function renderAR(){
   NPCS.filter(n=>n.world===selectedWorld).forEach(n=>{
     const qs=playerQuests[n.quest];
     if(qs&&qs.status==='complete') return;
-    const dist=distMiles(Player.lat||CENTER.lat,Player.lng||CENTER.lng,n.lat,n.lng);
+    const plat=Player.lat||CENTER.lat, plng=Player.lng||CENTER.lng;
+    const dist=distMiles(plat,plng,n.lat,n.lng);
     if(dist>QUEST_AR_DIST) return;
     let d=0;
-    if(dist>VERY_CLOSE){
-      d=bearing(Player.lat||CENTER.lat,Player.lng||CENTER.lng,n.lat,n.lng)-arHeading;
+    if(gpsFirstLock && dist>VERY_CLOSE){
+      d=bearing(plat,plng,n.lat,n.lng)-arHeading;
       if(d>180)d-=360; if(d<-180)d+=360;
       if(Math.abs(d)>=FOV/2+10) return;
     }
@@ -4061,11 +4062,12 @@ function renderAR(){
     const qs=playerQuests[q.id];
     if(qs&&qs.status==='complete') return;
     if(qs&&qs.status==='active') return;
-    const dist=distMiles(Player.lat||CENTER.lat,Player.lng||CENTER.lng,q.lat,q.lng);
+    const plat=Player.lat||CENTER.lat, plng=Player.lng||CENTER.lng;
+    const dist=distMiles(plat,plng,q.lat,q.lng);
     if(dist>QUEST_AR_DIST) return;
     let d=0;
-    if(dist>VERY_CLOSE){
-      d=bearing(Player.lat||CENTER.lat,Player.lng||CENTER.lng,q.lat,q.lng)-arHeading;
+    if(gpsFirstLock && dist>VERY_CLOSE){
+      d=bearing(plat,plng,q.lat,q.lng)-arHeading;
       if(d>180)d-=360; if(d<-180)d+=360;
       if(Math.abs(d)>=FOV/2+10) return;
     }
