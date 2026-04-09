@@ -1381,19 +1381,23 @@ body::before {
 #loot-popup {
   display:none;
   position:fixed;
-  bottom:60px;
+  bottom:70px;
   left:50%;
   transform:translateX(-50%);
-  background:#1a1628;
+  background:linear-gradient(160deg,#1a1528,#0d0a1c);
   border:1px solid #4a3a60;
   border-top:2px solid var(--gold);
-  padding:10px 24px;
+  padding:14px 28px;
   z-index:150;
   text-align:center;
+  min-width:220px;
+  max-width:320px;
+  border-radius:0 0 10px 10px;
   animation:slideUp .3s ease;
+  cursor:pointer;
 }
 @keyframes slideUp{from{transform:translateX(-50%) translateY(16px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-.loot-t { font-family:'Metal Mania',cursive; font-size:.95rem; color:var(--gold); margin-bottom:4px; letter-spacing:.2em; }
+.loot-t { font-family:'Metal Mania',cursive; font-size:.95rem; color:var(--gold); margin-bottom:8px; letter-spacing:.2em; }
 .loot-i { font-size:.8rem; color:#2a6a4a; }
 
 /* FLASH OVERLAY */
@@ -4444,13 +4448,9 @@ function victory(){
     addLog(`Bloodthirst: +${fmt(h)} HP`,'ll');
   }
   const drops = rollLootDrop(curEnemy, isBoss);
-  const dropStr = drops.map(n => `${ITEMS[n].emoji} ${n}`).join(' · ');
-  const lootTxt = drops.length
-    ? `+${fmt(xp)} XP · +${gold} Gold\n${dropStr}`
-    : `+${fmt(xp)} XP · +${gold} Gold`;
   drops.forEach(n => addLog(`Found: ${ITEMS[n].emoji} ${n}${ITEMS[n].tier===4?' ✦ LEGENDARY':''}!`,'lb'));
   addLog(`Victory! +${fmt(xp)} XP · +${gold} Gold`,'ll');
-  showLoot(lootTxt);
+  showLoot(xp, gold, drops);
   pendingLevelUps = [];
   if(Player.level < 100){ while(Player.xp>=Player.xpNext && Player.level<100){ levelUp(); } }
   inCombat=false; stopCombatTimer();
@@ -4678,11 +4678,29 @@ function addLog(msg,cls='ls'){
   if(p.children.length>100)p.removeChild(p.children[0]);
 }
 
-function showLoot(txt){ sndLoot();
-  document.getElementById('loot-txt').textContent=txt;
+function showLoot(xp, gold, drops){ sndLoot();
   const pop=document.getElementById('loot-popup');
+
+  // XP + gold line
+  let html=`<div style="color:#c8b060;font-size:.85rem;margin-bottom:6px;">+${fmt(xp)} XP &nbsp;·&nbsp; +${gold} Gold</div>`;
+
+  // Item drops with rarity styling
+  drops.forEach(n=>{
+    const item=ITEMS[n];
+    const tier=item?.tier||1;
+    let color='#8878a8'; let glow=''; let badge='';
+    if(tier===4){ color='#ffd700'; glow='text-shadow:0 0 10px #ffd700,0 0 20px #d4a830;'; badge='<span style="font-size:.6rem;border:1px solid #ffd700;color:#ffd700;padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">LEGENDARY</span>'; }
+    else if(tier===3){ color='#cc88ff'; glow='text-shadow:0 0 8px #9944cc;'; badge='<span style="font-size:.6rem;border:1px solid #cc88ff;color:#cc88ff;padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">RARE</span>'; }
+    html+=`<div style="color:${color};${glow}font-size:.88rem;margin-bottom:3px;">${item?.emoji||'📦'} ${n}${badge}</div>`;
+  });
+
+  if(!drops.length) html+=`<div style="color:#4a3a60;font-size:.8rem;">No items dropped.</div>`;
+
+  html+=`<div style="margin-top:8px;font-size:.68rem;color:#4a3a60;letter-spacing:.1em;">TAP TO CLOSE</div>`;
+
+  document.getElementById('loot-txt').innerHTML=html;
   pop.style.display='block';
-  setTimeout(()=>pop.style.display='none',3000);
+  pop.onclick=()=>{ pop.style.display='none'; pop.onclick=null; };
 }
 
 // ══════════════════════════════════════════════════════
