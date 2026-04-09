@@ -1793,6 +1793,16 @@ body::before {
   </div>
 </div>
 
+<!-- ══ QUEST COMPLETE OVERLAY ══ -->
+<div id="quest-complete-overlay" style="display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,0.92);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;" onclick="document.getElementById('quest-complete-overlay').style.display='none'">
+  <div style="font-family:'Metal Mania',cursive;font-size:.8rem;color:#44aa44;letter-spacing:.3em;margin-bottom:8px;">✦ QUEST COMPLETE ✦</div>
+  <div id="qc-name" style="font-family:'Metal Mania',cursive;font-size:1.6rem;color:var(--gold);letter-spacing:.1em;margin-bottom:6px;"></div>
+  <div id="qc-location" style="font-size:.72rem;color:#6a5a80;letter-spacing:.15em;margin-bottom:24px;"></div>
+  <div id="qc-reward" style="font-size:1rem;color:#c8b060;margin-bottom:12px;"></div>
+  <div id="qc-drops" style="margin-bottom:28px;"></div>
+  <div style="font-size:.68rem;color:#3a2a50;letter-spacing:.15em;">TAP TO CONTINUE</div>
+</div>
+
 <!-- ══ QUEST LOG MODAL ══ -->
 <div id="quest-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.88);flex-direction:column;align-items:center;padding:20px 16px;overflow-y:auto;">
   <div style="width:100%;max-width:400px;">
@@ -2178,6 +2188,38 @@ const QUESTS = [
     ],
     reward: { xp: 5500, gold: [800, 1600] },
     rewardDesc: '+5,500 XP  ·  800–1,600 Gold  ·  Penn Treaty Sigil',
+  },
+  {
+    id: 'graverobbers',
+    name: 'Graverobbers',
+    location: 'Laurel Hill Cemetery · East Falls',
+    type: 'SOLO',
+    color: '#334422',
+    world: 'philadelphia',
+    npcId: null,
+    lat: 39.9800, lng: -75.1900,
+    stages: [
+      { desc: 'Clear the cemetery of Grave Stalkers', detail: '0/3 Grave Stalkers', type: 'kill', mob: 'Grave Stalker', count: 3 },
+      { desc: 'Defeat Gravemaster Crane before he raises them again', type: 'boss', bossName: 'GRAVEMASTER CRANE' },
+    ],
+    reward: { xp: 4000, gold: [700, 1400] },
+    rewardDesc: "+4,000 XP  ·  700–1,400 Gold  ·  Death's Ledger",
+  },
+  {
+    id: 'plague_ward',
+    name: 'Plague Ward',
+    location: 'Eastern State Penitentiary · Fairmount',
+    type: 'BOSS CHAIN',
+    color: '#665500',
+    world: 'philadelphia',
+    npcId: null,
+    lat: 39.9683, lng: -75.1726,
+    stages: [
+      { desc: 'Put down the Plague Hounds prowling the yard', detail: '0/4 Plague Hounds', type: 'kill', mob: 'Plague Hound', count: 4 },
+      { desc: 'Confront Vexara, Plague Mother in Cell Block 7',      type: 'boss', bossName: 'VEXARA, PLAGUE MOTHER' },
+    ],
+    reward: { xp: 5000, gold: [900, 1800] },
+    rewardDesc: '+5,000 XP  ·  900–1,800 Gold  ·  Plague Sigil',
   },
 ];
 
@@ -3101,9 +3143,9 @@ function drawZones(){
     ctx.fillStyle=z.color; ctx.fill();
     ctx.strokeStyle=z.color.replace(/[\d.]+\)$/,'0.6)');
     ctx.lineWidth=1; ctx.setLineDash([4,5]); ctx.stroke(); ctx.setLineDash([]);
-    if(zoom>0.4){
+    if(zoom>0.25){
       ctx.font=`${Math.max(7,8*zoom)}px "Share Tech Mono"`;
-      ctx.fillStyle='rgba(220,180,60,0.6)'; ctx.textAlign='center';
+      ctx.fillStyle=`rgba(220,180,60,${Math.min(0.75, zoom*1.2)})`; ctx.textAlign='center';
       ctx.fillText(z.name.toUpperCase(),c.x,c.y-r+13);
     }
   });
@@ -3295,10 +3337,15 @@ function drawDungeons(){
       ctx.fillStyle='#5577cc'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('🔒',p.x+r*0.65,p.y-r*0.65);
     }
-    if(zoom>0.6){
-      ctx.font=`${Math.max(6,6*zoom)}px "Share Tech Mono"`;
-      ctx.fillStyle='#2255cc'; ctx.textBaseline='top'; ctx.textAlign='center';
+    if(zoom>0.4){
+      ctx.font=`${Math.max(6,7*zoom)}px "Share Tech Mono"`;
+      ctx.fillStyle='#4477dd'; ctx.textBaseline='top'; ctx.textAlign='center';
       ctx.fillText(d.name,p.x,p.y+r+3);
+      if(zoom>0.7 && d.subtitle){
+        ctx.font=`${Math.max(5,5*zoom)}px "Share Tech Mono"`;
+        ctx.fillStyle='rgba(68,119,221,0.5)';
+        ctx.fillText(d.subtitle,p.x,p.y+r+3+Math.max(7,8*zoom));
+      }
     }
   });
 }
@@ -4924,25 +4971,32 @@ function openQuestMarkerDialogue(q){
 
 // ── Quest mob spawning ────────────────────────────────
 function spawnQuestMobs(q){
-  if(q.id !== 'last_seating') return;
-  // Spawn 4 Drowned Sailors near the ship + 1 Iron Officer
-  const shipLat=39.9465, shipLng=-75.1374;
-  const drowned = MOB_TYPES.find(m=>m.name==='Drowned Sailor');
-  const officer = MOB_TYPES.find(m=>m.name==='Iron Officer');
-  if(drowned){
-    for(let i=0;i<4;i++){
-      const a=Math.random()*Math.PI*2, r=0.02+Math.random()*0.04;
-      spawns.push({...drowned,
-        lat:shipLat+(r/69.11)*Math.cos(a), lng:shipLng+(r/(69.11*Math.cos(shipLat*Math.PI/180)))*Math.sin(a),
-        hp:drowned.hp, maxHp:drowned.hp, atk:drowned.atk, def:drowned.def,
+  function spawnNear(mobName, count, baseLat, baseLng, spread=0.04){
+    const mob = MOB_TYPES.find(m=>m.name===mobName);
+    if(!mob) return;
+    for(let i=0;i<count;i++){
+      const a=Math.random()*Math.PI*2, r=0.015+Math.random()*spread;
+      spawns.push({...mob,
+        lat:baseLat+(r/69.11)*Math.cos(a), lng:baseLng+(r/(69.11*Math.cos(baseLat*Math.PI/180)))*Math.sin(a),
+        hp:mob.hp, maxHp:mob.hp, atk:mob.atk, def:mob.def,
         id:spawns.length, defeated:false, statuses:[], questMob:true});
     }
   }
-  if(officer){
-    spawns.push({...officer,
+
+  if(q.id === 'last_seating'){
+    const shipLat=39.9465, shipLng=-75.1374;
+    spawnNear('Drowned Sailor', 4, shipLat, shipLng);
+    const officer = MOB_TYPES.find(m=>m.name==='Iron Officer');
+    if(officer) spawns.push({...officer,
       lat:shipLat+0.0005, lng:shipLng+0.0003,
       hp:officer.hp, maxHp:officer.hp, atk:officer.atk, def:officer.def,
       id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
+  }
+  else if(q.id === 'graverobbers'){
+    spawnNear('Grave Stalker', 5, 39.9800, -75.1900);
+  }
+  else if(q.id === 'plague_ward'){
+    spawnNear('Plague Hound', 6, 39.9683, -75.1726);
   }
   render();
 }
@@ -4983,8 +5037,8 @@ function advanceQuest(qId){
     while(Player.xp >= Player.xpNext && Player.level < 100){ levelUp(); }
     addLog(`✦ Quest Complete: ${q.name}!`, 'lb');
     addLog(`  Reward: +${fmt(xp)} XP · +${gold} Gold`, 'll');
-    showDamageNum('QUEST COMPLETE!','dmg-heal','right');
     sndLevelUp();
+    setTimeout(()=>showQuestComplete(q, xp, gold), 600);
   } else {
     const next = q.stages[qs.stage];
     addLog(`📜 ${q.name}: ${next.desc}`, 'ls');
@@ -4992,6 +5046,23 @@ function advanceQuest(qId){
   updateQuestBtn();
   setPUI(); render();
   saveGame();
+}
+
+function showQuestComplete(q, xp, gold){
+  document.getElementById('qc-name').textContent = q.name;
+  document.getElementById('qc-location').textContent = q.location;
+  document.getElementById('qc-reward').textContent = `+${fmt(xp)} XP  ·  +${gold} Gold`;
+  const dropsEl = document.getElementById('qc-drops');
+  // Show reward desc (sigil/unique item) if it has a third part
+  const parts = q.rewardDesc.split('·');
+  if(parts.length > 2){
+    const unique = parts[2].trim();
+    dropsEl.innerHTML = `<div style="color:#cc88ff;font-size:.85rem;border:1px solid #cc88ff;display:inline-block;padding:4px 14px;border-radius:4px;letter-spacing:.08em;">✦ ${unique}</div>`;
+  } else {
+    dropsEl.innerHTML = '';
+  }
+  const overlay = document.getElementById('quest-complete-overlay');
+  overlay.style.display = 'flex';
 }
 
 // ── Quest Log UI ──────────────────────────────────────
