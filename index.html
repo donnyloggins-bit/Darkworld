@@ -1793,6 +1793,18 @@ body::before {
   </div>
 </div>
 
+<!-- ══ QUEST CUTSCENE OVERLAY ══ -->
+<div id="cutscene-overlay" style="display:none;position:fixed;inset:0;z-index:980;background:#000;cursor:pointer;" onclick="cutsceneAdvance()">
+  <div id="cutscene-slide" style="position:absolute;inset:0;">
+    <div id="cutscene-bg" style="position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;transition:opacity 1s ease;"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.5) 45%,rgba(0,0,0,0.15) 100%);"></div>
+    <div id="cutscene-label" style="position:absolute;top:28px;left:0;right:0;text-align:center;font-family:'Metal Mania',cursive;font-size:.7rem;color:var(--gold);letter-spacing:.35em;opacity:0;transition:opacity .8s ease;"></div>
+    <div id="cutscene-text" style="position:absolute;bottom:0;left:0;right:0;padding:0 28px 72px;display:flex;flex-direction:column;gap:14px;"></div>
+  </div>
+  <div style="position:absolute;bottom:18px;right:22px;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:rgba(255,255,255,0.28);letter-spacing:.15em;animation:introHintPulse 2s ease infinite;">TAP TO CONTINUE</div>
+  <div id="cutscene-skip" onclick="event.stopPropagation();cutsceneDone()" style="position:absolute;bottom:18px;left:22px;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:rgba(255,255,255,0.25);letter-spacing:.1em;padding:6px 10px;">SKIP</div>
+</div>
+
 <!-- ══ QUEST COMPLETE OVERLAY ══ -->
 <div id="quest-complete-overlay" style="display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,0.92);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;" onclick="document.getElementById('quest-complete-overlay').style.display='none'">
   <div style="font-family:'Metal Mania',cursive;font-size:.8rem;color:#44aa44;letter-spacing:.3em;margin-bottom:8px;">✦ QUEST COMPLETE ✦</div>
@@ -2193,6 +2205,11 @@ const QUESTS = [
     id: 'after_hours',
     name: 'After Hours',
     location: "Boyd's Department Store · Chestnut Street",
+    cutscene: [
+      { img:'boyds-elegant.png',  label:"BOYD'S · 3:00 AM",         lines:["Three in the morning.", "The store has been closed for hours."] },
+      { img:'boyds-chaos.png',    label:"THE SALES FLOOR",           lines:["Then they stood up.", "Every mannequin on every floor."] },
+      { img:'living-mannequin.jpeg',label:"MENSWEAR · SECOND FLOOR", lines:["They don't respond to light.", "They don't respond to sound.", "Only movement. Don't let them see you move."] },
+    ],
     type: 'SOLO',
     color: '#cc8844',
     world: 'philadelphia',
@@ -2208,6 +2225,10 @@ const QUESTS = [
   {
     id: 'last_seating',
     name: 'Last Seating',
+    cutscene: [
+      { img:'iron-meridian.png',   label:"THE IRON MERIDIAN · DELAWARE WATERFRONT", lines:["The dinner service ended three weeks ago.", "The crew never came back up from below deck."] },
+      { img:'drowned-sailor.png',  label:"BELOW DECK",                              lines:["They're still down there.", "Still at their posts.", "Still waiting for an order that never came."] },
+    ],
     location: 'The Iron Meridian · Delaware Waterfront',
     type: 'SOLO',
     color: '#d4a830',
@@ -2224,6 +2245,10 @@ const QUESTS = [
   {
     id: 'broken_treaty',
     name: 'The Broken Treaty',
+    cutscene: [
+      { img:'RIVER WRATH.png',  label:"PENN TREATY PARK · FISHTOWN",  lines:["The treaty was signed here in 1682.", "Peace between the settlers and the river.", "That peace is broken."] },
+      { img:'BRIDGE TROLL.png', label:"BEN FRANKLIN BRIDGE",          lines:["Two ancient things have risen.", "One from the water.", "One from the stone of the bridge itself."] },
+    ],
     location: 'Penn Treaty Park · Fishtown',
     type: 'BOSS CHAIN',
     color: '#44bb55',
@@ -2241,6 +2266,10 @@ const QUESTS = [
     id: 'never_leave',
     name: 'The Customer Who Never Left',
     location: "Boyd's Department Store · Chestnut Street",
+    cutscene: [
+      { img:'boyds-elegant.png', label:"BOYD'S DEPARTMENT STORE · AFTER CLOSE", lines:["He was here when the store opened.", "He has never left."] },
+      { img:'the-hollow.png',    label:"CHESTNUT STREET · PHILADELPHIA",         lines:["No one knows his name.", "No one remembers his face.", "Only the hat. Only the mask."] },
+    ],
     type: 'SOLO',
     color: '#556677',
     world: 'philadelphia',
@@ -2255,6 +2284,10 @@ const QUESTS = [
   {
     id: 'old_city_rising',
     name: 'Old City Rising',
+    cutscene: [
+      { img:'colonial-shade.jpeg',    label:"INDEPENDENCE HALL · OLD CITY", lines:["They signed the document in 1776.", "They never stopped guarding it."] },
+      { img:'forgotten-founder.png',  label:"THE FORGOTTEN FOUNDER",        lines:["His face dissolved into parchment centuries ago.", "His name was struck from every record.", "He alone remembers what was written in the dark."] },
+    ],
     location: 'Independence Hall · Old City',
     type: 'BOSS CHAIN',
     color: '#882222',
@@ -2271,6 +2304,9 @@ const QUESTS = [
   {
     id: 'city_hall_siege',
     name: 'City Hall Siege',
+    cutscene: [
+      { img:'city-beast.png', label:"CITY HALL · BROAD STREET", lines:["Something climbed the tower last night.", "By morning it was perched at the top.", "It hasn't moved since."] },
+    ],
     location: 'City Hall · Broad Street',
     type: 'BOSS CHAIN',
     color: '#aa6600',
@@ -2287,6 +2323,9 @@ const QUESTS = [
   {
     id: 'wissahickon_dark',
     name: 'The Wissahickon Dark',
+    cutscene: [
+      { img:'swamp-giant.png', label:"WISSAHICKON VALLEY · NORTHWEST", lines:["The creek has been rising for weeks.", "Not with water.", "Something is waking up in the roots below."] },
+    ],
     location: 'Wissahickon Valley · Northwest Philly',
     type: 'SOLO',
     color: '#336644',
@@ -2304,6 +2343,11 @@ const QUESTS = [
     id: 'the_ledger',
     name: 'The Ledger',
     location: "Boyd's Department Store · Chestnut Street",
+    cutscene: [
+      { img:'edward.jpeg',      label:"BOYD'S · BACK OFFICE",  lines:["I found it behind the inventory records.", "A ledger. But the numbers inside — they're not numbers."] },
+      { img:'boyds-blood.png',  label:"THE SALES FLOOR",       lines:["Every shipment for the past year.", "All of it moving through this building.", "Signed by one name. Malechar."] },
+      { img:'hellgate-arch.png',label:"THE FALLEN CITY",       lines:["He's been here the whole time.", "Right underneath us."] },
+    ],
     type: 'BOSS CHAIN',
     color: '#8855cc',
     world: 'philadelphia',
@@ -2319,6 +2363,9 @@ const QUESTS = [
   {
     id: 'graverobbers',
     name: 'Graverobbers',
+    cutscene: [
+      { img:'GRAVEMASTER.png', label:"LAUREL HILL CEMETERY · EAST FALLS", lines:["Someone has been opening the graves.", "Not to take anything.", "To put something back in."] },
+    ],
     location: 'Laurel Hill Cemetery · East Falls',
     type: 'SOLO',
     color: '#334422',
@@ -2335,6 +2382,9 @@ const QUESTS = [
   {
     id: 'plague_ward',
     name: 'Plague Ward',
+    cutscene: [
+      { img:'plague mother.png', label:"EASTERN STATE PENITENTIARY · FAIRMOUNT", lines:["The cells have been sealed for thirty years.", "Last week, Cell Block 7 started breathing.", "Something inside is counting down."] },
+    ],
     location: 'Eastern State Penitentiary · Fairmount',
     type: 'BOSS CHAIN',
     color: '#665500',
@@ -5115,6 +5165,64 @@ function introSkip(){
 }
 
 // ══════════════════════════════════════════════════════
+//  CUTSCENE SYSTEM
+// ══════════════════════════════════════════════════════
+let _cutsceneSlides=[], _cutsceneIdx=0, _cutsceneLineIdx=0, _cutsceneAnimating=false, _cutsceneDoneCb=null;
+
+function playCutscene(slides, onDone){
+  if(!slides||!slides.length){ if(onDone)onDone(); return; }
+  _cutsceneSlides=slides; _cutsceneIdx=0; _cutsceneDoneCb=onDone;
+  document.getElementById('cutscene-overlay').style.display='block';
+  _showCutsceneSlide(0);
+}
+
+function _showCutsceneSlide(i){
+  const s=_cutsceneSlides[i];
+  if(!s){ cutsceneDone(); return; }
+  _cutsceneIdx=i; _cutsceneLineIdx=0; _cutsceneAnimating=true;
+  const bg=document.getElementById('cutscene-bg');
+  bg.style.opacity='0';
+  setTimeout(()=>{ bg.style.backgroundImage=`url('${s.img}')`; bg.style.opacity='1'; },100);
+  const label=document.getElementById('cutscene-label');
+  label.textContent=s.label||'';
+  label.style.opacity='0';
+  setTimeout(()=>{ label.style.opacity='1'; },400);
+  const textEl=document.getElementById('cutscene-text');
+  textEl.innerHTML=s.lines.map(l=>`<div class="intro-line">${l}</div>`).join('');
+  _showNextCutsceneLine();
+}
+
+function _showNextCutsceneLine(){
+  const s=_cutsceneSlides[_cutsceneIdx];
+  const lines=document.querySelectorAll('#cutscene-text .intro-line');
+  if(_cutsceneLineIdx>=lines.length){ _cutsceneAnimating=false; return; }
+  lines[_cutsceneLineIdx].classList.add('show');
+  _cutsceneLineIdx++;
+  setTimeout(()=>{ if(_cutsceneIdx===_cutsceneSlides.indexOf(_cutsceneSlides[_cutsceneIdx])) _showNextCutsceneLine(); }, _cutsceneLineIdx===1?900:650);
+}
+
+function cutsceneAdvance(){
+  if(_cutsceneAnimating){
+    // skip to all lines visible
+    document.querySelectorAll('#cutscene-text .intro-line').forEach(l=>l.classList.add('show'));
+    _cutsceneAnimating=false;
+    return;
+  }
+  if(_cutsceneIdx<_cutsceneSlides.length-1){
+    _showCutsceneSlide(_cutsceneIdx+1);
+  } else {
+    cutsceneDone();
+  }
+}
+
+function cutsceneDone(){
+  document.getElementById('cutscene-overlay').style.display='none';
+  document.getElementById('cutscene-bg').style.backgroundImage='';
+  _cutsceneSlides=[]; _cutsceneIdx=0;
+  if(_cutsceneDoneCb){ _cutsceneDoneCb(); _cutsceneDoneCb=null; }
+}
+
+// ══════════════════════════════════════════════════════
 //  QUEST SYSTEM
 // ══════════════════════════════════════════════════════
 
@@ -5173,26 +5281,33 @@ function acceptQuestFromNPC(){
   if(!_activeNPC) return;
   const q = QUESTS.find(q=>q.id===_activeNPC.quest);
   if(!q) return;
-  playerQuests[q.id] = { status:'active', stage:1, kills:{} };
-  addLog(`📜 Quest accepted: ${q.name}`,'lb');
   closeNPC();
-  updateQuestBtn();
-  // Spawn quest mobs near the relevant area
-  spawnQuestMobs(q);
-  saveGame();
+  const doAccept=()=>{
+    playerQuests[q.id] = { status:'active', stage:1, kills:{} };
+    addLog(`📜 Quest accepted: ${q.name}`,'lb');
+    updateQuestBtn();
+    spawnQuestMobs(q);
+    saveGame();
+  };
+  if(q.cutscene) playCutscene(q.cutscene, doAccept);
+  else doAccept();
 }
 
 // ── Quest marker tap (no NPC) ─────────────────────────
 function openQuestMarkerDialogue(q){
   const qs = playerQuests[q.id];
   if(!qs || qs.status==='available'){
-    // Auto-accept when you tap the marker
-    playerQuests[q.id] = { status:'active', stage:0, kills:{} };
-    addLog(`📜 Quest accepted: ${q.name}`,'lb');
-    addLog(q.stages[0].desc,'ls');
-    updateQuestBtn();
-    saveGame();
-    render();
+    const doAccept=()=>{
+      playerQuests[q.id] = { status:'active', stage:0, kills:{} };
+      addLog(`📜 Quest accepted: ${q.name}`,'lb');
+      addLog(q.stages[0].desc,'ls');
+      updateQuestBtn();
+      spawnQuestMobs(q);
+      saveGame();
+      render();
+    };
+    if(q.cutscene) playCutscene(q.cutscene, doAccept);
+    else doAccept();
   } else if(qs.status==='active'){
     const stage = q.stages[qs.stage] || q.stages[q.stages.length-1];
     addLog(`📜 ${q.name}: ${stage.desc}`,'ls');
