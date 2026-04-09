@@ -3846,7 +3846,6 @@ function arQuestTap(){
   const btn=document.getElementById('ar-quest-btn');
   const e=btn&&btn._questData;
   if(!e) return;
-  if(gpsFirstLock&&e.dist>ENGAGE_MILES){ addLog('⚠ Move closer.','ls'); return; }
   stopAR();
   if(e.isNPC) openNPCDialogue(e.entity);
   else openQuestMarkerDialogue(e.entity);
@@ -4089,10 +4088,9 @@ function renderAR(){
   const _arQBtn=document.getElementById('ar-quest-btn');
   if(arQuestCandidates.length>0){
     const _closest=arQuestCandidates.sort((a,b)=>a.dist-b.dist)[0];
-    const _tooFar=gpsFirstLock&&_closest.dist>ENGAGE_MILES;
-    _arQBtn.textContent=_tooFar?'GET CLOSER':(_closest.isNPC?`SPEAK · ${_closest.name.toUpperCase()}`:`ACCEPT · ${_closest.name.toUpperCase()}`);
+    _arQBtn.textContent=_closest.isNPC?`SPEAK · ${_closest.name.toUpperCase()}`:`ACCEPT · ${_closest.name.toUpperCase()}`;
     _arQBtn.style.display='block';
-    _arQBtn.style.opacity=_tooFar?'0.5':'1';
+    _arQBtn.style.opacity='1';
     _arQBtn._questData=_closest;
   } else {
     _arQBtn.style.display='none';
