@@ -15,20 +15,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Metal+Mania&family=IM+Fell+English:ital@0;1&family=Share+Tech+Mono&display=swap');
 
 :root {
-  --void:    #0d0a14;
-  --abyss:   #141020;
-  --pit:     #1a1628;
-  --shadow:  #221e30;
-  --dark:    #2a253a;
-  --muted:   #3a3452;
-  --blood:   #aa1a1a;
-  --crimson: #cc3030;
-  --ember:   #d06010;
-  --gold:    #d4a830;
-  --pale:    #ddd0b8;
+  --void:    #080510;
+  --abyss:   #100a18;
+  --pit:     #16102a;
+  --shadow:  #1e1828;
+  --dark:    #261e36;
+  --muted:   #342a48;
+  --blood:   #8b1a1a;
+  --crimson: #cc2020;
+  --ember:   #c45510;
+  --gold:    #d4a020;
+  --pale:    #e0d0b0;
   --bone:    #ede0c8;
   --ghost:   #f8f0e4;
-  --soul:    rgba(200,180,240,0.12);
+  --soul:    rgba(180,150,220,0.10);
 }
 
 html { font-size: 20px; }
@@ -52,7 +52,8 @@ body::before {
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
   pointer-events:none;
   z-index:9999;
-  opacity:0.6;
+  opacity:0.18;
+  will-change:opacity;
 }
 
 /* ── LANDSCAPE WARNING ── */
@@ -203,41 +204,42 @@ body::before {
   content:'';
   position:absolute;
   inset:0;
-  background:linear-gradient(to bottom, rgba(5,3,10,0.45) 0%, rgba(5,3,10,0.75) 100%);
+  background:linear-gradient(to bottom, rgba(40,0,0,0.35) 0%, rgba(5,2,8,0.80) 60%, rgba(5,2,8,0.95) 100%);
   pointer-events:none;
 }
 
 .title-runes {
   font-family:'Share Tech Mono',monospace;
-  font-size:.88rem;
-  color:rgba(220,60,60,0.85);
-  letter-spacing:.5em;
+  font-size:.92rem;
+  color:rgba(220,50,50,0.9);
+  letter-spacing:.6em;
   margin-bottom:30px;
-  text-shadow:0 0 10px rgba(200,0,0,0.7);
+  text-shadow:0 0 14px rgba(200,0,0,0.8), 0 0 40px rgba(150,0,0,0.4);
   animation:flicker 4s ease infinite;
 }
 
 @keyframes flicker {
-  0%,100%{opacity:.3} 50%{opacity:.7} 75%{opacity:.2} 80%{opacity:.6}
+  0%,100%{opacity:.3} 50%{opacity:.75} 75%{opacity:.2} 80%{opacity:.65}
 }
 
 .main-title {
   font-family:'Metal Mania',cursive;
-  font-size:clamp(1.6rem, 10vw, 5rem);
+  font-size:clamp(1.8rem, 11vw, 5.5rem);
   color:#fff;
-  letter-spacing:.02em;
+  letter-spacing:.06em;
   text-shadow:
-    0 2px 4px rgba(0,0,0,0.9),
-    0 0 40px rgba(180,20,20,1),
-    0 0 80px rgba(139,26,26,0.7),
-    0 0 140px rgba(100,0,0,0.5);
+    0 2px 4px rgba(0,0,0,1),
+    0 0 30px rgba(200,20,20,1),
+    0 0 60px rgba(160,10,10,0.9),
+    0 0 120px rgba(120,0,0,0.7),
+    0 0 200px rgba(80,0,0,0.5);
   margin-bottom:8px;
   animation:titlePulse 3s ease infinite;
 }
 
 @keyframes titlePulse {
-  0%,100%{text-shadow:0 0 40px rgba(139,26,26,0.8),0 0 80px rgba(139,26,26,0.4)} 
-  50%{text-shadow:0 0 60px rgba(180,26,26,1),0 0 100px rgba(139,26,26,0.6),0 0 160px rgba(100,0,0,0.4)}
+  0%,100%{opacity:0.9;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.02)}
 }
 
 .main-subtitle {
@@ -252,19 +254,19 @@ body::before {
 }
 
 .begin-btn {
-  background:rgba(80,0,0,0.55);
-  border:1px solid #cc2222;
+  background:linear-gradient(180deg, rgba(100,10,10,0.6) 0%, rgba(50,0,0,0.7) 100%);
+  border:2px solid #cc2222;
   color:#f0d0d0;
   font-family:'Metal Mania',cursive;
-  font-size:clamp(.7rem, 2vw, .9rem);
-  letter-spacing:.2em;
-  padding:clamp(10px,2vh,16px) clamp(24px,6vw,50px);
+  font-size:clamp(.75rem, 2.2vw, 1rem);
+  letter-spacing:.25em;
+  padding:clamp(12px,2.5vh,18px) clamp(28px,7vw,56px);
   cursor:pointer;
   position:relative;
   transition:all .3s ease;
   text-transform:uppercase;
-  text-shadow:0 0 10px rgba(255,80,80,0.5);
-  box-shadow:0 0 20px rgba(150,0,0,0.4);
+  text-shadow:0 0 12px rgba(255,60,60,0.7), 0 0 30px rgba(180,0,0,0.4);
+  box-shadow:0 0 30px rgba(150,0,0,0.5), inset 0 0 20px rgba(100,0,0,0.3);
 }
 
 .begin-btn::before {
@@ -946,7 +948,7 @@ body::before {
 ══════════════════════════════════════════════ */
 #combat-modal {
   display:none; position:fixed; inset:0;
-  background:#100d1e; z-index:100;
+  background:linear-gradient(180deg, #100a18 0%, #080510 100%); z-index:100;
   overflow:hidden;
 }
 #combat-modal.active { display:flex; flex-direction:column; }
@@ -963,7 +965,7 @@ body::before {
   flex:1; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   padding:16px 20px 8px;
-  background:radial-gradient(ellipse at 50% 30%, #1e1838 0%, #100d1e 75%);
+  background:radial-gradient(ellipse at 50% 30%, #221430 0%, #120a1a 60%, #080510 100%);
   position:relative; min-height:0; overflow:hidden;
 }
 #cb-name {
@@ -993,9 +995,9 @@ body::before {
 @keyframes cAtk    { 0%{transform:scale(1)} 40%{transform:scale(1.25) translateY(-8px)} 100%{transform:scale(1)} }
 @keyframes cHit    { 0%,100%{transform:translate(0) scale(1)} 25%{transform:translate(-14px,6px) scale(0.9)} 60%{transform:translate(8px,-3px) scale(0.97)} }
 @keyframes eLunge  { 0%{transform:scale(1) translateY(0)} 35%{transform:scale(1.35) translateY(28px)} 65%{transform:scale(1.15) translateY(18px)} 100%{transform:scale(1) translateY(0)} }
-@keyframes eCharge { 0%{transform:scale(1);filter:drop-shadow(0 0 0px transparent)} 60%{transform:scale(1.3);filter:drop-shadow(0 0 18px rgba(255,140,0,0.9))} 100%{transform:scale(1);filter:drop-shadow(0 0 0px transparent)} }
-@keyframes eSpecial{ 0%{transform:scale(1) translateY(0);filter:drop-shadow(0 0 0 transparent)} 20%{transform:scale(1.5) translateY(-6px);filter:drop-shadow(0 0 24px rgba(255,60,0,1))} 60%{transform:scale(1.6) translateY(36px);filter:drop-shadow(0 0 30px rgba(255,20,0,1))} 100%{transform:scale(1) translateY(0);filter:none} }
-@keyframes eCrit   { 0%{transform:scale(1);filter:none} 30%{transform:scale(1.8) translateY(20px);filter:drop-shadow(0 0 30px rgba(255,255,255,1)) brightness(3)} 70%{transform:scale(1.2) translateY(10px)} 100%{transform:scale(1) translateY(0);filter:none} }
+@keyframes eCharge { 0%{transform:scale(1)} 60%{transform:scale(1.3)} 100%{transform:scale(1)} }
+@keyframes eSpecial{ 0%{transform:scale(1) translateY(0)} 20%{transform:scale(1.5) translateY(-6px)} 60%{transform:scale(1.6) translateY(36px)} 100%{transform:scale(1) translateY(0)} }
+@keyframes eCrit   { 0%{transform:scale(1)} 30%{transform:scale(1.8) translateY(20px)} 70%{transform:scale(1.2) translateY(10px)} 100%{transform:scale(1) translateY(0)} }
 
 /* Hit flash overlays */
 #enemy-atk-flash {
@@ -1060,7 +1062,7 @@ body::before {
 #combo-count.c5  { color:#ff8800; text-shadow:0 0 16px rgba(255,120,0,0.6); }
 #combo-count.c7  { color:#ff3300; text-shadow:0 0 20px rgba(255,50,0,0.7); }
 #combo-count.c10 { color:#ffcc00; text-shadow:0 0 24px rgba(255,200,0,0.9); animation:comboPulse 1s ease infinite; }
-@keyframes comboPulse { 0%,100%{text-shadow:0 0 16px rgba(255,200,0,0.7)} 50%{text-shadow:0 0 32px rgba(255,220,0,1)} }
+@keyframes comboPulse { 0%,100%{opacity:0.85;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
 @keyframes comboBump { 0%{transform:scale(1)} 40%{transform:scale(1.35)} 100%{transform:scale(1)} }
 .combo-bump { animation:comboBump .18s ease; }
 
@@ -1176,7 +1178,7 @@ body::before {
 .abtn.type-sig { border-color:#8a5a00; }
 .abtn.type-sig .abtn-type { background:#5a3800; color:#ffcc44; }
 .abtn.type-sig.ready { border-color:var(--gold); box-shadow:0 0 12px rgba(212,168,48,0.5); animation:sigPulse 2s ease infinite; }
-@keyframes sigPulse { 0%,100%{box-shadow:0 0 8px rgba(212,168,48,0.3)} 50%{box-shadow:0 0 20px rgba(255,200,0,0.7)} }
+@keyframes sigPulse { 0%,100%{opacity:0.8;transform:scale(1)} 50%{opacity:1;transform:scale(1.04)} }
 
 /* Flee */
 .abtn.flee-btn { flex:0 0 66px; border-color:#6a2a2a; }
@@ -1251,7 +1253,7 @@ body::before {
 /* INVENTORY / SHOP MODALS */
 #inv-modal, #shop-modal {
   display:none; position:fixed; inset:0; z-index:150;
-  background:rgba(14,11,24,0.96); backdrop-filter:blur(8px);
+  background:rgba(14,11,24,0.96); /* backdrop-filter removed for perf */
   flex-direction:column; align-items:center;
   overflow-y:auto; padding:16px 12px 32px;
 }
@@ -1345,28 +1347,27 @@ body::before {
 #death-screen {
   display:none;
   position:fixed; inset:0;
-  background:rgba(60,0,0,0.85);
+  background:linear-gradient(180deg, rgba(80,0,0,0.92) 0%, rgba(30,0,0,0.96) 50%, rgba(5,0,0,0.98) 100%);
   z-index:200;
   align-items:center;
   justify-content:center;
   flex-direction:column;
   gap:20px;
-  backdrop-filter:blur(10px) saturate(0.3);
 }
 #death-screen.active { display:flex; }
 #death-screen h2 {
   font-family:'Metal Mania',cursive;
-  font-size:3rem;
-  color:#dd2222;
-  text-shadow:0 0 40px rgba(107,0,0,0.9),0 0 80px rgba(107,0,0,0.5);
-  letter-spacing:.1em;
+  font-size:3.5rem;
+  color:#ee2222;
+  text-shadow:0 0 40px rgba(180,0,0,1),0 0 80px rgba(120,0,0,0.8),0 0 140px rgba(80,0,0,0.5);
+  letter-spacing:.15em;
   animation:deathPulse 2s ease infinite;
 }
-@keyframes deathPulse { 0%,100%{opacity:.8}50%{opacity:1} }
-#death-screen p { color:#c08080; font-style:italic; font-size:1.25rem; }
+@keyframes deathPulse { 0%,100%{opacity:.8;transform:scale(1)} 50%{opacity:1;transform:scale(1.03)} }
+#death-screen p { color:#d09090; font-style:italic; font-size:1.25rem; text-shadow:0 0 10px rgba(100,0,0,0.5); }
 #revive-btn {
-  background:#0d0508;
-  border:1px solid var(--gold);
+  background:linear-gradient(180deg, #1a0508, #0d0306);
+  border:2px solid var(--gold);
   color:var(--gold);
   font-family:'Metal Mania',cursive;
   font-size:.8rem;
@@ -1409,7 +1410,7 @@ body::before {
 /* SKILLS MODAL */
 #skills-modal {
   display:none; position:fixed; inset:0; z-index:150;
-  background:rgba(14,11,24,0.96); backdrop-filter:blur(8px);
+  background:rgba(14,11,24,0.96); /* backdrop-filter removed for perf */
   flex-direction:column; align-items:center;
   overflow-y:auto; padding:16px 12px 32px;
 }
@@ -1438,7 +1439,7 @@ body::before {
 .skill-card.locked { opacity:.45; cursor:default; }
 .skill-card.chosen { border-color:#44aa44; background:#101e10; }
 .skill-card.choosable { border-color:var(--gold); animation:skillGlow 1.5s ease infinite; }
-@keyframes skillGlow { 0%,100%{box-shadow:0 0 4px rgba(212,168,48,0.3)} 50%{box-shadow:0 0 14px rgba(212,168,48,0.8)} }
+@keyframes skillGlow { 0%,100%{opacity:0.85;transform:scale(1)} 50%{opacity:1;transform:scale(1.02)} }
 .skill-emoji { font-size:1.5rem; flex-shrink:0; }
 .skill-info { flex:1; }
 .skill-name { font-family:'Metal Mania',cursive; font-size:.88rem; color:var(--pale); margin-bottom:2px; }
@@ -1450,7 +1451,7 @@ body::before {
 /* LEVEL UP MODAL */
 #levelup-modal {
   display:none; position:fixed; inset:0; z-index:200;
-  background:rgba(5,3,12,0.92); backdrop-filter:blur(12px);
+  background:rgba(5,3,12,0.97); /* backdrop-filter removed for perf */
   align-items:center; justify-content:center;
   flex-direction:column;
 }
@@ -2054,7 +2055,7 @@ const WORLDS = {
       {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:8500, atk:400,def:63, xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart", portrait:'jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.png'},
       {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:6500, atk:350,def:88, xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost', portrait:'iron ghost.png'},
       {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:6000, atk:325,def:50, xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil', portrait:'plague mother.png'},
-      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:4250, atk:275,def:44, xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil", portrait:'RIVER WRATH.png'},
+      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:4250, atk:275,def:44, xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil", portrait:'storm-wraith.png'},
       {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:3750, atk:250,def:63, xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger", portrait:'GRAVEMASTER.png'},
       {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:3250, atk:225,def:88, xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle", portrait:'BRIDGE TROLL.png'},
     ],
@@ -2209,7 +2210,7 @@ const QUESTS = [
     cutscene: [
       { img:'boyds-elegant.png',  label:"BOYD'S · 3:00 AM",         lines:["Three in the morning.", "The store has been closed for hours."] },
       { img:'boyds-chaos.png',    label:"THE SALES FLOOR",           lines:["Then they stood up.", "Every mannequin on every floor."] },
-      { img:'living-mannequin.jpeg',label:"MENSWEAR · SECOND FLOOR", lines:["They don't respond to light.", "They don't respond to sound.", "Only movement. Don't let them see you move."] },
+      { img:'mannequin-horror.png',label:"MENSWEAR · SECOND FLOOR", lines:["They don't respond to light.", "They don't respond to sound.", "Only movement. Don't let them see you move."] },
     ],
     type: 'SOLO',
     color: '#cc8844',
@@ -2227,8 +2228,8 @@ const QUESTS = [
     id: 'last_seating',
     name: 'Last Seating',
     cutscene: [
-      { img:'iron-meridian.png',   label:"THE IRON MERIDIAN · DELAWARE WATERFRONT", lines:["The dinner service ended three weeks ago.", "The crew never came back up from below deck."] },
-      { img:'drowned-sailor.png',  label:"BELOW DECK",                              lines:["They're still down there.", "Still at their posts.", "Still waiting for an order that never came."] },
+      { img:'iron-meridian-dining.png',   label:"THE IRON MERIDIAN · DELAWARE WATERFRONT", lines:["The dinner service ended three weeks ago.", "The crew never came back up from below deck."] },
+      { img:'delaware-tallship.png',  label:"BELOW DECK",                              lines:["They're still down there.", "Still at their posts.", "Still waiting for an order that never came."] },
     ],
     location: 'The Iron Meridian · Delaware Waterfront',
     type: 'SOLO',
@@ -2247,7 +2248,7 @@ const QUESTS = [
     id: 'broken_treaty',
     name: 'The Broken Treaty',
     cutscene: [
-      { img:'RIVER WRATH.png',  label:"PENN TREATY PARK · FISHTOWN",  lines:["The treaty was signed here in 1682.", "Peace between the settlers and the river.", "That peace is broken."] },
+      { img:'storm-wraith.png',  label:"PENN TREATY PARK · FISHTOWN",  lines:["The treaty was signed here in 1682.", "Peace between the settlers and the river.", "That peace is broken."] },
       { img:'BRIDGE TROLL.png', label:"BEN FRANKLIN BRIDGE",          lines:["Two ancient things have risen.", "One from the water.", "One from the stone of the bridge itself."] },
     ],
     location: 'Penn Treaty Park · Fishtown',
@@ -2286,7 +2287,7 @@ const QUESTS = [
     id: 'old_city_rising',
     name: 'Old City Rising',
     cutscene: [
-      { img:'colonial-shade.jpeg',    label:"INDEPENDENCE HALL · OLD CITY", lines:["They signed the document in 1776.", "They never stopped guarding it."] },
+      { img:'rev-ghost.png',    label:"INDEPENDENCE HALL · OLD CITY", lines:["They signed the document in 1776.", "They never stopped guarding it."] },
       { img:'forgotten-founder.png',  label:"THE FORGOTTEN FOUNDER",        lines:["His face dissolved into parchment centuries ago.", "His name was struck from every record.", "He alone remembers what was written in the dark."] },
     ],
     location: 'Independence Hall · Old City',
@@ -2306,7 +2307,7 @@ const QUESTS = [
     id: 'city_hall_siege',
     name: 'City Hall Siege',
     cutscene: [
-      { img:'city-beast.png', label:"CITY HALL · BROAD STREET", lines:["Something climbed the tower last night.", "By morning it was perched at the top.", "It hasn't moved since."] },
+      { img:'city-beast-frazetta.png', label:"CITY HALL · BROAD STREET", lines:["Something climbed the tower last night.", "By morning it was perched at the top.", "It hasn't moved since."] },
     ],
     location: 'City Hall · Broad Street',
     type: 'BOSS CHAIN',
@@ -2325,7 +2326,7 @@ const QUESTS = [
     id: 'wissahickon_dark',
     name: 'The Wissahickon Dark',
     cutscene: [
-      { img:'swamp-giant.png', label:"WISSAHICKON VALLEY · NORTHWEST", lines:["The creek has been rising for weeks.", "Not with water.", "Something is waking up in the roots below."] },
+      { img:'swamp-colossus.png', label:"WISSAHICKON VALLEY · NORTHWEST", lines:["The creek has been rising for weeks.", "Not with water.", "Something is waking up in the roots below."] },
     ],
     location: 'Wissahickon Valley · Northwest Philly',
     type: 'SOLO',
@@ -2347,7 +2348,7 @@ const QUESTS = [
     cutscene: [
       { img:'edward.jpeg',      label:"BOYD'S · BACK OFFICE",  lines:["I found it behind the inventory records.", "A ledger. But the numbers inside — they're not numbers."] },
       { img:'boyds-blood.png',  label:"THE SALES FLOOR",       lines:["Every shipment for the past year.", "All of it moving through this building.", "Signed by one name. Malechar."] },
-      { img:'hellgate-arch.png',label:"THE FALLEN CITY",       lines:["He's been here the whole time.", "Right underneath us."] },
+      { img:'hellgate-staircase.png',label:"THE FALLEN CITY",       lines:["He's been here the whole time.", "Right underneath us."] },
     ],
     type: 'BOSS CHAIN',
     color: '#8855cc',
@@ -2408,29 +2409,29 @@ let CENTER, ZONES, ZONE_DESCS, BOSSES;
 const MOB_TYPES = [
   {name:'Lich Servant',    emoji:'💀', zone:0, hp:190, atk:38, def:10, xp:800,  gold:[150,300], portrait:'lichservant.jpeg'},
   {name:'Void Shade',      emoji:'🌑', zone:0, hp:160, atk:42, def:8,  xp:700,  gold:[120,250], portrait:'voidshade.jpeg'},
-  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:130, atk:25, def:5,  xp:400,  gold:[80,180],  portrait:'bloodwraith.jpeg'},
+  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:130, atk:25, def:5,  xp:400,  gold:[80,180],  portrait:'blood-wraith-sword.png'},
   {name:'Plague Hound',    emoji:'🐺', zone:1, hp:110, atk:28, def:4,  xp:350,  gold:[60,140],  portrait:'plaguehound.jpeg'},
   {name:'Bone Archer',     emoji:'🏹', zone:1, hp:100, atk:30, def:3,  xp:380,  gold:[70,160],  portrait:'bonearcher.jpeg'},
   {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:85,  atk:18, def:3,  xp:250,  gold:[50,120],  portrait:'hollowknight.jpeg'},
-  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:70,  atk:20, def:2,  xp:220,  gold:[40,100],  portrait:'wailingbanshee.jpeg'},
-  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:100, atk:16, def:6,  xp:280,  gold:[50,110],  portrait:'rotgolem.jpeg'},
+  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:70,  atk:20, def:2,  xp:220,  gold:[40,100],  portrait:'wailing-ghost.png'},
+  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:100, atk:16, def:6,  xp:280,  gold:[50,110],  portrait:'swamp-colossus.png'},
   {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:48,  atk:12, def:1,  xp:120,  gold:[20,60],   portrait:'gravewanderer.jpeg'},
   {name:'Bog Specter',     emoji:'💨', zone:3, hp:52,  atk:14, def:1,  xp:140,  gold:[20,70],   portrait:'bogspecter.jpeg'},
   {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:38,  atk:10, def:0,  xp:80,   gold:[10,40],   portrait:'cursedrat.jpeg'},
   {name:'Lost Soul',       emoji:'🕯', zone:4, hp:22,  atk:6,  def:0,  xp:50,   gold:[5,25],    portrait:'lostsoul.jpeg'},
   {name:'Shadow Imp',      emoji:'👿', zone:4, hp:20,  atk:7,  def:0,  xp:45,   gold:[5,25],    portrait:'shadowimp.jpeg'},
   // ── Quest mobs ──
-  {name:'Drowned Sailor',  emoji:'⚓', zone:1, hp:145, atk:30, def:7,  xp:460,  gold:[90,200],  portrait:'drowned-sailor.png',   questOnly:true},
+  {name:'Drowned Sailor',  emoji:'⚓', zone:1, hp:145, atk:30, def:7,  xp:460,  gold:[90,200],  portrait:'water-wraith.png',   questOnly:true},
   {name:'Iron Officer',    emoji:'🗡', zone:0, hp:390, atk:98, def:26, xp:1250, gold:[220,480], portrait:'iron-officer.png',     questOnly:true, isMini:true},
-  {name:'Living Mannequin',  emoji:'🪆', zone:2, hp:95,  atk:22, def:5,  xp:300,  gold:[55,130],  portrait:'living-mannequin.jpeg', questOnly:true},
+  {name:'Living Mannequin',  emoji:'🪆', zone:2, hp:95,  atk:22, def:5,  xp:300,  gold:[55,130],  portrait:'mannequin-horror.png', questOnly:true},
   {name:'The Tailor',        emoji:'🧵', zone:1, hp:850, atk:145,def:35, xp:1500, gold:[300,650], portrait:'the-tailor.png',        questOnly:true, isMini:true},
   {name:'Cursed Accountant',          emoji:'📒', zone:0, hp:220, atk:55, def:12, xp:600,  gold:[100,240], portrait:'lichservant.jpeg',  questOnly:true},
   {name:'The Ledger Wraith',          emoji:'📖', zone:0, hp:920, atk:165,def:40, xp:2000, gold:[400,800], portrait:'ledger-wraith.png', questOnly:true, isMini:true},
   {name:'The Customer Who Never Left',emoji:'🎩', zone:3, hp:280, atk:45, def:8,  xp:750,  gold:[120,280], portrait:'the-hollow.png',   questOnly:true, isMini:true},
-  {name:'Colonial Shade',             emoji:'🪖', zone:2, hp:115, atk:26, def:5,  xp:340,  gold:[65,150],  portrait:'colonial-shade.jpeg', questOnly:true},
+  {name:'Colonial Shade',             emoji:'🪖', zone:2, hp:115, atk:26, def:5,  xp:340,  gold:[65,150],  portrait:'rev-ghost.png', questOnly:true},
   {name:'The Forgotten Founder',      emoji:'📜', zone:1, hp:1100,atk:180,def:45, xp:2400, gold:[450,900], portrait:'forgotten-founder.png',questOnly:true, isMini:true},
-  {name:'The City Beast',             emoji:'🦁', zone:0, hp:1400,atk:210,def:55, xp:3000, gold:[550,1100],portrait:'city-beast.png',      questOnly:true, isMini:true},
-  {name:'Swamp Giant',                emoji:'🌿', zone:2, hp:800, atk:150,def:38, xp:1800, gold:[350,700], portrait:'swamp-giant.png',      questOnly:true, isMini:true},
+  {name:'The City Beast',             emoji:'🦁', zone:0, hp:1400,atk:210,def:55, xp:3000, gold:[550,1100],portrait:'city-beast-frazetta.png',      questOnly:true, isMini:true},
+  {name:'Swamp Giant',                emoji:'🌿', zone:2, hp:800, atk:150,def:38, xp:1800, gold:[350,700], portrait:'swamp-colossus.png',      questOnly:true, isMini:true},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -3202,7 +3203,7 @@ function getImg(src){
   if(!_imgCache[src]){
     const img = new Image();
     _imgCache[src] = img;  // store before setting src to avoid race
-    img.onload = ()=>render();
+    img.onload = ()=>markDirty();
     img.src = src;
   }
   const img = _imgCache[src];
@@ -3236,8 +3237,8 @@ function ri(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function fmt(n){ return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'K':n.toString(); }
 
 const mapBgImg = new Image();
-mapBgImg.onload = ()=>{ if(Player) render(); };
-mapBgImg.src = 'map-bg.jpeg';
+mapBgImg.onload = ()=>{ if(Player) markDirty(); };
+mapBgImg.src = 'spooky-aerial.png';
 
 let spawns=[];
 function genSpawns(){
@@ -3351,11 +3352,14 @@ function drawPaths(){
 
 function drawMob(s){
   const p=ll2px(s.lat,s.lng);
+  // Skip offscreen mobs
+  if(p.x < -40 || p.x > mapW+40 || p.y < -40 || p.y > mapH+40) return;
   const r=Math.max(8,10*zoom);
-  // Glow
-  const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r*2.5);
-  g.addColorStop(0,'rgba(140,80,180,0.4)'); g.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,r*2.5,0,Math.PI*2); ctx.fill();
+  // Glow — use simple fillStyle instead of radialGradient for perf
+  ctx.globalAlpha=0.25;
+  ctx.fillStyle='rgba(140,80,180,1)';
+  ctx.beginPath(); ctx.arc(p.x,p.y,r*2,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha=1;
   // Circle background
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
   ctx.fillStyle='#2a1a40'; ctx.fill();
@@ -3380,12 +3384,14 @@ function drawMob(s){
 
 function drawBoss(b){
   const p=ll2px(b.lat,b.lng);
+  // Skip offscreen bosses
+  if(p.x < -60 || p.x > mapW+60 || p.y < -60 || p.y > mapH+60) return;
   const r=b.isWorld?Math.max(12,16*zoom):Math.max(8,11*zoom);
-  const t=Date.now()/1000;
-  const pr=r*(2.2+0.4*Math.sin(t*(b.isWorld?1.5:2)));
-  const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,pr);
-  g.addColorStop(0,(b.color||'#aa3300')+'33'); g.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,pr,0,Math.PI*2); ctx.fill();
+  const pr=r*2.4;
+  ctx.globalAlpha=0.2;
+  ctx.fillStyle=b.color||'#aa3300';
+  ctx.beginPath(); ctx.arc(p.x,p.y,pr,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha=1;
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
   ctx.fillStyle='#0d0a10'; ctx.fill();
   const bImg = b.portrait ? getImg(b.portrait) : null;
@@ -3542,7 +3548,7 @@ function drawDungeons(){
 //  INPUT
 // ══════════════════════════════════════════════════════
 canvas.addEventListener('click',e=>{ handleClick(e.clientX,e.clientY); });
-canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(0.3,Math.min(4,zoom*(e.deltaY>0?0.85:1.18)));render();},{passive:false});
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(0.3,Math.min(4,zoom*(e.deltaY>0?0.85:1.18)));markDirty();},{passive:false});
 
 // Boss portrait tooltip
 const bossTooltip = document.getElementById('boss-tooltip');
@@ -3575,7 +3581,7 @@ canvas.addEventListener('mousemove',e=>{
   if(!mouseDragging) return;
   const dx=e.clientX-mouseDragX, dy=e.clientY-mouseDragY;
   if(Math.abs(dx)>3||Math.abs(dy)>3) mouseMoved=true;
-  viewX+=dx; viewY+=dy; mouseDragX=e.clientX; mouseDragY=e.clientY; render();
+  viewX+=dx; viewY+=dy; mouseDragX=e.clientX; mouseDragY=e.clientY; markDirty();
 });
 canvas.addEventListener('mouseup',e=>{ if(!mouseMoved) handleClick(e.clientX,e.clientY); mouseDragging=false; });
 canvas.addEventListener('mouseleave',()=>{ mouseDragging=false; bossTooltip.style.display='none'; bossTooltipVisible=false; });
@@ -3609,7 +3615,7 @@ canvas.addEventListener('touchmove',e=>{
     const zoomRatio=newZoom/zoom;
     viewX=mid.x-(mid.x-pinchView.x)*zoomRatio;
     viewY=mid.y-(mid.y-pinchView.y)*zoomRatio;
-    zoom=newZoom; render();
+    zoom=newZoom; markDirty();
   } else if(e.touches.length===1 && !isPinching){
     const t=e.touches[0];
     const dx=t.clientX-touchStartX, dy=t.clientY-touchStartY;
@@ -3617,7 +3623,7 @@ canvas.addEventListener('touchmove',e=>{
     viewX+=dx; viewY+=dy;
     touchStartX=t.clientX; touchStartY=t.clientY;
     checkBossHover(t.clientX, t.clientY);
-    render();
+    markDirty();
   }
 },{passive:false});
 
@@ -4196,7 +4202,7 @@ function centerOnPlayer(){
   const ppm=(mapH/2)/5;
   viewX=-(Player.lng-CENTER.lng)*69.11*Math.cos(CENTER.lat*Math.PI/180)*ppm*zoom;
   viewY=(Player.lat-CENTER.lat)*69.11*ppm*zoom;
-  render();
+  markDirty();
 }
 
 function startGPS(){
@@ -4220,6 +4226,7 @@ function startGPS(){
         Player.lat=lat; Player.lng=lng;
       }
       updateZone();
+      markDirty();
       if(!gpsFirstLock){
         gpsFirstLock=true;
         Player.lat=lat; Player.lng=lng; // snap exactly on first lock
@@ -4368,31 +4375,45 @@ function buildAbilityButtons(){
   grid.appendChild(flee);
 }
 
+let _cbElCache = null;
+function getCBEls(){
+  if(_cbElCache) return _cbElCache;
+  _cbElCache = {
+    cPhp: document.getElementById('c-php'),
+    cPhpT: document.getElementById('c-php-t'),
+    cRes: document.getElementById('c-res'),
+    cResT: document.getElementById('c-res-t'),
+    resLbl: document.getElementById('res-lbl-cb'),
+    cEhp: document.getElementById('c-ehp'),
+    cEhpT: document.getElementById('c-ehp-t'),
+    pStatus: document.getElementById('p-status'),
+    eStatus: document.getElementById('e-status'),
+    potBtn: document.getElementById('potion-btn'),
+    potCount: document.getElementById('pot-count'),
+  };
+  return _cbElCache;
+}
+function clearCBCache(){ _cbElCache = null; }
+
 function setCBUI(){
   if(!Player||!curEnemy) return;
+  const el = getCBEls();
   const php=Math.max(0,Player.hp/Player.maxHp*100);
-  document.getElementById('c-php').style.width=php+'%';
-  document.getElementById('c-php-t').textContent=`${fmt(Player.hp)}/${fmt(Player.maxHp)}`;
+  el.cPhp.style.width=php+'%';
+  el.cPhpT.textContent=`${fmt(Player.hp)}/${fmt(Player.maxHp)}`;
   const rp=Math.max(0,Player.res/Player.maxRes*100);
-  document.getElementById('c-res').style.width=rp+'%';
-  document.getElementById('c-res').style.background=Player.cls.resColor;
-  const resTxt=document.getElementById('c-res-t');
-  if(resTxt) resTxt.textContent=`${Math.floor(Player.res)}/${Player.maxRes}`;
-  const lbl=document.getElementById('res-lbl-cb');
-  if(lbl) lbl.textContent=Player.cls.resource.slice(0,3).toUpperCase();
+  el.cRes.style.width=rp+'%';
+  el.cRes.style.background=Player.cls.resColor;
+  if(el.cResT) el.cResT.textContent=`${Math.floor(Player.res)}/${Player.maxRes}`;
+  if(el.resLbl) el.resLbl.textContent=Player.cls.resource.slice(0,3).toUpperCase();
   const ehp=Math.max(0,curEnemy.hp/curEnemy.maxHp*100);
-  document.getElementById('c-ehp').style.width=ehp+'%';
-  document.getElementById('c-ehp-t').textContent=`${fmt(curEnemy.hp)}/${fmt(curEnemy.maxHp)}`;
-  const ps=document.getElementById('p-status');
-  const es=document.getElementById('e-status');
-  if(ps) ps.innerHTML=Player.statuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
-  if(es) es.innerHTML=eStatuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
-  // Potion count
+  el.cEhp.style.width=ehp+'%';
+  el.cEhpT.textContent=`${fmt(curEnemy.hp)}/${fmt(curEnemy.maxHp)}`;
+  if(el.pStatus) el.pStatus.innerHTML=Player.statuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
+  if(el.eStatus) el.eStatus.innerHTML=eStatuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
   const potions=Player.inventory.filter(n=>ITEMS[n]?.type==='potion');
-  const potBtn=document.getElementById('potion-btn');
-  if(potBtn) potBtn.disabled=potions.length===0;
-  const potCount=document.getElementById('pot-count');
-  if(potCount) potCount.textContent=`×${potions.length}`;
+  if(el.potBtn) el.potBtn.disabled=potions.length===0;
+  if(el.potCount) el.potCount.textContent=`×${potions.length}`;
   setPUI();
 }
 
@@ -4810,10 +4831,10 @@ function victory(){
   showLoot(xp, gold, drops);
   pendingLevelUps = [];
   if(Player.level < 100){ while(Player.xp>=Player.xpNext && Player.level<100){ levelUp(); } }
-  inCombat=false; stopCombatTimer();
+  inCombat=false; stopCombatTimer(); clearCBCache();
   document.getElementById('combat-modal').classList.remove('active');
   curEnemy=null;
-  setPUI(); render();
+  setPUI(); markDirty();
   saveGame();
   // Show level-up modals after a brief delay
   if(pendingLevelUps.length > 0) setTimeout(showNextLevelUp, 400);
@@ -4946,9 +4967,9 @@ function confirmStats(){
 
 function doFlee(){
   if(Math.random()<0.6){
-    inCombat=false; stopCombatTimer();
+    inCombat=false; stopCombatTimer(); clearCBCache();
     document.getElementById('combat-modal').classList.remove('active');
-    addLog('You vanish into the shadows...','ls');
+    addLog('You vanish into the shadows...','ls'); markDirty();
   } else {
     setCLog('You failed to escape!');
     addLog('Failed to flee!','lc');
@@ -4956,7 +4977,7 @@ function doFlee(){
 }
 
 function dead(){ sndDeath();
-  inCombat=false; stopCombatTimer();
+  inCombat=false; stopCombatTimer(); clearCBCache();
   document.getElementById('combat-modal').classList.remove('active');
   document.getElementById('death-screen').classList.add('active');
   addLog('YOU HAVE FALLEN. The void swallows your soul.','ld');
@@ -5330,7 +5351,7 @@ function openQuestMarkerDialogue(q){
       updateQuestBtn();
       spawnQuestMobs(q);
       saveGame();
-      render();
+      markDirty();
     };
     if(q.cutscene) playCutscene(q.cutscene, doAccept);
     else doAccept();
@@ -5381,7 +5402,7 @@ function spawnQuestMobs(q){
       hp:tailor.hp, maxHp:tailor.hp, atk:tailor.atk, def:tailor.def,
       id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
   }
-  render();
+  markDirty();
 }
 
 // ── Kill tracking ─────────────────────────────────────
@@ -5427,7 +5448,7 @@ function advanceQuest(qId){
     addLog(`📜 ${q.name}: ${next.desc}`, 'ls');
   }
   updateQuestBtn();
-  setPUI(); render();
+  setPUI(); markDirty();
   saveGame();
 }
 
@@ -5563,8 +5584,7 @@ function continueGame(){
   addLog(`${Player.emoji} ${Player.name} enters ${WORLDS[selectedWorld].name}. Level ${Player.level}.`, 'lb');
   addLog(`The darkness remembers you.`, 'ls');
   startGPS();
-  setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
-  setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)render(); }, 60000);
+  startGameTimers();
 }
 
 // ══════════════════════════════════════════════════════
@@ -5645,16 +5665,26 @@ function enterWorld(){
   addLog(`${Player.emoji} ${Player.name} enters the Fallen City.`,'lb');
   addLog(`The darkness watches. The hunt begins.`,'ls');
   startGPS();
+  startGameTimers();
+}
 
-  // MP regen timer
-  setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } },5000);
-  setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)render(); },60000);
+// ══════════════════════════════════════════════════════
+//  GAME TIMERS (guarded against double-registration)
+// ══════════════════════════════════════════════════════
+let _gameTimersStarted = false;
+function startGameTimers(){
+  if(_gameTimersStarted) return;
+  _gameTimersStarted = true;
+  setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
+  setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)markDirty(); }, 60000);
 }
 
 // ══════════════════════════════════════════════════════
 //  GAME LOOP
 // ══════════════════════════════════════════════════════
-function gameLoop(){ if(!inCombat)render(); requestAnimationFrame(gameLoop); }
+let _renderDirty = true;
+function markDirty(){ _renderDirty = true; }
+function gameLoop(){ if(!inCombat && _renderDirty){ render(); _renderDirty = false; } requestAnimationFrame(gameLoop); }
 
 // ══════════════════════════════════════════════════════
 //  SOUND ENGINE — Web Audio, no files
