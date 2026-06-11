@@ -204,7 +204,7 @@ body::before {
   content:'';
   position:absolute;
   inset:0;
-  background:linear-gradient(to bottom, rgba(40,0,0,0.35) 0%, rgba(5,2,8,0.80) 60%, rgba(5,2,8,0.95) 100%);
+  background:linear-gradient(to bottom, rgba(10,0,0,0.05) 0%, rgba(5,2,8,0.30) 50%, rgba(5,2,8,0.60) 100%);
   pointer-events:none;
 }
 
@@ -1091,18 +1091,35 @@ body::before {
 .cb-bar-row { display:flex; align-items:center; gap:7px; margin-bottom:3px; }
 .cb-bl { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#9080a8; width:18px; }
 
-/* Enemy attack timer */
+/* Enemy attack timer — rhythm indicator */
 #enemy-timer-track {
-  height:3px; background:#1a1228; margin:7px 0 5px; border-radius:2px; overflow:hidden;
+  height:8px; background:#120a1e; margin:6px 0 4px; border-radius:4px; overflow:hidden;
+  transition:box-shadow .15s ease;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);
 }
 #enemy-timer-fill {
   height:100%; width:0%;
-  background:linear-gradient(90deg,var(--blood),#ff2200);
+  background:linear-gradient(90deg,#3a0a0a,#cc1100);
+  transition:background .2s ease;
+  border-radius:4px;
 }
+#enemy-timer-track.timer-warn  { box-shadow:0 0 8px rgba(255,80,0,0.5),inset 0 1px 3px rgba(0,0,0,0.6); }
+#enemy-timer-track.timer-warn  #enemy-timer-fill { background:linear-gradient(90deg,#882000,#ff4400); }
+#enemy-timer-track.timer-danger { box-shadow:0 0 18px rgba(255,0,0,0.8),inset 0 1px 3px rgba(0,0,0,0.6); }
+#enemy-timer-track.timer-danger #enemy-timer-fill { background:linear-gradient(90deg,#cc0000,#ff1100); animation:timerPulse .25s ease infinite; }
+@keyframes timerPulse { 0%,100%{opacity:0.8} 50%{opacity:1} }
+@keyframes btnReadyFlash {
+  0%{box-shadow:0 0 0px rgba(255,220,60,0)}
+  35%{box-shadow:0 0 22px rgba(255,220,60,1), inset 0 0 10px rgba(255,200,0,0.3)}
+  100%{box-shadow:0 0 0px rgba(255,220,60,0)}
+}
+.btn-ready-flash { animation:btnReadyFlash .45s ease !important; }
 #turn-ind {
   font-family:'Share Tech Mono',monospace; font-size:.82rem;
-  color:#9080a8; letter-spacing:.2em; text-align:center; margin-bottom:8px;
+  color:#9080a8; letter-spacing:.2em; text-align:center; margin-bottom:4px;
+  transition:color .15s ease;
 }
+#turn-ind.incoming { color:#ff4400; animation:timerPulse .25s ease infinite; }
 
 /* ABILITY BUTTONS */
 #ab-grid {
@@ -3972,6 +3989,12 @@ function renderAR(){
       ev.addColorStop(1,`rgba(0,0,0,${0.28*mp})`);
       c.fillStyle=ev; c.fillRect(0,0,W,H);
     }
+    // Atmospheric ground mist — always present
+    const _mist=c.createLinearGradient(0,H,0,H*0.58);
+    _mist.addColorStop(0,'rgba(8,0,18,0.50)');
+    _mist.addColorStop(0.6,'rgba(4,0,10,0.18)');
+    _mist.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=_mist; c.fillRect(0,0,W,H);
   }
 
   // Collect candidates — bosses up to 0.5mi, mobs up to 0.15mi
@@ -4022,22 +4045,28 @@ function renderAR(){
     arEnemyPositions[key]=sx;
     const x=sx;
     const proximity=1-e.dist/MAX_DIST;
-    const scale=0.55+proximity*0.45;
-    const sz=Math.floor(W*0.13*scale);
-    const yBase=H*(0.22+proximity*0.08);
+    const scale=0.45+proximity*0.60;
+    const sz=Math.floor(W*0.19*scale);
+    const yBase=H*(0.30+proximity*0.10);
 
     arVisibleEnemies.push({entity:e.entity,isBoss:e.boss,x,yBase,sz});
 
     c.globalAlpha=opacity;
 
-    // Glow
-    const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*1.6);
-    grd.addColorStop(0,e.boss?'rgba(184,150,42,0.3)':'rgba(180,30,30,0.25)');
+    // Outer aura glow
+    const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*2.8);
+    grd.addColorStop(0,e.boss?'rgba(220,160,0,0.5)':'rgba(220,20,20,0.4)');
+    grd.addColorStop(0.5,e.boss?'rgba(120,60,0,0.15)':'rgba(100,0,0,0.12)');
     grd.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*1.6,0,Math.PI*2); c.fill();
+    c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*2.8,0,Math.PI*2); c.fill();
+    // Inner core glow
+    const igrd=c.createRadialGradient(x,yBase,0,x,yBase,sz*1.1);
+    igrd.addColorStop(0,e.boss?'rgba(255,200,0,0.25)':'rgba(255,40,0,0.22)');
+    igrd.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=igrd; c.beginPath(); c.arc(x,yBase,sz*1.1,0,Math.PI*2); c.fill();
 
     // Portrait circle
-    const r=sz*0.6;
+    const r=sz*0.65;
     const arImg=e.entity.portrait?getImg(e.entity.portrait):null;
     if(arImg){
       c.save();
@@ -4052,9 +4081,14 @@ function renderAR(){
       c.textAlign='center'; c.textBaseline='middle';
       c.fillText(e.name[0],x,yBase);
     }
+    // Portrait border — thick and saturated
     c.beginPath(); c.arc(x,yBase,r,0,Math.PI*2);
-    c.strokeStyle=e.boss?'rgba(255,200,60,0.9)':'rgba(200,60,60,0.8)';
-    c.lineWidth=2; c.stroke();
+    c.strokeStyle=e.boss?'rgba(255,200,40,1)':'rgba(220,40,40,1)';
+    c.lineWidth=3.5; c.stroke();
+    // Outer glow ring
+    c.beginPath(); c.arc(x,yBase,r*1.18,0,Math.PI*2);
+    c.strokeStyle=e.boss?`rgba(255,180,0,${0.35+0.2*Math.sin(now/400)})`:`rgba(200,0,0,${0.30+0.15*Math.sin(now/350)})`;
+    c.lineWidth=1.5; c.stroke();
 
     // Full info card only for closest (idx===visible.length-1 after far→near sort)
     const isClosest = idx===visible.length-1;
@@ -4237,14 +4271,22 @@ function renderAR(){
 
   // No enemies message
   if(visible.length===0){
-    const fs=Math.max(16,W*0.04);
-    c.font=`${fs}px "Share Tech Mono",monospace`;
-    c.fillStyle='rgba(180,150,220,0.7)';
+    const fs=Math.max(18,W*0.048);
+    // Subtle cross-hair / targeting reticle
+    const cx=W/2, cy=H*0.46, cr=fs*1.2;
+    c.strokeStyle='rgba(180,40,40,0.25)'; c.lineWidth=1;
+    c.beginPath(); c.arc(cx,cy,cr,0,Math.PI*2); c.stroke();
+    c.beginPath(); c.moveTo(cx-cr*1.4,cy); c.lineTo(cx-cr*0.6,cy); c.stroke();
+    c.beginPath(); c.moveTo(cx+cr*0.6,cy); c.lineTo(cx+cr*1.4,cy); c.stroke();
+    c.beginPath(); c.moveTo(cx,cy-cr*1.4); c.lineTo(cx,cy-cr*0.6); c.stroke();
+    c.beginPath(); c.moveTo(cx,cy+cr*0.6); c.lineTo(cx,cy+cr*1.4); c.stroke();
+    c.font=`${fs}px "Metal Mania",cursive`;
+    c.fillStyle='rgba(200,100,100,0.55)';
     c.textAlign='center';
-    c.fillText('NO ENEMIES IN SIGHT',W/2,H*0.5);
-    c.font=`${fs*0.7}px "Share Tech Mono",monospace`;
-    c.fillStyle='rgba(100,80,140,0.5)';
-    c.fillText('TURN TO HUNT',W/2,H*0.5+fs*1.4);
+    c.fillText('NO PREY IN SIGHT',W/2,H*0.5);
+    c.font=`italic ${fs*0.55}px "IM Fell English",serif`;
+    c.fillStyle='rgba(160,80,80,0.38)';
+    c.fillText('turn — the darkness watches',W/2,H*0.5+fs*1.3);
   }
 
   // Compass update
@@ -4349,13 +4391,23 @@ function stopCombatTimer(){
 function combatTick(){
   if(!inCombat){ stopCombatTimer(); return; }
   const now=Date.now();
-  const attackInterval = isBoss ? 4000 : 5500;
+  const attackInterval = isBoss ? 3000 : 2500;
 
   // Enemy attack timer bar
   const elapsed = now-(curEnemy.nextAttackAt - attackInterval);
   const pct = Math.min(100, (elapsed/attackInterval)*100);
   const fill=document.getElementById('enemy-timer-fill');
+  const track=document.getElementById('enemy-timer-track');
+  const ind=document.getElementById('turn-ind');
   if(fill) fill.style.width=pct+'%';
+  if(track){
+    track.classList.toggle('timer-warn', pct>60);
+    track.classList.toggle('timer-danger', pct>85);
+  }
+  if(ind){
+    if(pct>85){ ind.textContent='⚠ INCOMING ⚠'; ind.classList.add('incoming'); }
+    else { ind.textContent='ATTACK · ENEMY STRIKES WHEN BAR FILLS'; ind.classList.remove('incoming'); }
+  }
 
   // Enemy attack
   if(now >= curEnemy.nextAttackAt){
@@ -4398,8 +4450,8 @@ function startCombat(ent,boss){ sndCombatStart();
   if(Player.skills?.classUnique && Player.className==='Illusionist'){
     Player.illusionStacks = (Player.illusionStacks||0) + 2;
   }
-  const attackInterval = boss ? 4000 : 5500;
-  curEnemy.nextAttackAt = Date.now() + attackInterval;
+  const attackInterval = boss ? 3000 : 2500;
+  curEnemy.nextAttackAt = Date.now() + 1800; // short first-hit window so combat starts immediately
 
   const portrait = document.getElementById('boss-portrait');
   if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; portrait.style.borderBottomColor=boss?'#b8962a':'#3a2a50'; }
@@ -4417,7 +4469,11 @@ function startCombat(ent,boss){ sndCombatStart();
   buildAbilityButtons();
   setCBUI(); updateComboDisplay();
   document.getElementById('combat-modal').classList.add('active');
-  document.getElementById('turn-ind').textContent='USE ABILITIES · ENEMY ATTACKS WHEN BAR FILLS';
+  const _ti=document.getElementById('turn-ind');
+  _ti.textContent='ATTACK · ENEMY STRIKES WHEN BAR FILLS';
+  _ti.classList.remove('incoming');
+  const _tt=document.getElementById('enemy-timer-track');
+  if(_tt){ _tt.classList.remove('timer-warn','timer-danger'); }
   startCombatTimer();
   addLog(boss?`⚔ BOSS ENCOUNTER: ${ent.name}!`:`⚔ ${ent.name} appears!`,boss?'lb':'lc');
 }
@@ -4519,9 +4575,14 @@ function updateCooldownDisplay(){
     } else {
       if(fill) fill.style.width='0%';
       if(cdNum) cdNum.textContent='';
+      const wasOnCooldown = btn.classList.contains('on-cooldown');
       btn.classList.remove('on-cooldown');
       btn.disabled=!hasRes;
       btn.classList.toggle('ready', hasRes);
+      if(wasOnCooldown && hasRes){
+        btn.classList.add('btn-ready-flash');
+        setTimeout(()=>btn.classList.remove('btn-ready-flash'), 450);
+      }
     }
   });
 }
