@@ -887,7 +887,7 @@ body::before {
 .bar-row { display:flex; align-items:center; gap:7px; margin-bottom:4px; }
 .bar-lbl { font-family:'Share Tech Mono',monospace; font-size:.88rem; color:#9080a8; width:24px; }
 .bar-bg { flex:1; height:6px; background:#1a1628; border:1px solid #3a2a50; overflow:hidden; }
-.bar-fill { height:100%; transition:width .4s ease; }
+.bar-fill { height:100%; transition:width .2s ease; }
 .bar-hp  { background:linear-gradient(90deg,#7a0000,#dd2800); }
 .bar-mp  { background:linear-gradient(90deg,#001a60,#0050cc); }
 .bar-res { background:linear-gradient(90deg,#3a2000,#cc8000); }
@@ -965,7 +965,7 @@ body::before {
   flex:1; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   padding:16px 20px 8px;
-  background:radial-gradient(ellipse at 50% 30%, #221430 0%, #120a1a 60%, #080510 100%);
+  background:radial-gradient(ellipse at 50% 20%, #3a0e42 0%, #1c0828 50%, #060310 100%);
   position:relative; min-height:0; overflow:hidden;
 }
 #cb-name {
@@ -981,23 +981,25 @@ body::before {
   letter-spacing:.3em; margin-bottom:10px;
 }
 #e-spr {
-  font-size:clamp(3rem,14vw,5.5rem);
+  font-size:clamp(4.5rem,18vw,7rem);
   display:block; margin-bottom:8px;
-  filter:drop-shadow(0 0 20px rgba(107,0,0,0.5));
+  filter:drop-shadow(0 0 40px rgba(200,0,0,0.85)) drop-shadow(0 6px 16px rgba(0,0,0,1));
 }
-.c-sprite.atk-anim  { animation:cAtk .28s ease; }
-.c-sprite.hit-anim  { animation:cHit .32s ease; }
-.c-sprite.lunge-anim   { animation:eLunge .35s cubic-bezier(.2,0,.8,1); }
-.c-sprite.charge-anim  { animation:eCharge .4s ease; }
-.c-sprite.special-anim { animation:eSpecial .45s ease; }
-.c-sprite.crit-anim    { animation:eCrit .3s ease; }
+.c-sprite.atk-anim  { animation:cAtk .22s ease; }
+.c-sprite.hit-anim  { animation:cHit .24s ease; }
+.c-sprite.lunge-anim   { animation:eLunge .30s cubic-bezier(.2,0,.8,1); }
+.c-sprite.charge-anim  { animation:eCharge .38s ease; }
+.c-sprite.special-anim { animation:eSpecial .40s ease; }
+.c-sprite.crit-anim    { animation:eCrit .28s ease; }
+.c-sprite.death-anim   { animation:eDeath .55s ease forwards; }
 
-@keyframes cAtk    { 0%{transform:scale(1)} 40%{transform:scale(1.25) translateY(-8px)} 100%{transform:scale(1)} }
-@keyframes cHit    { 0%,100%{transform:translate(0) scale(1)} 25%{transform:translate(-14px,6px) scale(0.9)} 60%{transform:translate(8px,-3px) scale(0.97)} }
-@keyframes eLunge  { 0%{transform:scale(1) translateY(0)} 35%{transform:scale(1.35) translateY(28px)} 65%{transform:scale(1.15) translateY(18px)} 100%{transform:scale(1) translateY(0)} }
-@keyframes eCharge { 0%{transform:scale(1)} 60%{transform:scale(1.3)} 100%{transform:scale(1)} }
-@keyframes eSpecial{ 0%{transform:scale(1) translateY(0)} 20%{transform:scale(1.5) translateY(-6px)} 60%{transform:scale(1.6) translateY(36px)} 100%{transform:scale(1) translateY(0)} }
-@keyframes eCrit   { 0%{transform:scale(1)} 30%{transform:scale(1.8) translateY(20px)} 70%{transform:scale(1.2) translateY(10px)} 100%{transform:scale(1) translateY(0)} }
+@keyframes cAtk    { 0%{transform:scale(1)} 35%{transform:scale(1.3) translateY(-12px)} 100%{transform:scale(1)} }
+@keyframes cHit    { 0%,100%{transform:translate(0) scale(1)} 20%{transform:translate(-18px,8px) scale(0.85)} 55%{transform:translate(10px,-4px) scale(0.95)} }
+@keyframes eLunge  { 0%{transform:scale(1) translateY(0)} 30%{transform:scale(1.45) translateY(34px)} 60%{transform:scale(1.2) translateY(22px)} 100%{transform:scale(1) translateY(0)} }
+@keyframes eCharge { 0%{transform:scale(1)} 55%{transform:scale(1.4)} 100%{transform:scale(1)} }
+@keyframes eSpecial{ 0%{transform:scale(1) translateY(0)} 18%{transform:scale(1.65) translateY(-8px)} 55%{transform:scale(1.75) translateY(44px)} 100%{transform:scale(1) translateY(0)} }
+@keyframes eCrit   { 0%{transform:scale(1)} 25%{transform:scale(2.0) translateY(22px)} 65%{transform:scale(1.3) translateY(12px)} 100%{transform:scale(1) translateY(0)} }
+@keyframes eDeath  { 0%{transform:scale(1);opacity:1} 30%{transform:scale(1.4) rotate(8deg);opacity:0.7} 100%{transform:scale(0.3) rotate(-15deg) translateY(40px);opacity:0} }
 
 /* Hit flash overlays */
 #enemy-atk-flash {
@@ -1022,10 +1024,10 @@ body::before {
   width:100%; max-width:320px; margin-bottom:3px;
 }
 .c-hpbar {
-  height:9px; background:#1a1628;
+  height:12px; background:#1a1628;
   border:1px solid #3a2a50; overflow:hidden; border-radius:2px;
 }
-.c-hpfill { height:100%; transition:width .5s ease; }
+.c-hpfill { height:100%; transition:width .2s ease; }
 .c-php { background:linear-gradient(90deg,#7a0000,#ee2800); }
 .c-ehp { background:linear-gradient(90deg,#5a2800,#cc5800); }
 .c-hptext {
@@ -1033,7 +1035,7 @@ body::before {
   font-size:.88rem; color:#9080a8; text-align:right;
 }
 .c-resbar { height:5px; background:#1a1628; border:1px solid #3a2a50; overflow:hidden; border-radius:2px; }
-.c-resfill { height:100%; transition:width .4s ease; }
+.c-resfill { height:100%; transition:width .2s ease; }
 .c-name { font-family:'Metal Mania',cursive; font-size:.95rem; color:var(--pale); letter-spacing:.05em; }
 
 /* COMBO COUNTER */
@@ -1063,7 +1065,7 @@ body::before {
 #combo-count.c7  { color:#ff3300; text-shadow:0 0 20px rgba(255,50,0,0.7); }
 #combo-count.c10 { color:#ffcc00; text-shadow:0 0 24px rgba(255,200,0,0.9); animation:comboPulse 1s ease infinite; }
 @keyframes comboPulse { 0%,100%{opacity:0.85;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
-@keyframes comboBump { 0%{transform:scale(1)} 40%{transform:scale(1.35)} 100%{transform:scale(1)} }
+@keyframes comboBump { 0%{transform:scale(1)} 32%{transform:scale(1.65)} 100%{transform:scale(1)} }
 .combo-bump { animation:comboBump .18s ease; }
 
 /* MIDDLE: Combat log */
@@ -1195,36 +1197,48 @@ body::before {
 #dmg-layer { position:fixed; inset:0; pointer-events:none; z-index:300; }
 .dmg-num {
   position:absolute; font-family:'Metal Mania',cursive; font-weight:900;
-  pointer-events:none; animation:dmgFloat 1.4s ease forwards;
-  text-shadow:2px 2px 0 rgba(0,0,0,0.8), 0 0 20px currentColor;
+  pointer-events:none; animation:dmgFloat 0.9s ease forwards;
+  text-shadow:2px 2px 0 rgba(0,0,0,0.9), 0 0 20px currentColor;
   white-space:nowrap; z-index:200;
 }
 @keyframes dmgFloat {
-  0%   { transform:translateY(0) scale(0.6); opacity:1; }
-  15%  { transform:translateY(-15px) scale(1.2); opacity:1; }
-  60%  { transform:translateY(-50px) scale(1); opacity:1; }
-  100% { transform:translateY(-90px) scale(0.8); opacity:0; }
+  0%   { transform:translateY(0) scale(0.4); opacity:1; }
+  12%  { transform:translateY(-8px) scale(1.4); opacity:1; }
+  55%  { transform:translateY(-40px) scale(1.05); opacity:1; }
+  100% { transform:translateY(-68px) scale(0.85); opacity:0; }
 }
-.dmg-white  { color:#ffe066; font-size:1.8rem; text-shadow:0 0 8px rgba(255,200,0,0.8); }
-.dmg-yellow { color:#ffd700; font-size:2.2rem; text-shadow:0 0 10px rgba(255,200,0,0.9); }
-.dmg-orange { color:#ff8800; font-size:2.6rem; text-shadow:0 0 12px rgba(255,120,0,0.9); }
-.dmg-red    { color:#ff3300; font-size:3rem;   text-shadow:0 0 14px rgba(255,40,0,0.9); }
-.dmg-crit   { color:#ffee00; font-size:3.8rem; -webkit-text-stroke:2px #aa6600; animation:dmgCrit 1.6s ease forwards; }
-.dmg-overkill { color:#cc00ff; font-size:2rem; }
-.dmg-dodge  { color:#3a6aaa; font-size:1rem; }
-.dmg-heal   { color:#22cc66; font-size:1.6rem; }
+.dmg-white  { color:#ffe066; font-size:2rem;   text-shadow:0 0 10px rgba(255,210,0,0.9); }
+.dmg-yellow { color:#ffd700; font-size:2.5rem; text-shadow:0 0 12px rgba(255,200,0,1); }
+.dmg-orange { color:#ff8800; font-size:3rem;   text-shadow:0 0 14px rgba(255,120,0,1); }
+.dmg-red    { color:#ff2200; font-size:3.6rem; text-shadow:0 0 18px rgba(255,40,0,1); }
+.dmg-crit   { color:#fffbe0; font-size:5rem; -webkit-text-stroke:3px #cc2200; animation:dmgCrit 1.0s ease forwards; text-shadow:0 0 20px #fff,0 0 40px #ffcc00,0 0 80px rgba(200,80,0,0.8); }
+.dmg-overkill { color:#dd00ff; font-size:2.2rem; text-shadow:0 0 16px rgba(200,0,255,0.8); }
+.dmg-dodge  { color:#4a80cc; font-size:1.1rem; }
+.dmg-heal   { color:#22ee66; font-size:1.8rem; text-shadow:0 0 14px rgba(0,220,80,0.8); }
 @keyframes dmgCrit {
-  0%   { transform:translateY(0) scale(0.4) rotate(-5deg); opacity:1; }
-  10%  { transform:translateY(-10px) scale(1.5) rotate(2deg); opacity:1; }
-  20%  { transform:translateY(-20px) scale(1.3) rotate(-1deg); opacity:1; }
-  70%  { transform:translateY(-60px) scale(1.1); opacity:1; }
-  100% { transform:translateY(-110px) scale(0.9); opacity:0; }
+  0%   { transform:translateY(0) scale(0.3) rotate(-8deg); opacity:1; }
+  8%   { transform:translateY(-6px) scale(1.8) rotate(3deg); opacity:1; }
+  18%  { transform:translateY(-16px) scale(1.5) rotate(-2deg); opacity:1; }
+  65%  { transform:translateY(-55px) scale(1.2); opacity:1; }
+  100% { transform:translateY(-95px) scale(0.9); opacity:0; }
 }
 @keyframes screenShake {
-  0%,100%{transform:translate(0,0)} 20%{transform:translate(-6px,3px)}
-  40%{transform:translate(6px,-3px)} 60%{transform:translate(-4px,4px)} 80%{transform:translate(4px,-2px)}
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  15%{transform:translate(-14px,5px) rotate(-0.6deg)}
+  35%{transform:translate(14px,-6px) rotate(0.5deg)}
+  55%{transform:translate(-9px,8px) rotate(-0.3deg)}
+  75%{transform:translate(10px,-4px) rotate(0.2deg)}
 }
-.shaking { animation:screenShake .35s ease; }
+@keyframes screenShakeBig {
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  12%{transform:translate(-22px,9px) rotate(-1deg)}
+  30%{transform:translate(22px,-10px) rotate(1deg)}
+  50%{transform:translate(-15px,12px) rotate(-0.6deg)}
+  70%{transform:translate(16px,-7px) rotate(0.4deg)}
+  85%{transform:translate(-8px,4px)}
+}
+.shaking { animation:screenShake .32s cubic-bezier(.36,.07,.19,.97); }
+.shaking-big { animation:screenShakeBig .40s cubic-bezier(.36,.07,.19,.97); }
 
 /* STATUS */
 .status-row { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
@@ -1238,7 +1252,8 @@ body::before {
 .ab-grid { }
 
 /* SCREEN SHAKE (on combat box) */
-#combat-box.shaking { animation:screenShake .35s ease; }
+#combat-box.shaking { animation:screenShake .32s cubic-bezier(.36,.07,.19,.97); }
+#combat-box.shaking-big { animation:screenShakeBig .40s cubic-bezier(.36,.07,.19,.97); }
 
 /* SIDEBAR BUTTONS */
 .sb-btns { display:flex; gap:6px; margin:8px 0 4px; }
@@ -3352,67 +3367,82 @@ function drawPaths(){
 
 function drawMob(s){
   const p=ll2px(s.lat,s.lng);
-  // Skip offscreen mobs
   if(p.x < -40 || p.x > mapW+40 || p.y < -40 || p.y > mapH+40) return;
-  const r=Math.max(8,10*zoom);
-  // Glow — use simple fillStyle instead of radialGradient for perf
-  ctx.globalAlpha=0.25;
-  ctx.fillStyle='rgba(140,80,180,1)';
-  ctx.beginPath(); ctx.arc(p.x,p.y,r*2,0,Math.PI*2); ctx.fill();
+  const r=Math.max(10,13*zoom);
+  // Outer blood-glow
+  ctx.globalAlpha=0.38;
+  ctx.fillStyle='rgba(200,20,40,1)';
+  ctx.beginPath(); ctx.arc(p.x,p.y,r*2.8,0,Math.PI*2); ctx.fill();
+  // Mid shadow ring
+  ctx.globalAlpha=0.20;
+  ctx.fillStyle='rgba(60,0,10,1)';
+  ctx.beginPath(); ctx.arc(p.x,p.y,r*1.9,0,Math.PI*2); ctx.fill();
   ctx.globalAlpha=1;
-  // Circle background
+  // Circle background — near-black
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
-  ctx.fillStyle='#2a1a40'; ctx.fill();
+  ctx.fillStyle='#180810'; ctx.fill();
   // Portrait or emoji fallback
   const img = s.portrait ? getImg(s.portrait) : null;
   if(img){
     drawCirclePortrait(img, p.x, p.y, r);
   } else {
-    ctx.font=`${Math.floor(Math.max(12,12*zoom))}px serif`;
+    ctx.font=`${Math.floor(Math.max(14,14*zoom))}px serif`;
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(s.emoji,p.x,p.y);
   }
-  // Border
+  // Blood-red border
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
-  ctx.strokeStyle='#7a5aaa'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.strokeStyle='#cc1a2a'; ctx.lineWidth=2.5; ctx.stroke();
+  // Thin outer silhouette ring
+  ctx.beginPath(); ctx.arc(p.x,p.y,r*1.22,0,Math.PI*2);
+  ctx.strokeStyle='rgba(180,0,20,0.3)'; ctx.lineWidth=1; ctx.stroke();
   if(zoom>1.0){
-    ctx.font=`${Math.max(8,8*zoom)}px "Share Tech Mono"`;
-    ctx.fillStyle='rgba(180,150,220,0.8)'; ctx.textBaseline='top'; ctx.textAlign='center';
+    ctx.font=`bold ${Math.max(8,9*zoom)}px "Share Tech Mono"`;
+    ctx.fillStyle='rgba(230,100,110,0.9)'; ctx.textBaseline='top'; ctx.textAlign='center';
     ctx.fillText(s.name,p.x,p.y+r+3);
   }
 }
 
 function drawBoss(b){
   const p=ll2px(b.lat,b.lng);
-  // Skip offscreen bosses
   if(p.x < -60 || p.x > mapW+60 || p.y < -60 || p.y > mapH+60) return;
-  const r=b.isWorld?Math.max(12,16*zoom):Math.max(8,11*zoom);
-  const pr=r*2.4;
-  ctx.globalAlpha=0.2;
-  ctx.fillStyle=b.color||'#aa3300';
-  ctx.beginPath(); ctx.arc(p.x,p.y,pr,0,Math.PI*2); ctx.fill();
+  const r=b.isWorld?Math.max(16,20*zoom):Math.max(12,15*zoom);
+  const t=Date.now()/1000;
+  // Pulsing outer aura
+  const auraAlpha=0.25+0.12*Math.sin(t*1.8);
+  ctx.globalAlpha=auraAlpha;
+  ctx.fillStyle=b.color||'#cc2200';
+  ctx.beginPath(); ctx.arc(p.x,p.y,r*3.6,0,Math.PI*2); ctx.fill();
+  // Inner glow ring
+  ctx.globalAlpha=0.38;
+  ctx.fillStyle=b.color||'#aa2000';
+  ctx.beginPath(); ctx.arc(p.x,p.y,r*2.1,0,Math.PI*2); ctx.fill();
   ctx.globalAlpha=1;
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
-  ctx.fillStyle='#0d0a10'; ctx.fill();
+  ctx.fillStyle='#060308'; ctx.fill();
   const bImg = b.portrait ? getImg(b.portrait) : null;
   if(bImg){
     drawCirclePortrait(bImg, p.x, p.y, r);
   } else {
-    ctx.font=`${Math.floor((b.isWorld?14:10)*zoom)}px serif`;
+    ctx.font=`${Math.floor((b.isWorld?16:12)*zoom)}px serif`;
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(b.emoji,p.x,p.y);
   }
+  // Heavy border
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
-  ctx.strokeStyle=b.color||'#aa3300'; ctx.lineWidth=b.isWorld?2.5:1.8; ctx.stroke();
+  ctx.strokeStyle=b.color||'#ee2200'; ctx.lineWidth=b.isWorld?3.5:2.5; ctx.stroke();
+  // Outer silhouette ring — animated pulse
+  ctx.beginPath(); ctx.arc(p.x,p.y,r*1.28,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(200,20,0,${0.28+0.18*Math.sin(t*1.5)})`; ctx.lineWidth=1.5; ctx.stroke();
   if(zoom>0.4){
-    const fs=Math.max(6,(b.isWorld?8:6)*zoom);
-    ctx.font=`bold ${fs}px "Cinzel Decorative",serif`;
-    ctx.fillStyle=b.color||'#aa3300'; ctx.textBaseline='top';
-    ctx.fillText(b.name,p.x,p.y+r+4);
+    const fs=Math.max(7,(b.isWorld?9:7)*zoom);
+    ctx.font=`bold ${fs}px "Share Tech Mono",monospace`;
+    ctx.fillStyle=b.color||'#ff3300'; ctx.textBaseline='top'; ctx.textAlign='center';
+    ctx.fillText(b.name,p.x,p.y+r+5);
     if(b.landmark&&zoom>0.8){
       ctx.font=`${Math.max(5,5*zoom)}px "Share Tech Mono"`;
-      ctx.fillStyle='rgba(140,110,60,0.4)';
-      ctx.fillText(b.landmark,p.x,p.y+r+4+fs+2);
+      ctx.fillStyle='rgba(200,80,40,0.45)';
+      ctx.fillText(b.landmark,p.x,p.y+r+5+fs+2);
     }
   }
 }
@@ -3887,9 +3917,9 @@ function renderAR(){
   let diff=arTargetHeading-arHeading;
   if(diff>180) diff-=360;
   if(diff<-180) diff+=360;
-  // Ignore sub-0.5° jitter; 120ms time constant for smooth but responsive feel
+  // Ignore sub-0.5° jitter; 90ms time constant — snappier without jitter
   if(Math.abs(diff)>0.5){
-    const alpha=1-Math.exp(-dt/0.12);
+    const alpha=1-Math.exp(-dt/0.09);
     arHeading=(arHeading+diff*alpha+360)%360;
   }
 
@@ -3915,6 +3945,34 @@ function renderAR(){
   rvgrd.addColorStop(0,'rgba(0,0,0,0)');
   rvgrd.addColorStop(1,`rgba(0,0,0,${vigStrength})`);
   c.fillStyle=rvgrd; c.fillRect(0,0,W,H);
+
+  // ── Proximity corruption atmosphere ──
+  {
+    const _plat=Player.lat||CENTER.lat, _plng=Player.lng||CENTER.lng;
+    let _minBoss=Infinity, _minMob=Infinity;
+    BOSSES.forEach(b=>{ if(!b.defeated){ const d=distMiles(_plat,_plng,b.lat,b.lng); if(d<_minBoss)_minBoss=d; }});
+    spawns.forEach(s=>{ if(!s.defeated){ const d=distMiles(_plat,_plng,s.lat,s.lng); if(d<_minMob)_minMob=d; }});
+    // Boss proximity: bleeding red sky scales 0.5mi→0
+    if(_minBoss<0.5){
+      const bp=Math.pow(1-Math.min(1,_minBoss/0.5),1.6);
+      const _t=performance.now()/900;
+      const skyGrd=c.createLinearGradient(0,0,0,H*0.44);
+      skyGrd.addColorStop(0,`rgba(160,0,0,${0.32*bp})`);
+      skyGrd.addColorStop(1,'rgba(0,0,0,0)');
+      c.fillStyle=skyGrd; c.fillRect(0,0,W,H*0.44);
+      // Pulsing blood edge at top
+      c.fillStyle=`rgba(210,0,0,${bp*(0.35+0.20*Math.sin(_t))})`;
+      c.fillRect(0,0,W,4+6*Math.abs(Math.sin(_t*0.78)));
+    }
+    // Mob proximity: extra edge darkness scales 0.15mi→0
+    if(_minMob<0.15){
+      const mp=1-_minMob/0.15;
+      const ev=c.createRadialGradient(W/2,H*0.5,H*0.12,W/2,H*0.5,H*0.72);
+      ev.addColorStop(0,'rgba(0,0,0,0)');
+      ev.addColorStop(1,`rgba(0,0,0,${0.28*mp})`);
+      c.fillStyle=ev; c.fillRect(0,0,W,H);
+    }
+  }
 
   // Collect candidates — bosses up to 0.5mi, mobs up to 0.15mi
   const candidates=[];
@@ -3960,7 +4018,7 @@ function renderAR(){
 
     const targetX=W/2+(e.diff/(FOV/2))*(W/2);
     const prevX=arEnemyPositions[key]??targetX;
-    const sx=prevX+(targetX-prevX)*Math.min(1,dt/0.1);
+    const sx=prevX+(targetX-prevX)*Math.min(1,dt/0.075);
     arEnemyPositions[key]=sx;
     const x=sx;
     const proximity=1-e.dist/MAX_DIST;
@@ -4053,6 +4111,29 @@ function renderAR(){
 
     c.globalAlpha=1;
   });
+
+  // ── Post-entity: VHS corruption overlay near undead ──
+  {
+    const _UNDEAD=['Lich Servant','Void Shade','Blood Wraith','Wailing Banshee','Lost Soul','Bog Specter','Grave Stalker'];
+    const _plat=Player.lat||CENTER.lat, _plng=Player.lng||CENTER.lng;
+    const _hasUndead=spawns.some(s=>!s.defeated&&_UNDEAD.includes(s.name)&&distMiles(_plat,_plng,s.lat,s.lng)<0.12);
+    if(_hasUndead){
+      // CRT scanlines
+      c.fillStyle='rgba(0,0,0,0.10)';
+      for(let _y=0;_y<H;_y+=6){ c.fillRect(0,_y,W,2.5); }
+      // Occasional horizontal glitch band
+      if(Math.random()<0.05){
+        const _gy=Math.random()*H;
+        c.save();
+        c.translate((Math.random()-0.5)*10,0);
+        c.fillStyle='rgba(160,0,0,0.07)';
+        c.fillRect(0,_gy,W,2+Math.random()*5);
+        c.restore();
+      }
+      // Sickly green-black tint
+      c.fillStyle='rgba(0,20,0,0.05)'; c.fillRect(0,0,W,H);
+    }
+  }
 
   // ── Quest / NPC markers in AR ──
   const arQuestCandidates=[];
@@ -4253,7 +4334,7 @@ let eStatuses=[];
 let combatInterval=null, lastStatusTick=0, lastResRegen=0;
 let playerCombo=0;
 let playerActLocked=false; // global lockout between player actions
-const ACT_LOCKOUT=750; // ms between any player action
+const ACT_LOCKOUT=350; // ms between any player action
 const CD_SCALE=1800; // ms per "cd unit"
 
 function startCombatTimer(){
@@ -4560,9 +4641,9 @@ function playerAct(ability){
     const overkill=curEnemy.hp>0&&dmg>curEnemy.hp*1.5;
     curEnemy.hp=Math.max(0,curEnemy.hp-dmg);
     showDamageNum(fmt(dmg),getDmgClass(dmg),'right');
-    if(overkill) setTimeout(()=>showDamageNum('OVERKILL','dmg-overkill','right'),400);
+    if(overkill) setTimeout(()=>showDamageNum('OVERKILL','dmg-overkill','right'),180);
     if(comboUsed>0){
-      setTimeout(()=>showDamageNum(`COMBO ×${comboUsed}!`,'dmg-crit','right'),250);
+      setTimeout(()=>showDamageNum(`COMBO ×${comboUsed}!`,'dmg-crit','right'),110);
       shakeScreen(); sndSignature();
       playerCombo=0;
     } else if(ability.type==='Basic'){
@@ -4584,7 +4665,7 @@ function playerAct(ability){
   if(curEnemy.hp<=0){
     anim('e-spr','death-anim');
     showDamageNum('SLAIN!','dmg-overkill','right');
-    setTimeout(()=>victory(), isBoss ? 1800 : 1200);
+    setTimeout(()=>victory(), isBoss ? 900 : 600);
   }
 }
 
@@ -4653,7 +4734,7 @@ function calcDamage(ability){
   // forceCrit abilities get a flat 2× bonus instead of RNG
   if(ability.forceCrit){
     dmg=Math.floor(dmg*2);
-    setTimeout(()=>showDamageNum('PRECISE!','dmg-crit','right'),200);
+    setTimeout(()=>showDamageNum('PRECISE!','dmg-crit','right'),90);
   }
 
   // Illusion stacks
@@ -4750,8 +4831,8 @@ function doEnemyAttack(){
       veil.classList.remove('active');
       anim('e-spr','special-anim');
       triggerEnemyHit(e, dmg, true, false);
-      shakeScreen(); shakeScreen();
-    }, 420);
+      shakeScreen(true);
+    }, 250);
   } else if(isCrit){
     anim('e-spr','crit-anim');
     flashEnemyAtk('flash-crit');
@@ -4804,7 +4885,7 @@ function triggerEnemyHit(e, dmg, special, isCrit){
     setCBUI(); return;
   }
   setCBUI();
-  if(Player.hp<=0){ setTimeout(()=>dead(),500); }
+  if(Player.hp<=0){ setTimeout(()=>dead(),300); }
 }
 
 // ── VICTORY ───────────────────────────────────────────
@@ -4837,7 +4918,7 @@ function victory(){
   setPUI(); markDirty();
   saveGame();
   // Show level-up modals after a brief delay
-  if(pendingLevelUps.length > 0) setTimeout(showNextLevelUp, 400);
+  if(pendingLevelUps.length > 0) setTimeout(showNextLevelUp, 200);
 }
 
 // Pending level-ups queue (shown after combat ends)
@@ -5008,7 +5089,7 @@ function showDamageNum(text, cls, side){
   div.style.transform='translateX(-50%)';
   div.textContent=text;
   layer.appendChild(div);
-  setTimeout(()=>div.remove(),1600);
+  setTimeout(()=>div.remove(),1100);
 }
 
 function flashScreen(type){
@@ -5018,12 +5099,15 @@ function flashScreen(type){
   setTimeout(()=>f.classList.remove('flash-white'),150);
 }
 
-function shakeScreen(){
-  document.getElementById('combat-box').classList.add('shaking');
-  setTimeout(()=>document.getElementById('combat-box').classList.remove('shaking'),360);
+function shakeScreen(big){
+  const box=document.getElementById('combat-box');
+  box.classList.remove('shaking','shaking-big');
+  void box.offsetWidth; // force reflow so re-triggering restarts the animation
+  box.classList.add(big?'shaking-big':'shaking');
+  setTimeout(()=>box.classList.remove('shaking','shaking-big'),big?400:320);
 }
 
-function anim(id,cls){ const e=document.getElementById(id); e.classList.add(cls); setTimeout(()=>e.classList.remove(cls),350); }
+function anim(id,cls){ const e=document.getElementById(id); e.classList.remove(cls); void e.offsetWidth; e.classList.add(cls); setTimeout(()=>e.classList.remove(cls),280); }
 
 // ── SIDEBAR UI ────────────────────────────────────────
 function setPUI(){
