@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#030205">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="DARKWORLD — The Music">
+<meta property="og:description" content="Music from the depths of the Fallen City. Philadelphia's darkest sounds.">
+<meta property="og:type" content="music.playlist">
+<meta property="og:image" content="/philly-dark-skyline.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DARKWORLD — The Music">
+<meta name="twitter:description" content="Music from the depths of the Fallen City.">
+<link rel="icon" href="/icon.svg">
+<title>DARKWORLD — The Music</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Metal+Mania&family=IM+Fell+English:ital@0;1&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --void:    #080510;
+  --abyss:   #100a18;
+  --pit:     #16102a;
+  --shadow:  #1e1828;
+  --dark:    #261e36;
+  --muted:   #342a48;
+  --blood:   #8b1a1a;
+  --crimson: #cc2020;
+  --ember:   #c45510;
+  --gold:    #d4a020;
+  --pale:    #e0d0b0;
+  --bone:    #ede0c8;
+  --ghost:   #f8f0e4;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 18px; scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--bone);
+  font-family: 'IM Fell English', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Noise overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.18;
+}
+
+/* ── HERO HEADER ── */
+.site-header {
+  position: relative;
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 24px 52px;
+  text-align: center;
+  background: url('philly-dark-skyline.png') center 40% / cover no-repeat;
+  overflow: hidden;
+}
+
+.site-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(5,2,8,0.35) 0%,
+    rgba(5,2,8,0.55) 35%,
+    rgba(8,5,16,0.90) 70%,
+    var(--void) 100%
+  );
+  pointer-events: none;
+}
+
+.site-header > * { position: relative; z-index: 1; }
+
+.header-runes {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .78rem;
+  color: rgba(220,50,50,0.8);
+  letter-spacing: .7em;
+  margin-bottom: 18px;
+  animation: flicker 4s ease infinite;
+}
+
+.header-title {
+  font-family: 'Metal Mania', cursive;
+  font-size: clamp(2.8rem, 14vw, 5.5rem);
+  color: #fff;
+  letter-spacing: .06em;
+  text-shadow:
+    0 2px 4px rgba(0,0,0,1),
+    0 0 30px rgba(200,20,20,1),
+    0 0 60px rgba(160,10,10,0.9),
+    0 0 120px rgba(120,0,0,0.7),
+    0 0 200px rgba(80,0,0,0.5);
+  animation: titlePulse 3s ease infinite;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.header-sub {
+  font-family: 'IM Fell English', serif;
+  font-size: clamp(.8rem, 2.5vw, 1.05rem);
+  color: #e8c0c0;
+  letter-spacing: .38em;
+  text-transform: uppercase;
+  font-style: italic;
+  text-shadow: 0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(150,20,20,0.6);
+}
+
+/* ── NAV ── */
+.site-nav {
+  background: var(--abyss);
+  border-top: 1px solid rgba(139,26,26,0.45);
+  border-bottom: 1px solid rgba(139,26,26,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 13px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .72rem;
+  color: var(--pale);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+.nav-link:hover { color: var(--gold); }
+
+/* ── MAIN ── */
+main {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 56px 24px 90px;
+}
+
+/* Section headers */
+.section-heading {
+  font-family: 'Metal Mania', cursive;
+  font-size: clamp(1.2rem, 4vw, 1.75rem);
+  color: var(--gold);
+  letter-spacing: .12em;
+  margin-bottom: 4px;
+  text-shadow: 0 0 24px rgba(184,150,42,0.55);
+}
+
+.section-rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blood), var(--crimson), var(--blood), transparent);
+  margin: 10px 0 32px;
+}
+
+.skull-sep {
+  text-align: center;
+  font-size: 1rem;
+  color: rgba(139,26,26,0.45);
+  letter-spacing: 1.4em;
+  margin: 48px 0;
+}
+
+/* ── FEATURED PLAYER ── */
+.featured-section { margin-bottom: 60px; }
+
+.featured-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .68rem;
+  color: var(--crimson);
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.featured-frame {
+  background: var(--abyss);
+  border: 1px solid var(--blood);
+  box-shadow:
+    0 0 40px rgba(139,26,26,0.3),
+    inset 0 0 24px rgba(0,0,0,0.4);
+  padding: 4px;
+  overflow: hidden;
+}
+
+.featured-frame iframe {
+  display: block;
+  width: 100%;
+  height: 350px;
+  border: none;
+}
+
+/* Placeholder */
+.embed-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 36px 20px;
+  border: 1px dashed rgba(139,26,26,0.4);
+  background: var(--void);
+  text-align: center;
+  min-height: 160px;
+}
+.embed-placeholder .ph-icon { font-size: 2.2rem; opacity: .28; }
+.embed-placeholder .ph-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .68rem;
+  color: rgba(224,208,176,0.35);
+  letter-spacing: .18em;
+  line-height: 1.7;
+  text-transform: uppercase;
+}
+.embed-placeholder .ph-hint {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .62rem;
+  color: rgba(139,26,26,0.55);
+  letter-spacing: .12em;
+  margin-top: 4px;
+}
+
+/* ── TRACK GRID ── */
+.tracks-section { margin-bottom: 60px; }
+
+.track-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 20px;
+}
+
+.track-card {
+  background: linear-gradient(160deg, var(--pit), var(--abyss));
+  border: 1px solid rgba(139,26,26,0.45);
+  transition: border-color .25s ease, box-shadow .25s ease;
+  overflow: hidden;
+}
+.track-card:hover {
+  border-color: rgba(212,160,32,0.6);
+  box-shadow: 0 0 22px rgba(184,150,42,0.12);
+}
+
+.track-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgba(139,26,26,0.3);
+}
+
+.track-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .65rem;
+  color: var(--crimson);
+  letter-spacing: .25em;
+  flex-shrink: 0;
+}
+
+.track-name {
+  font-family: 'Metal Mania', cursive;
+  font-size: 1.05rem;
+  color: var(--bone);
+  letter-spacing: .05em;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track-embed { padding: 4px; background: var(--void); }
+.track-embed iframe { display: block; width: 100%; border: none; }
+
+/* ── LINKS SECTION ── */
+.links-section { margin-bottom: 60px; }
+
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.ext-link {
+  background: linear-gradient(160deg, rgba(100,10,10,0.22), rgba(50,0,0,0.32));
+  border: 1px solid rgba(204,32,32,0.45);
+  padding: 22px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all .25s ease;
+  color: var(--bone);
+  cursor: pointer;
+}
+.ext-link:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 22px rgba(184,150,42,0.18);
+  transform: translateY(-2px);
+}
+
+.ext-icon { font-size: 1.7rem; }
+.ext-name {
+  font-family: 'Metal Mania', cursive;
+  font-size: .9rem;
+  letter-spacing: .14em;
+  color: var(--pale);
+}
+.ext-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .62rem;
+  color: var(--blood);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+/* ── SHARE SECTION ── */
+.share-section { margin-bottom: 60px; }
+
+.share-box {
+  background: var(--abyss);
+  border: 1px solid rgba(139,26,26,0.4);
+  padding: 32px 28px;
+  text-align: center;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+}
+
+.share-box .share-quote {
+  font-style: italic;
+  font-size: .95rem;
+  color: var(--pale);
+  margin-bottom: 6px;
+  line-height: 1.6;
+  letter-spacing: .04em;
+}
+.share-box .share-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .65rem;
+  color: var(--blood);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.share-btn {
+  background: linear-gradient(180deg, rgba(100,10,10,0.6), rgba(50,0,0,0.7));
+  border: 1.5px solid var(--crimson);
+  color: #f0d0d0;
+  font-family: 'Metal Mania', cursive;
+  font-size: .8rem;
+  letter-spacing: .22em;
+  padding: 11px 26px;
+  cursor: pointer;
+  transition: all .25s ease;
+  text-shadow: 0 0 12px rgba(255,60,60,0.5);
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 0 20px rgba(150,0,0,0.35), inset 0 0 12px rgba(100,0,0,0.2);
+}
+.share-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 24px rgba(184,150,42,0.28);
+}
+.share-btn.copied {
+  border-color: #3a8a3a;
+  color: #80dd80;
+  text-shadow: 0 0 12px rgba(100,220,100,0.5);
+  box-shadow: 0 0 20px rgba(50,200,50,0.2);
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid rgba(139,26,26,0.3);
+  padding: 36px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.footer-wordmark {
+  font-family: 'Metal Mania', cursive;
+  font-size: 1.3rem;
+  color: var(--blood);
+  letter-spacing: .22em;
+  text-shadow: 0 0 24px rgba(139,26,26,0.55);
+}
+.footer-tagline {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .62rem;
+  color: rgba(255,255,255,0.13);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.footer-game-link {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .7rem;
+  color: var(--muted);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color .2s ease;
+  border: 1px solid rgba(139,26,26,0.3);
+  padding: 8px 20px;
+}
+.footer-game-link:hover { color: var(--pale); border-color: var(--blood); }
+
+/* ── ANIMATIONS ── */
+@keyframes flicker {
+  0%,100%{opacity:.3} 50%{opacity:.8} 75%{opacity:.2} 80%{opacity:.65}
+}
+@keyframes titlePulse {
+  0%,100%{opacity:.9;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.015)}
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .track-grid { grid-template-columns: 1fr; }
+  .links-grid { grid-template-columns: 1fr 1fr; }
+  .site-nav { gap: 16px; padding: 10px 16px; }
+  main { padding: 36px 16px 64px; }
+  .share-box { padding: 24px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO HEADER ═══ -->
+<header class="site-header">
+  <p class="header-runes">✦ ✦ ✦</p>
+  <h1 class="header-title">DARKWORLD</h1>
+  <p class="header-sub">The Music &mdash; From the Fallen City</p>
+</header>
+
+<!-- ═══ STICKY NAV ═══ -->
+<nav class="site-nav">
+  <a class="nav-link" href="#featured">Featured</a>
+  <a class="nav-link" href="#tracks">All Tracks</a>
+  <a class="nav-link" href="#links">Listen</a>
+  <a class="nav-link" href="#share">Share</a>
+  <a class="nav-link" href="/">The Game</a>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main>
+
+  <!-- FEATURED TRACK -->
+  <section class="featured-section" id="featured">
+    <p class="featured-label">♦ Featured Track</p>
+    <h2 class="section-heading">Now Playing</h2>
+    <div class="section-rule"></div>
+
+    <div class="featured-frame">
+      <!--
+        HOW TO ADD YOUR FEATURED TRACK:
+        1. Go to BandLab and open the track you want to feature
+        2. Click "Share" → "Embed" → copy the iframe code
+        3. Replace the embed-placeholder div below with your <iframe> tag
+           Example:
+           <iframe src="https://www.bandlab.com/embed/?id=YOUR_TRACK_ID_HERE"
+                   width="100%" height="350" frameborder="0"
+                   allowfullscreen scrolling="no"></iframe>
+      -->
+      <div class="embed-placeholder" style="min-height:280px;">
+        <div class="ph-icon">🎵</div>
+        <div class="ph-text">Your Featured Track Goes Here</div>
+        <div class="ph-hint">Replace this with your BandLab embed code</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="skull-sep">☽ ✦ ☾</div>
+
+  <!-- TRACK GRID -->
+  <section class="tracks-section" id="tracks">
+    <h2 class="section-heading">Tracks</h2>
+    <div class="section-rule"></div>
+    <div class="track-grid">
+
+      <!--
+        HOW TO ADD EACH TRACK:
+        1. In BandLab open the track → Share → Embed → copy iframe src
+        2. Replace the embed-placeholder div inside track-embed with:
+           <iframe src="https://www.bandlab.com/embed/?id=TRACK_ID"
+                   height="180" frameborder="0" allowfullscreen scrolling="no"></iframe>
+        3. Update the track-name span with the real title
+      -->
+
+      <div class="track-card">
+        <div class="track-header">
+          <span class="track-num">01</span>
+          <span class="track-name">Track Title</span>
+        </div>
+        <div class="track-embed">
+          <div class="embed-placeholder">
+            <div class="ph-icon">🎵</div>
+            <div class="ph-text">Paste BandLab embed here</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="track-card">
+        <div class="track-header">
+          <span class="track-num">02</span>
+          <span class="track-name">Track Title</span>
+        </div>
+        <div class="track-embed">
+          <div class="embed-placeholder">
+            <div class="ph-icon">🎵</div>
+            <div class="ph-text">Paste BandLab embed here</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="track-card">
+        <div class="track-header">
+          <span class="track-num">03</span>
+          <span class="track-name">Track Title</span>
+        </div>
+        <div class="track-embed">
+          <div class="embed-placeholder">
+            <div class="ph-icon">🎵</div>
+            <div class="ph-text">Paste BandLab embed here</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="track-card">
+        <div class="track-header">
+          <span class="track-num">04</span>
+          <span class="track-name">Track Title</span>
+        </div>
+        <div class="track-embed">
+          <div class="embed-placeholder">
+            <div class="ph-icon">🎵</div>
+            <div class="ph-text">Paste BandLab embed here</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="track-card">
+        <div class="track-header">
+          <span class="track-num">05</span>
+          <span class="track-name">Track Title</span>
+        </div>
+        <div class="track-embed">
+          <div class="embed-placeholder">
+            <div class="ph-icon">🎵</div>
+            <div class="ph-text">Paste BandLab embed here</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="track-card">
+        <div class="track-header">
+          <span class="track-num">06</span>
+          <span class="track-name">Track Title</span>
+        </div>
+        <div class="track-embed">
+          <div class="embed-placeholder">
+            <div class="ph-icon">🎵</div>
+            <div class="ph-text">Paste BandLab embed here</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="skull-sep">☽ ✦ ☾</div>
+
+  <!-- EXTERNAL LINKS -->
+  <section class="links-section" id="links">
+    <h2 class="section-heading">Find The Music</h2>
+    <div class="section-rule"></div>
+    <div class="links-grid">
+
+      <!--
+        UPDATE: Replace YOUR_BANDLAB_USERNAME with your actual BandLab username
+        e.g. href="https://www.bandlab.com/darkworld_music"
+      -->
+      <a class="ext-link" href="https://www.bandlab.com/YOUR_BANDLAB_USERNAME" target="_blank" rel="noopener">
+        <span class="ext-icon">🎛️</span>
+        <span class="ext-name">BandLab</span>
+        <span class="ext-sub">Full Profile →</span>
+      </a>
+
+      <!--
+        UPDATE: Replace # with your Google Drive folder share link
+      -->
+      <a class="ext-link" href="#" target="_blank" rel="noopener">
+        <span class="ext-icon">☁️</span>
+        <span class="ext-name">Google Drive</span>
+        <span class="ext-sub">Download Files →</span>
+      </a>
+
+    </div>
+  </section>
+
+  <div class="skull-sep">☽ ✦ ☾</div>
+
+  <!-- SHARE -->
+  <section class="share-section" id="share">
+    <h2 class="section-heading">Spread the Darkness</h2>
+    <div class="section-rule"></div>
+    <div class="share-box">
+      <p class="share-quote">The city has fallen. The music remains.<br>Share it with those who should hear it.</p>
+      <p class="share-sub">▸ share this page</p>
+      <div class="share-buttons">
+        <button class="share-btn" id="copy-link-btn">Copy Link</button>
+        <a class="share-btn" id="tweet-btn" href="#" target="_blank" rel="noopener">Share on X</a>
+        <a class="share-btn" id="whatsapp-btn" href="#" target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-wordmark">DARKWORLD</div>
+  <a class="footer-game-link" href="/">← Enter The Game</a>
+  <p class="footer-tagline">The Fallen City &bull; Philadelphia</p>
+</footer>
+
+<script>
+(function () {
+  const pageUrl = window.location.href;
+
+  // Tweet link
+  const tweetBtn = document.getElementById('tweet-btn');
+  if (tweetBtn) {
+    tweetBtn.href = 'https://twitter.com/intent/tweet?text=' +
+      encodeURIComponent('Check out DARKWORLD music — from the depths of the Fallen City') +
+      '&url=' + encodeURIComponent(pageUrl);
+  }
+
+  // WhatsApp link
+  const waBtn = document.getElementById('whatsapp-btn');
+  if (waBtn) {
+    waBtn.href = 'https://wa.me/?text=' +
+      encodeURIComponent('DARKWORLD music — ' + pageUrl);
+  }
+
+  // Copy link
+  document.getElementById('copy-link-btn').addEventListener('click', function () {
+    const btn = this;
+    const original = btn.textContent;
+
+    const doCopy = () => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      }, 2200);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(pageUrl).then(doCopy).catch(() => fallbackCopy());
+    } else {
+      fallbackCopy();
+    }
+
+    function fallbackCopy() {
+      const ta = document.createElement('textarea');
+      ta.value = pageUrl;
+      ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); doCopy(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
