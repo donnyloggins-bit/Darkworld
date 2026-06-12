@@ -1750,7 +1750,7 @@ body::before {
     <div id="cb-top">
       <div id="boss-charge-veil"></div>
       <div id="enemy-atk-flash"></div>
-      <img id="boss-portrait" src="" alt="" style="display:none;width:100%;max-height:220px;object-fit:cover;object-position:top;border-bottom:2px solid #b8962a;margin-bottom:6px;">
+      <img id="boss-portrait" src="" alt="" style="display:none;width:100%;max-height:300px;object-fit:cover;object-position:top;border-bottom:2px solid #b8962a;margin-bottom:6px;flex-shrink:0;">
       <div id="cb-name">ENEMY</div>
       <div id="cb-type">TYPE</div>
       <span id="e-spr" class="c-sprite">💀</span>
@@ -3833,16 +3833,21 @@ async function startAR(){
   }catch(e){
     addLog(`⚠ Camera: ${e.message||'access denied'}. Check browser permissions.`,'ls'); return;
   }
-  // Compass
+  // Compass — prefer absolute (true north); ignore relative deviceorientation once absolute fires
+  let _absOrientSeen=false;
   arOrientHandler=e=>{
-    let raw;
     if(e.webkitCompassHeading!==undefined){
-      raw=e.webkitCompassHeading;
+      // iOS: webkitCompassHeading is always absolute
+      arTargetHeading=e.webkitCompassHeading;
+      _absOrientSeen=true;
+    } else if(e.type==='deviceorientationabsolute'){
+      arTargetHeading=(360-(e.alpha||0))%360;
+      _absOrientSeen=true;
     } else {
-      raw=(360-(e.alpha||0))%360;
+      // relative deviceorientation — only use as fallback if no absolute source seen yet
+      if(_absOrientSeen) return;
+      arTargetHeading=(360-(e.alpha||0))%360;
     }
-    // Store raw target; smoothing applied during render
-    arTargetHeading=raw;
   };
   window.addEventListener('deviceorientationabsolute',arOrientHandler,true);
   window.addEventListener('deviceorientation',arOrientHandler,true);
@@ -4376,7 +4381,7 @@ let eStatuses=[];
 let combatInterval=null, lastStatusTick=0, lastResRegen=0;
 let playerCombo=0;
 let playerActLocked=false; // global lockout between player actions
-const ACT_LOCKOUT=350; // ms between any player action
+const ACT_LOCKOUT=900; // ms between any player action
 const CD_SCALE=1800; // ms per "cd unit"
 
 function startCombatTimer(){
@@ -4454,8 +4459,9 @@ function startCombat(ent,boss){ sndCombatStart();
   curEnemy.nextAttackAt = Date.now() + 1800; // short first-hit window so combat starts immediately
 
   const portrait = document.getElementById('boss-portrait');
-  if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; portrait.style.borderBottomColor=boss?'#b8962a':'#3a2a50'; }
-  else { portrait.src=''; portrait.style.display='none'; }
+  const sprite   = document.getElementById('e-spr');
+  if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; portrait.style.borderBottomColor=boss?'#b8962a':'#3a2a50'; sprite.style.display='none'; }
+  else { portrait.src=''; portrait.style.display='none'; sprite.style.display=''; }
   document.getElementById('cb-name').textContent=ent.name;
   document.getElementById('cb-type').textContent=ent.type||(ZONES[ent.zone]?.name?.toUpperCase()+' MONSTER');
   document.getElementById('e-spr').textContent=ent.emoji;
