@@ -638,19 +638,26 @@ footer {
 
     <!--
     ═══════════════════════════════════════════════════════════════
-      HOW TO ADD YOUR TRACKS:
+      HOW TO ADD YOUR TRACKS — TWO OPTIONS:
 
-      1. Drop your WAV file into the  tracks/  folder next to this file
-         e.g.  tracks/01-my-song.wav
+      ── OPTION A: Google Drive (easiest) ───────────────────────
+      1. Upload your WAV to Google Drive
+      2. Right-click the file → Share → "Anyone with the link" → Done
+      3. Copy the share URL — it looks like:
+            https://drive.google.com/file/d/FILE_ID_HERE/view
+      4. Paste just the FILE_ID into  data-gdrive="FILE_ID_HERE"
+      5. Remove  class="unavailable"  from the track div
+         Example:
+           <div class="track" data-gdrive="1aBcDeFgHiJkLmNoPqRsTuVwXyZ012345">
 
-      2. For each track, copy one of the <div class="track"> blocks
-         below and fill in:
-           - data-src="tracks/your-file.wav"   ← your WAV filename
-           - track-name text                    ← song title
-           - track-num text                     ← track number
-           - href on the download link          ← same WAV path
+      ── OPTION B: Local WAV file ────────────────────────────────
+      1. Drop your WAV file into the  tracks/  folder
+      2. Set  data-src="tracks/your-file.wav"
+      3. Remove  class="unavailable"
 
-      3. Remove  class="unavailable"  once the file is in place.
+      ── BOTH: also update ───────────────────────────────────────
+         - <span class="track-name">  ← song title
+         - <span class="track-num">   ← track number
     ═══════════════════════════════════════════════════════════════
     -->
 
@@ -851,8 +858,18 @@ footer {
     });
   }
 
+  /* Build streamable URL from either a local path or a Google Drive file ID */
+  function gdriveStreamUrl(id) {
+    return 'https://drive.google.com/uc?export=open&id=' + id;
+  }
+  function gdriveDownloadUrl(id) {
+    return 'https://drive.google.com/uc?export=download&id=' + id + '&confirm=t';
+  }
+
   tracks.forEach(track => {
-    const src      = track.dataset.src;
+    const gdrive   = track.dataset.gdrive || '';
+    const src      = gdrive ? gdriveStreamUrl(gdrive) : (track.dataset.src || '');
+    const dlUrl    = gdrive ? gdriveDownloadUrl(gdrive) : (track.dataset.src || '#');
     const audio    = track.querySelector('audio');
     const playBtn  = track.querySelector('.play-btn');
     const timEl    = track.querySelector('.track-time');
@@ -861,9 +878,21 @@ footer {
     const nameEl   = track.querySelector('.track-name').textContent.trim();
     const unavail  = track.classList.contains('unavailable');
 
+    /* Wire up download link dynamically */
+    const dlLink = track.querySelector('.track-download');
+    if (dlLink && dlUrl && dlUrl !== '#') {
+      dlLink.href = dlUrl;
+      if (gdrive) dlLink.removeAttribute('download'); /* GDrive handles its own download */
+    }
+
+    /* Update hint text */
+    const hint = track.querySelector('.track-file-hint');
+    if (hint) {
+      hint.textContent = gdrive ? 'gdrive: ' + gdrive.slice(0, 16) + '…' : (track.dataset.src || '');
+    }
+
     if (unavail) {
       playBtn.addEventListener('click', () => {
-        /* gentle pulse to indicate it needs a file */
         playBtn.style.animation = 'playerPulse .3s ease 2';
         setTimeout(() => { playBtn.style.animation = ''; }, 600);
       });
