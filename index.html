@@ -4191,7 +4191,7 @@ function renderAR(){
     // Full info card only for closest (idx===visible.length-1 after far→near sort)
     const isClosest = idx===visible.length-1;
     const ft=Math.round(e.dist*5280);
-    const distTxt=ft<528?`${ft} ft`:`${ft} ft`;
+    const distTxt=ft<528?`${ft} ft`:`${(ft/5280).toFixed(2)} mi`;
 
     if(isClosest){
       const cardW=Math.min(W*0.5,200);
@@ -4891,17 +4891,16 @@ function calcDamage(ability){
   // ±20% variance, matching enemy side
   let dmg=Math.floor(Player.atk*dmgMult*(0.85+Math.random()*0.30));
 
-  // Crit — uses Player.crit stat (built up via DEX / level-ups)
-  const critRoll = Math.random()*100 < Player.crit;
-  if(critRoll){
-    dmg=Math.floor(dmg*1.75);
-    setTimeout(()=>showDamageNum('CRIT!','dmg-crit','right'),90);
-  }
-
-  // forceCrit abilities always crit and deal 2× regardless of above
-  if(ability.forceCrit && !critRoll){
-    dmg=Math.floor(dmg*(2/1.75)); // normalize so it lands at 2× base
+  if(ability.forceCrit){
+    // Guaranteed 2× — always PRECISE, skip normal crit roll
+    dmg=Math.floor(dmg*2);
     setTimeout(()=>showDamageNum('PRECISE!','dmg-crit','right'),90);
+  } else {
+    // Normal crit chance from Player.crit stat
+    if(Math.random()*100 < Player.crit){
+      dmg=Math.floor(dmg*1.75);
+      setTimeout(()=>showDamageNum('CRIT!','dmg-crit','right'),90);
+    }
   }
 
   // Illusion stacks
