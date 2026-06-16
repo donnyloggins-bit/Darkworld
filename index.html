@@ -3268,9 +3268,59 @@ function mi2px(mi){ return mi*(mapH/2)/5*zoom; }
 function ri(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function fmt(n){ return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'K':n.toString(); }
 
-const mapBgImg = new Image();
-mapBgImg.onload = ()=>{ if(Player) markDirty(); };
-mapBgImg.src = 'spooky-aerial.png';
+const tileCache = new Map();
+
+function _tileZoom(){
+  if(zoom < 0.6) return 12;
+  if(zoom < 1.4) return 13;
+  if(zoom < 2.8) return 14;
+  return 15;
+}
+function _lngToTX(lng,z){ return Math.floor((lng+180)/360*Math.pow(2,z)); }
+function _latToTY(lat,z){
+  const r=lat*Math.PI/180;
+  return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*Math.pow(2,z));
+}
+function _tileNW(tx,ty,z){
+  const lng=tx/Math.pow(2,z)*360-180;
+  const n=Math.PI-2*Math.PI*ty/Math.pow(2,z);
+  const lat=180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n)));
+  return {lat,lng};
+}
+function _getTile(tx,ty,tz){
+  const key=`${tz}/${tx}/${ty}`;
+  if(tileCache.has(key)) return tileCache.get(key);
+  const img=new Image(); img.crossOrigin='anonymous';
+  const sub=['a','b','c'][Math.abs(tx+ty)%3];
+  img.src=`https://${sub}.basemaps.cartocdn.com/dark_all/${tz}/${tx}/${ty}.png`;
+  img.onload=()=>{ if(Player) markDirty(); };
+  tileCache.set(key,img);
+  return img;
+}
+function drawTiles(){
+  const tz=_tileZoom();
+  const ppm=(mapH/2)/5;
+  const cx=mapW/2+viewX, cy=mapH/2+viewY;
+  const cos=Math.cos(CENTER.lat*Math.PI/180);
+  const pxToLng=px=>CENTER.lng+(px-cx)/(69.11*cos*ppm*zoom);
+  const pyToLat=py=>CENTER.lat-(py-cy)/(69.11*ppm*zoom);
+  const txMin=_lngToTX(pxToLng(-256),tz);
+  const txMax=_lngToTX(pxToLng(mapW+256),tz);
+  const tyMin=_latToTY(pyToLat(-256),tz);
+  const tyMax=_latToTY(pyToLat(mapH+256),tz);
+  for(let ty=tyMin;ty<=tyMax;ty++){
+    for(let tx=txMin;tx<=txMax;tx++){
+      const img=_getTile(tx,ty,tz);
+      if(!img.complete||!img.naturalWidth) continue;
+      const nw=_tileNW(tx,ty,tz), se=_tileNW(tx+1,ty+1,tz);
+      const p1=ll2px(nw.lat,nw.lng), p2=ll2px(se.lat,se.lng);
+      ctx.drawImage(img,p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+    }
+  }
+  // Dark tint to preserve the game atmosphere
+  ctx.fillStyle='rgba(8,5,16,0.40)';
+  ctx.fillRect(0,0,mapW,mapH);
+}
 
 let spawns=[];
 function genSpawns(){
@@ -3327,17 +3377,10 @@ function resize(){
 
 function render(){
   ctx.clearRect(0,0,mapW,mapH);
-  // Background image
-  if(mapBgImg.complete && mapBgImg.naturalWidth){
-    ctx.globalAlpha=1;
-    ctx.drawImage(mapBgImg,0,0,mapW,mapH);
-    ctx.fillStyle='rgba(8,5,16,0.72)';
-    ctx.fillRect(0,0,mapW,mapH);
-  } else {
-    const bg=ctx.createRadialGradient(mapW/2,mapH/2,0,mapW/2,mapH/2,mi2px(6));
-    bg.addColorStop(0,'#0d0a14'); bg.addColorStop(1,'#030205');
-    ctx.fillStyle=bg; ctx.fillRect(0,0,mapW,mapH);
-  }
+  // Solid fallback while tiles load
+  ctx.fillStyle='#050308';
+  ctx.fillRect(0,0,mapW,mapH);
+  drawTiles();
 
   drawGrid(); drawZones(); drawPaths();
   spawns.forEach(s=>{ if(!s.defeated)drawMob(s); });
@@ -3346,6 +3389,7 @@ function render(){
   drawNPCs();
   drawDungeons();
   drawPlayer();
+  drawOffscreenIndicator();
 }
 
 function drawGrid(){
@@ -3491,6 +3535,42 @@ function drawPlayer(){
   }
 }
 
+function drawOffscreenIndicator(){
+  if(!Player) return;
+  const p=ll2px(Player.lat,Player.lng);
+  const m=28;
+  if(p.x>=m && p.x<=mapW-m && p.y>=m && p.y<=mapH-m) return;
+  const scx=mapW/2, scy=mapH/2;
+  const dx=p.x-scx, dy=p.y-scy;
+  const angle=Math.atan2(dy,dx);
+  const hw=mapW/2-m, hh=mapH/2-m;
+  let ex,ey;
+  if(Math.abs(dx)*hh > Math.abs(dy)*hw){
+    ex=scx+Math.sign(dx)*hw; ey=scy+dy*(hw/Math.abs(dx));
+  } else {
+    ex=scx+dx*(hh/Math.abs(dy)); ey=scy+Math.sign(dy)*hh;
+  }
+  ctx.save();
+  ctx.translate(ex,ey);
+  ctx.rotate(angle);
+  const s=13;
+  // Arrow
+  ctx.beginPath(); ctx.moveTo(s,0); ctx.lineTo(-s*0.55,-s*0.55); ctx.lineTo(-s*0.55,s*0.55); ctx.closePath();
+  ctx.fillStyle='rgba(42,160,90,0.9)'; ctx.fill();
+  ctx.strokeStyle='#2a6a4a'; ctx.lineWidth=1.5; ctx.stroke();
+  // Dot at tail
+  ctx.beginPath(); ctx.arc(-s*0.55,0,4,0,Math.PI*2);
+  ctx.fillStyle='#1a4a2a'; ctx.fill();
+  ctx.restore();
+  // "YOU" label next to arrow
+  ctx.save();
+  ctx.font='bold 8px "Share Tech Mono",monospace';
+  ctx.fillStyle='rgba(42,160,90,0.85)'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  const lx=ex+Math.cos(angle+Math.PI)*22, ly=ey+Math.sin(angle+Math.PI)*22;
+  ctx.fillText('YOU',lx,ly);
+  ctx.restore();
+}
+
 function drawNPCs(){
   if(!selectedWorld) return;
   const worldNpcs = NPCS.filter(n=>n.world===selectedWorld);
@@ -3595,7 +3675,15 @@ function drawDungeons(){
 //  INPUT
 // ══════════════════════════════════════════════════════
 canvas.addEventListener('click',e=>{ handleClick(e.clientX,e.clientY); });
-canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(0.3,Math.min(4,zoom*(e.deltaY>0?0.85:1.18)));markDirty();},{passive:false});
+canvas.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const oldZoom=zoom;
+  zoom=Math.max(0.3,Math.min(4,zoom*(e.deltaY>0?0.85:1.18)));
+  const ratio=zoom/oldZoom;
+  viewX=e.clientX-mapW/2-(e.clientX-mapW/2-viewX)*ratio;
+  viewY=e.clientY-mapH/2-(e.clientY-mapH/2-viewY)*ratio;
+  markDirty();
+},{passive:false});
 
 // Boss portrait tooltip
 const bossTooltip = document.getElementById('boss-tooltip');
@@ -3620,6 +3708,9 @@ function checkBossHover(cx, cy){
   }
   if(bossTooltipVisible){ bossTooltip.style.display='none'; bossTooltipVisible=false; }
 }
+// Auto-follow: map tracks GPS position; manual pan disables it; CENTER ON ME re-enables
+let autoFollow=true;
+
 // Mouse pan
 let mouseDragging=false, mouseDragX=0, mouseDragY=0, mouseMoved=false;
 canvas.addEventListener('mousedown',e=>{ mouseDragging=true; mouseMoved=false; mouseDragX=e.clientX; mouseDragY=e.clientY; });
@@ -3627,14 +3718,14 @@ canvas.addEventListener('mousemove',e=>{
   checkBossHover(e.clientX, e.clientY);
   if(!mouseDragging) return;
   const dx=e.clientX-mouseDragX, dy=e.clientY-mouseDragY;
-  if(Math.abs(dx)>3||Math.abs(dy)>3) mouseMoved=true;
+  if(Math.abs(dx)>3||Math.abs(dy)>3){ mouseMoved=true; autoFollow=false; }
   viewX+=dx; viewY+=dy; mouseDragX=e.clientX; mouseDragY=e.clientY; markDirty();
 });
 canvas.addEventListener('mouseup',e=>{ if(!mouseMoved) handleClick(e.clientX,e.clientY); mouseDragging=false; });
 canvas.addEventListener('mouseleave',()=>{ mouseDragging=false; bossTooltip.style.display='none'; bossTooltipVisible=false; });
 
 // Touch pan + pinch zoom
-let pinchDist=0, pinchZoom=1, isPinching=false, pinchView={x:0,y:0};
+let pinchDist=0, pinchZoom=1, isPinching=false, pinchView={x:0,y:0}, pinchMid={x:0,y:0};
 let touchStartX=0, touchStartY=0, touchMoved=false;
 function touchDist(t){ return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY); }
 function touchMid(t){ return {x:(t[0].clientX+t[1].clientX)/2, y:(t[0].clientY+t[1].clientY)/2}; }
@@ -3645,6 +3736,7 @@ canvas.addEventListener('touchstart',e=>{
     pinchDist=touchDist(e.touches);
     pinchZoom=zoom;
     pinchView={x:viewX,y:viewY};
+    pinchMid=touchMid(e.touches);
   } else {
     isPinching=false; touchMoved=false;
     touchStartX=e.touches[0].clientX;
@@ -3659,14 +3751,15 @@ canvas.addEventListener('touchmove',e=>{
     const dist=touchDist(e.touches);
     const mid=touchMid(e.touches);
     const newZoom=Math.max(0.3,Math.min(4, pinchZoom*(dist/pinchDist)));
-    const zoomRatio=newZoom/zoom;
-    viewX=mid.x-(mid.x-pinchView.x)*zoomRatio;
-    viewY=mid.y-(mid.y-pinchView.y)*zoomRatio;
+    const ratio=newZoom/pinchZoom;
+    // Anchor the world point under pinchMid to the current mid (handles zoom + simultaneous pan)
+    viewX=mid.x-mapW/2-(pinchMid.x-mapW/2-pinchView.x)*ratio;
+    viewY=mid.y-mapH/2-(pinchMid.y-mapH/2-pinchView.y)*ratio;
     zoom=newZoom; markDirty();
   } else if(e.touches.length===1 && !isPinching){
     const t=e.touches[0];
     const dx=t.clientX-touchStartX, dy=t.clientY-touchStartY;
-    if(Math.abs(dx)>4||Math.abs(dy)>4){ touchMoved=true; }
+    if(Math.abs(dx)>4||Math.abs(dy)>4){ touchMoved=true; autoFollow=false; }
     viewX+=dx; viewY+=dy;
     touchStartX=t.clientX; touchStartY=t.clientY;
     checkBossHover(t.clientX, t.clientY);
@@ -4322,6 +4415,7 @@ function setGPSStatus(state,txt){
 
 function centerOnPlayer(){
   if(!Player)return;
+  autoFollow=true;
   const ppm=(mapH/2)/5;
   viewX=-(Player.lng-CENTER.lng)*69.11*Math.cos(CENTER.lat*Math.PI/180)*ppm*zoom;
   viewY=(Player.lat-CENTER.lat)*69.11*ppm*zoom;
@@ -4349,7 +4443,7 @@ function startGPS(){
         Player.lat=lat; Player.lng=lng;
       }
       updateZone();
-      markDirty();
+      if(autoFollow) centerOnPlayer(); else markDirty();
       if(!gpsFirstLock){
         gpsFirstLock=true;
         Player.lat=lat; Player.lng=lng; // snap exactly on first lock
