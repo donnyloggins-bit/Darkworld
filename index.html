@@ -3939,9 +3939,12 @@ async function startAR(){
   };
   window.addEventListener('deviceorientationabsolute',arOrientHandler,true);
   window.addEventListener('deviceorientation',arOrientHandler,true);
-  // Resize AR canvas
+  // Resize AR canvas — honour device pixel ratio so it's sharp on retina/3x phones
   const ac=document.getElementById('ar-canvas');
-  ac.width=window.innerWidth; ac.height=window.innerHeight;
+  const dpr=window.devicePixelRatio||1;
+  ac.width=window.innerWidth*dpr; ac.height=window.innerHeight*dpr;
+  ac.style.width=window.innerWidth+'px'; ac.style.height=window.innerHeight+'px';
+  arLastFrameTime=performance.now()-16; // seed so first dt ≈ 16ms, not 100ms
   // Tap-to-fight handler
   ac._arTapHandler=e=>{
     e.preventDefault();
@@ -4018,7 +4021,9 @@ function renderAR(){
 
   const canvas=document.getElementById('ar-canvas');
   const c=canvas.getContext('2d');
-  const W=canvas.width,H=canvas.height;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.width/dpr, H=canvas.height/dpr;
+  c.setTransform(dpr,0,0,dpr,0,0);
 
   // Time-based heading smoothing — consistent regardless of frame rate
   const now=performance.now();
@@ -4027,9 +4032,9 @@ function renderAR(){
   let diff=arTargetHeading-arHeading;
   if(diff>180) diff-=360;
   if(diff<-180) diff+=360;
-  // Ignore sub-0.5° jitter; 90ms time constant — snappier without jitter
-  if(Math.abs(diff)>0.5){
-    const alpha=1-Math.exp(-dt/0.09);
+  // Ignore sub-1.5° jitter; 200ms time constant — smooth without feeling laggy
+  if(Math.abs(diff)>1.5){
+    const alpha=1-Math.exp(-dt/0.20);
     arHeading=(arHeading+diff*alpha+360)%360;
   }
 
@@ -4134,7 +4139,7 @@ function renderAR(){
 
     const targetX=W/2+(e.diff/(FOV/2))*(W/2);
     const prevX=arEnemyPositions[key]??targetX;
-    const sx=prevX+(targetX-prevX)*Math.min(1,dt/0.075);
+    const sx=prevX+(targetX-prevX)*Math.min(1,dt/0.15);
     arEnemyPositions[key]=sx;
     const x=sx;
     const proximity=1-e.dist/MAX_DIST;
