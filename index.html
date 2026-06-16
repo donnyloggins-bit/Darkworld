@@ -4721,7 +4721,7 @@ function tickStatuses(who){
         addLog(`Rejuvenation: +${fmt(healAmt)} HP`,'ll');
       } else {
         target.hp=Math.max(0,target.hp-amt);
-        showDamageNum(fmt(amt),'dmg-orange',who==='enemy'?'left':'right');
+        showDamageNum(fmt(amt),'dmg-orange',who==='enemy'?'right':'left');
       }
     }
     s.turns--;
@@ -4888,12 +4888,19 @@ function calcDamage(ability){
   let dmgMult = ability.dmgMult;
   if(sk.t2==='mastery') dmgMult *= 1.25;
 
-  // No variance — fully deterministic
-  let dmg=Math.floor(Player.atk*dmgMult);
+  // ±20% variance, matching enemy side
+  let dmg=Math.floor(Player.atk*dmgMult*(0.85+Math.random()*0.30));
 
-  // forceCrit abilities get a flat 2× bonus instead of RNG
-  if(ability.forceCrit){
-    dmg=Math.floor(dmg*2);
+  // Crit — uses Player.crit stat (built up via DEX / level-ups)
+  const critRoll = Math.random()*100 < Player.crit;
+  if(critRoll){
+    dmg=Math.floor(dmg*1.75);
+    setTimeout(()=>showDamageNum('CRIT!','dmg-crit','right'),90);
+  }
+
+  // forceCrit abilities always crit and deal 2× regardless of above
+  if(ability.forceCrit && !critRoll){
+    dmg=Math.floor(dmg*(2/1.75)); // normalize so it lands at 2× base
     setTimeout(()=>showDamageNum('PRECISE!','dmg-crit','right'),90);
   }
 
