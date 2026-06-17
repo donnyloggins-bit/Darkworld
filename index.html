@@ -1951,7 +1951,7 @@ const CLASSES = {
     stats:{hp:100,atk:11,def:5,crit:8,dodge:5},
     statMods:{STR:1.5,CON:1.3,DEX:0.8,INT:0.6,WIS:0.7,CHA:0.9},
     abilities:[
-      {name:'Cleave',       emoji:'⚔️', type:'Basic',     cost:0,   costType:'none',  cd:0,  dmgMult:1.0,  desc:'Basic strike. Generates 15 Rage.',      effect:'rage+15'},
+      {name:'Cleave',       emoji:'⚔️', type:'Basic',     cost:0,   costType:'none',  cd:1,  dmgMult:1.0,  desc:'Basic strike. Generates 15 Rage.',      effect:'rage+15'},
       {name:'Whirlwind',    emoji:'🌪', type:'Core',      cost:30,  costType:'rage',  cd:2,  dmgMult:2.8,  desc:'Spin striking all enemies for massive damage.'},
       {name:'Shield Bash',  emoji:'🛡', type:'Core',      cost:20,  costType:'rage',  cd:3,  dmgMult:1.4,  desc:'Stuns enemy for 1 turn.',               effect:'stun1'},
       {name:'BLADESTORM',   emoji:'💥', type:'Signature', cost:80,  costType:'rage',  cd:5,  dmgMult:6.5,  desc:'5 rapid strikes. Total carnage.'},
@@ -1963,7 +1963,7 @@ const CLASSES = {
     stats:{hp:94,atk:9,def:5,crit:7,dodge:6},
     statMods:{STR:1.3,CON:1.2,WIS:1.4,INT:0.8,DEX:0.7,CHA:1.2},
     abilities:[
-      {name:'Judgement',     emoji:'⚡', type:'Basic',     cost:0,  costType:'none', cd:0, dmgMult:1.1, desc:'Holy strike. Generates 1 Holy Power.',    effect:'hp+1'},
+      {name:'Judgement',     emoji:'⚡', type:'Basic',     cost:0,  costType:'none', cd:1, dmgMult:1.1, desc:'Holy strike. Generates 1 Holy Power.',    effect:'hp+1'},
       {name:'Divine Storm',  emoji:'✨', type:'Core',      cost:3,  costType:'hp',   cd:3, dmgMult:3.2, desc:'Holy explosion. +50% vs undead/demons.'},
       {name:'Lay on Hands',  emoji:'💊', type:'Core',      cost:2,  costType:'hp',   cd:4, dmgMult:0,   desc:'Heals you for 40% of max HP.',           effect:'heal40'},
       {name:'HOLY WRATH',    emoji:'☀️', type:'Signature', cost:5,  costType:'hp',   cd:6, dmgMult:8.0, desc:'Channel divine fury. Obliterate the unholy.'},
@@ -1975,7 +1975,7 @@ const CLASSES = {
     stats:{hp:81,atk:11,def:4,crit:18,dodge:14},
     statMods:{DEX:1.5,STR:1.1,CON:1.0,WIS:1.0,INT:0.8,CHA:0.9},
     abilities:[
-      {name:'Aimed Shot',    emoji:'🎯', type:'Basic',     cost:0,  costType:'none', cd:0, dmgMult:1.2, desc:'Precise shot. Generates 20 Focus.',       effect:'focus+20'},
+      {name:'Aimed Shot',    emoji:'🎯', type:'Basic',     cost:0,  costType:'none', cd:1, dmgMult:1.2, desc:'Precise shot. Generates 20 Focus.',       effect:'focus+20'},
       {name:'Rapid Fire',    emoji:'🏹', type:'Core',      cost:40, costType:'focus',cd:3, dmgMult:3.5, desc:'4 arrows in rapid succession.'},
       {name:'Crippling Shot',emoji:'🦵', type:'Core',      cost:30, costType:'focus',cd:3, dmgMult:1.8, desc:'Slows enemy, -30% damage next turn.',    effect:'slow1'},
       {name:'KILL SHOT',     emoji:'💀', type:'Signature', cost:90, costType:'focus',cd:5, dmgMult:9.0, desc:'Instant kill shot. Massive crit chance.', critBonus:40},
@@ -1987,7 +1987,7 @@ const CLASSES = {
     stats:{hp:56,atk:18,def:2,crit:12,dodge:8},
     statMods:{INT:1.8,WIS:1.1,DEX:1.0,CON:0.6,STR:0.5,CHA:1.0},
     abilities:[
-      {name:'Frost Bolt',    emoji:'❄️', type:'Basic',     cost:40, costType:'mana', cd:0, dmgMult:1.4, desc:'Ice lance. Reliable arcane damage.'},
+      {name:'Frost Bolt',    emoji:'❄️', type:'Basic',     cost:40, costType:'mana', cd:1, dmgMult:1.4, desc:'Ice lance. Reliable arcane damage.'},
       {name:'Fireball',      emoji:'🔥', type:'Core',      cost:120,costType:'mana', cd:2, dmgMult:3.8, desc:'Explosive fire blast. High damage.'},
       {name:'Chain Lightning',emoji:'⚡',type:'Core',      cost:150,costType:'mana', cd:3, dmgMult:3.2, desc:'Lightning jumps. Hits multiple times.'},
       {name:'ARMAGEDDON',    emoji:'☄️', type:'Signature', cost:500,costType:'mana', cd:6, dmgMult:14.0,desc:'Reality tears. Absolute devastation. Screen shakes.'},
@@ -1999,7 +1999,7 @@ const CLASSES = {
     stats:{hp:53,atk:15,def:2,crit:20,dodge:16},
     statMods:{INT:1.6,DEX:1.3,WIS:1.0,CHA:1.1,CON:0.6,STR:0.4},
     abilities:[
-      {name:'Phantasm',      emoji:'👻', type:'Basic',     cost:30, costType:'mana', cd:0, dmgMult:1.0, desc:'Illusory attack. Builds 1 Illusion stack.', effect:'stack+1'},
+      {name:'Phantasm',      emoji:'👻', type:'Basic',     cost:30, costType:'mana', cd:1, dmgMult:1.0, desc:'Illusory attack. Builds 1 Illusion stack.', effect:'stack+1'},
       {name:'Mirror Image',  emoji:'🪞', type:'Core',      cost:100,costType:'mana', cd:3, dmgMult:0,   desc:'30% dodge for 2 turns.',                   effect:'dodge2'},
       {name:'Confusion',     emoji:'🌀', type:'Core',      cost:120,costType:'mana', cd:4, dmgMult:2.0, desc:'Enemy attacks itself next turn.',           effect:'confuse1'},
       {name:'PHANTASMAL KILLER',emoji:'💀',type:'Signature',cost:400,costType:'mana',cd:6, dmgMult:12.0,desc:'Manifest deepest fear. Stacks multiply damage.'},
@@ -2011,7 +2011,7 @@ const CLASSES = {
     stats:{hp:75,atk:8,def:4,crit:6,dodge:7},
     statMods:{WIS:1.6,CON:1.3,STR:1.0,CHA:1.2,INT:0.9,DEX:0.7},
     abilities:[
-      {name:'Smite',         emoji:'✨', type:'Basic',     cost:10, costType:'faith',cd:0, dmgMult:1.0, desc:'Holy smite. +100% vs undead.',           undead:true},
+      {name:'Smite',         emoji:'✨', type:'Basic',     cost:10, costType:'faith',cd:1, dmgMult:1.0, desc:'Holy smite. +100% vs undead.',           undead:true},
       {name:'Turn Undead',   emoji:'☀️', type:'Core',      cost:30, costType:'faith',cd:3, dmgMult:4.0, desc:'Massive holy damage to undead.',          effect:'holy'},
       {name:'Word of Mending',emoji:'💚',type:'Core',      cost:25, costType:'faith',cd:2, dmgMult:0,   desc:'Heals 35% max HP.',                      effect:'heal35'},
       {name:'DIVINE WRATH',  emoji:'⚡', type:'Signature', cost:90, costType:'faith',cd:6, dmgMult:9.5, desc:'Gods speak through you. Pure destruction.'},
@@ -2023,7 +2023,7 @@ const CLASSES = {
     stats:{hp:63,atk:12,def:3,crit:28,dodge:22},
     statMods:{DEX:1.7,STR:1.0,INT:0.9,CON:0.8,WIS:0.7,CHA:1.1},
     abilities:[
-      {name:'Quick Strike',  emoji:'⚡', type:'Basic',     cost:15, costType:'energy',cd:0, dmgMult:0.9, desc:'Fast hit. Low cost, good crit chance.'},
+      {name:'Quick Strike',  emoji:'⚡', type:'Basic',     cost:15, costType:'energy',cd:1, dmgMult:0.9, desc:'Fast hit. Low cost, good crit chance.'},
       {name:'Hemorrhage',    emoji:'🩸', type:'Core',      cost:35, costType:'energy',cd:2, dmgMult:2.0, desc:'Causes bleed: 5% max HP per turn for 3 turns.',effect:'bleed3'},
       {name:'Evasion',       emoji:'💨', type:'Core',      cost:30, costType:'energy',cd:4, dmgMult:0,   desc:'50% dodge for 2 turns.',                effect:'evade2'},
       {name:'BACKSTAB',      emoji:'🗡', type:'Signature', cost:80, costType:'energy',cd:4, dmgMult:11.0,desc:'From the shadows. One shot potential. Massive crit.', critBonus:50},
@@ -2035,7 +2035,7 @@ const CLASSES = {
     stats:{hp:65,atk:13,def:3,crit:24,dodge:18},
     statMods:{DEX:1.5,STR:1.1,INT:1.0,CON:0.8,WIS:0.7,CHA:0.9},
     abilities:[
-      {name:'Envenom',       emoji:'🐍', type:'Basic',     cost:20, costType:'energy',cd:0, dmgMult:0.8, desc:'Applies 1 poison stack to enemy.',        effect:'poison+1'},
+      {name:'Envenom',       emoji:'🐍', type:'Basic',     cost:20, costType:'energy',cd:1, dmgMult:0.8, desc:'Applies 1 poison stack to enemy.',        effect:'poison+1'},
       {name:'Rupture',       emoji:'💉', type:'Core',      cost:40, costType:'energy',cd:2, dmgMult:2.4, desc:'Detonates poison stacks for massive damage.',effect:'detonate'},
       {name:'Shadowstep',    emoji:'👤', type:'Core',      cost:30, costType:'energy',cd:3, dmgMult:3.0, desc:'Teleport behind enemy. Guaranteed crit.', forceCrit:true},
       {name:'DEATH MARK',    emoji:'☠️', type:'Signature', cost:90, costType:'energy',cd:5, dmgMult:10.0,desc:'Mark for death. Poison explodes. Game over.'},
@@ -2047,7 +2047,7 @@ const CLASSES = {
     stats:{hp:78,atk:10,def:3,crit:15,dodge:20},
     statMods:{DEX:1.4,STR:1.2,CON:1.1,WIS:1.1,INT:0.8,CHA:0.9},
     abilities:[
-      {name:'Tiger Strike', emoji:'🐯', type:'Basic',     cost:0,  costType:'none', cd:0, dmgMult:1.0, desc:'Swift unarmed hit. Generates 20 Chi.',   effect:'chi+20'},
+      {name:'Tiger Strike', emoji:'🐯', type:'Basic',     cost:0,  costType:'none', cd:1, dmgMult:1.0, desc:'Swift unarmed hit. Generates 20 Chi.',   effect:'chi+20'},
       {name:'Rising Kick',  emoji:'🦵', type:'Core',      cost:40, costType:'chi',  cd:2, dmgMult:2.6, desc:'Aerial kick — cannot miss.'},
       {name:'Stunning Fist',emoji:'⚡', type:'Core',      cost:30, costType:'chi',  cd:3, dmgMult:1.5, desc:'Guaranteed stun for 1 turn.',            effect:'stun1'},
       {name:'FISTS OF FURY',emoji:'👊', type:'Signature', cost:90, costType:'chi',  cd:5, dmgMult:7.5, desc:'8 strikes in one turn. Pure devastation.'},
@@ -2059,7 +2059,7 @@ const CLASSES = {
     stats:{hp:69,atk:9,def:4,crit:10,dodge:10},
     statMods:{WIS:1.4,CON:1.3,INT:1.1,STR:1.0,DEX:1.0,CHA:0.9},
     abilities:[
-      {name:'Moonfire',     emoji:'🌙', type:'Basic',     cost:35, costType:'mana', cd:0, dmgMult:1.1, desc:'Lunar strike. DoT for 2 turns.',          effect:'dot2'},
+      {name:'Moonfire',     emoji:'🌙', type:'Basic',     cost:35, costType:'mana', cd:1, dmgMult:1.1, desc:'Lunar strike. DoT for 2 turns.',          effect:'dot2'},
       {name:'Wrath',        emoji:'⚡', type:'Core',      cost:100,costType:'mana', cd:2, dmgMult:3.0, desc:'Nature\'s fury. Pure nature damage.'},
       {name:'Rejuvenation', emoji:'🍃', type:'Core',      cost:80, costType:'mana', cd:3, dmgMult:0,   desc:'Heals 30% HP over 3 turns.',            effect:'regen3'},
       {name:'STARFALL',     emoji:'🌟', type:'Signature', cost:450,costType:'mana', cd:6, dmgMult:11.0,desc:'Call down the stars. The sky rains destruction.'},
@@ -4487,7 +4487,7 @@ let eStatuses=[];
 let combatInterval=null, lastStatusTick=0, lastResRegen=0;
 let playerCombo=0;
 let playerActLocked=false; // global lockout between player actions
-const ACT_LOCKOUT=350; // ms between any player action
+const ACT_LOCKOUT=600; // ms between any player action
 const CD_SCALE=1800; // ms per "cd unit"
 
 function startCombatTimer(){
