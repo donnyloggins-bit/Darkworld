@@ -9,7 +9,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DARKWORLD">
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icon.svg">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
+<meta name="msapplication-TileImage" content="/icons/icon-144.png">
+<meta name="msapplication-TileColor" content="#030205">
 <title>DARKWORLD — The Fallen City</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Metal+Mania&family=IM+Fell+English:ital@0;1&family=Share+Tech+Mono&display=swap');
@@ -821,7 +824,7 @@ body::before {
 }
 #inv-btn:hover { border-color:var(--gold); color:var(--gold); }
 #quest-btn {
-  position:absolute; bottom:106px; right:14px;
+  position:absolute; bottom:204px; right:14px;
   background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
   color:#9a88b8; font-family:'Share Tech Mono',monospace;
   font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
@@ -829,6 +832,14 @@ body::before {
 }
 #quest-btn:hover { border-color:var(--gold); color:var(--gold); }
 #quest-btn.has-active { border-color:#d4a830; color:#d4a830; animation:sigPulse 2s ease infinite; }
+#sound-btn {
+  position:absolute; bottom:252px; right:14px;
+  background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
+  color:#9a88b8; font-family:'Share Tech Mono',monospace;
+  font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
+  cursor:pointer; z-index:5;
+}
+#sound-btn:hover { border-color:var(--gold); color:var(--gold); }
 
 #sb-title {
   padding:14px 16px 10px;
@@ -1704,6 +1715,7 @@ body::before {
     <button id="menu-btn" onclick="toggleSidebar()">☰ STATS</button>
     <button id="inv-btn" onclick="openInventory()">⚔ GEAR</button>
     <button id="quest-btn" onclick="openQuestLog()">📜 QUESTS</button>
+    <button id="sound-btn" onclick="toggleSound()">🔊 SOUND</button>
   </div>
 
   <div id="sidebar">
@@ -5495,7 +5507,8 @@ function _showNextCutsceneLine(){
   if(_cutsceneLineIdx>=lines.length){ _cutsceneAnimating=false; return; }
   lines[_cutsceneLineIdx].classList.add('show');
   _cutsceneLineIdx++;
-  setTimeout(()=>{ if(_cutsceneIdx===_cutsceneSlides.indexOf(_cutsceneSlides[_cutsceneIdx])) _showNextCutsceneLine(); }, _cutsceneLineIdx===1?900:650);
+  const capturedSlide=_cutsceneIdx;
+  setTimeout(()=>{ if(_cutsceneIdx===capturedSlide) _showNextCutsceneLine(); }, _cutsceneLineIdx===1?900:650);
 }
 
 function cutsceneAdvance(){
@@ -5650,6 +5663,45 @@ function spawnQuestMobs(q){
     if(tailor) spawns.push({...tailor,
       lat:39.9499+0.0003, lng:-75.1672+0.0002,
       hp:tailor.hp, maxHp:tailor.hp, atk:tailor.atk, def:tailor.def,
+      id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
+  }
+  else if(q.id === 'never_leave'){
+    const cwl = MOB_TYPES.find(m=>m.name==='The Customer Who Never Left');
+    if(cwl) spawns.push({...cwl,
+      lat:39.9501+0.0002, lng:-75.1668+0.0001,
+      hp:cwl.hp, maxHp:cwl.hp, atk:cwl.atk, def:cwl.def,
+      id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
+  }
+  else if(q.id === 'the_ledger'){
+    spawnNear('Cursed Accountant', 4, 39.9503, -75.1664, 0.025);
+    const lw = MOB_TYPES.find(m=>m.name==='The Ledger Wraith');
+    if(lw) spawns.push({...lw,
+      lat:39.9503+0.0003, lng:-75.1664+0.0002,
+      hp:lw.hp, maxHp:lw.hp, atk:lw.atk, def:lw.def,
+      id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
+  }
+  else if(q.id === 'old_city_rising'){
+    spawnNear('Colonial Shade', 5, 39.9489, -75.1500, 0.035);
+    const ff = MOB_TYPES.find(m=>m.name==='The Forgotten Founder');
+    if(ff) spawns.push({...ff,
+      lat:39.9489+0.0003, lng:-75.1500+0.0002,
+      hp:ff.hp, maxHp:ff.hp, atk:ff.atk, def:ff.def,
+      id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
+  }
+  else if(q.id === 'city_hall_siege'){
+    spawnNear('Lich Servant', 4, 39.9526, -75.1652, 0.035);
+    const cb = MOB_TYPES.find(m=>m.name==='The City Beast');
+    if(cb) spawns.push({...cb,
+      lat:39.9526+0.0003, lng:-75.1652+0.0002,
+      hp:cb.hp, maxHp:cb.hp, atk:cb.atk, def:cb.def,
+      id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
+  }
+  else if(q.id === 'wissahickon_dark'){
+    spawnNear('Bog Specter', 5, 40.0580, -75.2160, 0.04);
+    const sg = MOB_TYPES.find(m=>m.name==='Swamp Giant');
+    if(sg) spawns.push({...sg,
+      lat:40.0580+0.0003, lng:-75.2160+0.0002,
+      hp:sg.hp, maxHp:sg.hp, atk:sg.atk, def:sg.def,
       id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
   }
   markDirty();
@@ -6082,6 +6134,11 @@ function sndComboRise(){
 function sndLoot(){
   playTone({ type:'triangle', freq:660, gain:0.14, attack:0.01, decay:0.05, release:0.18, duration:0.24 });
   setTimeout(()=>playTone({ type:'triangle', freq:880, gain:0.12, attack:0.01, decay:0.04, release:0.15, duration:0.2 }), 120);
+}
+
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  document.getElementById('sound-btn').textContent = soundEnabled ? '🔊 SOUND' : '🔇 MUTED';
 }
 
 // Unlock audio context on first user interaction
