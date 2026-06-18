@@ -734,17 +734,7 @@ body::before {
   font-size:.95rem; color:var(--gold);
   z-index:4; letter-spacing:.2em; white-space:nowrap;
 }
-#ar-btn {
-  position:absolute; bottom:60px; right:14px;
-  background:rgba(13,10,20,0.92);
-  border:1px solid #4a3a60;
-  border-bottom:2px solid var(--blood);
-  padding:8px 16px;
-  font-family:'Share Tech Mono',monospace;
-  font-size:.95rem; color:#9080b0;
-  cursor:pointer; z-index:5; letter-spacing:.08em;
-}
-#ar-btn:hover { color:var(--bone); border-bottom-color:var(--gold); }
+/* #ar-btn handled by #map-nav */
 
 /* GPS */
 #gps-hud {
@@ -760,20 +750,7 @@ body::before {
 }
 .gps-dot { width:6px; height:6px; border-radius:50%; background:#2a4a2a; flex-shrink:0; transition:background .4s; }
 #gps-txt { color:#6a9a6a; transition:color .4s; }
-#gps-btn {
-  position:absolute; bottom:14px; right:14px;
-  background:rgba(13,10,20,0.92);
-  border:1px solid #4a3a60;
-  border-bottom:2px solid var(--blood);
-  padding:8px 16px;
-  font-family:'Share Tech Mono',monospace;
-  font-size:.95rem;
-  color:#9080b0;
-  cursor:pointer;
-  z-index:5;
-  letter-spacing:.08em;
-}
-#gps-btn:hover { color:var(--bone); border-bottom-color:var(--gold); }
+/* #gps-btn handled by #map-nav */
 
 /* LEGEND */
 #legend {
@@ -807,39 +784,27 @@ body::before {
   font-size:1.1rem; cursor:pointer; padding:4px 8px;
 }
 #sidebar-close:hover { color:var(--crimson); }
-#menu-btn {
-  position:absolute; bottom:108px; right:14px;
-  background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
-  color:#9a88b8; font-family:'Share Tech Mono',monospace;
-  font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
-  cursor:pointer; z-index:5;
+/* MAP NAV PANEL — unified right-side buttons */
+#map-nav {
+  position:absolute; bottom:14px; right:14px;
+  display:flex; flex-direction:column;
+  z-index:5; overflow:hidden;
+  background:rgba(13,10,20,0.92);
+  border:1px solid #4a3a60;
+  border-bottom:2px solid var(--blood);
 }
-#menu-btn:hover { border-color:var(--gold); color:var(--gold); }
-#inv-btn {
-  position:absolute; bottom:156px; right:14px;
-  background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
+#map-nav button {
+  background:transparent; border:none;
+  border-bottom:1px solid #2a1a3a;
   color:#9a88b8; font-family:'Share Tech Mono',monospace;
-  font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
-  cursor:pointer; z-index:5;
+  font-size:.82rem; letter-spacing:.1em;
+  padding:9px 14px; cursor:pointer;
+  text-align:left; white-space:nowrap;
+  transition:color .15s, background .15s;
 }
-#inv-btn:hover { border-color:var(--gold); color:var(--gold); }
-#quest-btn {
-  position:absolute; bottom:204px; right:14px;
-  background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
-  color:#9a88b8; font-family:'Share Tech Mono',monospace;
-  font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
-  cursor:pointer; z-index:5;
-}
-#quest-btn:hover { border-color:var(--gold); color:var(--gold); }
-#quest-btn.has-active { border-color:#d4a830; color:#d4a830; animation:sigPulse 2s ease infinite; }
-#sound-btn {
-  position:absolute; bottom:252px; right:14px;
-  background:rgba(20,16,36,0.92); border:1px solid #4a3a60;
-  color:#9a88b8; font-family:'Share Tech Mono',monospace;
-  font-size:.88rem; letter-spacing:.1em; padding:7px 12px;
-  cursor:pointer; z-index:5;
-}
-#sound-btn:hover { border-color:var(--gold); color:var(--gold); }
+#map-nav button:last-child { border-bottom:none; }
+#map-nav button:hover { color:var(--gold); background:rgba(212,160,32,0.05); }
+#quest-btn.has-active { color:#d4a830 !important; animation:sigPulse 2s ease infinite; }
 
 #sb-title {
   padding:14px 16px 10px;
@@ -1081,9 +1046,9 @@ body::before {
 
 /* MIDDLE: Combat log */
 #cb-log {
-  flex-shrink:0; height:58px; overflow-y:auto;
-  padding:7px 16px; font-family:'IM Fell English',serif;
-  font-size:1.08rem; color:#c0a880; font-style:italic; line-height:1.4;
+  flex-shrink:0; height:88px; overflow-y:auto;
+  padding:8px 16px; font-family:'IM Fell English',serif;
+  font-size:1rem; color:#c0a880; font-style:italic; line-height:1.5;
   background:#18142a;
   border-top:1px solid #3a2a50; border-bottom:1px solid #3a2a50;
 }
@@ -1346,13 +1311,13 @@ body::before {
 }
 .bag-item:hover { border-color:var(--gold); }
 .bag-item .bi-emoji { font-size:1.2rem; }
-.bag-item .bi-name { font-family:'Share Tech Mono',monospace; font-size:1.08rem; color:#c0b0d8; line-height:1.2; }
-.bag-item .bi-stat { font-family:'Share Tech Mono',monospace; font-size:1.08rem; color:#7aaa7a; }
+.bag-item .bi-name { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#c0b0d8; line-height:1.2; }
+.bag-item .bi-stat { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:#7aaa7a; }
 .bag-item.potion { border-color:#3a6a3a; }
 .bag-item.potion:hover { border-color:#4acc6a; }
 .bag-item.legendary { border-color:#8a6a00; background:#1a1400; }
 .bag-item.legendary:hover { border-color:var(--gold); box-shadow:0 0 8px rgba(212,168,48,0.4); }
-.bi-req { font-family:'Share Tech Mono',monospace; font-size:1rem; color:#aa8800; margin-top:1px; }
+.bi-req { font-family:'Share Tech Mono',monospace; font-size:.78rem; color:#aa8800; margin-top:1px; }
 .bi-legendary { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:var(--gold); letter-spacing:.05em; }
 .bag-empty { font-family:'Share Tech Mono',monospace; font-size:.95rem; color:#7060a0; text-align:center; padding:20px; }
 
@@ -1436,13 +1401,13 @@ body::before {
   text-align:center;
   min-width:220px;
   max-width:320px;
-  border-radius:0 0 10px 10px;
+  border-radius:0;
   animation:slideUp .3s ease;
   cursor:pointer;
 }
 @keyframes slideUp{from{transform:translateX(-50%) translateY(16px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
 .loot-t { font-family:'Metal Mania',cursive; font-size:.95rem; color:var(--gold); margin-bottom:8px; letter-spacing:.2em; }
-.loot-i { font-size:.8rem; color:#2a6a4a; }
+.loot-i { font-size:.88rem; color:#4aaa6a; }
 
 /* FLASH OVERLAY */
 #flash { position:fixed; inset:0; pointer-events:none; z-index:300; opacity:0; background:white; transition:opacity .1s ease; }
@@ -1710,12 +1675,14 @@ body::before {
     </div>
     <div id="coord-hud"><span id="coord-txt">RITTENHOUSE — HELLMOUTH</span></div>
     <div id="gps-hud"><div class="gps-dot" id="gps-dot"></div><span id="gps-txt">GPS INACTIVE</span></div>
-    <button id="ar-btn" onclick="startAR()">👁 AR VIEW</button>
-    <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER ON ME</button>
-    <button id="menu-btn" onclick="toggleSidebar()">☰ STATS</button>
-    <button id="inv-btn" onclick="openInventory()">⚔ GEAR</button>
-    <button id="quest-btn" onclick="openQuestLog()">📜 QUESTS</button>
-    <button id="sound-btn" onclick="toggleSound()">🔊 SOUND</button>
+    <div id="map-nav">
+      <button id="menu-btn" onclick="toggleSidebar()">☰ STATS</button>
+      <button id="inv-btn" onclick="openInventory()">⚔ GEAR</button>
+      <button id="quest-btn" onclick="openQuestLog()">📜 QUESTS</button>
+      <button id="sound-btn" onclick="toggleSound()">🔊 SOUND</button>
+      <button id="ar-btn" onclick="startAR()">👁 AR VIEW</button>
+      <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER</button>
+    </div>
   </div>
 
   <div id="sidebar">
@@ -4488,7 +4455,7 @@ let combatInterval=null, lastStatusTick=0, lastResRegen=0;
 let playerCombo=0;
 let playerActLocked=false; // global lockout between player actions
 const ACT_LOCKOUT=600; // ms between any player action
-const CD_SCALE=1800; // ms per "cd unit"
+const CD_SCALE=2500; // ms per "cd unit"
 
 function startCombatTimer(){
   if(combatInterval) clearInterval(combatInterval);
@@ -4502,7 +4469,7 @@ function stopCombatTimer(){
 function combatTick(){
   if(!inCombat){ stopCombatTimer(); return; }
   const now=Date.now();
-  const attackInterval = isBoss ? 3000 : 2500;
+  const attackInterval = isBoss ? 5000 : 4000;
 
   // Enemy attack timer bar
   const elapsed = now-(curEnemy.nextAttackAt - attackInterval);
@@ -4562,7 +4529,7 @@ function startCombat(ent,boss){ sndCombatStart();
     Player.illusionStacks = (Player.illusionStacks||0) + 2;
   }
   const attackInterval = boss ? 3000 : 2500;
-  curEnemy.nextAttackAt = Date.now() + 1800; // short first-hit window so combat starts immediately
+  curEnemy.nextAttackAt = Date.now() + 3500; // give player time to act first
 
   const portrait = document.getElementById('boss-portrait');
   if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; portrait.style.borderBottomColor=boss?'#b8962a':'#3a2a50'; }
