@@ -1456,6 +1456,86 @@ body::before {
 .skill-chosen-badge { font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#44cc44; margin-top:3px; }
 .skill-class-section { margin-top:16px; border-top:1px solid #3a2a50; padding-top:10px; }
 
+/* BOSS REVEAL SCREEN */
+#boss-reveal {
+  display:none; position:fixed; inset:0; z-index:90;
+  flex-direction:column; justify-content:flex-end;
+}
+#boss-reveal.active { display:flex; }
+#boss-reveal-bg {
+  position:absolute; inset:0;
+  background-size:cover; background-position:center top;
+  background-color:#030205;
+  animation:bossRevealBgIn .9s ease forwards;
+}
+@keyframes bossRevealBgIn {
+  from { opacity:0; transform:scale(1.05); }
+  to   { opacity:1; transform:scale(1); }
+}
+#boss-reveal-overlay {
+  position:absolute; inset:0;
+  background:linear-gradient(to top,
+    rgba(3,2,5,1) 0%,
+    rgba(3,2,5,0.78) 38%,
+    rgba(3,2,5,0.18) 100%);
+}
+#boss-reveal-content {
+  position:relative; z-index:2;
+  width:100%; padding:0 24px 44px;
+  display:flex; flex-direction:column; gap:8px;
+  animation:bossRevealContentIn .65s .25s ease both;
+}
+@keyframes bossRevealContentIn {
+  from { opacity:0; transform:translateY(22px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+#boss-reveal-type {
+  font-family:'Share Tech Mono',monospace; font-size:.72rem;
+  color:var(--crimson); letter-spacing:.35em;
+}
+#boss-reveal-landmark {
+  font-family:'Share Tech Mono',monospace; font-size:.7rem;
+  color:var(--gold); letter-spacing:.18em; opacity:0.75;
+  margin-bottom:2px;
+}
+#boss-reveal-name {
+  font-family:'Metal Mania',cursive;
+  font-size:clamp(1.7rem,8vw,3.2rem);
+  color:var(--ghost); line-height:1.1;
+  text-shadow:0 0 40px rgba(200,20,20,0.8),0 0 80px rgba(100,0,0,0.5);
+}
+#boss-reveal-lore {
+  font-family:'IM Fell English',serif;
+  font-size:clamp(.88rem,2.5vw,1rem);
+  color:#c8b890; font-style:italic; line-height:1.65;
+  text-shadow:0 1px 8px rgba(0,0,0,1);
+  max-width:560px;
+}
+#boss-reveal-drop {
+  font-family:'Share Tech Mono',monospace; font-size:.72rem;
+  color:var(--gold); letter-spacing:.14em; opacity:0.85;
+}
+#boss-reveal-btns { display:flex; gap:10px; margin-top:10px; }
+#boss-reveal-engage {
+  flex:2; background:linear-gradient(180deg,rgba(110,8,8,0.8),rgba(50,0,0,0.9));
+  border:2px solid var(--crimson); color:var(--ghost);
+  font-family:'Metal Mania',cursive; font-size:1rem;
+  letter-spacing:.22em; padding:15px 0; cursor:pointer;
+  transition:all .2s;
+  text-shadow:0 0 12px rgba(220,30,30,0.7);
+}
+#boss-reveal-engage:hover,#boss-reveal-engage:active {
+  border-color:var(--gold); color:var(--gold);
+  box-shadow:0 0 24px rgba(180,140,20,0.3);
+}
+#boss-reveal-retreat {
+  flex:1; background:transparent; border:1px solid #3a2a50;
+  color:#7060a0; font-family:'Share Tech Mono',monospace;
+  font-size:.82rem; letter-spacing:.1em; padding:15px 0; cursor:pointer;
+  transition:all .2s;
+}
+#boss-reveal-retreat:hover { border-color:var(--crimson); color:var(--crimson); }
+
 /* LEVEL UP MODAL */
 #levelup-modal {
   display:none; position:fixed; inset:0; z-index:200;
@@ -1770,6 +1850,23 @@ body::before {
       <div id="enemy-timer-track"><div id="enemy-timer-fill"></div></div>
       <div id="turn-ind"></div>
       <div id="ab-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOSS REVEAL ══ -->
+<div id="boss-reveal">
+  <div id="boss-reveal-bg"></div>
+  <div id="boss-reveal-overlay"></div>
+  <div id="boss-reveal-content">
+    <div id="boss-reveal-type"></div>
+    <div id="boss-reveal-landmark"></div>
+    <div id="boss-reveal-name"></div>
+    <div id="boss-reveal-lore"></div>
+    <div id="boss-reveal-drop"></div>
+    <div id="boss-reveal-btns">
+      <button id="boss-reveal-engage" onclick="engageBossFromReveal()">⚔ ENGAGE</button>
+      <button id="boss-reveal-retreat" onclick="hideBossReveal()">✕ RETREAT</button>
     </div>
   </div>
 </div>
@@ -3757,6 +3854,59 @@ canvas.addEventListener('touchend',e=>{
 const ENGAGE_MILES=0.1;
 const BOSS_ENGAGE_MILES=0.05; // ~264 ft — bosses must be approached
 
+const BOSS_LORE = {
+  'MALECHAR THE LICH-KING':        'Once a brilliant sorcerer who sought to conquer death itself, Malechar rules Rittenhouse Square as an eternal Lich-King. His corruption bleeds through every cobblestone, every shadow, every soul remaining in the Fallen City.',
+  'THE CATHEDRAL DEMON':           'Something ancient has taken residence beneath the Cathedral Basilica. The stained glass shattered inward. The bells ring backwards at midnight. Those who enter to pray are never seen again.',
+  'THE IRON GHOST':                'City Hall stands hollow, its clocktower frozen at 3:17 AM — the moment Philadelphia died. The Iron Ghost haunts its marble halls, a construct of civic corruption given terrible form.',
+  'VEXARA, PLAGUE MOTHER':         'Cell Block 7 of Eastern State Penitentiary has not been opened since the Shattering. Those who press their ear to the door hear weeping — then the scratching of a thousand claws.',
+  'THE RIVER WRAITH':              'The Delaware has run black since the Shattering. Ships that sail it dissolve into the water. The River Wraith is everything that ever drowned in these waters given one unified, hungry will.',
+  'GRAVEMASTER CRANE':             'Dr. Elias Crane was the last caretaker of Laurel Hill Cemetery before he lost his mind. Now he commands the 70,000 dead buried beneath his feet, raising them nightly for his terrible army.',
+  'THE BRIDGE TROLL':              'The Ben Franklin Bridge has been claimed. The creature beneath it is older than the city, older than the river — perhaps older than the earth itself. It demands a toll no mortal can pay.',
+  'BROTHER GEHMAN THE UNDYING':    'The founder of the Ephrata Cloister struck a bargain in 1732 — immortality in exchange for the souls of his congregation. He has honored that bargain ever since, feeding the darkness one soul at a time across three centuries.',
+  'SISTER ANASTASIA THE PALE':     'She was the first to die in the Cloister, and the first to refuse death. Sister Anastasia wanders the cemetery in burial whites, calling out the names of the long-dead in a voice like cracking ice.',
+  'THE MILL DEMON':                'The old mill wheel still turns, though the creek ran dry a hundred years ago. The Mill Demon turns it with its own terrible strength, grinding something other than grain in the darkness beneath the millstones.',
+  'THE HARVEST LORD':              'The cornfields outside Ephrata have grown black and wrong since the Shattering. The Harvest Lord walks the rows at dusk, and where it passes the stalks become bone.',
+  'THE CURSED PREACHER':           'He preached hellfire from his pulpit for forty years. When the congregation stopped coming, he kept preaching — to the dark, to the empty pews, to whatever finally answered back.',
+  'THE CROSSROADS DEVIL':          'Every crossroads in Pennsylvania has its devil, and Route 322 has kept its promise since before the roads were paved. It appears as a man in a wide-brimmed hat, offering directions that always lead to ruin.',
+  'THE WENDIGO OF MUDDY CREEK':    'Something hunts along Muddy Creek Hollow that is not quite animal and not quite human. The Wendigo was once a man, driven to terrible acts by a terrible winter. Now it hungers for something no mortal can provide.',
+  'THE PHANTASM KING':             'The Lansdowne Theater has been dark since 1978. On certain nights a light comes on behind the screen — not a projector, but something far older. The Phantasm King is the final film, looping forever, waiting for an audience that will never leave.',
+  'THE PROJECTIONIST':             'He ran the projector at Lansdowne Theater for thirty-two years. When it closed, he refused to leave. When the Shattering came, whatever remained of him merged completely with the machine he had loved.',
+  'THE VICTORIAN WIDOW':           'The houses on Highland Avenue were built for prosperity and ended in sorrow. She has walked the street in black mourning clothes every night since 1887, knocking on doors, asking for someone no longer living.',
+  'THE QUAKER SHADE':              'The Lansdowne Friends Meeting has stood since 1683. The Quaker Shade is three centuries of accumulated silence turned to shadow — patient, implacable, and utterly without mercy.',
+  'MOTHER NAYLOR':                 'Before the town was Lansdowne it was Naylor\'s Run. Before that, something older still lived here. Mother Naylor is the original thing that watched this land before the houses came. She deeply resents what was built atop her domain.',
+  'THE IRON CONDUCTOR':            'The last train from Lansdowne Station never arrived at its destination. The Iron Conductor still walks the platform, punching tickets for passengers who board at midnight and disembark somewhere else entirely.',
+  'THE BOROUGH BEAST':             'Every small borough keeps its monster — the thing at the edge of the known world, held back by streetlights and locked doors. In Lansdowne, all the streetlights burned out on the same night.',
+};
+
+let _bossRevealTarget = null;
+
+function showBossReveal(boss){
+  _bossRevealTarget = boss;
+  const bg = document.getElementById('boss-reveal-bg');
+  bg.style.backgroundImage = boss.portrait ? `url('${boss.portrait}')` : '';
+  document.getElementById('boss-reveal-type').textContent = boss.type || '';
+  document.getElementById('boss-reveal-landmark').textContent = boss.landmark ? '📍 ' + boss.landmark : '';
+  document.getElementById('boss-reveal-name').textContent = boss.emoji + ' ' + boss.name;
+  document.getElementById('boss-reveal-lore').textContent = BOSS_LORE[boss.name] || '';
+  document.getElementById('boss-reveal-drop').textContent = boss.uniqueDrop ? '✦ UNIQUE DROP: ' + boss.uniqueDrop : '';
+  // Reset animation by forcing reflow
+  const modal = document.getElementById('boss-reveal');
+  modal.classList.remove('active');
+  void modal.offsetWidth;
+  modal.classList.add('active');
+}
+
+function hideBossReveal(){
+  document.getElementById('boss-reveal').classList.remove('active');
+  _bossRevealTarget = null;
+}
+
+function engageBossFromReveal(){
+  const b = _bossRevealTarget;
+  hideBossReveal();
+  if(b) startCombat(b, true);
+}
+
 function handleClick(cx,cy){
   if(inCombat)return;
   // NPCs
@@ -3792,7 +3942,7 @@ function handleClick(cx,cy){
       if(gpsFirstLock&&distMiles(Player.lat,Player.lng,b.lat,b.lng)>ENGAGE_MILES){
         addLog('⚠ Move closer to engage this enemy.','ls'); return;
       }
-      startCombat(b,true); return;
+      showBossReveal(b); return;
     }
   }
   for(const s of spawns){
