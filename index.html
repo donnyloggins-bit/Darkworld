@@ -3903,8 +3903,14 @@ function hideBossReveal(){
 
 function engageBossFromReveal(){
   const b = _bossRevealTarget;
+  if(!b) return;
+  if(gpsFirstLock && distMiles(Player.lat,Player.lng,b.lat,b.lng)>BOSS_ENGAGE_MILES){
+    addLog(`⚠ Travel to ${b.landmark} to engage ${b.name}.`,'ls');
+    hideBossReveal();
+    return;
+  }
   hideBossReveal();
-  if(b) startCombat(b, true);
+  startCombat(b, true);
 }
 
 function handleClick(cx,cy){
@@ -3939,9 +3945,6 @@ function handleClick(cx,cy){
     if(b.defeated)continue;
     const p=ll2px(b.lat,b.lng);
     if(Math.hypot(cx-p.x,cy-p.y)<(b.isWorld?22:16)){
-      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,b.lat,b.lng)>ENGAGE_MILES){
-        addLog('⚠ Move closer to engage this enemy.','ls'); return;
-      }
       showBossReveal(b); return;
     }
   }
