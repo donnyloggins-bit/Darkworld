@@ -3331,7 +3331,7 @@ function render(){
   if(mapBgImg.complete && mapBgImg.naturalWidth){
     ctx.globalAlpha=1;
     ctx.drawImage(mapBgImg,0,0,mapW,mapH);
-    ctx.fillStyle='rgba(8,5,16,0.72)';
+    ctx.fillStyle='rgba(8,5,16,0.42)';
     ctx.fillRect(0,0,mapW,mapH);
   } else {
     const bg=ctx.createRadialGradient(mapW/2,mapH/2,0,mapW/2,mapH/2,mi2px(6));
@@ -3358,25 +3358,36 @@ function drawGrid(){
 
 function drawZones(){
   const c=ll2px(CENTER.lat,CENTER.lng);
-  [...ZONES].reverse().forEach(z=>{
+  [...ZONES].reverse().forEach((z,revIdx)=>{
+    const zi=ZONES.length-1-revIdx;
     const r=mi2px(z.max);
     ctx.beginPath(); ctx.arc(c.x,c.y,r,0,Math.PI*2);
     ctx.fillStyle=z.color; ctx.fill();
-    ctx.strokeStyle=z.color.replace(/[\d.]+\)$/,'0.6)');
-    ctx.lineWidth=1; ctx.setLineDash([4,5]); ctx.stroke(); ctx.setLineDash([]);
+    // Zone border — brighter, slightly thicker
+    ctx.strokeStyle=z.color.replace(/[\d.]+\)$/,'0.9)');
+    ctx.lineWidth=1.5; ctx.setLineDash([5,7]); ctx.stroke(); ctx.setLineDash([]);
     if(zoom>0.25){
-      ctx.font=`${Math.max(7,8*zoom)}px "Share Tech Mono"`;
-      ctx.fillStyle=`rgba(220,180,60,${Math.min(0.75, zoom*1.2)})`; ctx.textAlign='center';
-      ctx.fillText(z.name.toUpperCase(),c.x,c.y-r+13);
+      // Label in the middle of the zone band, not at the edge
+      const innerR=zi>0?mi2px(ZONES[zi-1].max):mi2px(0.10);
+      const labelY=c.y-((r+innerR)/2);
+      ctx.font=`${Math.max(8,9*zoom)}px "Share Tech Mono"`;
+      ctx.fillStyle=`rgba(220,180,60,${Math.min(0.9,zoom*1.5)})`; ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText(z.name.toUpperCase(),c.x,labelY);
+      ctx.textBaseline='alphabetic';
     }
   });
 }
 
 function drawPaths(){
-  ctx.strokeStyle='rgba(40,20,10,0.5)'; ctx.lineWidth=0.8; ctx.setLineDash([3,6]);
   BOSSES.forEach(b=>{
     if(b.isWorld)return;
     const f=ll2px(CENTER.lat,CENTER.lng), t=ll2px(b.lat,b.lng);
+    // Soft ember glow underneath
+    ctx.strokeStyle='rgba(180,80,20,0.18)'; ctx.lineWidth=4; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(t.x,t.y); ctx.stroke();
+    // Dashed accent line
+    ctx.strokeStyle='rgba(160,70,20,0.55)'; ctx.lineWidth=1; ctx.setLineDash([5,10]);
     ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(t.x,t.y); ctx.stroke();
   });
   ctx.setLineDash([]);
@@ -3467,27 +3478,32 @@ function drawBoss(b){
 function drawPlayer(){
   if(!Player)return;
   const p=ll2px(Player.lat,Player.lng);
-  const r=Math.max(7,9*zoom);
+  const r=Math.max(10,13*zoom);
   const t=Date.now()/1000;
-  const pr=r*(1.6+0.25*Math.sin(t*3));
+  // Outer pulse ring
+  const pr=r*(1.8+0.35*Math.sin(t*2.5));
+  ctx.globalAlpha=0.22+0.1*Math.sin(t*2.5);
   ctx.beginPath(); ctx.arc(p.x,p.y,pr,0,Math.PI*2);
-  ctx.strokeStyle='rgba(42,100,70,0.4)'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle='#2a9a5a'; ctx.fill();
+  ctx.globalAlpha=1;
+  // Inner dot
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
-  ctx.fillStyle='#0a1e14'; ctx.fill();
-  ctx.strokeStyle='#2a6a4a'; ctx.lineWidth=2; ctx.stroke();
-  ctx.font=`${Math.floor(10*zoom)}px serif`;
+  ctx.fillStyle='#0a2218'; ctx.fill();
+  ctx.strokeStyle='#3aee7a'; ctx.lineWidth=2.5; ctx.stroke();
+  ctx.font=`${Math.floor(12*zoom)}px serif`;
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(Player.emoji,p.x,p.y);
+  // Engagement radius — more visible
   if(gpsFirstLock){
     const engageR=mi2px(ENGAGE_MILES);
     ctx.beginPath(); ctx.arc(p.x,p.y,engageR,0,Math.PI*2);
-    ctx.strokeStyle='rgba(42,100,70,0.18)'; ctx.lineWidth=1;
-    ctx.setLineDash([3,4]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle='rgba(58,238,122,0.28)'; ctx.lineWidth=1.5;
+    ctx.setLineDash([4,5]); ctx.stroke(); ctx.setLineDash([]);
   }
   if(zoom>0.8){
-    ctx.font=`${Math.max(6,6*zoom)}px "Share Tech Mono"`;
-    ctx.fillStyle='#2a6a4a'; ctx.textBaseline='top';
-    ctx.fillText('YOU',p.x,p.y+r+3);
+    ctx.font=`bold ${Math.max(7,7*zoom)}px "Share Tech Mono"`;
+    ctx.fillStyle='#3aee7a'; ctx.textBaseline='top';
+    ctx.fillText(Player.name||'YOU',p.x,p.y+r+3);
   }
 }
 
@@ -4414,9 +4430,9 @@ function combatTick(){
     else { ind.textContent='ATTACK · ENEMY STRIKES WHEN BAR FILLS'; ind.classList.remove('incoming'); }
   }
 
-  // Enemy attack
+  // Enemy attack — ±25% variance keeps timing unpredictable
   if(now >= curEnemy.nextAttackAt){
-    curEnemy.nextAttackAt = now + attackInterval;
+    curEnemy.nextAttackAt = now + Math.floor(attackInterval*(0.75+Math.random()*0.5));
     doEnemyAttack();
     return; // setCBUI called inside
   }
@@ -4795,13 +4811,22 @@ function calcDamage(ability){
   let dmgMult = ability.dmgMult;
   if(sk.t2==='mastery') dmgMult *= 1.25;
 
-  // No variance — fully deterministic
-  let dmg=Math.floor(Player.atk*dmgMult);
+  // Small base variance so every hit isn't identical
+  const variance = 0.9 + Math.random() * 0.2;
+  let dmg=Math.floor(Player.atk * dmgMult * variance);
 
-  // forceCrit abilities get a flat 2× bonus instead of RNG
+  // forceCrit abilities always crit (PRECISE! label, 2×)
   if(ability.forceCrit){
     dmg=Math.floor(dmg*2);
     setTimeout(()=>showDamageNum('PRECISE!','dmg-crit','right'),90);
+  } else {
+    // Random crit — Player.crit (%) + per-ability critBonus (e.g. Ranger Kill Shot, Thief Backstab)
+    const critChance=(Player.crit||0)+(ability.critBonus||0);
+    if(Math.random()*100 < critChance){
+      dmg=Math.floor(dmg*1.75);
+      sndCrit();
+      setTimeout(()=>showDamageNum('CRIT!','dmg-crit','right'),60);
+    }
   }
 
   // Illusion stacks
@@ -5835,7 +5860,7 @@ function startGameTimers(){
 // ══════════════════════════════════════════════════════
 let _renderDirty = true;
 function markDirty(){ _renderDirty = true; }
-function gameLoop(){ if(!inCombat && _renderDirty){ render(); _renderDirty = false; } requestAnimationFrame(gameLoop); }
+function gameLoop(){ if(!inCombat){ render(); _renderDirty = false; } requestAnimationFrame(gameLoop); }
 
 // ══════════════════════════════════════════════════════
 //  SOUND ENGINE — Web Audio, no files
