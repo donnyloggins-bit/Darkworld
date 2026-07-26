@@ -1027,9 +1027,18 @@ body::before {
   height:12px; background:#1a1628;
   border:1px solid #3a2a50; overflow:hidden; border-radius:2px;
 }
-.c-hpfill { height:100%; transition:width .2s ease; }
-.c-php { background:linear-gradient(90deg,#7a0000,#ee2800); }
-.c-ehp { background:linear-gradient(90deg,#5a2800,#cc5800); }
+.c-hpfill { height:100%; transition:width .25s ease, background .4s ease; }
+.c-php { background:linear-gradient(90deg,#1a6a1a,#44ee22); }
+.c-ehp { background:linear-gradient(90deg,#1a6a1a,#44ee22); }
+@keyframes hpCritPulse { 0%,100%{opacity:1;box-shadow:none} 50%{opacity:0.55;box-shadow:0 0 12px rgba(255,0,0,0.9)} }
+.c-php.hp-crit { animation:hpCritPulse .5s ease infinite; }
+#boss-portrait.portrait-hit { animation:portraitHit .32s ease; }
+@keyframes portraitHit {
+  0%   { filter:brightness(1) }
+  20%  { filter:brightness(2.5) saturate(0) sepia(1) hue-rotate(-40deg) }
+  100% { filter:brightness(1) }
+}
+#boss-portrait.portrait-dead { transition:filter .55s ease; filter:grayscale(1) brightness(0.25); }
 .c-hptext {
   font-family:'Share Tech Mono',monospace;
   font-size:.88rem; color:#9080a8; text-align:right;
@@ -4482,6 +4491,7 @@ function startCombat(ent,boss){ sndCombatStart();
 
   const portrait = document.getElementById('boss-portrait');
   const sprite   = document.getElementById('e-spr');
+  portrait.classList.remove('portrait-hit','portrait-dead'); portrait.style.filter='';
   if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; portrait.style.borderBottomColor=boss?'#b8962a':'#3a2a50'; sprite.style.display='none'; }
   else { portrait.src=''; portrait.style.display='none'; sprite.style.display=''; }
   document.getElementById('cb-name').textContent=ent.name;
@@ -4563,16 +4573,21 @@ function clearCBCache(){ _cbElCache = null; }
 function setCBUI(){
   if(!Player||!curEnemy) return;
   const el = getCBEls();
-  const php=Math.max(0,Player.hp/Player.maxHp*100);
+  const phpPct=Player.hp/Player.maxHp;
+  const php=Math.max(0,phpPct*100);
   el.cPhp.style.width=php+'%';
+  el.cPhp.style.background=phpPct>0.5?'linear-gradient(90deg,#1a6a1a,#44ee22)':phpPct>0.25?'linear-gradient(90deg,#6a5500,#ccaa00)':'linear-gradient(90deg,#8a0000,#ff2200)';
+  el.cPhp.classList.toggle('hp-crit',phpPct<=0.25);
   el.cPhpT.textContent=`${fmt(Player.hp)}/${fmt(Player.maxHp)}`;
   const rp=Math.max(0,Player.res/Player.maxRes*100);
   el.cRes.style.width=rp+'%';
   el.cRes.style.background=Player.cls.resColor;
   if(el.cResT) el.cResT.textContent=`${Math.floor(Player.res)}/${Player.maxRes}`;
   if(el.resLbl) el.resLbl.textContent=Player.cls.resource.slice(0,3).toUpperCase();
-  const ehp=Math.max(0,curEnemy.hp/curEnemy.maxHp*100);
+  const ehpPct=curEnemy.hp/curEnemy.maxHp;
+  const ehp=Math.max(0,ehpPct*100);
   el.cEhp.style.width=ehp+'%';
+  el.cEhp.style.background=ehpPct>0.5?'linear-gradient(90deg,#1a6a1a,#44ee22)':ehpPct>0.25?'linear-gradient(90deg,#6a5500,#ccaa00)':'linear-gradient(90deg,#7a0000,#ee2200)';
   el.cEhpT.textContent=`${fmt(curEnemy.hp)}/${fmt(curEnemy.maxHp)}`;
   if(el.pStatus) el.pStatus.innerHTML=Player.statuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
   if(el.eStatus) el.eStatus.innerHTML=eStatuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
@@ -4750,8 +4765,11 @@ function playerAct(ability){
   }
 
   anim('p-spr','atk-anim'); anim('e-spr','hit-anim');
+  const _port=document.getElementById('boss-portrait');
+  if(_port&&_port.style.display!=='none'){ _port.classList.remove('portrait-hit'); void _port.offsetWidth; _port.classList.add('portrait-hit'); }
   setCBUI();
   if(curEnemy.hp<=0){
+    if(_port&&_port.style.display!=='none') _port.classList.add('portrait-dead');
     anim('e-spr','death-anim');
     showDamageNum('SLAIN!','dmg-overkill','right');
     setTimeout(()=>victory(), isBoss ? 900 : 600);
@@ -4983,6 +5001,7 @@ function triggerEnemyHit(e, dmg, special, isCrit){
     setCBUI(); return;
   }
   setCBUI();
+  if(Player.hp/Player.maxHp<=0.25 && Player.hp>0){ flashScreen('red'); shakeScreen(false); }
   if(Player.hp<=0){ setTimeout(()=>dead(),300); }
 }
 
