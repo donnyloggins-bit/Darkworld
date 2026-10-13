@@ -63,12 +63,22 @@ Procedural only — Web Audio API synthesizes all sounds (sine/triangle/sawtooth
 ### Screen Navigation
 Screens are `<div>` containers toggled visible/hidden. The flow is: Title → Character Creation (class select → stat roll → name entry) → World Map → AR View. Inventory, shop, skills, and quest log are overlay panels on top of the map.
 
+### Living City (spawns + shrines)
+World monsters are not random per device. `refreshLiving()` rolls each ~170m cell (`CELL_LAT`/`CELL_LNG`) from a seed of world + cell + 15-minute window (staggered per cell), so every player sees the same monsters in the same places. Keep it deterministic: never call `Math.random()` inside the roll, and keep the number of `rng()` draws per mob fixed (`buildLivingMob` is always called, even when a mob is reused). Species/positions are shared; stats scale to the viewer's level. Kills and shrine cooldowns live in `localStorage` under `darkworld_living_v1`. Quest mobs (`questMob:true`) live in the same `spawns` array and must survive refreshes. The map plays at street level: `MAP_MILES` is the half-screen height at zoom 1.
+
+### The Hunt (bounties, bestiary, walking)
+Daily bounties are seeded by the local date (`genBounties`), so everyone shares them. `huntOnKill`/`huntProgress`/`huntOnGPS` feed progress; `Player.daily`, `Player.bestiary`, `Player.walkedMi`, `Player.ripostes` are saved with the character. Walking ignores jitter (<10m) and pace above `WALK_MAX_MPH`. `huntLevelCheck()` must not level up while `inCombat` (victory() does it).
+
+### Riposte
+Using a damaging ability in the last `RIPOSTE_FRAC` of the enemy's attack bar parries the hit (resets `nextAttackAt`) and deals 1.5x.
+
 ### Online (Supabase)
 The `ONLINE` section of `index.html` (after the save system) holds everything server-side. Schema, RLS and the `raid_hit()` function live in `supabase/schema.sql`; `supabase/start-raid.sql` starts a raid. Setup steps for humans are in `SUPABASE-SETUP.md`.
 - **Gate**: `NET_ON` is false when `window.DW_CONFIG` is missing — every online entry point must no-op in that case.
 - **Auth**: email + password via the GoTrue REST endpoints; session in `localStorage` under `darkworld_session_v1`, refreshed by `netAccessToken()`.
 - **Cloud save**: `characters` table, one row per account, full save blob in `data`. Newest `savedAt` wins; local saves carry an `owner` uid. Mid-game, a newer cloud hunter is never swapped in silently (`netCloudConflict`).
 - **Raids**: the live raid row becomes `RAID`, appended to `BOSSES` with `isRaid:true` (excluded from `bossStates`). Local hits lower `RAID.hp`; `raidFlush()` sends the difference to `raid_hit()` every 1.5s. `_srv`/`_inflight` reconcile server HP with unsent damage. `victory()` defers to the server for raid kills. HP changes arrive over Supabase Realtime (raw Phoenix WebSocket) with a 20s poll as fallback.
+- **Social**: `hunter_leaderboard` view (safe columns only) and `hunters_near()` (counts only; presence rows are unreadable, ~1 km cells). Never expose `user_id`, emails or exact positions.
 - **Trust**: the client is untrusted. Never add RLS policies that let players write `raid_bosses` or `raid_damage` directly; damage goes through `raid_hit()`, which clamps it.
 
 ## Conventions & Constraints

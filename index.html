@@ -1728,6 +1728,17 @@ body:not(.net-on) .net-only { display:none !important; }
 #toast.show { transform:translate(-50%,0); opacity:1; }
 .toast-title { font-family:'Metal Mania',cursive; font-size:1.1rem; color:var(--gold); letter-spacing:.12em; }
 .toast-body { font-size:.95rem; color:var(--pale); margin-top:2px; }
+
+#hunters-hud { position:absolute; top:80px; left:12px; z-index:5; align-items:center;
+  background:rgba(3,2,5,0.9); border:1px solid #1c1220; border-left:2px solid #4a3a80;
+  padding:5px 10px; font-family:'Share Tech Mono',monospace; font-size:.8rem; color:#a090d0; letter-spacing:.08em; }
+.board-sorts { margin-bottom:8px; }
+.board-sorts .hunt-tab { font-size:.75rem; padding:6px 2px; }
+.board-row { display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid #2a2040; background:#100c1c; margin-bottom:4px; }
+.board-row.me { border-color:var(--gold); background:rgba(80,60,10,0.2); }
+.board-rank { font-family:'Share Tech Mono',monospace; color:var(--crimson); width:22px; text-align:right; }
+.board-name { flex:1; min-width:0; color:var(--bone); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.board-val { font-family:'Share Tech Mono',monospace; font-size:.85rem; color:var(--gold); white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -1880,6 +1891,7 @@ body:not(.net-on) .net-only { display:none !important; }
     <div id="coord-hud"><span id="coord-txt">RITTENHOUSE — HELLMOUTH</span></div>
     <div id="gps-hud"><div class="gps-dot" id="gps-dot"></div><span id="gps-txt">GPS INACTIVE</span></div>
     <div id="raid-hud" onclick="toggleSidebar()" style="display:none"></div>
+    <div id="hunters-hud" style="display:none"></div>
     <div id="map-nav">
       <button id="menu-btn" onclick="toggleSidebar()">☰ STATS</button>
       <button id="inv-btn" onclick="openInventory()">⚔ GEAR</button>
@@ -2133,6 +2145,7 @@ body:not(.net-on) .net-only { display:none !important; }
     <div class="hunt-tabs">
       <button class="hunt-tab" data-tab="bounties" onclick="setHuntTab('bounties')">📜 BOUNTIES</button>
       <button class="hunt-tab" data-tab="bestiary" onclick="setHuntTab('bestiary')">📖 BESTIARY</button>
+      <button class="hunt-tab net-only" data-tab="board" onclick="setHuntTab('board')">🏆 RANKS</button>
     </div>
     <div id="hunt-content"></div>
   </div>
@@ -4268,7 +4281,8 @@ function renderHunt(){
   const d = ensureDaily();
   document.querySelectorAll('.hunt-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === huntTab));
   const el = document.getElementById('hunt-content');
-  if(huntTab === 'bounties'){
+  if(huntTab === 'board' && NET_ON){ renderBoard(el); return; }
+  if(huntTab === 'bounties' || huntTab === 'board'){
     const {gold, xp} = bountyRewards();
     const allDone = d.bounties.every(b => b.done);
     const tomorrow = new Date(); tomorrow.setHours(24, 0, 0, 0);
@@ -6289,6 +6303,9 @@ async function netPushSave(keepalive){
         user_id: netSession.user.id,
         name: data.player.name, class_name: data.player.className,
         level: data.player.level, world: data.world,
+        walked_mi: data.player.walkedMi || 0,
+        species: Object.keys(data.player.bestiary || {}).length,
+        kills: Object.values(data.player.bestiary || {}).reduce((a, b) => a + b, 0),
         data,
         saved_at: new Date(data.savedAt).toISOString(),
         updated_at: new Date().toISOString(),
@@ -6436,6 +6453,61 @@ function netStartRaidWatch(){
   netPollRaid();
   setInterval(netPollRaid, RAID_POLL_MS);
   setInterval(raidFlush, RAID_SYNC_MS);
+  setTimeout(netPresenceTick, 5000);
+  setInterval(netPresenceTick, 60000);
+}
+
+// ── HUNTERS NEARBY ─────────────────────────────────────
+// Phones report only a ~1 km grid square; other players only ever get a count back.
+const PRESENCE_LAT = 0.01, PRESENCE_LNG = 0.0125;
+let huntersNear = 0, presenceLastPush = 0;
+
+function presenceCell(dx = 0, dy = 0){
+  return `${Math.floor(Player.lat / PRESENCE_LAT) + dy}:${Math.floor(Player.lng / PRESENCE_LNG) + dx}`;
+}
+
+async function netPresenceTick(){
+  if(!NET_ON || !Player || !gpsFirstLock) return;
+  try {
+    if(netSession && Date.now() - presenceLastPush > 110000){
+      presenceLastPush = Date.now();
+      await netAuthed('/rest/v1/hunter_presence?on_conflict=user_id', {
+        method:'POST', headers:{ Prefer:'resolution=merge-duplicates,return=minimal' },
+        body:{ user_id: netSession.user.id, world: selectedWorld, cell: presenceCell(), seen_at: new Date().toISOString() },
+      });
+    }
+    const cells = [];
+    for(let dy=-1; dy<=1; dy++) for(let dx=-1; dx<=1; dx++) cells.push(presenceCell(dx, dy));
+    const token = netSession ? await netAccessToken() : null;
+    huntersNear = Number(await netRequest('/rest/v1/rpc/hunters_near', { method:'POST', token: token || undefined, body:{ p_world: selectedWorld, p_cells: cells } })) || 0;
+  } catch(e){ /* offline — keep the last count */ }
+  renderRaidUI();
+}
+
+// ── LEADERBOARD ────────────────────────────────────────
+let boardSort = 'level';
+async function renderBoard(el){
+  const order = { level:'level.desc,kills.desc', walked:'walked_mi.desc', species:'species.desc,kills.desc' }[boardSort];
+  el.innerHTML = `<div class="hunt-meta"><span>🏆 TOP HUNTERS</span><span>ALL WORLDS</span></div>
+    <div class="hunt-tabs board-sorts">${[['level','LEVEL'],['walked','DISTANCE'],['species','BESTIARY']].map(([k, l]) =>
+      `<button class="hunt-tab${boardSort === k ? ' active' : ''}" onclick="boardSort='${k}';renderHunt()">${l}</button>`).join('')}</div>
+    <div id="board-rows" class="raid-empty">Reading the ledger…</div>`;
+  try {
+    const token = netSession ? await netAccessToken() : null;
+    const rows = await netRequest(`/rest/v1/hunter_leaderboard?select=name,class_name,level,walked_mi,species,kills,is_me&order=${order}&limit=25`, { token: token || undefined });
+    const box = document.getElementById('board-rows');
+    if(!box || huntTab !== 'board') return;
+    box.className = 'board';
+    box.innerHTML = rows.length ? rows.map((r, i) => {
+      const val = boardSort === 'walked' ? `${Number(r.walked_mi).toFixed(1)} MI` : boardSort === 'species' ? `${r.species} SPECIES` : `LV ${r.level}`;
+      const cls = CLASSES[r.class_name];
+      return `<div class="board-row${r.is_me ? ' me' : ''}"><span class="board-rank">${i + 1}</span>
+        <span class="board-name">${cls ? cls.emoji + ' ' : ''}${netEsc(r.name)}</span><span class="board-val">${val}</span></div>`;
+    }).join('') : '<div class="raid-empty">No hunters yet. Be the first name in the ledger.</div>';
+  } catch(e){
+    const box = document.getElementById('board-rows');
+    if(box) box.textContent = 'The ledger is out of reach. Check your connection.';
+  }
 }
 
 function raidRowLive(row){
@@ -6651,6 +6723,11 @@ function renderRaidUI(){
   const hud = document.getElementById('raid-hud');
   const panel = document.getElementById('raid-panel');
   if(!hud || !panel) return;
+  const near = document.getElementById('hunters-hud');
+  if(near){
+    near.style.display = huntersNear > 0 ? 'flex' : 'none';
+    near.textContent = `👥 ${huntersNear} HUNTER${huntersNear === 1 ? '' : 'S'} NEARBY`;
+  }
   if(RAID){
     const pct = Math.max(0, RAID.hp / RAID.maxHp * 100);
     const dist = (Player && gpsFirstLock) ? distMiles(Player.lat, Player.lng, RAID.lat, RAID.lng) : null;
@@ -6680,6 +6757,7 @@ function renderRaidUI(){
     hud.style.display = 'none';
     panel.style.display = 'none';
   }
+  if(near) near.style.top = hud.style.display === 'none' ? '80px' : '114px';
 }
 
 async function netInit(){

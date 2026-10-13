@@ -38,6 +38,15 @@ Until you do this, the game works exactly like before: offline, with saves on th
 2. Create an account and play for a minute.
 3. In Supabase → **Table Editor → characters** you should see your hunter.
 
+> **Updating?** When a new version of the game adds online features, paste `supabase/schema.sql` into the SQL Editor and run it again. It only adds what's missing.
+
+## What players get online
+
+- **☁ Cloud save:** sign in once and your hunter follows you to any phone.
+- **👥 Hunters nearby:** a count of other signed-in hunters within about a mile. Players only ever see a number, never where anyone is.
+- **🏆 Ranks:** a leaderboard in 📖 HUNT → RANKS, sorted by level, distance walked, or bestiary.
+- **⚔ Raids:** see below.
+
 ## 5. Start a raid
 
 1. Open `supabase/start-raid.sql`, change the boss name, landmark, coordinates, HP and times if you like, then paste it into the **SQL Editor** and **Run**.

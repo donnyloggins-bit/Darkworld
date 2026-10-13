@@ -172,3 +172,54 @@ begin
     alter publication supabase_realtime add table public.raid_bosses;
   end if;
 end $$;
+
+
+-- ══════════════════════════════════════════════════════
+--  SOCIAL — leaderboards + "hunters nearby"
+-- ══════════════════════════════════════════════════════
+
+-- Leaderboard stats, sent alongside each cloud save.
+alter table public.characters add column if not exists walked_mi double precision not null default 0;
+alter table public.characters add column if not exists species   int not null default 0;
+alter table public.characters add column if not exists kills     int not null default 0;
+
+-- Public leaderboard: only safe columns, never user ids or emails.
+-- Runs as the owner (not security_invoker) so it can read across accounts.
+create or replace view public.hunter_leaderboard as
+select name, class_name, level, world, walked_mi, species, kills, updated_at,
+       (user_id = auth.uid()) as is_me
+from public.characters
+where name is not null;
+grant select on public.hunter_leaderboard to anon, authenticated;
+
+-- Presence: a ~1 km grid square per active hunter. Nobody can read rows;
+-- other players only ever get a count back from hunters_near().
+create table if not exists public.hunter_presence (
+  user_id  uuid primary key references auth.users(id) on delete cascade,
+  world    text not null,
+  cell     text not null,
+  seen_at  timestamptz not null default now()
+);
+alter table public.hunter_presence enable row level security;
+drop policy if exists "presence: insert own" on public.hunter_presence;
+drop policy if exists "presence: update own" on public.hunter_presence;
+create policy "presence: insert own" on public.hunter_presence for insert to authenticated with check (auth.uid() = user_id);
+create policy "presence: update own" on public.hunter_presence for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create or replace function public.hunters_near(p_world text, p_cells text[])
+returns int
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select case when cardinality(p_cells) > 9 then 0 else (
+    select count(*)::int from public.hunter_presence
+     where world = p_world
+       and cell = any(p_cells)
+       and seen_at > now() - interval '10 minutes'
+       and user_id is distinct from auth.uid()
+  ) end;
+$$;
+revoke all on function public.hunters_near(text, text[]) from public;
+grant execute on function public.hunters_near(text, text[]) to anon, authenticated;
