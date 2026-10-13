@@ -72,6 +72,9 @@ World monsters are not random per device. `refreshLiving()` rolls each ~170m cel
 ### The Hunt (bounties, bestiary, walking)
 Daily bounties are seeded by the local date (`genBounties`), so everyone shares them. `huntOnKill`/`huntProgress`/`huntOnGPS` feed progress; `Player.daily`, `Player.bestiary`, `Player.walkedMi`, `Player.ripostes` are saved with the character. Walking ignores jitter (<10m) and pace above `WALK_MAX_MPH`. `huntLevelCheck()` must not level up while `inCombat` (victory() does it).
 
+### First Hunt (tutorial)
+New characters get `Player.tutorial` = 'fight' → 'riposte' → 'shrine' → 'hunt' → 'walk' → 'done' (saves without the field count as done). The tutorial monster/shrine (`TUT_MOB`, `TUT_SHRINE`) are personal, not part of the seeded world, and `tutKeepClose()` re-places them near the hunter (GPS can lock anywhere). Hooks: `tutOnCombatStart`, `tutOnPlayerAct`, `tutOnVictory`, `tutOnShrine`, `tutOnHuntOpen/Closed`. The coach card (`coach()`, `coachGlow()`) sits above combat but below menus (z-index 140). Character creation goes straight to Philadelphia, auto-rolls stats, pre-fills a name and pre-selects Fighter.
+
 ### Riposte
 Using a damaging ability in the last `RIPOSTE_FRAC` of the enemy's attack bar parries the hit (resets `nextAttackAt`) and deals 1.5x.
 

@@ -1813,6 +1813,23 @@ body:not(.net-on) .net-only { display:none !important; }
   background:rgba(210,0,0,.6); animation:arBlood 1.8s ease-in-out infinite; }
 @keyframes arBlood { 0%,100% { opacity:.4; transform:scaleY(.4); } 50% { opacity:1; transform:scaleY(1); } }
 #ar-dread { opacity:0; transition:opacity .5s; background:radial-gradient(ellipse at center, rgba(0,0,0,0) 20%, rgba(0,0,0,.3) 100%); }
+
+/* ══ FIRST HUNT coach ══ */
+#coach { position:fixed; left:50%; top:calc(118px + var(--sat)); transform:translate(-50%,-12px); z-index:140; opacity:0; pointer-events:none;
+  width:min(380px,calc(100vw - 24px)); background:linear-gradient(160deg,#1e1608,#110c06); border:1px solid #8a6a20; border-left:3px solid var(--gold);
+  box-shadow:0 6px 30px rgba(0,0,0,.7), 0 0 24px rgba(212,160,32,.18); padding:10px 12px 8px; transition:opacity .3s, transform .3s; }
+#coach.show { opacity:1; transform:translate(-50%,0); pointer-events:auto; }
+.coach-text { font-size:1.02rem; line-height:1.45; color:var(--bone); }
+.coach-text b { color:var(--gold); font-weight:normal; }
+.coach-row { display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:8px; }
+.coach-btn { background:rgba(100,10,10,.6); border:1px solid #cc2222; color:#f0d0d0; font-family:'Metal Mania',cursive; letter-spacing:.1em; font-size:.95rem; padding:8px 14px; cursor:pointer; }
+.coach-skip { background:none; border:none; color:#7a6a50; font-family:'Share Tech Mono',monospace; font-size:.72rem; letter-spacing:.12em; text-decoration:underline; cursor:pointer; }
+.coach-glow { box-shadow:0 0 0 2px var(--gold), 0 0 22px rgba(232,184,64,.75) !important; animation:coachPulse 1.1s ease-in-out infinite !important; }
+@keyframes coachPulse { 0%,100% { box-shadow:0 0 0 2px var(--gold), 0 0 12px rgba(232,184,64,.5); } 50% { box-shadow:0 0 0 3px var(--gold), 0 0 28px rgba(232,184,64,.95); } }
+.class-card { position:relative; }
+.class-easy { position:absolute; top:4px; left:0; right:0; text-align:center; font-family:'Share Tech Mono',monospace; font-size:.55rem; letter-spacing:.08em; color:var(--gold); }
+.other-cities { margin-top:8px; font-size:.9rem; color:#7a6a90; font-style:italic; text-align:center; }
+.other-cities a { color:#c08080; }
 </style>
 </head>
 <body>
@@ -1916,7 +1933,8 @@ body:not(.net-on) .net-only { display:none !important; }
 
     <div class="name-section">
       <div class="roller-title">☠ NAME YOUR SOUL</div>
-      <input type="text" id="char-name-input" class="char-name-input" maxlength="20" placeholder="Enter your name..." oninput="checkNextReady()" autocomplete="off" spellcheck="false" />
+      <input type="text" id="char-name-input" class="char-name-input" maxlength="20" placeholder="Enter your name..." oninput="checkNextReady()" onfocus="this.select()" autocomplete="off" spellcheck="false" />
+      <div class="other-cities">Hunting outside Philadelphia? <a href="#" onclick="event.preventDefault();document.getElementById('screen-create').classList.remove('active');showWorldSelect()">Other cities ›</a></div>
     </div>
 
     <div class="create-page-nav">
@@ -2231,6 +2249,7 @@ body:not(.net-on) .net-only { display:none !important; }
   </div>
 </div>
 <div id="toast"></div>
+<div id="coach"></div>
 
 <!-- ══ ACCOUNT MODAL ══ -->
 <div id="acct-modal">
@@ -3331,7 +3350,8 @@ function buildClassGrid() {
   Object.entries(CLASSES).forEach(([name,cls])=>{
     const card = document.createElement('div');
     card.className = 'class-card';
-    card.innerHTML = `<span class="class-emoji">${cls.emoji}</span><div class="class-card-name">${name}</div><div class="class-card-type">${cls.resource}</div>`;
+    const easy = ['Fighter','Ranger','Cleric'].includes(name);
+    card.innerHTML = `${easy?'<span class="class-easy">★ NEW HUNTER</span>':''}<span class="class-emoji">${cls.emoji}</span><div class="class-card-name">${name}</div><div class="class-card-type">${cls.resource}</div>`;
     card.onclick = () => selectClass(name);
     grid.appendChild(card);
   });
@@ -3418,9 +3438,7 @@ function rollStats() {
     setTimeout(roll, si*120);
   });
 
-  document.getElementById('reroll-info').textContent = rerollsLeft>0
-    ? `${rerollsLeft} reroll remaining. Live with your fate.`
-    : 'No rerolls remaining. The bones have spoken.';
+  document.getElementById('reroll-info').textContent = rerollsLeft>0 ? '' : 'The bones have spoken. Live with your fate.';
   document.getElementById('roll-btn').textContent = rerollsLeft>0 ? '🎲 REROLL (1 left)' : '🎲 FATE IS SEALED';
   if(rerollsLeft===0) document.getElementById('roll-btn').style.opacity='0.4';
 
@@ -3443,7 +3461,7 @@ function goCreatePage(n){
   document.getElementById('pdot-2').classList.toggle('active', n===2);
   document.getElementById('pdot-1b').classList.toggle('active', n===1);
   document.getElementById('pdot-2b').classList.toggle('active', n===2);
-  if(n===2){ selectedClass=null; buildClassGrid(); }
+  if(n===2){ selectedClass=null; buildClassGrid(); selectClass('Fighter'); }
 }
 
 // ══════════════════════════════════════════════════════
@@ -3822,6 +3840,8 @@ function refreshLiving(force){
     }
   }
 
+  if(TUT_SHRINE) shrines.push(TUT_SHRINE);
+
   // Grave Incense: a personal wave in the 3×3 cells around the hunter every 5 minutes
   if((Player.incenseUntil || 0) > now){
     const IW = 5*60*1000, iwin = Math.floor(now / IW);
@@ -3944,6 +3964,7 @@ function spinShrine(sh){
   drops.forEach(n => { if(Player.inventory.length < BAG_SIZE){ Player.inventory.push(n); kept.push(n); } });
   Player.gold += gold; Player.xp += xp;
   sndShrine(!!sh.landmark);
+  tutOnShrine(sh);
   huntProgress('shrine', 1);
   shrineClue(sh);
   addLog(`🕯 ${sh.name}: +${gold} gold, +${fmt(xp)} XP${kept.length ? ' · ' + kept.join(', ') : ''}`, 'll');
@@ -3982,6 +4003,7 @@ function render(){
   drawNPCs();
   drawDungeons();
   drawPlayer();
+  drawTutorialMarker();
   if(Player && (Player.incenseUntil||0) > Date.now()){
     const p=ll2px(Player.lat,Player.lng), t=Date.now()/700;
     ctx.beginPath(); ctx.arc(p.x,p.y,mi2px(0.06)*(1+0.06*Math.sin(t)),0,Math.PI*2);
@@ -4436,6 +4458,177 @@ function checkDistrict(){
 }
 
 // ══════════════════════════════════════════════════════
+//  FIRST HUNT — a guided first two minutes for new hunters
+//  fight → riposte → shrine → bounties → walk. Skippable; never shown to old saves.
+// ══════════════════════════════════════════════════════
+let TUT_MOB = null, TUT_SHRINE = null, _tutTimer = null;
+const DARK_NAMES = ['Ash Mercer','Vesper Kane','Silas Thorne','Mara Holloway','Grim Delacroix','Rook Malone','Ezra Black',
+  'Lena Graves','Cole Ravenscroft','Iris Vale','Dante Moreau','Nell Ashby','Victor Shade','Sable Quinn','Jonah Crowe','Wren Hallow'];
+
+function tutStep(){ return Player && Player.tutorial && Player.tutorial !== 'done' ? Player.tutorial : null; }
+
+function coach(html, { button=null, onButton=null } = {}){
+  const el = document.getElementById('coach');
+  el.innerHTML = `<div class="coach-text">${html}</div>
+    <div class="coach-row">${button ? `<button class="coach-btn" id="coach-btn">${button}</button>` : '<span></span>'}
+    <button class="coach-skip" onclick="tutSkip()">skip tutorial</button></div>`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  if(button) document.getElementById('coach-btn').onclick = onButton;
+}
+function coachHide(){ document.getElementById('coach').classList.remove('show'); }
+function coachGlow(sel){
+  document.querySelectorAll('.coach-glow').forEach(e => e.classList.remove('coach-glow'));
+  if(sel){ const e = document.querySelector(sel); if(e) e.classList.add('coach-glow'); }
+}
+
+// Keep the tutorial's monster and shrine a few steps from the hunter (GPS can lock anywhere)
+function tutPlace(obj, dLatFt, dLngFt){
+  obj.lat = Player.lat + dLatFt / 5280 / 69.11;
+  obj.lng = Player.lng + dLngFt / 5280 / (69.11 * Math.cos(Player.lat * Math.PI / 180));
+}
+function tutKeepClose(){
+  if(!tutStep()){ clearInterval(_tutTimer); _tutTimer = null; return; }
+  let moved = false;
+  if(TUT_MOB && !TUT_MOB.defeated && !inCombat && distMiles(Player.lat, Player.lng, TUT_MOB.lat, TUT_MOB.lng) > 0.07){ tutPlace(TUT_MOB, 200, 140); moved = true; }
+  if(TUT_SHRINE && distMiles(Player.lat, Player.lng, TUT_SHRINE.lat, TUT_SHRINE.lng) > 0.07){ tutPlace(TUT_SHRINE, -170, 170); moved = true; }
+  if(moved) markDirty();
+}
+
+function startTutorial(){
+  if(!tutStep()) return;
+  clearInterval(_tutTimer); _tutTimer = setInterval(tutKeepClose, 1000);
+  const step = Player.tutorial;
+  if(step === 'fight' || step === 'riposte'){
+    Player.tutorial = 'fight';
+    const t = MOB_TYPES.find(m => m.name === 'Lost Soul');
+    const thp = Math.max(80, Player.atk * 5);
+    TUT_MOB = { ...t, id:'TUT1', tutorialMob:true, hp:thp, maxHp:thp, atk:Math.max(3, Math.floor(t.atk*0.6)), def:0,
+      xp:120, gold:[40,60], type:'LV 1 · A LOST SOUL', defeated:false, statuses:[], poisonStacks:0 };
+    tutPlace(TUT_MOB, 200, 140);
+    spawns.push(TUT_MOB);
+    centerOnPlayer();
+    coach('Something drifts right beside you — <b>the glowing one</b>. <b>Tap it</b> to fight.');
+  } else if(step === 'shrine'){
+    tutShowShrine();
+  } else if(step === 'hunt'){
+    tutShowHunt();
+  } else if(step === 'walk'){
+    tutOnHuntClosed();
+  }
+  markDirty();
+}
+
+function tutOnCombatStart(ent){
+  if(tutStep() !== 'fight' || !ent || !ent.tutorialMob) return;
+  ent.nextAttackAt = Date.now() + 6000; // a breather before it strikes
+  setTimeout(() => {
+    coach(`Tap <b>${Player.cls.abilities[0].emoji} ${Player.cls.abilities[0].name.toUpperCase()}</b> — your basic attack. Each one builds your combo.`);
+    coachGlow('#ab-grid .abtn');
+  }, 300);
+}
+
+function tutOnPlayerAct(riposted){
+  const step = tutStep();
+  if(!step || !curEnemy || !curEnemy.tutorialMob) return;
+  if(step === 'fight'){
+    Player.tutorial = 'riposte';
+    coachGlow('#turn-ind');
+    coach('Watch the <b>red bar</b> under you. Strike just as it <b>fills red</b> to <b>RIPOSTE</b> — parry its blow and hit harder.');
+    curEnemy.nextAttackAt = Math.max(curEnemy.nextAttackAt, Date.now() + 2600);
+    curEnemy.hp = Math.max(curEnemy.hp, Math.ceil(curEnemy.maxHp * 0.5)); // stay alive long enough to try it
+  } else if(step === 'riposte' && riposted){
+    coachGlow(null);
+    coach('<b>RIPOSTE!</b> That\'s the trick to every fight. Finish it.');
+  }
+}
+
+function tutOnVictory(mob){
+  if(!mob || !mob.tutorialMob) return;
+  coachGlow(null);
+  TUT_MOB = null;
+  Player.tutorial = 'shrine';
+  setTimeout(tutShowShrine, 900);
+}
+
+function tutShowShrine(){
+  if(tutStep() !== 'shrine') return;
+  if(!TUT_SHRINE){
+    TUT_SHRINE = { id:'TUT-SHRINE', name:'Votive of the First Hunt', tutorial:true };
+    tutPlace(TUT_SHRINE, -170, 170);
+  }
+  if(!shrines.includes(TUT_SHRINE)) shrines.push(TUT_SHRINE);
+  markDirty();
+  // Let the first level-up (and its loot) have the stage; the tip waits until they're closed
+  const busy = document.getElementById('levelup-modal').classList.contains('active') || pendingLevelUps.length > 0
+    || document.getElementById('loot-popup').style.display === 'block';
+  if(busy){ coachHide(); setTimeout(tutShowShrine, 600); return; }
+  coach('Well struck. Now a <b>shrine 🕯</b> burns nearby — <b>tap it</b> for an offering. Shrines rekindle every few minutes.');
+}
+
+function tutOnShrine(sh){
+  if(tutStep() !== 'shrine' || !sh.tutorial) return;
+  TUT_SHRINE = null;
+  shrines = shrines.filter(s => !s.tutorial);
+  Player.tutorial = 'hunt';
+  setTimeout(tutShowHunt, 900);
+}
+
+function tutShowHunt(){
+  if(tutStep() !== 'hunt') return;
+  coachGlow('#hunt-btn');
+  coach('Every day brings <b>three bounties</b> — the same for every hunter in the city. Tap <b>📖 HUNT</b>.');
+}
+
+function tutOnHuntOpen(){
+  if(tutStep() !== 'hunt') return;
+  coachGlow(null); coachHide();
+  Player.tutorial = 'walk';
+}
+
+function tutOnHuntClosed(){
+  if(tutStep() !== 'walk') return;
+  coach('The city is yours. <b>Walk</b> — new monsters rise every block, shrines burn on every corner, and every neighborhood you enter is yours to claim.',
+    { button:'BEGIN THE HUNT', onButton: tutFinish });
+}
+
+function tutFinish(){
+  Player.tutorial = 'done';
+  coachGlow(null); coachHide();
+  clearInterval(_tutTimer); _tutTimer = null;
+  const gift = [];
+  ['Minor Heal','Minor Heal'].forEach(n => { if(Player.inventory.length < BAG_SIZE){ Player.inventory.push(n); gift.push(n); } });
+  Player.gold += 100;
+  addLog(`🕯 The First Hunt is done. +100 gold${gift.length ? ', ' + gift.join(', ') : ''}. Go.`, 'lb');
+  showToast('THE HUNT BEGINS', '+100 gold · 2 healing draughts');
+  sndBounty();
+  setPUI(); saveGame();
+}
+
+function tutSkip(){
+  if(TUT_MOB && !inCombat){ spawns = spawns.filter(s => s !== TUT_MOB); }
+  TUT_MOB = null; TUT_SHRINE = null;
+  shrines = shrines.filter(s => !s.tutorial);
+  Player.tutorial = 'done';
+  coachGlow(null); coachHide();
+  clearInterval(_tutTimer); _tutTimer = null;
+  markDirty(); saveGame();
+}
+
+// A pulsing ring on whatever the tutorial wants you to tap
+function drawTutorialMarker(){
+  const target = tutStep() === 'fight' || tutStep() === 'riposte' ? TUT_MOB : tutStep() === 'shrine' ? TUT_SHRINE : null;
+  if(!target || target.defeated) return;
+  const p = ll2px(target.lat, target.lng), t = Date.now() / 300;
+  const r = Math.max(22, 26*zoom) * (1.15 + 0.15*Math.sin(t));
+  ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
+  ctx.strokeStyle = `rgba(232,184,64,${0.55 + 0.35*Math.sin(t)})`; ctx.lineWidth = 3; ctx.stroke();
+  ctx.font = `bold ${Math.max(11, Math.min(14, 10*zoom))}px "Share Tech Mono"`;
+  ctx.fillStyle = 'rgba(232,184,64,0.95)'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText('TAP', p.x, p.y - r - 4);
+  markDirty(); // keep pulsing
+}
+
+// ══════════════════════════════════════════════════════
 //  THE HUNT — daily bounties, bestiary, walking
 //  Bounties are seeded by the date, so every hunter in the city
 //  chases the same three each day.
@@ -4604,8 +4797,9 @@ function openHunt(tab){
   ensureDaily();
   renderHunt();
   document.getElementById('hunt-modal').classList.add('active');
+  tutOnHuntOpen();
 }
-function closeHunt(){ document.getElementById('hunt-modal').classList.remove('active'); }
+function closeHunt(){ document.getElementById('hunt-modal').classList.remove('active'); tutOnHuntClosed(); }
 function setHuntTab(tab){ huntTab = tab; renderHunt(); }
 
 function renderHunt(){
@@ -5603,6 +5797,7 @@ function startCombat(ent,boss){
   if(_tt){ _tt.classList.remove('timer-warn','timer-danger'); }
   startCombatTimer();
   addLog(boss?`⚔ BOSS ENCOUNTER: ${ent.name}!`:`⚔ ${ent.name} appears!`,boss?'lb':'lc');
+  tutOnCombatStart(ent);
 }
 
 function buildAbilityButtons(){
@@ -5781,10 +5976,12 @@ function playerAct(ability){
   // Riposte: a damaging blow landed in the enemy's wind-up parries it and hits harder
   const atkInterval = isBoss ? 5000 : 4000;
   const untilHit = curEnemy.nextAttackAt - now;
+  let riposted = false;
   if(ability.dmgMult>0 && untilHit>0 && untilHit<=atkInterval*RIPOSTE_FRAC && !eStatuses.find(s=>s.type==='stun')){
     ability = {...ability, dmgMult: ability.dmgMult*1.5};
     curEnemy.nextAttackAt = now + atkInterval;
     Player.ripostes = (Player.ripostes||0) + 1;
+    riposted = true;
     showDamageNum('RIPOSTE!','dmg-riposte','left');
     flashScreen('white'); sndRiposte();
     setCLog(`⚔ RIPOSTE! You turn ${curEnemy.name}'s blow aside and strike back.`);
@@ -5861,6 +6058,7 @@ function playerAct(ability){
   }
 
   anim('p-spr','atk-anim'); anim('e-spr','hit-anim');
+  tutOnPlayerAct(riposted);
   setCBUI();
   if(curEnemy.hp<=0){
     anim('e-spr','death-anim');
@@ -6119,6 +6317,7 @@ function victory(){
   curEnemy.poisonStacks=0;
   markLivingKilled(curEnemy);
   huntOnKill(curEnemy);
+  tutOnVictory(curEnemy);
   onEntityKilled(curEnemy.name, isBoss);
   // Bloodthirst: heal 5% max HP on kill
   if(Player.skills?.classUnique && Player.className==='Fighter'){
@@ -6442,6 +6641,7 @@ function saveGame(){
       walkedMi: Player.walkedMi || 0,
       ripostes: Player.ripostes || 0,
       clues: Player.clues || {},
+      tutorial: Player.tutorial || 'done',
       raidLedger: Player.raidLedger || {},
       districts: Player.districts || {},
       landmarks: Player.landmarks || {},
@@ -7656,6 +7856,7 @@ function continueGame(){
   addLog(`The darkness remembers you.`, 'ls');
   startGPS();
   startGameTimers();
+  if(tutStep()) setTimeout(startTutorial, 1200);
 }
 
 // ══════════════════════════════════════════════════════
@@ -7712,11 +7913,16 @@ function pickWorld(key){
   document.getElementById('enter-btn').disabled = true;
   buildStatGrid();
   goCreatePage(1);
+  // The bones roll themselves (one reroll left); a name is waiting, yours to change
+  const nameIn = document.getElementById('char-name-input');
+  if(!nameIn.value.trim()) nameIn.value = DARK_NAMES[Math.floor(Math.random()*DARK_NAMES.length)];
+  setTimeout(rollStats, 350);
 }
 
 function goCreate(){
   deleteSave();
-  showWorldSelect();
+  document.getElementById('screen-title').classList.remove('active');
+  pickWorld('philadelphia'); // Philadelphia is home; other cities are a link on the next screen
 }
 
 function enterWorld(){
@@ -7737,6 +7943,8 @@ function enterWorld(){
   addLog(`The darkness watches. The hunt begins.`,'ls');
   startGPS();
   startGameTimers();
+  Player.tutorial = 'fight';
+  setTimeout(startTutorial, 1200);
 }
 
 // ══════════════════════════════════════════════════════
@@ -7751,7 +7959,7 @@ function startGameTimers(){
   setInterval(updateAmbience, 2000);
   const freshDay = !Player.daily || Player.daily.date !== todayKey();
   ensureDaily();
-  if(freshDay) setTimeout(()=>showToast("TODAY'S BOUNTIES", 'Three new marks for every hunter. Tap 📖 HUNT.'), 1500);
+  if(freshDay) setTimeout(()=>{ if(!tutStep()) showToast("TODAY'S BOUNTIES", 'Three new marks for every hunter. Tap 📖 HUNT.'); }, 1500);
   setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
   setInterval(()=>refreshLiving(true), 20000);
   setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.questMob&&s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)markDirty(); }, 60000);
