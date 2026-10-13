@@ -6,7 +6,7 @@ name: Android app
 #    ANDROID_KEYSTORE_* secrets are set; see app/STORE-GUIDE.md)
 on:
   push:
-    paths: ['index.html', 'privacy.html', 'manifest.json', '*.png', '*.jpeg', 'icons/**', 'app/**', '.github/workflows/android.yml']
+    paths: ['index.html', 'privacy.html', 'manifest.json', '*.png', '*.jpg', '*.jpeg', 'icons/**', 'app/**', '.github/workflows/android.yml']
   workflow_dispatch:
 
 jobs:

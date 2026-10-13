@@ -14,7 +14,7 @@ values
    'Independence Hall',
    'The bell cracked for a reason. Something old woke in the Assembly Room, wearing a founder''s face, and it remembers every oath this city broke.',
    '⚡',
-   'forgotten-founder.png',
+   'forgotten-founder.jpg',
    'RAID BOSS · ANCIENT',
    '#d4a020',
    39.9489, -75.1500,

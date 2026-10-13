@@ -34,7 +34,7 @@ alter table public.raid_rotation enable row level security; -- no policies: admi
 insert into public.raid_rotation (key, sort, name, landmark, lore, emoji, portrait, type, lat, lng, clues) values
 ('founders_wrath', 1, 'THE FOUNDER''S WRATH', 'Independence Hall',
  'The bell cracked for a reason. Something old woke in the Assembly Room, wearing a founder''s face, and it remembers every oath this city broke.',
- '⚡', 'forgotten-founder.png', 'RAID BOSS · ANCIENT', 39.9489, -75.1500, array[
+ '⚡', 'forgotten-founder.jpg', 'RAID BOSS · ANCIENT', 39.9489, -75.1500, array[
   'A kite in a storm. A key on the string. He wants the lightning back.',
   'Where the ink dried on two promises, the floorboards are warm tonight.',
   'Count the steps from the cracked bell. The thing counts them too.',
@@ -43,7 +43,7 @@ insert into public.raid_rotation (key, sort, name, landmark, lore, emoji, portra
   'He was a printer once. Now he prints names on the dead.']),
 ('plague_ship', 2, 'THE PLAGUE SHIP', 'Penn''s Landing',
  '1793. The fever came up the river in the hold of a ship no harbor would take. It never left the water. It has been waiting for the tide.',
- '⚓', 'delaware-tallship.png', 'RAID BOSS · PLAGUE', 39.9447, -75.1410, array[
+ '⚓', 'delaware-tallship.jpg', 'RAID BOSS · PLAGUE', 39.9447, -75.1410, array[
   'Yellow flags on the mast. No one rings the harbor bell anymore.',
   'Half the city fled in 1793. The other half is still on the docks.',
   'Follow the smell of tar and sickness east, until the land runs out.',
@@ -61,7 +61,7 @@ insert into public.raid_rotation (key, sort, name, landmark, lore, emoji, portra
   'Washington Avenue, January first, every year. It is early.']),
 ('broad_street_beast', 4, 'THE BROAD STREET BEAST', 'Spring Garden Station',
  'The subway was never finished. Under Broad Street, the tunnels kept digging on their own, and something big learned to ride the line.',
- '🚇', 'city-beast-frazetta.png', 'RAID BOSS · COLOSSUS', 39.9625, -75.1608, array[
+ '🚇', 'city-beast-frazetta.jpg', 'RAID BOSS · COLOSSUS', 39.9625, -75.1608, array[
   'Feel that rumble under Broad Street? No train is scheduled.',
   'North of the Hall, the orange line runs a stop it should not.',
   'A garden of iron and stone. Spring never comes down there.',
@@ -70,7 +70,7 @@ insert into public.raid_rotation (key, sort, name, landmark, lore, emoji, portra
   'Mind the gap. It does not.']),
 ('fishtown_fiend', 5, 'THE FISHTOWN FIEND', 'Penn Treaty Park',
  'The river mills burned iron day and night for a hundred years. When the fires went out, one forge kept glowing, and it learned to walk.',
- '🔥', 'iron-meridian.png', 'RAID BOSS · INFERNAL', 39.9661, -75.1287, array[
+ '🔥', 'iron-meridian.jpg', 'RAID BOSS · INFERNAL', 39.9661, -75.1287, array[
   'Smokestacks along the river. One of them is breathing.',
   'Shad ran up this river once. Now something else does.',
   'Under the old elm, a treaty was made. The fiend was not invited.',

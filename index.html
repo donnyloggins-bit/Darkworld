@@ -201,7 +201,7 @@ body::before {
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  background:url('title screen.png') center/cover no-repeat;
+  background:url('title screen.jpg') center/cover no-repeat;
 }
 #screen-title::after {
   content:'';
@@ -1845,7 +1845,7 @@ body:not(.net-on) .net-only { display:none !important; }
 
   <!-- SLIDE 4: The gate -->
   <div class="intro-slide" id="intro-slide-3">
-    <div class="intro-bg" style="background-image:url('hellgate.png'); background-position:center center;"></div>
+    <div class="intro-bg" style="background-image:url('hellgate.jpg'); background-position:center center;"></div>
     <div class="intro-text-block">
       <div class="intro-line">Every basement door in the city leads somewhere now.</div>
       <div class="intro-line">Every staircase down.</div>
@@ -2387,7 +2387,7 @@ const WORLDS = {
     subtitle: 'THE FALLEN CITY',
     emoji: '🏙',
     color: '#cc3030',
-    cardBg: 'philly-skyline.png',
+    cardBg: 'philly-skyline.jpg',
     desc: 'The ancient city rots under Malechar\'s curse. Venture into the heart of darkness.',
     center: {lat:39.9492, lng:-75.1719},
     zones: [
@@ -2406,12 +2406,12 @@ const WORLDS = {
     ],
     bosses: [
       {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:31250,atk:563,def:100,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar', portrait:'0_0.jpeg'},
-      {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9575,lng:-75.1690, hp:8500, atk:400,def:63, xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart", portrait:'jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.png'},
-      {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:6500, atk:350,def:88, xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost', portrait:'iron ghost.png'},
-      {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:6000, atk:325,def:50, xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil', portrait:'plague mother.png'},
-      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9462,lng:-75.1410, hp:4250, atk:275,def:44, xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil", portrait:'storm-wraith.png'},
-      {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:40.0040,lng:-75.1884, hp:3750, atk:250,def:63, xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger", portrait:'GRAVEMASTER.png'},
-      {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9532,lng:-75.1394, hp:3250, atk:225,def:88, xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle", portrait:'BRIDGE TROLL.png'},
+      {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9575,lng:-75.1690, hp:8500, atk:400,def:63, xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart", portrait:'jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.jpg'},
+      {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:6500, atk:350,def:88, xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost', portrait:'iron ghost.jpg'},
+      {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:6000, atk:325,def:50, xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil', portrait:'plague mother.jpg'},
+      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9462,lng:-75.1410, hp:4250, atk:275,def:44, xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil", portrait:'storm-wraith.jpg'},
+      {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:40.0040,lng:-75.1884, hp:3750, atk:250,def:63, xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger", portrait:'GRAVEMASTER.jpg'},
+      {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9532,lng:-75.1394, hp:3250, atk:225,def:88, xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle", portrait:'BRIDGE TROLL.jpg'},
     ],
   },
   ephrata: {
@@ -2507,7 +2507,7 @@ const NPCS = [
     name: 'Chef Alonzo',
     title: 'Head Chef · The Iron Meridian',
     lat: 39.9452, lng: -75.1411,
-    portrait: 'chef-alonzo.png',
+    portrait: 'chef-alonzo.jpg',
     color: '#d4a830',
     world: 'philadelphia',
     dialogues: {
@@ -2549,7 +2549,7 @@ const DUNGEONS = [
     world: 'philadelphia',
     locked: true,
     lockMsg: 'Requires a party of 2+',
-    portrait: 'iron-meridian.png',
+    portrait: 'iron-meridian.jpg',
   },
 ];
 
@@ -2562,9 +2562,9 @@ const QUESTS = [
     name: 'After Hours',
     location: "Boyd's Department Store · Chestnut Street",
     cutscene: [
-      { img:'boyds-elegant.png',  label:"BOYD'S · 3:00 AM",         lines:["Three in the morning.", "The store has been closed for hours."] },
-      { img:'boyds-chaos.png',    label:"THE SALES FLOOR",           lines:["Then they stood up.", "Every mannequin on every floor."] },
-      { img:'mannequin-horror.png',label:"MENSWEAR · SECOND FLOOR", lines:["They don't respond to light.", "They don't respond to sound.", "Only movement. Don't let them see you move."] },
+      { img:'boyds-elegant.jpg',  label:"BOYD'S · 3:00 AM",         lines:["Three in the morning.", "The store has been closed for hours."] },
+      { img:'boyds-chaos.jpg',    label:"THE SALES FLOOR",           lines:["Then they stood up.", "Every mannequin on every floor."] },
+      { img:'mannequin-horror.jpg',label:"MENSWEAR · SECOND FLOOR", lines:["They don't respond to light.", "They don't respond to sound.", "Only movement. Don't let them see you move."] },
     ],
     type: 'SOLO',
     color: '#cc8844',
@@ -2582,8 +2582,8 @@ const QUESTS = [
     id: 'last_seating',
     name: 'Last Seating',
     cutscene: [
-      { img:'iron-meridian-dining.png',   label:"THE IRON MERIDIAN · DELAWARE WATERFRONT", lines:["The dinner service ended three weeks ago.", "The crew never came back up from below deck."] },
-      { img:'delaware-tallship.png',  label:"BELOW DECK",                              lines:["They're still down there.", "Still at their posts.", "Still waiting for an order that never came."] },
+      { img:'iron-meridian-dining.jpg',   label:"THE IRON MERIDIAN · DELAWARE WATERFRONT", lines:["The dinner service ended three weeks ago.", "The crew never came back up from below deck."] },
+      { img:'delaware-tallship.jpg',  label:"BELOW DECK",                              lines:["They're still down there.", "Still at their posts.", "Still waiting for an order that never came."] },
     ],
     location: 'The Iron Meridian · Delaware Waterfront',
     type: 'SOLO',
@@ -2602,8 +2602,8 @@ const QUESTS = [
     id: 'broken_treaty',
     name: 'The Broken Treaty',
     cutscene: [
-      { img:'storm-wraith.png',  label:"PENN TREATY PARK · FISHTOWN",  lines:["The treaty was signed here in 1682.", "Peace between the settlers and the river.", "That peace is broken."] },
-      { img:'BRIDGE TROLL.png', label:"BEN FRANKLIN BRIDGE",          lines:["Two ancient things have risen.", "One from the water.", "One from the stone of the bridge itself."] },
+      { img:'storm-wraith.jpg',  label:"PENN TREATY PARK · FISHTOWN",  lines:["The treaty was signed here in 1682.", "Peace between the settlers and the river.", "That peace is broken."] },
+      { img:'BRIDGE TROLL.jpg', label:"BEN FRANKLIN BRIDGE",          lines:["Two ancient things have risen.", "One from the water.", "One from the stone of the bridge itself."] },
     ],
     location: 'Penn Treaty Park · Fishtown',
     type: 'BOSS CHAIN',
@@ -2623,8 +2623,8 @@ const QUESTS = [
     name: 'The Customer Who Never Left',
     location: "Boyd's Department Store · Chestnut Street",
     cutscene: [
-      { img:'boyds-elegant.png', label:"BOYD'S DEPARTMENT STORE · AFTER CLOSE", lines:["He was here when the store opened.", "He has never left."] },
-      { img:'the-hollow.png',    label:"CHESTNUT STREET · PHILADELPHIA",         lines:["No one knows his name.", "No one remembers his face.", "Only the hat. Only the mask."] },
+      { img:'boyds-elegant.jpg', label:"BOYD'S DEPARTMENT STORE · AFTER CLOSE", lines:["He was here when the store opened.", "He has never left."] },
+      { img:'the-hollow.jpg',    label:"CHESTNUT STREET · PHILADELPHIA",         lines:["No one knows his name.", "No one remembers his face.", "Only the hat. Only the mask."] },
     ],
     type: 'SOLO',
     color: '#556677',
@@ -2641,8 +2641,8 @@ const QUESTS = [
     id: 'old_city_rising',
     name: 'Old City Rising',
     cutscene: [
-      { img:'rev-ghost.png',    label:"INDEPENDENCE HALL · OLD CITY", lines:["They signed the document in 1776.", "They never stopped guarding it."] },
-      { img:'forgotten-founder.png',  label:"THE FORGOTTEN FOUNDER",        lines:["His face dissolved into parchment centuries ago.", "His name was struck from every record.", "He alone remembers what was written in the dark."] },
+      { img:'rev-ghost.jpg',    label:"INDEPENDENCE HALL · OLD CITY", lines:["They signed the document in 1776.", "They never stopped guarding it."] },
+      { img:'forgotten-founder.jpg',  label:"THE FORGOTTEN FOUNDER",        lines:["His face dissolved into parchment centuries ago.", "His name was struck from every record.", "He alone remembers what was written in the dark."] },
     ],
     location: 'Independence Hall · Old City',
     type: 'BOSS CHAIN',
@@ -2661,7 +2661,7 @@ const QUESTS = [
     id: 'city_hall_siege',
     name: 'City Hall Siege',
     cutscene: [
-      { img:'city-beast-frazetta.png', label:"CITY HALL · BROAD STREET", lines:["Something climbed the tower last night.", "By morning it was perched at the top.", "It hasn't moved since."] },
+      { img:'city-beast-frazetta.jpg', label:"CITY HALL · BROAD STREET", lines:["Something climbed the tower last night.", "By morning it was perched at the top.", "It hasn't moved since."] },
     ],
     location: 'City Hall · Broad Street',
     type: 'BOSS CHAIN',
@@ -2680,7 +2680,7 @@ const QUESTS = [
     id: 'wissahickon_dark',
     name: 'The Wissahickon Dark',
     cutscene: [
-      { img:'swamp-colossus.png', label:"WISSAHICKON VALLEY · NORTHWEST", lines:["The creek has been rising for weeks.", "Not with water.", "Something is waking up in the roots below."] },
+      { img:'swamp-colossus.jpg', label:"WISSAHICKON VALLEY · NORTHWEST", lines:["The creek has been rising for weeks.", "Not with water.", "Something is waking up in the roots below."] },
     ],
     location: 'Wissahickon Valley · Northwest Philly',
     type: 'SOLO',
@@ -2701,8 +2701,8 @@ const QUESTS = [
     location: "Boyd's Department Store · Chestnut Street",
     cutscene: [
       { img:'edward.jpeg',      label:"BOYD'S · BACK OFFICE",  lines:["I found it behind the inventory records.", "A ledger. But the numbers inside — they're not numbers."] },
-      { img:'boyds-blood.png',  label:"THE SALES FLOOR",       lines:["Every shipment for the past year.", "All of it moving through this building.", "Signed by one name. Malechar."] },
-      { img:'hellgate-staircase.png',label:"THE FALLEN CITY",       lines:["He's been here the whole time.", "Right underneath us."] },
+      { img:'boyds-blood.jpg',  label:"THE SALES FLOOR",       lines:["Every shipment for the past year.", "All of it moving through this building.", "Signed by one name. Malechar."] },
+      { img:'hellgate-staircase.jpg',label:"THE FALLEN CITY",       lines:["He's been here the whole time.", "Right underneath us."] },
     ],
     type: 'BOSS CHAIN',
     color: '#8855cc',
@@ -2720,7 +2720,7 @@ const QUESTS = [
     id: 'graverobbers',
     name: 'Graverobbers',
     cutscene: [
-      { img:'GRAVEMASTER.png', label:"LAUREL HILL CEMETERY · EAST FALLS", lines:["Someone has been opening the graves.", "Not to take anything.", "To put something back in."] },
+      { img:'GRAVEMASTER.jpg', label:"LAUREL HILL CEMETERY · EAST FALLS", lines:["Someone has been opening the graves.", "Not to take anything.", "To put something back in."] },
     ],
     location: 'Laurel Hill Cemetery · East Falls',
     type: 'SOLO',
@@ -2739,7 +2739,7 @@ const QUESTS = [
     id: 'plague_ward',
     name: 'Plague Ward',
     cutscene: [
-      { img:'plague mother.png', label:"EASTERN STATE PENITENTIARY · FAIRMOUNT", lines:["The cells have been sealed for thirty years.", "Last week, Cell Block 7 started breathing.", "Something inside is counting down."] },
+      { img:'plague mother.jpg', label:"EASTERN STATE PENITENTIARY · FAIRMOUNT", lines:["The cells have been sealed for thirty years.", "Last week, Cell Block 7 started breathing.", "Something inside is counting down."] },
     ],
     location: 'Eastern State Penitentiary · Fairmount',
     type: 'BOSS CHAIN',
@@ -2763,29 +2763,29 @@ let CENTER, ZONES, ZONE_DESCS, BOSSES;
 const MOB_TYPES = [
   {name:'Lich Servant',    emoji:'💀', zone:0, hp:190, atk:38, def:10, xp:800,  gold:[150,300], portrait:'lichservant.jpeg'},
   {name:'Void Shade',      emoji:'🌑', zone:0, hp:160, atk:42, def:8,  xp:700,  gold:[120,250], portrait:'voidshade.jpeg'},
-  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:130, atk:25, def:5,  xp:400,  gold:[80,180],  portrait:'blood-wraith-sword.png'},
+  {name:'Blood Wraith',    emoji:'👻', zone:1, hp:130, atk:25, def:5,  xp:400,  gold:[80,180],  portrait:'blood-wraith-sword.jpg'},
   {name:'Plague Hound',    emoji:'🐺', zone:1, hp:110, atk:28, def:4,  xp:350,  gold:[60,140],  portrait:'plaguehound.jpeg'},
   {name:'Bone Archer',     emoji:'🏹', zone:1, hp:100, atk:30, def:3,  xp:380,  gold:[70,160],  portrait:'bonearcher.jpeg'},
   {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:85,  atk:18, def:3,  xp:250,  gold:[50,120],  portrait:'hollowknight.jpeg'},
-  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:70,  atk:20, def:2,  xp:220,  gold:[40,100],  portrait:'wailing-ghost.png'},
-  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:100, atk:16, def:6,  xp:280,  gold:[50,110],  portrait:'swamp-colossus.png'},
+  {name:'Wailing Banshee', emoji:'👁', zone:2, hp:70,  atk:20, def:2,  xp:220,  gold:[40,100],  portrait:'wailing-ghost.jpg'},
+  {name:'Rot Golem',       emoji:'🗿', zone:2, hp:100, atk:16, def:6,  xp:280,  gold:[50,110],  portrait:'swamp-colossus.jpg'},
   {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:48,  atk:12, def:1,  xp:120,  gold:[20,60],   portrait:'gravewanderer.jpeg'},
   {name:'Bog Specter',     emoji:'💨', zone:3, hp:52,  atk:14, def:1,  xp:140,  gold:[20,70],   portrait:'bogspecter.jpeg'},
   {name:'Cursed Rat',      emoji:'🐀', zone:3, hp:38,  atk:10, def:0,  xp:80,   gold:[10,40],   portrait:'cursedrat.jpeg'},
   {name:'Lost Soul',       emoji:'🕯', zone:4, hp:22,  atk:6,  def:0,  xp:50,   gold:[5,25],    portrait:'lostsoul.jpeg'},
   {name:'Shadow Imp',      emoji:'👿', zone:4, hp:20,  atk:7,  def:0,  xp:45,   gold:[5,25],    portrait:'shadowimp.jpeg'},
   // ── Quest mobs ──
-  {name:'Drowned Sailor',  emoji:'⚓', zone:1, hp:145, atk:30, def:7,  xp:460,  gold:[90,200],  portrait:'water-wraith.png',   questOnly:true},
-  {name:'Iron Officer',    emoji:'🗡', zone:0, hp:390, atk:98, def:26, xp:1250, gold:[220,480], portrait:'iron-officer.png',     questOnly:true, isMini:true},
-  {name:'Living Mannequin',  emoji:'🪆', zone:2, hp:95,  atk:22, def:5,  xp:300,  gold:[55,130],  portrait:'mannequin-horror.png', questOnly:true},
+  {name:'Drowned Sailor',  emoji:'⚓', zone:1, hp:145, atk:30, def:7,  xp:460,  gold:[90,200],  portrait:'water-wraith.jpg',   questOnly:true},
+  {name:'Iron Officer',    emoji:'🗡', zone:0, hp:390, atk:98, def:26, xp:1250, gold:[220,480], portrait:'iron-officer.jpg',     questOnly:true, isMini:true},
+  {name:'Living Mannequin',  emoji:'🪆', zone:2, hp:95,  atk:22, def:5,  xp:300,  gold:[55,130],  portrait:'mannequin-horror.jpg', questOnly:true},
   {name:'The Tailor',        emoji:'🧵', zone:1, hp:850, atk:145,def:35, xp:1500, gold:[300,650], portrait:'the-tailor.png',        questOnly:true, isMini:true},
   {name:'Cursed Accountant',          emoji:'📒', zone:0, hp:220, atk:55, def:12, xp:600,  gold:[100,240], portrait:'lichservant.jpeg',  questOnly:true},
-  {name:'The Ledger Wraith',          emoji:'📖', zone:0, hp:920, atk:165,def:40, xp:2000, gold:[400,800], portrait:'ledger-wraith.png', questOnly:true, isMini:true},
-  {name:'The Customer Who Never Left',emoji:'🎩', zone:3, hp:280, atk:45, def:8,  xp:750,  gold:[120,280], portrait:'the-hollow.png',   questOnly:true, isMini:true},
-  {name:'Colonial Shade',             emoji:'🪖', zone:2, hp:115, atk:26, def:5,  xp:340,  gold:[65,150],  portrait:'rev-ghost.png', questOnly:true},
-  {name:'The Forgotten Founder',      emoji:'📜', zone:1, hp:1100,atk:180,def:45, xp:2400, gold:[450,900], portrait:'forgotten-founder.png',questOnly:true, isMini:true},
-  {name:'The City Beast',             emoji:'🦁', zone:0, hp:1400,atk:210,def:55, xp:3000, gold:[550,1100],portrait:'city-beast-frazetta.png',      questOnly:true, isMini:true},
-  {name:'Swamp Giant',                emoji:'🌿', zone:2, hp:800, atk:150,def:38, xp:1800, gold:[350,700], portrait:'swamp-colossus.png',      questOnly:true, isMini:true},
+  {name:'The Ledger Wraith',          emoji:'📖', zone:0, hp:920, atk:165,def:40, xp:2000, gold:[400,800], portrait:'ledger-wraith.jpg', questOnly:true, isMini:true},
+  {name:'The Customer Who Never Left',emoji:'🎩', zone:3, hp:280, atk:45, def:8,  xp:750,  gold:[120,280], portrait:'the-hollow.jpg',   questOnly:true, isMini:true},
+  {name:'Colonial Shade',             emoji:'🪖', zone:2, hp:115, atk:26, def:5,  xp:340,  gold:[65,150],  portrait:'rev-ghost.jpg', questOnly:true},
+  {name:'The Forgotten Founder',      emoji:'📜', zone:1, hp:1100,atk:180,def:45, xp:2400, gold:[450,900], portrait:'forgotten-founder.jpg',questOnly:true, isMini:true},
+  {name:'The City Beast',             emoji:'🦁', zone:0, hp:1400,atk:210,def:55, xp:3000, gold:[550,1100],portrait:'city-beast-frazetta.jpg',      questOnly:true, isMini:true},
+  {name:'Swamp Giant',                emoji:'🌿', zone:2, hp:800, atk:150,def:38, xp:1800, gold:[350,700], portrait:'swamp-colossus.jpg',      questOnly:true, isMini:true},
 ];
 
 // ══════════════════════════════════════════════════════
@@ -3930,7 +3930,11 @@ function spinShrine(sh){
 function resize(){
   const c=document.getElementById('map-wrap');
   mapW=c.clientWidth; mapH=c.clientHeight;
-  canvas.width=mapW; canvas.height=mapH;
+  // Draw at the screen's real pixel density so the map is sharp on phones (capped to keep it cheap)
+  const dpr=Math.min(window.devicePixelRatio||1, 2.5);
+  canvas.width=Math.round(mapW*dpr); canvas.height=Math.round(mapH*dpr);
+  canvas.style.width=mapW+'px'; canvas.style.height=mapH+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
   if(Player)render();
 }
 
