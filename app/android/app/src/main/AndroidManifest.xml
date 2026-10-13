@@ -39,5 +39,7 @@
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <!-- AR view: camera feed behind the monsters -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Haptics: hits, crits and ripostes buzz the phone -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 </manifest>

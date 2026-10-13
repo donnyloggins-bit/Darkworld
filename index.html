@@ -3904,6 +3904,7 @@ function shrineClue(sh){
   if(got.includes(idx)) return;
   got.push(idx);
   addLog(`📜 FRAGMENT (${got.length}/${clues.length}): “${clues[idx]}”`, 'lb');
+  setTimeout(sndWhisper, 700);
   setTimeout(() => showToast(`FRAGMENT ${got.length} / ${clues.length}`, `“${clues[idx]}”`), 900);
   renderRaidUI();
 }
@@ -3942,6 +3943,7 @@ function spinShrine(sh){
   const kept = [];
   drops.forEach(n => { if(Player.inventory.length < BAG_SIZE){ Player.inventory.push(n); kept.push(n); } });
   Player.gold += gold; Player.xp += xp;
+  sndShrine(!!sh.landmark);
   huntProgress('shrine', 1);
   shrineClue(sh);
   addLog(`🕯 ${sh.name}: +${gold} gold, +${fmt(xp)} XP${kept.length ? ' · ' + kept.join(', ') : ''}`, 'll');
@@ -4429,6 +4431,7 @@ function checkDistrict(){
   const n = Object.keys(Player.districts).length;
   addLog(`🗺 DISTRICT CLAIMED: ${d.name} — ${d.epithet} · +${gold} gold, +${fmt(xp)} XP (${n}/${PHILLY_DISTRICTS.length})`, 'lb');
   showToast(`${d.name.toUpperCase()}`, `${d.epithet} · district ${n} of ${PHILLY_DISTRICTS.length} claimed`);
+  sndDistrictBell();
   huntLevelCheck(); setPUI(); saveGame();
 }
 
@@ -4519,7 +4522,7 @@ function completeBounty(b){
   Player.gold += gold; Player.xp += xp;
   addLog(`📜 BOUNTY COMPLETE: ${b.label} · +${gold} gold, +${fmt(xp)} XP`, 'lb');
   showToast('BOUNTY COMPLETE', `${b.label} · +${gold} gold · +${fmt(xp)} XP`);
-  sndLoot();
+  sndBounty();
   huntLevelCheck();
   setPUI(); saveGame();
 }
@@ -5520,6 +5523,8 @@ function combatTick(){
   }
   if(ind){
     const inWindow = pct>(1-RIPOSTE_FRAC)*100 && !eStatuses.find(s=>s.type==='stun');
+    if(inWindow && !combatTick._win) sndRiposteWindow();
+    combatTick._win = inWindow;
     ind.classList.toggle('riposte', inWindow);
     ind.classList.remove('incoming');
     ind.textContent = inWindow ? '⚔ STRIKE NOW — RIPOSTE ⚔' : 'ATTACK · STRIKE AS THE BAR FILLS TO RIPOSTE';
@@ -5551,6 +5556,7 @@ function combatTick(){
     }
   }
 
+  combatHeartbeat();
   updateCooldownDisplay();
   setCBUI();
 }
@@ -5780,7 +5786,7 @@ function playerAct(ability){
     curEnemy.nextAttackAt = now + atkInterval;
     Player.ripostes = (Player.ripostes||0) + 1;
     showDamageNum('RIPOSTE!','dmg-riposte','left');
-    flashScreen('white'); sndDodge();
+    flashScreen('white'); sndRiposte();
     setCLog(`⚔ RIPOSTE! You turn ${curEnemy.name}'s blow aside and strike back.`);
   }
 
@@ -5929,11 +5935,13 @@ function calcDamage(ability){
     // Guaranteed 2× — always PRECISE, skip normal crit roll
     dmg=Math.floor(dmg*2);
     setTimeout(()=>showDamageNum('PRECISE!','dmg-crit','right'),90);
+    sndCrit();
   } else {
     // Normal crit chance from Player.crit stat
     if(Math.random()*100 < Player.crit){
       dmg=Math.floor(dmg*1.75);
       setTimeout(()=>showDamageNum('CRIT!','dmg-crit','right'),90);
+      sndCrit();
     }
   }
 
@@ -6030,6 +6038,7 @@ function doEnemyAttack(){
     const veil=document.getElementById('boss-charge-veil');
     veil.classList.add('active');
     anim('e-spr','charge-anim');
+    sndChargeUp();
     setTimeout(()=>{
       veil.classList.remove('active');
       anim('e-spr','special-anim');
@@ -6075,7 +6084,7 @@ function triggerEnemyHit(e, dmg, special, isCrit){
   else if(special){ sndEnemySpecial(); }
   else { sndEnemyAttack(); }
   showDamageNum(fmt(dmg),getDmgClass(dmg),'left');
-  sndPlayerHit();
+  if(!special && !isCrit) sndPlayerHit();
   anim('p-spr','hit-anim');
   if(special) flashEnemyAtk('flash-special');
 
@@ -6933,6 +6942,7 @@ function applyRaidRow(row){
   if(Player){
     addLog(`⚔ RAID: ${RAID.name} has emerged at ${RAID.landmark}! Every hunter in the city shares its wounds.`, 'lb');
     showToast('THE RAID HAS RISEN', `${RAID.name} · ${RAID.landmark}`);
+    sndRaidRise();
   }
 }
 
@@ -7737,6 +7747,8 @@ function startGameTimers(){
   if(_gameTimersStarted) return;
   _gameTimersStarted = true;
   netStartRaidWatch();
+  updateAmbience();
+  setInterval(updateAmbience, 2000);
   const freshDay = !Player.daily || Player.daily.date !== todayKey();
   ensureDaily();
   if(freshDay) setTimeout(()=>showToast("TODAY'S BOUNTIES", 'Three new marks for every hunter. Tap 📖 HUNT.'), 1500);
@@ -7754,156 +7766,464 @@ function gameLoop(){ if(!inCombat && _renderDirty){ render(); _renderDirty = fal
 
 // ══════════════════════════════════════════════════════
 //  SOUND ENGINE — Web Audio, no files
+//  Every sound is synthesized: layered oscillators and noise through a
+//  shared stone-hall reverb and a master limiter. Plus a living ambient
+//  bed on the map and haptics on phones.
 // ══════════════════════════════════════════════════════
-let _audioCtx = null;
-let soundEnabled = true;
+const AUDIO_PREF_KEY = 'darkworld_audio_v1';
+let _audioCtx = null, _bus = null;
+let soundEnabled = true, hapticsEnabled = true;
+try {
+  const pref = JSON.parse(localStorage.getItem(AUDIO_PREF_KEY) || 'null');
+  if(pref){ soundEnabled = pref.sound !== false; hapticsEnabled = pref.haptics !== false; }
+} catch(e){}
 
 function getAudioCtx(){
-  if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(!_audioCtx){
+    _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    buildAudioBus(_audioCtx);
+  }
   if(_audioCtx.state==='suspended') _audioCtx.resume();
   return _audioCtx;
 }
 
-function playTone({ type='square', freq=220, freq2=null, gain=0.18, attack=0.01, decay=0.08, sustain=0.0, release=0.12, duration=0.25, detune=0, filter=null, filterFreq=800, filterQ=1 }={}){
+// master → limiter → speakers, with a shared reverb send ("a cold stone hall")
+function buildAudioBus(ctx){
+  const master = ctx.createGain(); master.gain.value = 0.85;
+  const limiter = ctx.createDynamicsCompressor();
+  limiter.threshold.value = -14; limiter.knee.value = 10; limiter.ratio.value = 8;
+  limiter.attack.value = 0.003; limiter.release.value = 0.25;
+  master.connect(limiter); limiter.connect(ctx.destination);
+
+  const reverb = ctx.createConvolver();
+  const len = Math.floor(ctx.sampleRate * 3.2);
+  const ir = ctx.createBuffer(2, len, ctx.sampleRate);
+  for(let ch=0; ch<2; ch++){
+    const d = ir.getChannelData(ch);
+    let lp = 0;
+    for(let i=0;i<len;i++){
+      lp = lp*0.6 + (Math.random()*2-1)*0.4;            // darker tail
+      d[i] = lp * Math.pow(1 - i/len, 2.6);
+    }
+  }
+  reverb.buffer = ir;
+  const wet = ctx.createGain(); wet.gain.value = 0.55;
+  reverb.connect(wet); wet.connect(master);
+
+  // shared noise beds, generated once (not per hit)
+  const mk = (seconds, brown) => {
+    const b = ctx.createBuffer(1, Math.floor(ctx.sampleRate*seconds), ctx.sampleRate);
+    const d = b.getChannelData(0); let last = 0;
+    for(let i=0;i<d.length;i++){
+      const w = Math.random()*2-1;
+      if(brown){ last = (last + 0.02*w)/1.02; d[i] = last*3.5; } else d[i] = w;
+    }
+    return b;
+  };
+  // soft-clip curve for crunch
+  const curve = new Float32Array(1024);
+  for(let i=0;i<1024;i++){ const x = i/512-1; curve[i] = Math.tanh(x*3.2); }
+
+  _bus = { master, reverb, white: mk(2, false), brown: mk(4, true), curve };
+}
+
+// One synthesized voice. `at` is seconds from now (sample-accurate, no setTimeout).
+function voice({ type='sine', freq=220, freq2=null, glide=null, gain=0.15, attack=0.005, decay=0.1, sustain=0, release=0.15,
+                 detune=0, filter=null, filterFreq=1200, filterFreq2=null, filterQ=0.7, dist=false, wet=0.15, pan=0, at=0 }={}){
   if(!soundEnabled) return;
   try{
-    const ctx = getAudioCtx();
+    const ctx = getAudioCtx(); const t = ctx.currentTime + at;
     const osc = ctx.createOscillator();
-    const env = ctx.createGain();
-
+    osc.type = type; osc.detune.value = detune;
+    osc.frequency.setValueAtTime(freq, t);
+    const len = attack + decay + release;
+    if(freq2) osc.frequency.exponentialRampToValueAtTime(Math.max(1,freq2), t + (glide ?? len));
+    let node = osc;
+    if(dist){ const ws = ctx.createWaveShaper(); ws.curve = _bus.curve; node.connect(ws); node = ws; }
     if(filter){
-      const f = ctx.createBiquadFilter();
-      f.type = filter;
-      f.frequency.value = filterFreq;
-      f.Q.value = filterQ;
-      osc.connect(f); f.connect(env);
-    } else {
-      osc.connect(env);
+      const f = ctx.createBiquadFilter(); f.type = filter; f.Q.value = filterQ;
+      f.frequency.setValueAtTime(filterFreq, t);
+      if(filterFreq2) f.frequency.exponentialRampToValueAtTime(Math.max(20,filterFreq2), t + len);
+      node.connect(f); node = f;
     }
-    env.connect(ctx.destination);
-
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, ctx.currentTime);
-    if(freq2) osc.frequency.exponentialRampToValueAtTime(freq2, ctx.currentTime + duration);
-    if(detune) osc.detune.value = detune;
-
-    const t = ctx.currentTime;
-    env.gain.setValueAtTime(0, t);
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, t);
     env.gain.linearRampToValueAtTime(gain, t + attack);
-    env.gain.linearRampToValueAtTime(gain * sustain, t + attack + decay);
-    env.gain.linearRampToValueAtTime(0, t + attack + decay + release);
-
-    osc.start(t);
-    osc.stop(t + attack + decay + release + 0.05);
+    env.gain.exponentialRampToValueAtTime(Math.max(0.0001, gain*sustain || 0.0001), t + attack + decay);
+    env.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    node.connect(env);
+    const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    if(p){ p.pan.value = pan; env.connect(p); }
+    const out = p || env;
+    out.connect(_bus.master);
+    if(wet > 0){ const s = ctx.createGain(); s.gain.value = wet; out.connect(s); s.connect(_bus.reverb); }
+    osc.start(t); osc.stop(t + len + 0.05);
   } catch(e){}
 }
 
-function playNoise({ gain=0.15, attack=0.005, release=0.12, duration=0.15, filter='bandpass', filterFreq=400, filterQ=0.8 }={}){
+// Filtered noise burst: whooshes, impacts, breath, fire, wind.
+function noise({ gain=0.15, attack=0.003, release=0.15, filter='bandpass', filterFreq=800, filterFreq2=null, filterQ=0.8,
+                 brown=false, dist=false, wet=0.15, pan=0, at=0 }={}){
   if(!soundEnabled) return;
   try{
-    const ctx = getAudioCtx();
-    const bufSize = ctx.sampleRate * (duration + release);
-    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for(let i=0;i<data.length;i++) data[i] = Math.random()*2-1;
+    const ctx = getAudioCtx(); const t = ctx.currentTime + at;
     const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const f = ctx.createBiquadFilter();
-    f.type = filter;
-    f.frequency.value = filterFreq;
-    f.Q.value = filterQ;
+    src.buffer = brown ? _bus.brown : _bus.white;
+    const off = Math.random() * (src.buffer.duration - attack - release - 0.1);
+    let node = src;
+    if(dist){ const ws = ctx.createWaveShaper(); ws.curve = _bus.curve; node.connect(ws); node = ws; }
+    const f = ctx.createBiquadFilter(); f.type = filter; f.Q.value = filterQ;
+    f.frequency.setValueAtTime(filterFreq, t);
+    if(filterFreq2) f.frequency.exponentialRampToValueAtTime(Math.max(20,filterFreq2), t + attack + release);
+    node.connect(f);
     const env = ctx.createGain();
-    src.connect(f); f.connect(env); env.connect(ctx.destination);
-    const t = ctx.currentTime;
-    env.gain.setValueAtTime(0,t);
-    env.gain.linearRampToValueAtTime(gain, t+attack);
-    env.gain.exponentialRampToValueAtTime(0.001, t+attack+release);
-    src.start(t); src.stop(t+attack+release+0.05);
+    env.gain.setValueAtTime(0.0001, t);
+    env.gain.linearRampToValueAtTime(gain, t + attack);
+    env.gain.exponentialRampToValueAtTime(0.0001, t + attack + release);
+    f.connect(env);
+    const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    if(p){ p.pan.value = pan; env.connect(p); }
+    const out = p || env;
+    out.connect(_bus.master);
+    if(wet > 0){ const s = ctx.createGain(); s.gain.value = wet; out.connect(s); s.connect(_bus.reverb); }
+    src.start(t, Math.max(0, off)); src.stop(t + attack + release + 0.05);
   } catch(e){}
+}
+
+// A struck bell: inharmonic partials with their own decays (church bell / candle chime / death knell)
+function bell(freq, { gain=0.12, length=3, wet=0.6, at=0, pan=0 }={}){
+  [[0.5,1,1],[1,0.8,0.8],[1.19,0.55,0.6],[1.5,0.4,0.5],[2.0,0.35,0.4],[2.51,0.22,0.3],[2.66,0.18,0.25],[3.01,0.12,0.2]]
+    .forEach(([ratio, amp, dec]) => voice({ type:'sine', freq:freq*ratio, gain:gain*amp, attack:0.002, decay:length*dec*0.3, sustain:0.3,
+      release:length*dec, wet, pan, at }));
+}
+
+// ── HAPTICS ─────────────────────────────────────────────
+// Android browsers: navigator.vibrate. In the iOS/Android app: Capacitor's Haptics plugin.
+const HAPTIC = { tap:[12], light:[20], medium:[40], heavy:[70], crit:[30,40,60], riposte:[15,30,15], hurt:[50,30,30],
+                 slam:[90,50,120], win:[25,60,25], level:[20,40,20,40,60], death:[200,100,400], bell:[30] };
+function buzz(kind){
+  if(!hapticsEnabled) return;
+  const pattern = HAPTIC[kind] || HAPTIC.light;
+  try{
+    const H = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics;
+    if(H){
+      const style = pattern.reduce((a,b)=>a+b,0) >= 120 ? 'HEAVY' : pattern[0] >= 35 ? 'MEDIUM' : 'LIGHT';
+      H.impact({ style }).catch(()=>{});
+      if(pattern.length > 1) setTimeout(() => H.impact({ style:'LIGHT' }).catch(()=>{}), pattern[0] + (pattern[1]||0));
+    } else if(navigator.vibrate){
+      navigator.vibrate(pattern);
+    }
+  } catch(e){}
+}
+
+// ── CREATURE VOICES ─────────────────────────────────────
+const CREATURE_FAMILY = {
+  'Lich Servant':'undead','Bone Archer':'undead','Hollow Knight':'undead','Grave Stalker':'undead','Lost Soul':'undead',
+  'Void Shade':'specter','Blood Wraith':'specter','Wailing Banshee':'specter','Bog Specter':'specter',
+  'Plague Hound':'beast','Cursed Rat':'beast','Rot Golem':'construct','Shadow Imp':'demon',
+};
+function creatureFamily(e){
+  if(!e) return 'beast';
+  if(CREATURE_FAMILY[e.name]) return CREATURE_FAMILY[e.name];
+  const t = (e.type || '').toUpperCase();
+  for(const [k,f] of [['UNDEAD','undead'],['NECRO','undead'],['SPECTER','specter'],['WRAITH','specter'],['DEMON','demon'],
+                      ['INFERNAL','demon'],['CONSTRUCT','construct'],['COLOSSUS','construct'],['GIANT','beast'],['BEAST','beast'],
+                      ['PLAGUE','undead'],['ANCIENT','demon'],['CHAOS','specter']]) if(t.includes(k)) return f;
+  return 'beast';
+}
+function creatureCry(e, big){
+  const fam = creatureFamily(e), g = big ? 1.4 : 1;
+  if(fam === 'undead'){          // dry rattle and a hollow moan
+    noise({ gain:0.10*g, attack:0.01, release:0.25, filter:'highpass', filterFreq:2500, wet:0.2 });
+    voice({ type:'sawtooth', freq:150, freq2:95, gain:0.07*g, attack:0.08, decay:0.3, release:0.35, filter:'bandpass', filterFreq:600, filterQ:4, wet:0.5 });
+  } else if(fam === 'specter'){  // breathy formant sweep: a ghost's inhale
+    noise({ gain:0.14*g, attack:0.12, release:0.45, filter:'bandpass', filterFreq:500, filterFreq2:1800, filterQ:6, wet:0.7 });
+    voice({ type:'sine', freq:880, freq2:620, gain:0.04*g, attack:0.15, decay:0.3, release:0.4, detune:14, wet:0.8 });
+  } else if(fam === 'construct'){ // grinding stone and metal
+    voice({ type:'square', freq:48, freq2:38, gain:0.10*g, attack:0.02, decay:0.25, release:0.25, dist:true, filter:'lowpass', filterFreq:500, wet:0.3 });
+    noise({ gain:0.10*g, attack:0.02, release:0.35, filter:'bandpass', filterFreq:1400, filterQ:3, dist:true, wet:0.25 });
+  } else if(fam === 'demon'){    // throat growl over a fire hiss
+    voice({ type:'sawtooth', freq:68, freq2:52, gain:0.13*g, attack:0.03, decay:0.3, release:0.3, dist:true, filter:'lowpass', filterFreq:900, wet:0.35 });
+    noise({ gain:0.08*g, attack:0.05, release:0.4, filter:'highpass', filterFreq:3000, wet:0.3 });
+  } else {                       // beast: snarl
+    voice({ type:'sawtooth', freq:95, freq2:70, gain:0.12*g, attack:0.01, decay:0.18, release:0.2, dist:true, filter:'bandpass', filterFreq:700, filterQ:2, wet:0.2 });
+    noise({ gain:0.09*g, attack:0.01, release:0.18, filter:'bandpass', filterFreq:1100, filterQ:2, wet:0.15 });
+  }
 }
 
 // ── SOUND EVENTS ──────────────────────────────────────
 
-function sndPlayerHit(){
-  playNoise({ gain:0.2, filterFreq:300, filterQ:1.2, attack:0.005, release:0.15 });
-  playTone({ type:'sawtooth', freq:180, freq2:80, gain:0.12, attack:0.005, decay:0.05, release:0.1, duration:0.15 });
+function sndPlayerAttack(){        // blade whoosh → meaty impact
+  noise({ gain:0.13, attack:0.004, release:0.11, filter:'bandpass', filterFreq:700, filterFreq2:2600, filterQ:1.2, wet:0.08 });
+  voice({ type:'sine', freq:130, freq2:48, gain:0.22, attack:0.002, decay:0.09, release:0.08, at:0.06, wet:0.12 });
+  noise({ gain:0.10, attack:0.001, release:0.07, filter:'lowpass', filterFreq:1800, dist:true, at:0.06, wet:0.1 });
+  buzz('tap');
 }
 
-function sndPlayerAttack(){
-  playNoise({ gain:0.12, filterFreq:900, filterQ:0.6, attack:0.002, release:0.07 });
-  playTone({ type:'square', freq:320, freq2:180, gain:0.08, attack:0.003, decay:0.04, release:0.06, duration:0.1 });
+function sndCrit(){                // boom + ringing steel
+  voice({ type:'sine', freq:95, freq2:34, gain:0.3, attack:0.002, decay:0.2, release:0.2, wet:0.2 });
+  noise({ gain:0.2, attack:0.001, release:0.09, filter:'highpass', filterFreq:1800, dist:true, wet:0.25 });
+  voice({ type:'triangle', freq:1240, gain:0.06, attack:0.001, decay:0.2, sustain:0.3, release:0.9, wet:0.6, pan:-0.2 });
+  voice({ type:'triangle', freq:1317, gain:0.05, attack:0.001, decay:0.2, sustain:0.3, release:0.8, wet:0.6, pan:0.2 });
+  buzz('crit');
 }
 
-function sndCrit(){
-  playTone({ type:'sawtooth', freq:600, freq2:900, gain:0.22, attack:0.003, decay:0.05, release:0.18, duration:0.22 });
-  playNoise({ gain:0.25, filterFreq:2000, filterQ:0.5, attack:0.002, release:0.1 });
+function sndSignature(){           // inhale of power → sub drop → dark choir chord
+  noise({ gain:0.16, attack:0.3, release:0.08, filter:'bandpass', filterFreq:250, filterFreq2:4500, filterQ:1.5, wet:0.3 });
+  voice({ type:'sine', freq:120, freq2:30, gain:0.35, attack:0.005, decay:0.35, release:0.4, at:0.32, wet:0.2 });
+  noise({ gain:0.22, attack:0.002, release:0.25, filter:'lowpass', filterFreq:2500, filterFreq2:300, dist:true, at:0.32, wet:0.4 });
+  [110, 130.8, 164.8].forEach((f,i) => voice({ type:'sawtooth', freq:f, gain:0.05, attack:0.05, decay:0.4, sustain:0.6, release:1.4,
+    detune:(i-1)*9, filter:'lowpass', filterFreq:1400, filterFreq2:500, wet:0.7, at:0.32, pan:(i-1)*0.4 }));
+  setTimeout(() => buzz('heavy'), 320);
 }
 
-function sndSignature(){
-  // Rising power chord
-  playTone({ type:'sawtooth', freq:110, freq2:440, gain:0.25, attack:0.02, decay:0.1, release:0.3, duration:0.4 });
-  playTone({ type:'square',   freq:165, freq2:660, gain:0.15, attack:0.02, decay:0.1, release:0.3, duration:0.4, detune:7 });
-  playNoise({ gain:0.2, filterFreq:1200, filterQ:0.4, attack:0.01, release:0.25 });
+function sndPlayerHit(){           // you get struck: dull thump, crunch, pitch-down
+  voice({ type:'sine', freq:85, freq2:40, gain:0.26, attack:0.002, decay:0.12, release:0.1, wet:0.1 });
+  noise({ gain:0.16, attack:0.002, release:0.12, filter:'lowpass', filterFreq:900, dist:true, wet:0.12 });
+  voice({ type:'sawtooth', freq:220, freq2:90, gain:0.06, attack:0.004, decay:0.12, release:0.1, filter:'lowpass', filterFreq:900, wet:0.1 });
+  buzz('hurt');
 }
 
-function sndEnemyAttack(){
-  playTone({ type:'sawtooth', freq:90, freq2:60, gain:0.2, attack:0.008, decay:0.06, release:0.14, duration:0.2 });
-  playNoise({ gain:0.18, filterFreq:250, filterQ:1.5, attack:0.005, release:0.12 });
+function sndEnemyAttack(){         // the creature's own voice, then the hit
+  creatureCry(curEnemy, false);
 }
 
-function sndEnemySpecial(){
-  playTone({ type:'sawtooth', freq:55, freq2:40, gain:0.3, attack:0.02, decay:0.15, release:0.4, duration:0.55 });
-  playNoise({ gain:0.28, filterFreq:180, filterQ:2.0, attack:0.01, release:0.35 });
-  setTimeout(()=>playTone({ type:'square', freq:200, freq2:80, gain:0.2, attack:0.005, decay:0.1, release:0.2, duration:0.3 }), 180);
+function sndChargeUp(){            // boss winds up a special: rising rumble + its voice
+  noise({ gain:0.2, attack:0.24, release:0.04, filter:'lowpass', filterFreq:120, filterFreq2:1400, brown:true, wet:0.3 });
+  creatureCry(curEnemy, true);
 }
 
-function sndEnemyCrit(){
-  playTone({ type:'sawtooth', freq:400, freq2:100, gain:0.28, attack:0.003, decay:0.08, release:0.2, duration:0.28 });
-  playNoise({ gain:0.3, filterFreq:3000, filterQ:0.3, attack:0.002, release:0.15 });
+function sndEnemySpecial(){        // the slam lands
+  voice({ type:'sine', freq:62, freq2:28, gain:0.4, attack:0.002, decay:0.35, release:0.5, wet:0.35 });
+  noise({ gain:0.3, attack:0.002, release:0.35, filter:'lowpass', filterFreq:1600, filterFreq2:200, dist:true, wet:0.45 });
+  buzz('slam');
 }
 
-function sndVictory(){
-  const notes = [261, 329, 392, 523];
-  notes.forEach((f,i) => setTimeout(()=>{
-    playTone({ type:'triangle', freq:f, gain:0.18, attack:0.02, decay:0.08, release:0.2, duration:0.3 });
-  }, i*90));
+function sndEnemyCrit(){           // bone-crack and a heavy blow
+  noise({ gain:0.24, attack:0.001, release:0.05, filter:'highpass', filterFreq:2500, dist:true, wet:0.2 });
+  voice({ type:'sine', freq:75, freq2:30, gain:0.32, attack:0.002, decay:0.2, release:0.25, wet:0.25 });
+  buzz('slam');
 }
 
-function sndDeath(){
-  playTone({ type:'sawtooth', freq:220, freq2:55, gain:0.3, attack:0.02, decay:0.3, release:0.8, duration:1.1 });
-  playNoise({ gain:0.2, filterFreq:150, filterQ:2, attack:0.01, release:0.7 });
+function sndRiposte(){             // parry: bright inharmonic steel clang
+  [1780, 2630, 3910].forEach((f,i) => voice({ type:'triangle', freq:f, gain:0.07-i*0.015, attack:0.001, decay:0.08, sustain:0.25,
+    release:0.6, wet:0.55, pan:(i-1)*0.3 }));
+  noise({ gain:0.12, attack:0.001, release:0.05, filter:'highpass', filterFreq:4000, wet:0.3 });
+  buzz('riposte');
 }
 
-function sndLevelUp(){
-  const notes = [392, 523, 659, 784];
-  notes.forEach((f,i) => setTimeout(()=>{
-    playTone({ type:'triangle', freq:f, gain:0.2, attack:0.01, decay:0.06, release:0.25, duration:0.3 });
-    playTone({ type:'sine', freq:f*2, gain:0.08, attack:0.01, decay:0.04, release:0.15, duration:0.2 });
-  }, i*80));
+function sndRiposteWindow(){       // the tell: a short rising whine as the enemy winds up
+  voice({ type:'sine', freq:520, freq2:1040, gain:0.08, attack:0.06, decay:0.2, release:0.12, glide:0.4, wet:0.25 });
+  voice({ type:'triangle', freq:1040, freq2:2080, gain:0.03, attack:0.06, decay:0.2, release:0.1, glide:0.4, wet:0.2 });
 }
 
-function sndCombatStart(){
-  playTone({ type:'sawtooth', freq:80, freq2:120, gain:0.22, attack:0.03, decay:0.2, release:0.4, duration:0.6 });
-  playNoise({ gain:0.15, filterFreq:200, filterQ:1, attack:0.02, release:0.3 });
+function sndHeartbeat(fast){       // low HP: lub-dub
+  voice({ type:'sine', freq:58, freq2:42, gain:fast?0.28:0.2, attack:0.004, decay:0.08, release:0.06, wet:0.05 });
+  voice({ type:'sine', freq:52, freq2:38, gain:fast?0.2:0.14, attack:0.004, decay:0.07, release:0.06, at:0.2, wet:0.05 });
+  if(fast) buzz('tap');
 }
 
-function sndDodge(){
-  playTone({ type:'sine', freq:800, freq2:1200, gain:0.1, attack:0.003, decay:0.03, release:0.08, duration:0.11 });
+function sndVictory(){             // grim triumph: a toll and a minor chord settling
+  bell(196, { gain:0.09, length:2.5, wet:0.6 });
+  [220, 261.6, 329.6].forEach((f,i) => voice({ type:'triangle', freq:f, gain:0.07, attack:0.04+i*0.06, decay:0.3, sustain:0.5, release:1.2,
+    filter:'lowpass', filterFreq:2200, wet:0.6, at:0.12 }));
+  buzz('win');
 }
 
-function sndComboRise(){
-  playTone({ type:'sine', freq:440+(playerCombo*30), gain:0.07, attack:0.005, decay:0.02, release:0.06, duration:0.09 });
+function sndDeath(){               // knell, a falling choir, a heart that stops
+  bell(98, { gain:0.14, length:5, wet:0.8 });
+  [146.8, 174.6, 207.6].forEach((f,i) => voice({ type:'sawtooth', freq:f, freq2:f*0.5, glide:2.4, gain:0.05, attack:0.2, decay:0.8,
+    sustain:0.5, release:1.8, detune:(i-1)*12, filter:'lowpass', filterFreq:900, filterFreq2:200, wet:0.8 }));
+  sndHeartbeat(true); setTimeout(() => sndHeartbeat(false), 900); setTimeout(() => sndHeartbeat(false), 2200);
+  buzz('death');
 }
 
-function sndLoot(){
-  playTone({ type:'triangle', freq:660, gain:0.14, attack:0.01, decay:0.05, release:0.18, duration:0.24 });
-  setTimeout(()=>playTone({ type:'triangle', freq:880, gain:0.12, attack:0.01, decay:0.04, release:0.15, duration:0.2 }), 120);
+function sndLevelUp(){             // rising bells with a shimmer
+  [392, 523.3, 659.3, 784].forEach((f,i) => bell(f*2, { gain:0.05, length:1.6, wet:0.6, at:i*0.11, pan:(i-1.5)*0.3 }));
+  noise({ gain:0.05, attack:0.3, release:0.8, filter:'highpass', filterFreq:6000, wet:0.8, at:0.2 });
+  buzz('level');
 }
 
+function sndCombatStart(){         // string-stab sting; bosses add their roar
+  [55, 58.3, 82.4].forEach((f,i) => voice({ type:'sawtooth', freq:f, gain:0.08, attack:0.005, decay:0.25, sustain:0.2, release:0.6,
+    detune:(i-1)*10, filter:'lowpass', filterFreq:2400, filterFreq2:300, wet:0.4 }));
+  noise({ gain:0.12, attack:0.002, release:0.2, filter:'lowpass', filterFreq:600, brown:true, wet:0.3 });
+  setTimeout(() => creatureCry(curEnemy, isBoss), 180);
+  if(isBoss) bell(65.4, { gain:0.12, length:4, wet:0.8, at:0.1 });
+  buzz(isBoss ? 'heavy' : 'medium');
+}
+
+function sndDodge(){               // air whoosh past your ear
+  noise({ gain:0.3, attack:0.02, release:0.14, filter:'bandpass', filterFreq:3000, filterFreq2:900, filterQ:1.2, wet:0.15, pan:0.5 });
+}
+
+function sndComboRise(){           // soft rising glass tick
+  voice({ type:'sine', freq:520+(playerCombo*35), gain:0.035, attack:0.002, decay:0.05, sustain:0.2, release:0.2, wet:0.4 });
+}
+
+function sndLoot(){                // coins
+  for(let i=0;i<5;i++) voice({ type:'triangle', freq:2200+Math.random()*1400, gain:0.035, attack:0.001, decay:0.04, sustain:0.1,
+    release:0.12, at:i*0.045+Math.random()*0.02, wet:0.3, pan:(Math.random()-0.5)*0.8 });
+  bell(1320, { gain:0.03, length:0.8, wet:0.5, at:0.05 });
+  buzz('light');
+}
+
+function sndShrine(landmark){      // a candle flares; landmarks ring deeper
+  noise({ gain:0.12, attack:0.05, release:0.4, filter:'bandpass', filterFreq:400, filterFreq2:1800, filterQ:1, wet:0.4 });
+  bell(landmark ? 523.3 : 784, { gain:landmark?0.07:0.05, length:landmark?2.5:1.5, wet:0.7, at:0.1 });
+  buzz('light');
+}
+
+function sndDistrictBell(){        // claiming a district: a distant church bell, tolled twice
+  bell(130.8, { gain:0.12, length:4, wet:0.85 });
+  bell(130.8, { gain:0.08, length:4, wet:0.9, at:1.6 });
+  buzz('bell');
+}
+
+function sndBounty(){              // a low horn call: root then fifth
+  [[146.8,0],[220,0.28]].forEach(([f,at]) => voice({ type:'sawtooth', freq:f, gain:0.07, attack:0.06, decay:0.2, sustain:0.6,
+    release:0.6, filter:'lowpass', filterFreq:900, wet:0.5, at }));
+  buzz('win');
+}
+
+function sndRaidRise(){            // war horn + drums: something huge has woken
+  voice({ type:'sawtooth', freq:73.4, freq2:69.3, glide:2, gain:0.12, attack:0.3, decay:0.8, sustain:0.7, release:1.5, filter:'lowpass', filterFreq:700, wet:0.6 });
+  voice({ type:'sawtooth', freq:110, freq2:103.8, glide:2, gain:0.07, attack:0.35, decay:0.8, sustain:0.7, release:1.5, filter:'lowpass', filterFreq:900, wet:0.6 });
+  [0, 0.45, 0.9, 1.2].forEach(at => voice({ type:'sine', freq:70, freq2:38, gain:0.3, attack:0.002, decay:0.15, release:0.2, at, wet:0.4 }));
+  buzz('slam');
+}
+
+function sndWhisper(){             // a fragment: someone breathes words you can't quite hear
+  for(let i=0;i<5;i++) noise({ gain:0.22, attack:0.05, release:0.18, filter:'bandpass', filterFreq:900+Math.random()*1800,
+    filterQ:5, wet:0.7, at:i*0.16, pan:(Math.random()-0.5)*1.4 });
+}
+
+// ── AMBIENT BED ─────────────────────────────────────────
+// Wind + a low drone that darkens with danger: deeper rings, nearby bosses, raids.
+// Ducks during fights; random distant events keep the city alive.
+let _amb = null, _ambEventTimer = null, _hbLast = 0;
+
+function startAmbience(){
+  if(_amb || !soundEnabled) return;
+  try{
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    const out = ctx.createGain(); out.gain.setValueAtTime(0.0001, t); out.gain.setTargetAtTime(1, t, 1.2); // slow fade-in
+    out.connect(_bus.master);
+    const send = ctx.createGain(); send.gain.value = 0.35; out.connect(send); send.connect(_bus.reverb);
+
+    // wind: brown noise through a slowly breathing lowpass
+    const wind = ctx.createBufferSource(); wind.buffer = _bus.brown; wind.loop = true;
+    const wf = ctx.createBiquadFilter(); wf.type = 'lowpass'; wf.frequency.value = 380; wf.Q.value = 0.8;
+    const wg = ctx.createGain(); wg.gain.value = 0.10;
+    const lfo = ctx.createOscillator(); lfo.frequency.value = 0.07;
+    const lfoAmt = ctx.createGain(); lfoAmt.gain.value = 180;
+    lfo.connect(lfoAmt); lfoAmt.connect(wf.frequency);
+    wind.connect(wf); wf.connect(wg); wg.connect(out);
+
+    // drone: detuned low saws, plus a tritone that creeps in with danger
+    const df = ctx.createBiquadFilter(); df.type = 'lowpass'; df.frequency.value = 160; df.Q.value = 2;
+    const dg = ctx.createGain(); dg.gain.value = 0.0;
+    const tg = ctx.createGain(); tg.gain.value = 0.0;
+    const oscs = [55, 55.35].map(f => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.connect(df); return o; });
+    const tri = ctx.createOscillator(); tri.type = 'sawtooth'; tri.frequency.value = 77.8; tri.connect(tg); tg.connect(df);
+    df.connect(dg); dg.connect(out);
+
+    // boss pulse: a slow sub throb
+    const pulse = ctx.createOscillator(); pulse.type = 'sine'; pulse.frequency.value = 41;
+    const pg = ctx.createGain(); pg.gain.value = 0;
+    const pl = ctx.createOscillator(); pl.frequency.value = 0.9;
+    const pla = ctx.createGain(); pla.gain.value = 0;
+    pl.connect(pla); pla.connect(pg.gain);
+    pulse.connect(pg); pg.connect(out);
+
+    [wind, lfo, ...oscs, tri, pulse, pl].forEach(n => n.start());
+    _amb = { out, wg, wf, dg, tg, df, pg, pla, nodes:[wind, lfo, ...oscs, tri, pulse, pl] };
+    scheduleAmbientEvent();
+  } catch(e){ _amb = null; }
+}
+
+function stopAmbience(){
+  if(!_amb) return;
+  const a = _amb; _amb = null; clearTimeout(_ambEventTimer);
+  try{
+    const t = _audioCtx.currentTime;
+    a.out.gain.cancelScheduledValues(t); a.out.gain.setTargetAtTime(0.0001, t, 0.4);
+    setTimeout(() => { a.nodes.forEach(n => { try{ n.stop(); }catch(e){} }); a.out.disconnect(); }, 2000);
+  } catch(e){}
+}
+
+// danger 0..1 (ring + monsters), bossNear 0..1
+function updateAmbience(){
+  if(!soundEnabled || !Player){ stopAmbience(); return; }
+  if(!_amb) startAmbience();
+  if(!_amb) return;
+  const plat = Player.lat || CENTER.lat, plng = Player.lng || CENTER.lng;
+  const zi = zoneIndexAt(plat, plng);
+  const ring = zi < 0 ? 0.1 : 1 - zi / Math.max(1, ZONES.length - 1);
+  let minBoss = Infinity;
+  (BOSSES||[]).forEach(b => { if(!b.defeated){ const d = distMiles(plat, plng, b.lat, b.lng); if(d < minBoss) minBoss = d; } });
+  const bossNear = minBoss < 0.4 ? Math.pow(1 - minBoss/0.4, 1.5) : 0;
+  const raid = RAID && distMiles(plat, plng, RAID.lat, RAID.lng) < 0.6 ? 1 : 0;
+  const danger = Math.min(1, ring*0.7 + bossNear*0.5 + raid*0.4);
+  const t = _audioCtx.currentTime, k = 1.5;
+  const duck = inCombat ? 0.25 : 1;
+  const g = _amb.out.gain;
+  g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.setTargetAtTime(duck, t, 0.6);
+  _amb.wg.gain.setTargetAtTime(0.08 + 0.05*(1-danger), t, k);
+  _amb.dg.gain.setTargetAtTime(0.035 + 0.09*danger, t, k);
+  _amb.tg.gain.setTargetAtTime(0.25 * Math.max(0, danger-0.35), t, k);
+  _amb.df.frequency.setTargetAtTime(140 + 260*danger, t, k);
+  _amb.pg.gain.setTargetAtTime(0.06*Math.max(bossNear, raid), t, k);
+  _amb.pla.gain.setTargetAtTime(0.06*Math.max(bossNear, raid), t, k);
+  _amb.danger = danger;
+}
+
+function scheduleAmbientEvent(){
+  clearTimeout(_ambEventTimer);
+  _ambEventTimer = setTimeout(() => {
+    if(!_amb) return;
+    if(!inCombat){
+      const d = _amb.danger || 0, r = Math.random(), pan = (Math.random()-0.5)*1.6;
+      if(r < 0.3) bell(110 + Math.random()*40, { gain:0.035, length:5, wet:0.95, pan });                // a far-off bell
+      else if(r < 0.55) noise({ gain:0.05, attack:0.4, release:1.2, filter:'bandpass', filterFreq:300+Math.random()*500,
+                                filterFreq2:900+Math.random()*900, filterQ:6, wet:0.9, pan });            // metal scraping somewhere
+      else if(r < 0.75 && d > 0.3) sndWhisper();                                                         // whispers, in the dark rings
+      else voice({ type:'sine', freq:880+Math.random()*400, freq2:700, gain:0.015, attack:0.6, decay:0.6, release:1.5,
+                   detune:20, wet:0.95, pan });                                                          // a thin, distant cry
+    }
+    scheduleAmbientEvent();
+  }, 9000 + Math.random()*16000);
+}
+
+// Heartbeat when your HP is low in a fight (called from the combat tick)
+function combatHeartbeat(){
+  if(!Player || !inCombat) return;
+  const frac = Player.hp / Player.maxHp;
+  if(frac > 0.3 || frac <= 0) return;
+  const gap = frac < 0.15 ? 650 : 950, now = Date.now();
+  if(now - _hbLast > gap){ _hbLast = now; sndHeartbeat(frac < 0.15); }
+}
+
+// Sound + haptics settings: 🔊 sound & buzz → 🔈 no buzz → 🔇 muted
+function audioButtonLabel(){
+  return !soundEnabled ? '🔇 MUTED' : hapticsEnabled ? '🔊 SOUND' : '🔈 NO BUZZ';
+}
 function toggleSound(){
-  soundEnabled = !soundEnabled;
-  document.getElementById('sound-btn').textContent = soundEnabled ? '🔊 SOUND' : '🔇 MUTED';
+  if(soundEnabled && hapticsEnabled) hapticsEnabled = false;
+  else if(soundEnabled){ soundEnabled = false; hapticsEnabled = false; }
+  else { soundEnabled = true; hapticsEnabled = true; }
+  try { localStorage.setItem(AUDIO_PREF_KEY, JSON.stringify({ sound:soundEnabled, haptics:hapticsEnabled })); } catch(e){}
+  document.getElementById('sound-btn').textContent = audioButtonLabel();
+  if(soundEnabled){ getAudioCtx(); updateAmbience(); } else stopAmbience();
+  if(hapticsEnabled) buzz('tap');
 }
+
+// Pause audio when the app is in the background (battery), resume when back
+document.addEventListener('visibilitychange', () => {
+  if(!_audioCtx) return;
+  if(document.visibilityState === 'hidden') _audioCtx.suspend().catch(()=>{});
+  else if(soundEnabled) _audioCtx.resume().catch(()=>{});
+});
 
 // Unlock audio context on first user interaction
 document.addEventListener('touchstart', ()=>getAudioCtx(), {once:true, passive:true});
@@ -7923,6 +8243,7 @@ if(screen.orientation && screen.orientation.lock){
 }
 
 // ── INIT ───────────────────────────────────────────────
+document.getElementById('sound-btn').textContent = audioButtonLabel();
 initTitleScreen();
 </script>
 </body>
