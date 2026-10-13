@@ -2771,6 +2771,7 @@ const ITEMS = {
   'Major Heal':     {emoji:'⚗', type:'potion',    tier:2, healPct:0.50,      cost:190,  desc:'Restores 50% HP.'},
   'Full Restore':   {emoji:'✨', type:'potion',    tier:3, healPct:1.00,      cost:580,  desc:'Fully restores HP.'},
   'Elixir':         {emoji:'💫', type:'potion',    tier:2, resPct:0.50,       cost:160,  desc:'Restores 50% resource.'},
+  'Grave Incense':  {emoji:'🪔', type:'potion',    tier:1, incenseMin:30,     cost:300,  desc:'Burn it and the dead come to you. 30 min of extra monsters nearby, double elite odds.'},
   // ── CLASS WEAPONS (legendary, class-locked, drop-only) ──
   'Bloodreaver':      {emoji:'🩸', type:'weapon', tier:4, classReq:'Fighter',     atk:563, crit:10,            cost:0, desc:'Drinks deep. The more you kill, the stronger it grows.'},
   'Lightbringer':     {emoji:'⚡', type:'weapon', tier:4, classReq:'Paladin',     atk:475, hp:250,             cost:0, desc:'Radiates holy judgment. Burns the unholy.'},
@@ -2920,7 +2921,13 @@ function usePotion(itemName){
     Player.res = Math.min(Player.maxRes, Player.res + r);
     addLog(`${item.emoji} ${itemName}: +${fmt(r)} ${Player.cls.resource} restored.`, 'll');
   }
-  setPUI(); renderInventory();
+  if(item.incenseMin){
+    Player.incenseUntil = Math.max(Date.now(), Player.incenseUntil || 0) + item.incenseMin*60000;
+    addLog(`${item.emoji} The incense smoulders. Something smells it.`, 'lb');
+    showToast('GRAVE INCENSE', `The dead are drawn to you · ${Math.round((Player.incenseUntil-Date.now())/60000)} min`);
+    refreshLiving(true);
+  }
+  setPUI(); renderInventory(); saveGame();
 }
 
 // ── INVENTORY UI ────────────────────────────────────
@@ -3653,7 +3660,7 @@ function zoneIndexAt(lat, lng){ // -1 = the wilds beyond the city's rings
 
 // Same species for everyone; stats scale to the hunter who meets it (like CP in Pokémon GO),
 // so the streets stay worth walking at any level.
-function buildLivingMob(id, lat, lng, rng, expiresAt){
+function buildLivingMob(id, lat, lng, rng, expiresAt, eliteChance = ELITE_CHANCE){
   const zi = zoneIndexAt(lat, lng);
   const tierRoll = rng(), pickRoll = rng(), eliteRoll = rng(), varRoll = rng();
   let zone = zi;
@@ -3665,7 +3672,7 @@ function buildLivingMob(id, lat, lng, rng, expiresAt){
   }
   const pool = MOB_TYPES.filter(m => m.zone === zone && !m.questOnly);
   const t = pool[Math.floor(pickRoll * pool.length)];
-  const elite = eliteRoll < ELITE_CHANCE;
+  const elite = eliteRoll < eliteChance;
   const L = (Player && Player.level) || 1;
   const gap = Math.max(0, L - 2 - ZONE_NOMINAL_LEVEL[zone]);
   const lvl = ZONE_NOMINAL_LEVEL[zone] + gap;
@@ -3717,6 +3724,19 @@ function refreshLiving(force){
         const mob = prev.get(id) || built;
         if(!livingState.killed[id] && !mob.defeated) fresh.push(mob);
       }
+    }
+  }
+  // Grave Incense: a personal wave in the 3×3 cells around the hunter every 5 minutes
+  if((Player.incenseUntil || 0) > now){
+    const IW = 5*60*1000, iwin = Math.floor(now / IW);
+    for(let dy=-1; dy<=1; dy++) for(let dx=-1; dx<=1; dx++){
+      const cx = cx0 + dx, cy = cy0 + dy, cell = `${cx}:${cy}`;
+      const id = `I:${cell}:${iwin}`;
+      const rng = seededRng(hashStr(`incense|${Player.name}|${cell}|${iwin}`));
+      const lat = (cy + 0.1 + rng()*0.8) * CELL_LAT, lng = (cx + 0.1 + rng()*0.8) * CELL_LNG;
+      const built = buildLivingMob(id, lat, lng, rng, (iwin + 1) * IW, ELITE_CHANCE * 2);
+      const mob = prev.get(id) || built;
+      if(!livingState.killed[id] && !mob.defeated) fresh.push(mob);
     }
   }
   spawns = spawns.filter(s => !s.livingId).concat(fresh); // quest mobs survive
@@ -3836,6 +3856,12 @@ function render(){
   drawNPCs();
   drawDungeons();
   drawPlayer();
+  if(Player && (Player.incenseUntil||0) > Date.now()){
+    const p=ll2px(Player.lat,Player.lng), t=Date.now()/700;
+    ctx.beginPath(); ctx.arc(p.x,p.y,mi2px(0.06)*(1+0.06*Math.sin(t)),0,Math.PI*2);
+    ctx.fillStyle='rgba(120,40,160,0.10)'; ctx.fill();
+    ctx.strokeStyle='rgba(170,90,220,0.45)'; ctx.lineWidth=1.5; ctx.setLineDash([4,6]); ctx.stroke(); ctx.setLineDash([]);
+  }
   drawOffscreenIndicator();
 }
 
@@ -5396,7 +5422,7 @@ function setCBUI(){
   el.cEhpT.textContent=`${fmt(curEnemy.hp)}/${fmt(curEnemy.maxHp)}`;
   if(el.pStatus) el.pStatus.innerHTML=Player.statuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
   if(el.eStatus) el.eStatus.innerHTML=eStatuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
-  const potions=Player.inventory.filter(n=>ITEMS[n]?.type==='potion');
+  const potions=Player.inventory.filter(n=>ITEMS[n]?.type==='potion'&&!ITEMS[n].incenseMin);
   if(el.potBtn) el.potBtn.disabled=potions.length===0;
   if(el.potCount) el.potCount.textContent=`×${potions.length}`;
   setPUI();
@@ -5599,7 +5625,7 @@ function useCombatPotion(){
   }
   if(!used){
     // Try any potion
-    const idx=Player.inventory.findIndex(n=>ITEMS[n]?.type==='potion');
+    const idx=Player.inventory.findIndex(n=>ITEMS[n]?.type==='potion'&&!ITEMS[n].incenseMin);
     if(idx>=0){ used=Player.inventory.splice(idx,1)[0]; }
   }
   if(!used){ setCLog('No potions left!'); return; }
@@ -5829,6 +5855,7 @@ function victory(){
   const gold = Math.floor(goldBase * (1 + (Player.goldBonus||0)));
   Player.xp+=xp; Player.gold+=gold;
   if(curEnemy.isRaid){
+    if(Player.raidLedger && Player.raidLedger[curEnemy.raidId]) Player.raidLedger[curEnemy.raidId].claimed = true;
     if(curEnemy._killingBlow){ Player.gold+=gold; addLog(`☠ KILLING BLOW on ${curEnemy.name}! +${gold} bonus gold`,'lb'); }
     else addLog(`The raid is won. Your blade was counted among the many.`,'ll');
   }
@@ -6150,6 +6177,8 @@ function saveGame(){
       walkedMi: Player.walkedMi || 0,
       ripostes: Player.ripostes || 0,
       clues: Player.clues || {},
+      raidLedger: Player.raidLedger || {},
+      incenseUntil: Player.incenseUntil || 0,
     },
     bossStates: BOSSES.filter(b => !b.isRaid).map(b => b.defeated || false),
     world: selectedWorld,
@@ -6536,6 +6565,43 @@ function raidRowLive(row){
     && new Date(row.spawn_at).getTime() <= now && new Date(row.ends_at).getTime() > now;
 }
 
+// Everyone who drew blood gets spoils, sized by how much they contributed.
+function claimRaidSpoils(raidId){
+  const L = Player && Player.raidLedger && Player.raidLedger[raidId];
+  if(!L || L.claimed || L.dmg <= 0) return;
+  L.claimed = true;
+  const share = Math.min(1, L.dmg / (L.maxHp * 0.02)); // 2% of the boss = full share
+  const mult = 0.3 + 0.7 * share;
+  const xp = Math.floor(L.xp * mult);
+  const gold = Math.floor((L.gold[0] + L.gold[1]) / 2 * mult);
+  const tier = share >= 0.5 ? 3 : 2;
+  const pool = Object.keys(ITEMS).filter(n => ITEMS[n].type !== 'potion' && ITEMS[n].tier === tier && ITEMS[n].cost > 0);
+  const drops = [];
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  if(pick && Player.inventory.length < BAG_SIZE){ Player.inventory.push(pick); drops.push(pick); }
+  Player.xp += xp; Player.gold += gold;
+  addLog(`⚔ RAID SPOILS · ${L.name}: you dealt ${fmt(L.dmg)} damage · +${fmt(xp)} XP, +${gold} gold${drops.length ? ' · ' + drops[0] : ''}`, 'lb');
+  showToast('RAID SPOILS', `${L.name} has fallen · ${fmt(L.dmg)} of its blood was yours`);
+  if(!inCombat) showLoot(xp, gold, drops);
+  huntLevelCheck(); setPUI(); saveGame();
+}
+
+// Settle raids that ended while the hunter was away.
+async function netSettleRaidLedger(){
+  const open = Object.entries((Player && Player.raidLedger) || {}).filter(([id, L]) => !L.claimed && (!RAID || RAID.raidId !== id));
+  if(!open.length) return;
+  const rows = await netRequest(`/rest/v1/raid_bosses?select=id,defeated_at,hp,ends_at&id=in.(${open.map(([id]) => id).join(',')})`);
+  for(const row of rows){
+    const L = Player.raidLedger[row.id];
+    if(row.defeated_at || Number(row.hp) <= 0) claimRaidSpoils(row.id);
+    else if(new Date(row.ends_at).getTime() <= Date.now()){
+      L.claimed = true;
+      addLog(`${L.name} escaped back into the dark. No spoils this time.`, 'ls');
+      saveGame();
+    }
+  }
+}
+
 async function netPollRaid(){
   const now = encodeURIComponent(new Date().toISOString());
   const w = encodeURIComponent(selectedWorld);
@@ -6553,6 +6619,7 @@ async function netPollRaid(){
       const next = await netRequest(`/rest/v1/raid_teasers?select=id,name,emoji,spawn_at,clues&world=eq.${w}&order=spawn_at.asc&limit=1`);
       raidUpcoming = next[0] || null;
     }
+    await netSettleRaidLedger();
   } catch(e){ /* offline — keep the last known state */ }
   renderRaidUI();
 }
@@ -6610,6 +6677,7 @@ function endRaid(row){
     }
   } else if(killed && Player){
     addLog(`☠ ${r.name} has fallen at ${r.landmark}. The city exhales.`, 'lb');
+    claimRaidSpoils(r.raidId);
   }
   r.defeated = true;
   if(BOSSES) BOSSES = BOSSES.filter(b => b !== r);
@@ -6640,6 +6708,12 @@ async function raidFlush(){
       const res = await netAuthed('/rest/v1/rpc/raid_hit', {
         method:'POST', body:{ p_boss: r.raidId, p_damage: pending, p_name: Player ? Player.name : null },
       });
+      if(Player && res.applied > 0){
+        Player.raidLedger = Player.raidLedger || {};
+        const L = Player.raidLedger[r.raidId] = Player.raidLedger[r.raidId] ||
+          { dmg:0, name:r.name, xp:r.xp, gold:r.gold, maxHp:r.maxHp, endsAt:r.endsAt, claimed:false };
+        L.dmg += res.applied;
+      }
       if(RAID !== r) return;
       if(res.killed){ r._dead = true; r._killingBlow = !!res.killing_blow; }
       raidReconcile(Number(res.hp), pending);

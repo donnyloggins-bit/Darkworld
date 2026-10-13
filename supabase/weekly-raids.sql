@@ -23,7 +23,7 @@ create table if not exists public.raid_rotation (
   color      text not null default '#d4a020',
   lat        double precision not null,
   lng        double precision not null,
-  max_hp     bigint not null default 500000,
+  max_hp     bigint not null default 100000,  -- floor; scaled up by active hunters
   atk        int not null default 450,
   def        int not null default 100,
   clues      text[] not null default '{}',
@@ -90,6 +90,8 @@ declare
   r      public.raid_rotation;
   nxt    timestamptz;
   new_id uuid;
+  active int;
+  hp     bigint;
 begin
   nxt := (date_trunc('week', now() at time zone 'America/New_York') + interval '4 days 19 hours') at time zone 'America/New_York';
   if nxt <= now() then
@@ -102,10 +104,14 @@ begin
   select * into r from public.raid_rotation order by last_used nulls first, sort limit 1 for update;
   if not found then return null; end if;
 
+  -- Size the boss to the crowd: 40K HP per hunter active in the last week, never below the floor.
+  select count(*) into active from public.hunter_presence where seen_at > now() - interval '7 days';
+  hp := greatest(r.max_hp, active::bigint * 40000);
+
   insert into public.raid_bosses (world, name, landmark, lore, emoji, portrait, type, color,
                                   lat, lng, max_hp, hp, atk, def, spawn_at, ends_at, clues)
   values (r.world, r.name, r.landmark, r.lore, r.emoji, r.portrait, r.type, r.color,
-          r.lat, r.lng, r.max_hp, r.max_hp, r.atk, r.def, nxt, nxt + interval '52 hours', r.clues)
+          r.lat, r.lng, hp, hp, r.atk, r.def, nxt, nxt + interval '52 hours', r.clues)
   returning id into new_id;
 
   update public.raid_rotation set last_used = now() where key = r.key;

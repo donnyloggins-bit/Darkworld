@@ -56,7 +56,9 @@ That's it. Every Monday at 9 AM Eastern the server picks the next boss in the ro
 
 **All week is the clue hunt.** The map shows **☠ SOON** with a countdown, but *not* where the boss will rise. Lighting shrines sometimes reveals a **fragment** (a riddle about the location). Each hunter finds different fragments at different shrines, so people have to walk and compare notes to work it out. The location goes public the moment the raid rises.
 
-To change a boss's clues, HP or location, edit it in **Table Editor → raid_rotation**.
+Boss HP sizes itself to your crowd: **40,000 HP per hunter who was active that week**, with a minimum of 100,000 (the `max_hp` column in `raid_rotation`). Everyone who deals damage gets **raid spoils** sized to their share when it falls, even if they had already left.
+
+To change a boss's clues, HP floor or location, edit it in **Table Editor → raid_rotation**.
 
 ## 6. Start a one-off raid (optional)
 
