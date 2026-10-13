@@ -1753,6 +1753,16 @@ body:not(.net-on) .net-only { display:none !important; }
 .me-bar > div { height:100%; transition:width .4s ease; }
 .me-bar.xp { height:3px; }
 .me-bar.xp > div { background:linear-gradient(90deg,#3a2a70,#8a6ad0); }
+
+.hunt-tab { font-size:.74rem; letter-spacing:.06em; }
+.city-sub { font-size:.95rem; color:#8a7aa0; font-style:italic; margin-bottom:8px; }
+.city-head { font-family:'Metal Mania',cursive; color:var(--gold); letter-spacing:.12em; margin:12px 0 6px; }
+.city-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+.city-cell { border:1px solid #2a2040; background:#0d0a18; padding:6px 8px; opacity:.55; min-width:0; }
+.city-cell.got { opacity:1; border-color:#6a2a2a; border-left:2px solid var(--crimson); }
+.city-name { font-size:.9rem; color:var(--bone); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.city-epi { font-size:.78rem; color:#8a7aa0; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.city-cell.got .city-epi { color:#c08080; }
 </style>
 </head>
 <body>
@@ -2164,6 +2174,7 @@ body:not(.net-on) .net-only { display:none !important; }
     <div class="hunt-tabs">
       <button class="hunt-tab" data-tab="bounties" onclick="setHuntTab('bounties')">📜 BOUNTIES</button>
       <button class="hunt-tab" data-tab="bestiary" onclick="setHuntTab('bestiary')">📖 BESTIARY</button>
+      <button class="hunt-tab" data-tab="city" onclick="setHuntTab('city')">🗺 CITY</button>
       <button class="hunt-tab net-only" data-tab="board" onclick="setHuntTab('board')">🏆 RANKS</button>
     </div>
     <div id="hunt-content"></div>
@@ -2366,12 +2377,12 @@ const WORLDS = {
     ],
     bosses: [
       {name:'MALECHAR THE LICH-KING',  landmark:'Rittenhouse Square',       emoji:'💀', lat:39.9492,lng:-75.1719, hp:31250,atk:563,def:100,xp:5000,gold:[1000,2000], type:'WORLD BOSS · UNDEAD',      zone:0,isWorld:true, color:'#b8962a', uniqueDrop:'Crown of Malechar', portrait:'0_0.jpeg'},
-      {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9578,lng:-75.1733, hp:8500, atk:400,def:63, xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart", portrait:'jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.png'},
+      {name:'THE CATHEDRAL DEMON',     landmark:'Cathedral Basilica',        emoji:'😈', lat:39.9575,lng:-75.1690, hp:8500, atk:400,def:63, xp:2500,gold:[500,1000],  type:'ZONE BOSS · DEMON',        zone:0, color:'#cc2200',          uniqueDrop:"Demon's Heart", portrait:'jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.png'},
       {name:'THE IRON GHOST',          landmark:'City Hall',                 emoji:'🏛', lat:39.9526,lng:-75.1652, hp:6500, atk:350,def:88, xp:2200,gold:[400,900],   type:'ZONE BOSS · CONSTRUCT',    zone:1, color:'#aa5500',          uniqueDrop:'Soul of the Iron Ghost', portrait:'iron ghost.png'},
       {name:'VEXARA, PLAGUE MOTHER',   landmark:'Eastern State Penitentiary',emoji:'🕸', lat:39.9683,lng:-75.1726, hp:6000, atk:325,def:50, xp:2800,gold:[550,1100],  type:'ZONE BOSS · UNDEAD',       zone:1, color:'#665500',          uniqueDrop:'Plague Sigil', portrait:'plague mother.png'},
-      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9480,lng:-75.1357, hp:4250, atk:275,def:44, xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil", portrait:'storm-wraith.png'},
-      {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:39.9800,lng:-75.1900, hp:3750, atk:250,def:63, xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger", portrait:'GRAVEMASTER.png'},
-      {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9524,lng:-75.1333, hp:3250, atk:225,def:88, xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle", portrait:'BRIDGE TROLL.png'},
+      {name:'THE RIVER WRAITH',        landmark:'Delaware Waterfront',       emoji:'🌊', lat:39.9462,lng:-75.1410, hp:4250, atk:275,def:44, xp:1800,gold:[300,700],   type:'ZONE BOSS · SPECTER',      zone:2, color:'#115566',          uniqueDrop:"Wraith's Veil", portrait:'storm-wraith.png'},
+      {name:'GRAVEMASTER CRANE',       landmark:'Laurel Hill Cemetery',      emoji:'⚰', lat:40.0040,lng:-75.1884, hp:3750, atk:250,def:63, xp:1600,gold:[250,600],   type:'ZONE BOSS · NECROMANCER',  zone:3, color:'#334422',          uniqueDrop:"Death's Ledger", portrait:'GRAVEMASTER.png'},
+      {name:'THE BRIDGE TROLL',        landmark:'Ben Franklin Bridge',       emoji:'🌉', lat:39.9532,lng:-75.1394, hp:3250, atk:225,def:88, xp:1400,gold:[200,500],   type:'ZONE BOSS · GIANT',        zone:3, color:'#223344',          uniqueDrop:"Troll's Knuckle", portrait:'BRIDGE TROLL.png'},
     ],
   },
   ephrata: {
@@ -2466,7 +2477,7 @@ const NPCS = [
     id: 'chef_alonzo',
     name: 'Chef Alonzo',
     title: 'Head Chef · The Iron Meridian',
-    lat: 39.9476, lng: -75.1370,
+    lat: 39.9452, lng: -75.1411,
     portrait: 'chef-alonzo.png',
     color: '#d4a830',
     world: 'philadelphia',
@@ -2504,7 +2515,7 @@ const DUNGEONS = [
     id: 'iron_meridian',
     name: 'THE IRON MERIDIAN',
     subtitle: 'Haunted Warship · Dinner Cruise',
-    lat: 39.9465, lng: -75.1374,
+    lat: 39.9440, lng: -75.1408,
     color: '#2255cc',
     world: 'philadelphia',
     locked: true,
@@ -2570,7 +2581,7 @@ const QUESTS = [
     color: '#44bb55',
     world: 'philadelphia',
     npcId: null,
-    lat: 39.9731, lng: -75.1261,
+    lat: 39.9666, lng: -75.1287,
     stages: [
       { desc: 'Defeat The River Wraith at the Delaware Waterfront',  type: 'boss', bossName: 'THE RIVER WRAITH' },
       { desc: 'Defeat The Bridge Troll at Ben Franklin Bridge',      type: 'boss', bossName: 'THE BRIDGE TROLL' },
@@ -2687,7 +2698,7 @@ const QUESTS = [
     color: '#334422',
     world: 'philadelphia',
     npcId: null,
-    lat: 39.9800, lng: -75.1900,
+    lat: 40.0040, lng: -75.1884,
     stages: [
       { desc: 'Clear the cemetery of Grave Stalkers', detail: '0/3 Grave Stalkers', type: 'kill', mob: 'Grave Stalker', count: 3 },
       { desc: 'Defeat Gravemaster Crane before he raises them again', type: 'boss', bossName: 'GRAVEMASTER CRANE' },
@@ -3687,7 +3698,11 @@ function buildLivingMob(id, lat, lng, rng, expiresAt, eliteChance = ELITE_CHANCE
     for(let z=0; z<WILDS_ZONE_WEIGHTS.length; z++){ acc += WILDS_ZONE_WEIGHTS[z]; if(tierRoll < acc){ zone = z; break; } }
   }
   const pool = MOB_TYPES.filter(m => m.zone === zone && !m.questOnly);
-  const t = pool[Math.floor(pickRoll * pool.length)];
+  // Philadelphia districts favor their own monsters: drowned things by the rivers, grave things by the cemeteries
+  const district = districtAt(lat, lng);
+  const fav = district ? pool.filter(m => DISTRICT_BIOMES[district.biome].includes(m.name)) : [];
+  const weighted = pool.concat(fav, fav, fav);
+  const t = weighted[Math.floor(pickRoll * weighted.length)];
   const elite = eliteRoll < eliteChance;
   const L = (Player && Player.level) || 1;
   const gap = Math.max(0, L - 2 - ZONE_NOMINAL_LEVEL[zone]);
@@ -3722,9 +3737,11 @@ function refreshLiving(force){
 
       const srng = seededRng(hashStr('shrine|' + cell));
       if(srng() < SHRINE_CHANCE){
-        shrines.push({ id:'S' + cell,
-          lat:(cy + 0.15 + srng()*0.7) * CELL_LAT, lng:(cx + 0.15 + srng()*0.7) * CELL_LNG,
-          name:`${SHRINE_WORDS_A[Math.floor(srng()*SHRINE_WORDS_A.length)]} ${SHRINE_WORDS_B[Math.floor(srng()*SHRINE_WORDS_B.length)]}` });
+        const slat = (cy + 0.15 + srng()*0.7) * CELL_LAT, slng = (cx + 0.15 + srng()*0.7) * CELL_LNG;
+        const sname = `${SHRINE_WORDS_A[Math.floor(srng()*SHRINE_WORDS_A.length)]} ${SHRINE_WORDS_B[Math.floor(srng()*SHRINE_WORDS_B.length)]}`;
+        // real Philadelphia landmarks take precedence over a nearby generic shrine
+        if(selectedWorld !== 'philadelphia' || !PHILLY_LANDMARKS.some(l => distMiles(slat, slng, l.lat, l.lng) < 0.06))
+          shrines.push({ id:'S' + cell, lat:slat, lng:slng, name:sname });
       }
 
       const offset = hashStr('win|' + cell) % SPAWN_WINDOW_MS;
@@ -3742,6 +3759,13 @@ function refreshLiving(force){
       }
     }
   }
+  // Landmark shrines at real Philadelphia places
+  if(selectedWorld === 'philadelphia'){
+    for(const lm of PHILLY_LANDMARKS){
+      if(distMiles(Player.lat, Player.lng, lm.lat, lm.lng) < 0.8) shrines.push({...lm, id:'P:' + lm.real, landmark:true});
+    }
+  }
+
   // Grave Incense: a personal wave in the 3×3 cells around the hunter every 5 minutes
   if((Player.incenseUntil || 0) > now){
     const IW = 5*60*1000, iwin = Math.floor(now / IW);
@@ -3774,7 +3798,7 @@ function drawShrines(){
     const p = ll2px(sh.lat, sh.lng);
     if(p.x < -40 || p.x > mapW+40 || p.y < -40 || p.y > mapH+40) continue;
     const spent = (livingState.shrines[sh.id] || 0) > now;
-    const r = Math.max(9, 11*zoom);
+    const r = Math.max(9, 11*zoom) * (sh.landmark ? 1.45 : 1);
     if(!spent){
       ctx.globalAlpha = 0.22 + 0.1*Math.sin(t + p.x);
       ctx.fillStyle = '#d4a020';
@@ -3784,12 +3808,27 @@ function drawShrines(){
     ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
     ctx.fillStyle = spent ? '#0c0a10' : '#1a1206'; ctx.fill();
     ctx.strokeStyle = spent ? '#3a3040' : '#d4a020'; ctx.lineWidth = 2; ctx.stroke();
+    if(sh.landmark){
+      ctx.beginPath(); ctx.arc(p.x, p.y, r*1.3, 0, Math.PI*2);
+      ctx.strokeStyle = spent ? 'rgba(80,60,90,0.5)' : 'rgba(204,32,32,0.8)'; ctx.lineWidth = 2; ctx.stroke();
+    }
     ctx.globalAlpha = spent ? 0.35 : 1;
     ctx.font = `${Math.floor(Math.max(11, 11*zoom))}px serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('🕯', p.x, p.y);
+    ctx.fillStyle = spent ? '#6a5a70' : '#e8b840'; // used if the glyph falls back to text style
+    ctx.fillText(sh.landmark ? '🏛\uFE0F' : '🕯\uFE0F', p.x, p.y); // VS16 forces emoji presentation
     ctx.globalAlpha = 1;
-    if(zoom > 1.2){
+    if(sh.landmark && zoom > 0.7){
+      ctx.font = `bold ${Math.max(8, Math.min(12, 8*zoom))}px "Share Tech Mono"`;
+      ctx.fillStyle = spent ? 'rgba(120,100,140,0.7)' : 'rgba(230,180,60,0.95)';
+      ctx.textBaseline = 'top';
+      ctx.fillText(sh.name, p.x, p.y + r*1.3 + 3);
+      if(zoom > 1.6){
+        ctx.font = `italic ${Math.max(7, Math.min(10, 6*zoom))}px "IM Fell English"`;
+        ctx.fillStyle = 'rgba(200,170,170,0.7)';
+        ctx.fillText(sh.real, p.x, p.y + r*1.3 + 5 + Math.max(8, Math.min(12, 8*zoom)));
+      }
+    } else if(zoom > 1.2){
       ctx.font = `${Math.max(7, 7*zoom)}px "Share Tech Mono"`;
       ctx.fillStyle = spent ? 'rgba(120,100,140,0.6)' : 'rgba(212,160,32,0.85)';
       ctx.textBaseline = 'top';
@@ -3801,7 +3840,7 @@ function drawShrines(){
 // During a raid's clue hunt, shrines whisper fragments. Each shrine always gives the same
 // hunter the same fragment, so finding more means walking to new shrines (and trading notes).
 function shrineClue(sh){
-  if(typeof raidUpcoming === 'undefined' || !raidUpcoming || !(raidUpcoming.clues || []).length || Math.random() > 0.35) return;
+  if(typeof raidUpcoming === 'undefined' || !raidUpcoming || !(raidUpcoming.clues || []).length || Math.random() > (sh.landmark ? 0.6 : 0.35)) return;
   const clues = raidUpcoming.clues;
   const idx = hashStr(`${Player.name}|${sh.id}|${raidUpcoming.id}`) % clues.length;
   Player.clues = Player.clues || {};
@@ -3823,14 +3862,23 @@ function spinShrine(sh){
   livingState.shrines[sh.id] = now + SHRINE_COOLDOWN_MS;
   saveLiving();
   const L = Player.level || 1;
-  const gold = ri(15, 40) * (1 + Math.floor(L/3));
-  const xp = Math.floor(xpForLevel(L) * 0.04) + 10;
+  const lmMult = sh.landmark ? 2 : 1;
+  const gold = ri(15, 40) * (1 + Math.floor(L/3)) * lmMult;
+  const xp = (Math.floor(xpForLevel(L) * 0.04) + 10) * lmMult;
+  if(sh.landmark){
+    Player.landmarks = Player.landmarks || {};
+    if(!Player.landmarks[sh.real]){
+      Player.landmarks[sh.real] = Date.now();
+      setTimeout(() => showToast(`🏛 ${sh.name.toUpperCase()}`, `${sh.real} · landmark ${Object.keys(Player.landmarks).length} of ${PHILLY_LANDMARKS.length}`), 600);
+    }
+    addLog(`🏛 ${sh.name} (${sh.real}): ${sh.lore}`, 'ls');
+  }
   const drops = [];
   const r = Math.random();
   if(r < 0.45) drops.push('Minor Heal');
   else if(r < 0.60) drops.push(L >= 5 ? 'Major Heal' : 'Minor Heal');
   else if(r < 0.72) drops.push('Elixir');
-  if(Math.random() < 0.05){
+  if(Math.random() < (sh.landmark ? 0.15 : 0.05)){
     const maxTier = L < 5 ? 1 : L < 12 ? 2 : 3;
     const pool = Object.keys(ITEMS).filter(n => ITEMS[n].type !== 'potion' && ITEMS[n].tier <= maxTier && ITEMS[n].tier < 4 && ITEMS[n].cost > 0);
     if(pool.length) drops.push(pool[Math.floor(Math.random()*pool.length)]);
@@ -4166,6 +4214,165 @@ function drawDungeons(){
 }
 
 // ══════════════════════════════════════════════════════
+//  PHILADELPHIA — real districts and landmark shrines
+//  Coordinates are approximate neighborhood centers / building
+//  entrances. Edit freely: districts are matched by nearest center.
+// ══════════════════════════════════════════════════════
+// biome → species this district favors (still drawn from the danger ring's pool)
+const DISTRICT_BIOMES = {
+  river:      ['Bog Specter','Rot Golem','Wailing Banshee','Blood Wraith'],
+  grave:      ['Grave Stalker','Lich Servant','Bone Archer','Lost Soul','Hollow Knight'],
+  industrial: ['Rot Golem','Cursed Rat','Plague Hound','Void Shade'],
+  colonial:   ['Hollow Knight','Wailing Banshee','Lost Soul','Lich Servant','Bone Archer'],
+  streets:    ['Cursed Rat','Shadow Imp','Plague Hound','Blood Wraith','Void Shade'],
+};
+const PHILLY_DISTRICTS = [
+  // Center City
+  {name:'Rittenhouse',          epithet:"The Lich's Garden",       lat:39.9490, lng:-75.1720, biome:'grave'},
+  {name:'Logan Square',         epithet:'The Drowned Fountain',    lat:39.9575, lng:-75.1700, biome:'colonial'},
+  {name:'Fitler Square',        epithet:'The Quiet Rows',          lat:39.9470, lng:-75.1800, biome:'streets'},
+  {name:'Graduate Hospital',    epithet:'The Old Wards',           lat:39.9420, lng:-75.1760, biome:'grave'},
+  {name:'Washington Square West', epithet:'The Potter\'s Field',   lat:39.9460, lng:-75.1600, biome:'grave'},
+  {name:'Chinatown',            epithet:'The Lantern Gate',        lat:39.9550, lng:-75.1550, biome:'streets'},
+  {name:'Callowhill',           epithet:'The Hanging Rail',        lat:39.9600, lng:-75.1560, biome:'industrial'},
+  {name:'Old City',             epithet:'The First Graves',        lat:39.9520, lng:-75.1440, biome:'colonial'},
+  {name:'Society Hill',         epithet:'Lantern Row',             lat:39.9440, lng:-75.1470, biome:'colonial'},
+  // South Philly
+  {name:'Queen Village',        epithet:'The Swedes\' Barrows',    lat:39.9380, lng:-75.1500, biome:'river'},
+  {name:'Bella Vista',          epithet:'The Butcher\'s Market',   lat:39.9390, lng:-75.1600, biome:'streets'},
+  {name:'Pennsport',            epithet:'The Mummers\' Wake',      lat:39.9300, lng:-75.1460, biome:'river'},
+  {name:'Passyunk Square',      epithet:'The Grease Fires',        lat:39.9320, lng:-75.1630, biome:'streets'},
+  {name:'East Passyunk',        epithet:'The Avenue of Masks',     lat:39.9270, lng:-75.1650, biome:'streets'},
+  {name:'Point Breeze',         epithet:'The Hollow Blocks',       lat:39.9330, lng:-75.1800, biome:'streets'},
+  {name:'Grays Ferry',          epithet:'The Oil Banks',           lat:39.9390, lng:-75.1930, biome:'industrial'},
+  {name:'Girard Estate',        epithet:'The Orphan\'s Inheritance', lat:39.9210, lng:-75.1800, biome:'colonial'},
+  {name:'Whitman',              epithet:'The Long Docks',          lat:39.9180, lng:-75.1550, biome:'river'},
+  {name:'Sports Complex',       epithet:'The Arena of Ten Thousand Screams', lat:39.9050, lng:-75.1720, biome:'streets'},
+  // River wards + North
+  {name:'Northern Liberties',   epithet:'The Brewers\' Crypts',    lat:39.9640, lng:-75.1430, biome:'industrial'},
+  {name:'Fishtown',             epithet:'The Ash Wharves',         lat:39.9710, lng:-75.1330, biome:'river'},
+  {name:'Olde Kensington',      epithet:'The Kiln Streets',        lat:39.9750, lng:-75.1410, biome:'industrial'},
+  {name:'Kensington',           epithet:'The Rusting Mile',        lat:39.9880, lng:-75.1290, biome:'industrial'},
+  {name:'Port Richmond',        epithet:'The Coal Piers',          lat:39.9840, lng:-75.1110, biome:'river'},
+  {name:'Fairhill',             epithet:'The Quaker Bones',        lat:39.9940, lng:-75.1400, biome:'grave'},
+  {name:'Poplar',               epithet:'The Bent Spires',         lat:39.9700, lng:-75.1520, biome:'streets'},
+  {name:'Francisville',         epithet:'The Narrow Dead',         lat:39.9690, lng:-75.1620, biome:'streets'},
+  {name:'Spring Garden',        epithet:'Where Spring Never Comes',lat:39.9630, lng:-75.1640, biome:'colonial'},
+  {name:'Fairmount',            epithet:'The Prison Shadow',       lat:39.9680, lng:-75.1740, biome:'grave'},
+  {name:'Brewerytown',          epithet:'The Cold Vats',           lat:39.9780, lng:-75.1850, biome:'industrial'},
+  {name:'North Central',        epithet:'The Owl\'s Hollow',       lat:39.9810, lng:-75.1550, biome:'streets'},
+  {name:'Strawberry Mansion',   epithet:'The Empty Manor',         lat:39.9910, lng:-75.1860, biome:'colonial'},
+  {name:'Nicetown',             epithet:'The Iron Yards',          lat:40.0110, lng:-75.1590, biome:'industrial'},
+  {name:'Hunting Park',         epithet:'The Hunter\'s Ground',    lat:40.0170, lng:-75.1430, biome:'streets'},
+  {name:'Frankford',            epithet:'Beneath the El',          lat:40.0230, lng:-75.0830, biome:'industrial'},
+  // Northwest
+  {name:'East Falls',           epithet:'The Hill of Laurels',     lat:40.0090, lng:-75.1880, biome:'grave'},
+  {name:'Manayunk',             epithet:'The Canal Drowned',       lat:40.0260, lng:-75.2240, biome:'river'},
+  {name:'Roxborough',           epithet:'The High Ridge',          lat:40.0400, lng:-75.2200, biome:'colonial'},
+  {name:'Germantown',           epithet:'The Battlefield Houses',  lat:40.0350, lng:-75.1750, biome:'colonial'},
+  {name:'Mount Airy',           epithet:'The Wissahickon Edge',    lat:40.0560, lng:-75.1900, biome:'grave'},
+  {name:'Chestnut Hill',        epithet:'The Stone Parish',        lat:40.0760, lng:-75.2080, biome:'colonial'},
+  // West + Southwest
+  {name:'University City',      epithet:'The Mummy\'s Quarter',    lat:39.9520, lng:-75.1930, biome:'colonial'},
+  {name:'Powelton',             epithet:'The Rail Yards',          lat:39.9610, lng:-75.1920, biome:'industrial'},
+  {name:'Mantua',               epithet:'The Overgrowth',          lat:39.9660, lng:-75.1960, biome:'streets'},
+  {name:'Spruce Hill',          epithet:'The Woodlands Dead',      lat:39.9500, lng:-75.2100, biome:'grave'},
+  {name:'Cedar Park',           epithet:'The Trolley Graves',      lat:39.9480, lng:-75.2200, biome:'grave'},
+  {name:'Mill Creek',           epithet:'The Buried Creek',        lat:39.9630, lng:-75.2120, biome:'river'},
+  {name:'Cobbs Creek',          epithet:'The Creek of Bones',      lat:39.9480, lng:-75.2400, biome:'river'},
+  {name:'Wynnefield',           epithet:'The Seminary Shade',      lat:39.9960, lng:-75.2250, biome:'colonial'},
+  {name:'Overbrook',            epithet:'The Last Stop West',        lat:39.9850, lng:-75.2470, biome:'colonial'},
+  {name:'Kingsessing',          epithet:'Bartram\'s Thorns',       lat:39.9330, lng:-75.2180, biome:'river'},
+  {name:'Eastwick',             epithet:'The Marsh Below the Planes', lat:39.9050, lng:-75.2350, biome:'river'},
+  // Northeast
+  {name:'Mayfair',              epithet:'The Frozen Parade',       lat:40.0360, lng:-75.0530, biome:'streets'},
+  {name:'Fox Chase',            epithet:'The Hunt Before the Hunt',lat:40.0790, lng:-75.0830, biome:'grave'},
+];
+const DISTRICT_MAX_MI = 1.2;
+
+// Real places. They become Landmark Shrines: bigger offerings, louder whispers.
+const PHILLY_LANDMARKS = [
+  {name:'The Cracked Bell',            real:'Liberty Bell',                 lat:39.9496, lng:-75.1503, lore:'It cracked on its first ring. Some say something answered.'},
+  {name:'The Burial Ground of Franklin', real:'Christ Church Burial Ground',lat:39.9522, lng:-75.1470, lore:'Pennies on the grave for luck. The grave keeps count.'},
+  {name:'The Old Steeple',             real:'Christ Church',                lat:39.9508, lng:-75.1437, lore:'Seven signers sleep here. Not all of them soundly.'},
+  {name:'The Oldest Alley',            real:"Elfreth's Alley",              lat:39.9526, lng:-75.1424, lore:'Three hundred years of residents. Most never moved out.'},
+  {name:"The Seamstress's Door",       real:'Betsy Ross House',             lat:39.9523, lng:-75.1446, lore:'The needle still moves in the upstairs room.'},
+  {name:'The Unknown Soldier',         real:'Washington Square',            lat:39.9471, lng:-75.1525, lore:'A potter\'s field before it was a park. Thousands lie beneath the lawn.'},
+  {name:'The Carpenters\' Lodge',      real:"Carpenters' Hall",             lat:39.9483, lng:-75.1471, lore:'The first Congress met here. Something still holds session.'},
+  {name:"The Printer's Ghost",         real:'Franklin Court',               lat:39.9497, lng:-75.1465, lore:'Only a steel frame of his house remains. He walks the outline.'},
+  {name:'The Mother Church',           real:'Mother Bethel AME',            lat:39.9431, lng:-75.1528, lore:'The oldest ground of its kind in the nation. It has held back worse than this.'},
+  {name:"St. Peter's Yard",            real:"St. Peter's Church",           lat:39.9432, lng:-75.1460, lore:'Seven chiefs are buried in the churchyard. The yard is never quiet.'},
+  {name:'The Shambles',                real:'Head House Square',            lat:39.9415, lng:-75.1452, lore:'A market under a roof of old timber. The meat hooks still sway.'},
+  {name:"The Swedes' Church",          real:'Gloria Dei (Old Swedes\')',    lat:39.9341, lng:-75.1440, lore:'Older than the city. The river took its first congregation.'},
+  {name:'The Glass Labyrinth',         real:"Philadelphia's Magic Gardens", lat:39.9426, lng:-75.1593, lore:'A maze of mirrors and broken plates. Your reflection lags behind.'},
+  {name:"The Butcher's Row",           real:'Italian Market',               lat:39.9385, lng:-75.1578, lore:'Awnings over Ninth Street. The fires in the barrels never go out.'},
+  {name:'The Rival Grills',            real:"Pat's & Geno's",               lat:39.9335, lng:-75.1592, lore:'Two lights that never dim, glaring at each other across the street.'},
+  {name:'The Terminal Market',         real:'Reading Terminal Market',      lat:39.9533, lng:-75.1591, lore:'A train shed full of food. The last train never left.'},
+  {name:"The Founder's Statue",        real:'City Hall · William Penn',     lat:39.9524, lng:-75.1636, lore:'No building rose higher than his hat. Then one did, and the curse began.'},
+  {name:'The Plaza of Love',           real:'LOVE Park',                    lat:39.9541, lng:-75.1653, lore:'Four letters, red as an open wound.'},
+  {name:'The Lodge of Seven Halls',    real:'Masonic Temple',               lat:39.9538, lng:-75.1630, lore:'Egyptian hall, Gothic hall, Norman hall. The doors between them move.'},
+  {name:'The Giant Pin',               real:'Clothespin',                   lat:39.9529, lng:-75.1645, lore:'Forty-five feet of steel, pinning something to the earth.'},
+  {name:'The Bronze Eagle',            real:"Wanamaker's Eagle",            lat:39.9516, lng:-75.1616, lore:'Meet me at the Eagle. The organ above it plays at night.'},
+  {name:'The Hall of Specimens',       real:'Mütter Museum',                lat:39.9532, lng:-75.1765, lore:'Skulls by the hundred, and a woman turned to soap. Some of the jars are new.'},
+  {name:'The Drowned Fountain',        real:'Swann Memorial Fountain',      lat:39.9581, lng:-75.1707, lore:'Built over the old gallows ground. The water runs warm.'},
+  {name:"The Lightning Hall",          real:'Franklin Institute',           lat:39.9582, lng:-75.1731, lore:'A giant marble Franklin waits in the rotunda. His eyes follow the lights.'},
+  {name:'The Bone Halls',              real:'Academy of Natural Sciences',  lat:39.9570, lng:-75.1713, lore:'The first dinosaur skeleton ever mounted stands here. It was not the last thing to stand back up.'},
+  {name:'The Gates of Hell',           real:'Rodin Museum',                 lat:39.9618, lng:-75.1740, lore:'Rodin cast the gates of Hell in bronze. In Philadelphia, they opened.'},
+  {name:'The Steps of the Champion',   real:'Philadelphia Museum of Art',   lat:39.9656, lng:-75.1809, lore:'Seventy-two steps. Run them at midnight and count seventy-three.'},
+  {name:'The Water Works',             real:'Fairmount Water Works',        lat:39.9659, lng:-75.1835, lore:'The city once drank from here. The Schuylkill remembers.'},
+  {name:'The Lit Boathouses',          real:'Boathouse Row',                lat:39.9693, lng:-75.1870, lore:'Outlined in light every night, so you can see what rows past.'},
+  {name:"The Raven's House",           real:'Edgar Allan Poe House',        lat:39.9619, lng:-75.1501, lore:'He wrote The Black Cat in this house. The cellar is exactly as described.'},
+  {name:'The Great Station',           real:'30th Street Station',          lat:39.9557, lng:-75.1820, lore:'An angel lifts a dead soldier in the concourse. Trains arrive with no one on them.'},
+  {name:'The Woodlands',               real:'The Woodlands Cemetery',       lat:39.9475, lng:-75.2050, lore:'A mansion in a sea of graves. The mansion is the quiet part.'},
+  {name:"The Mummy's Sphinx",          real:'Penn Museum',                  lat:39.9492, lng:-75.1914, lore:'A granite sphinx from Memphis guards the hall. The mummies sleep lightly.'},
+  {name:"The Four-Master",             real:'Moshulu · Penn\'s Landing',     lat:39.9419, lng:-75.1412, lore:'A steel sailing ship that never sails. Dinner is served below decks.'},
+  {name:'The Treaty Elm',              real:'Penn Treaty Park',             lat:39.9666, lng:-75.1287, lore:'A promise was made under an elm here. The elm fell. The promise did not.'},
+  {name:'The Painted Pier',            real:'Graffiti Pier',                lat:39.9759, lng:-75.1144, lore:'Every surface sprayed, layer on layer. Some of the faces were not painted.'},
+  {name:'The Mud Fort',                real:'Fort Mifflin',                 lat:39.8752, lng:-75.2130, lore:'The most haunted fort in America, they say. The screaming woman is the friendly one.'},
+  {name:"Bartram's Thorns",            real:"Bartram's Garden",             lat:39.9320, lng:-75.2125, lore:'The oldest botanic garden in the land. Some plants here were never catalogued.'},
+  {name:'The Floating House',          real:'Shofuso Japanese House',       lat:39.9818, lng:-75.2125, lore:'A house in a pond. The koi are older than they look.'},
+  {name:'The Lemon Hill Manor',        real:'Lemon Hill',                   lat:39.9714, lng:-75.1880, lore:'A merchant\'s summer house above the river. He never left for the season.'},
+  {name:'The Wild Menagerie',          real:'Philadelphia Zoo',             lat:39.9714, lng:-75.1956, lore:'America\'s first zoo. At night, the cages hold different animals.'},
+  {name:"The Naturalist's Vault",      real:'Wagner Free Institute',        lat:39.9808, lng:-75.1612, lore:'Victorian cases of bones and shells, untouched for a century. Mostly untouched.'},
+  {name:'The Battle House',            real:'Cliveden',                     lat:40.0475, lng:-75.1858, lore:'The British held this house against a whole army. The scorch marks are still on the walls.'},
+  {name:'The Valley Inn',              real:'Valley Green Inn',             lat:40.0554, lng:-75.2186, lore:'The last warm light before the Wissahickon gets dark.'},
+  {name:"The Devil's Pool",            real:"Devil's Pool · Wissahickon",   lat:40.0717, lng:-75.2213, lore:'The Lenape would not swim here. People still do. Not all climb out.'},
+  {name:'The Arena',                   real:'Lincoln Financial Field',      lat:39.9008, lng:-75.1675, lore:'Seventy thousand voices. Some of them are not cheering.'},
+];
+
+function districtAt(lat, lng){
+  if(selectedWorld !== 'philadelphia') return null;
+  let best = null, bestD = DISTRICT_MAX_MI;
+  for(const d of PHILLY_DISTRICTS){
+    const dist = distMiles(lat, lng, d.lat, d.lng);
+    if(dist < bestD){ bestD = dist; best = d; }
+  }
+  return best;
+}
+
+// First step into a district claims it — collect the whole city.
+let currentDistrict = null;
+function checkDistrict(){
+  if(!Player || !gpsFirstLock) return;
+  const d = districtAt(Player.lat, Player.lng);
+  if(!d || d === currentDistrict) { currentDistrict = d; return; }
+  currentDistrict = d;
+  Player.districts = Player.districts || {};
+  if(Player.districts[d.name]){
+    addLog(`🗺 ${d.name} · ${d.epithet}`, 'ls');
+    return;
+  }
+  Player.districts[d.name] = Date.now();
+  const L = Player.level || 1;
+  const gold = 50 * (1 + Math.floor(L / 3)), xp = Math.floor(xpForLevel(L) * 0.06) + 20;
+  Player.gold += gold; Player.xp += xp;
+  const n = Object.keys(Player.districts).length;
+  addLog(`🗺 DISTRICT CLAIMED: ${d.name} — ${d.epithet} · +${gold} gold, +${fmt(xp)} XP (${n}/${PHILLY_DISTRICTS.length})`, 'lb');
+  showToast(`${d.name.toUpperCase()}`, `${d.epithet} · district ${n} of ${PHILLY_DISTRICTS.length} claimed`);
+  huntLevelCheck(); setPUI(); saveGame();
+}
+
+// ══════════════════════════════════════════════════════
 //  THE HUNT — daily bounties, bestiary, walking
 //  Bounties are seeded by the date, so every hunter in the city
 //  chases the same three each day.
@@ -4343,6 +4550,20 @@ function renderHunt(){
   document.querySelectorAll('.hunt-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === huntTab));
   const el = document.getElementById('hunt-content');
   if(huntTab === 'board' && NET_ON){ renderBoard(el); return; }
+  if(huntTab === 'city'){
+    const ds = Player.districts || {}, ls = Player.landmarks || {};
+    const nd = PHILLY_DISTRICTS.filter(d => ds[d.name]).length, nl = PHILLY_LANDMARKS.filter(l => ls[l.real]).length;
+    el.innerHTML = `
+      <div class="hunt-meta"><span>🗺 ${nd} / ${PHILLY_DISTRICTS.length} DISTRICTS</span><span>🏛 ${nl} / ${PHILLY_LANDMARKS.length} LANDMARKS</span></div>
+      <div class="city-sub">Walk into a district to claim it. Light a landmark shrine to mark it.</div>
+      <div class="city-head">DISTRICTS</div>
+      <div class="city-grid">${PHILLY_DISTRICTS.map(d => `<div class="city-cell${ds[d.name] ? ' got' : ''}">
+        <div class="city-name">${d.name}</div><div class="city-epi">${ds[d.name] ? d.epithet : '· · ·'}</div></div>`).join('')}</div>
+      <div class="city-head">LANDMARKS</div>
+      <div class="city-grid">${PHILLY_LANDMARKS.map(l => `<div class="city-cell${ls[l.real] ? ' got' : ''}">
+        <div class="city-name">${ls[l.real] ? '🏛 ' + l.name : '🏛 ???'}</div><div class="city-epi">${l.real}</div></div>`).join('')}</div>`;
+    return;
+  }
   if(huntTab === 'bounties' || huntTab === 'board'){
     const {gold, xp} = bountyRewards();
     const allDone = d.bounties.every(b => b.done);
@@ -4590,7 +4811,7 @@ function handleClick(cx,cy){
   }
   for(const sh of shrines){
     const p=ll2px(sh.lat,sh.lng);
-    if(Math.hypot(cx-p.x,cy-p.y)<Math.max(11,11*zoom)){
+    if(Math.hypot(cx-p.x,cy-p.y)<Math.max(11,11*zoom)*(sh.landmark?1.6:1)){
       if(gpsFirstLock&&distMiles(Player.lat,Player.lng,sh.lat,sh.lng)>ENGAGE_MILES){
         addLog(`⚠ Walk closer to light ${sh.name}.`,'ls'); return;
       }
@@ -5182,7 +5403,12 @@ function updateZone(){
   document.getElementById('z-danger').textContent=`⚠ ${z.name.toUpperCase()} · ${z.danger}`;
   document.getElementById('z-danger').style.color=z.dc;
   document.getElementById('z-desc').textContent=ZONE_DESCS[i];
-  document.getElementById('coord-txt').textContent=`${z.name.toUpperCase()} — ${mi.toFixed(2)}mi FROM CENTER`;
+  const d=districtAt(Player.lat,Player.lng);
+  document.getElementById('coord-txt').textContent = d
+    ? `${d.name.toUpperCase()} · ${z.name.toUpperCase()}`
+    : `${z.name.toUpperCase()} — ${mi.toFixed(2)}mi FROM CENTER`;
+  if(d){ document.getElementById('z-name').textContent=`⬡ ${d.name.toUpperCase()}`; document.getElementById('z-desc').textContent=`${d.epithet}. ${ZONE_DESCS[i]}`; }
+  checkDistrict();
 }
 
 // ══════════════════════════════════════════════════════
@@ -5235,6 +5461,7 @@ function startGPS(){
       if(!gpsFirstLock){
         gpsFirstLock=true;
         Player.lat=lat; Player.lng=lng; // snap exactly on first lock
+        updateZone();
         genSpawns();
         centerOnPlayer();
         addLog('⬤ GPS locked. Darkness finds you wherever you roam.','lb');
@@ -6203,6 +6430,8 @@ function saveGame(){
       ripostes: Player.ripostes || 0,
       clues: Player.clues || {},
       raidLedger: Player.raidLedger || {},
+      districts: Player.districts || {},
+      landmarks: Player.landmarks || {},
       incenseUntil: Player.incenseUntil || 0,
     },
     bossStates: BOSSES.filter(b => !b.isRaid).map(b => b.defeated || false),
@@ -7137,7 +7366,7 @@ function spawnQuestMobs(q){
   }
 
   if(q.id === 'last_seating'){
-    const shipLat=39.9465, shipLng=-75.1374;
+    const shipLat=39.9440, shipLng=-75.1408;
     spawnNear('Drowned Sailor', 4, shipLat, shipLng);
     const officer = MOB_TYPES.find(m=>m.name==='Iron Officer');
     if(officer) spawns.push({...officer,
@@ -7146,7 +7375,7 @@ function spawnQuestMobs(q){
       id:spawns.length, defeated:false, statuses:[], questMob:true, isMini:true});
   }
   else if(q.id === 'graverobbers'){
-    spawnNear('Grave Stalker', 5, 39.9800, -75.1900);
+    spawnNear('Grave Stalker', 5, 40.0040, -75.1884);
   }
   else if(q.id === 'plague_ward'){
     spawnNear('Plague Hound', 6, 39.9683, -75.1726);
