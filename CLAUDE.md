@@ -4,14 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Darkworld is a location-based AR RPG set in real Philadelphia-area geography (Philadelphia, Ephrata, Lansdowne). It is a **single-file vanilla JavaScript PWA** — the entire game lives in `index.html` (~5,800 lines). There is no build system, no package manager, no framework, and no backend. Deployment is via Netlify as a static site.
+Darkworld is a location-based AR RPG set in real Philadelphia-area geography (Philadelphia, Ephrata, Lansdowne). It is a **single-file vanilla JavaScript PWA** — the entire game lives in `index.html` (~5,800 lines). There is no package manager and no framework. An optional Supabase backend (accounts, cloud save, live raids) is reached with plain `fetch` + one WebSocket — no SDK. Deployment is via Netlify as a static site.
 
 ## Development Workflow
 
-There is no build, compile, or lint step. Development is:
+There is no compile or lint step. The only build step is `netlify-build.sh`, which writes `config.js` (Supabase URL + anon key) from Netlify env vars. Development is:
 1. Edit `index.html` directly.
-2. Open in a browser (or serve locally with any static file server, e.g. `python3 -m http.server`).
-3. Test on mobile or with browser DevTools device emulation in portrait mode — the game enforces portrait orientation.
+2. For online features locally, copy `config.example.js` to `config.js` (gitignored) and fill it in. Without `config.js` the game runs fully offline.
+3. Open in a browser (or serve locally with any static file server, e.g. `python3 -m http.server`).
+4. Test on mobile or with browser DevTools device emulation in portrait mode — the game enforces portrait orientation.
 
 There are no automated tests.
 
@@ -42,7 +43,7 @@ Key scalar constants: `ENGAGE_MILES = 0.1`, `BOSS_ENGAGE_MILES = 0.05`, `SAVE_KE
 ## Major Game Systems
 
 ### Save / Load
-All persistence is `localStorage` under `SAVE_KEY`. `buildPlayer()` creates a fresh player object; the save system serializes/deserializes the entire player state including inventory, quest progress, skill choices, and position history.
+The source of truth on-device is `localStorage` under `SAVE_KEY`; when signed in, `saveGame()` also queues a debounced cloud push (see Online below). `buildPlayer()` creates a fresh player object; the save system serializes/deserializes the entire player state including inventory, quest progress, skill choices, and position history.
 
 ### GPS & Geolocation
 `distMiles(lat1, lng1, lat2, lng2)` uses the Haversine formula. `bearing()` returns compass heading in degrees. A smoothing filter reduces GPS jitter. When GPS is not locked, the system falls back to a 2-mile detection radius centered on the world center coordinates. Geolocation requires HTTPS (Netlify provides this).
@@ -62,11 +63,20 @@ Procedural only — Web Audio API synthesizes all sounds (sine/triangle/sawtooth
 ### Screen Navigation
 Screens are `<div>` containers toggled visible/hidden. The flow is: Title → Character Creation (class select → stat roll → name entry) → World Map → AR View. Inventory, shop, skills, and quest log are overlay panels on top of the map.
 
+### Online (Supabase)
+The `ONLINE` section of `index.html` (after the save system) holds everything server-side. Schema, RLS and the `raid_hit()` function live in `supabase/schema.sql`; `supabase/start-raid.sql` starts a raid. Setup steps for humans are in `SUPABASE-SETUP.md`.
+- **Gate**: `NET_ON` is false when `window.DW_CONFIG` is missing — every online entry point must no-op in that case.
+- **Auth**: email + password via the GoTrue REST endpoints; session in `localStorage` under `darkworld_session_v1`, refreshed by `netAccessToken()`.
+- **Cloud save**: `characters` table, one row per account, full save blob in `data`. Newest `savedAt` wins; local saves carry an `owner` uid. Mid-game, a newer cloud hunter is never swapped in silently (`netCloudConflict`).
+- **Raids**: the live raid row becomes `RAID`, appended to `BOSSES` with `isRaid:true` (excluded from `bossStates`). Local hits lower `RAID.hp`; `raidFlush()` sends the difference to `raid_hit()` every 1.5s. `_srv`/`_inflight` reconcile server HP with unsent damage. `victory()` defers to the server for raid kills. HP changes arrive over Supabase Realtime (raw Phoenix WebSocket) with a 20s poll as fallback.
+- **Trust**: the client is untrusted. Never add RLS policies that let players write `raid_bosses` or `raid_damage` directly; damage goes through `raid_hit()`, which clamps it.
+
 ## Conventions & Constraints
 
 - **Portrait-only**: A landscape warning modal blocks play. Don't break this.
-- **No external JS dependencies**: Keep it that way — no npm, no CDN scripts beyond Google Fonts.
+- **No external JS dependencies**: Keep it that way — no npm, no CDN scripts beyond Google Fonts. Talk to Supabase with `netRequest()`/`netAuthed()`, not the SDK.
+- **Secrets**: never commit `config.js` or `.env`. The anon key is injected at deploy time; the service-role key never goes anywhere near the client.
 - **Image assets**: Boss/NPC/mob portraits are PNG/JPEG files in the repo root, referenced by filename string in data constants. When adding new art, add the file to the root and reference it in the appropriate data constant.
 - **CSS custom properties**: Colors are defined as CSS vars at the top of the `<style>` block (`--void`, `--abyss`, `--blood`, `--gold`, etc.). Use these rather than hardcoding hex values.
-- **Service workers**: `sw.js` is the active service worker (network-first for navigation, cache-first for fonts). `service-worker.js` is a legacy file. The cache name is `darkworld-v1` — bump this string when making breaking asset changes that need cache invalidation.
+- **Service workers**: `sw.js` is the active service worker (network-first for navigation and `config.js`, cache-first for fonts; Supabase requests bypass it). `service-worker.js` is a legacy file. The cache name is `darkworld-v3` — bump this string when making breaking asset changes that need cache invalidation.
 - **Coordinates**: World zones use real geographic coordinates. Philadelphia center: `(39.9492, -75.1719)`. Ephrata: `(40.1793, -76.1794)`. Lansdowne: `(39.9403, -75.2726)`.

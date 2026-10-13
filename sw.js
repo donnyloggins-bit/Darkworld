@@ -1,4 +1,4 @@
-const CACHE = 'darkworld-v2';
+const CACHE = 'darkworld-v3';
 
 const CORE = [
   '/',
@@ -100,6 +100,22 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = e.request.url;
+
+  // Supabase (auth, saves, live raid) — never cache, always live
+  if (url.includes('.supabase.co') || e.request.method !== 'GET') return;
+
+  // Runtime config — network-first so key changes take effect, cached copy offline
+  if (new URL(url).pathname === '/config.js') {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          if (res.ok) { const clone = res.clone(); caches.open(CACHE).then(c => c.put(e.request, clone)); }
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
 
   // Google Fonts — cache-first with network fallback
   if (url.includes('fonts.googleapis') || url.includes('fonts.gstatic')) {

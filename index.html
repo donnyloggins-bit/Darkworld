@@ -1605,6 +1605,82 @@ body::before {
   color:#aa8800; text-align:center; min-height:1.2em;
 }
 
+
+/* ══ ONLINE: account + live raid ══ */
+body:not(.net-on) .net-only { display:none !important; }
+
+.title-acct-btn {
+  margin-top:14px; background:transparent;
+  border:1px solid #3a2a50; border-left:2px solid var(--blood);
+  color:#a090b8; font-family:'Share Tech Mono',monospace;
+  font-size:.82rem; letter-spacing:.12em; padding:8px 16px;
+  cursor:pointer; max-width:88vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.title-acct-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+#raid-hud {
+  position:absolute; top:80px; left:12px; max-width:calc(100vw - 24px);
+  background:rgba(20,4,6,0.94);
+  border:1px solid #5a1a1a; border-left:2px solid var(--crimson);
+  padding:5px 10px; z-index:5; cursor:pointer;
+  font-family:'Share Tech Mono',monospace; font-size:.82rem;
+  align-items:center; gap:8px;
+  box-shadow:0 0 18px rgba(140,0,0,0.35);
+  animation:raidPulse 2.4s ease-in-out infinite;
+}
+@keyframes raidPulse { 0%,100%{ box-shadow:0 0 12px rgba(140,0,0,0.25); } 50%{ box-shadow:0 0 26px rgba(200,20,0,0.55); } }
+.raid-tag { color:var(--crimson); letter-spacing:.15em; white-space:nowrap; }
+.raid-hud-name { color:var(--pale); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.raid-hud-pct { color:var(--gold); white-space:nowrap; }
+
+#online-panel { padding:10px 14px; border-bottom:1px solid #3a2a50; display:flex; flex-direction:column; gap:8px; }
+#sb-acct-btn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.82rem; }
+#raid-panel { border:1px solid #5a1a1a; border-left:2px solid var(--crimson); background:rgba(30,4,8,0.55); padding:8px 10px; }
+.raid-head { display:flex; justify-content:space-between; gap:8px; font-family:'Share Tech Mono',monospace; font-size:.78rem; }
+.raid-ends { color:#8a7aa0; white-space:nowrap; }
+.raid-name { font-family:'Metal Mania',cursive; font-size:1.05rem; color:var(--gold); margin:4px 0 2px; }
+.raid-where { font-size:.92rem; color:#9080a8; font-style:italic; margin-bottom:6px; }
+.raid-bar { height:8px; background:#1a0608; border:1px solid #4a1010; }
+.raid-fill { height:100%; background:linear-gradient(90deg,#5a0000,var(--crimson)); transition:width .4s ease; }
+.raid-hp { font-family:'Share Tech Mono',monospace; font-size:.82rem; color:var(--pale); text-align:right; margin-top:3px; }
+.raid-board { margin-top:6px; border-top:1px solid #3a1a2a; padding-top:5px; }
+.raid-row { display:flex; justify-content:space-between; gap:8px; font-family:'Share Tech Mono',monospace; font-size:.8rem; color:#a090b8; }
+.raid-row span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.raid-row.me { color:var(--gold); }
+.raid-empty { margin-top:6px; font-size:.88rem; color:#8a7aa0; font-style:italic; }
+
+#acct-modal {
+  display:none; position:fixed; inset:0; z-index:210;
+  background:rgba(5,3,12,0.97);
+  align-items:center; justify-content:center; padding:16px;
+}
+#acct-modal.active { display:flex; }
+.acct-card {
+  background:linear-gradient(160deg,#1e1a34,#141028);
+  border:1px solid #5a1a1a; border-top:2px solid var(--crimson);
+  box-shadow:0 0 40px rgba(140,0,0,0.25);
+  padding:22px 18px; width:min(380px,100%); max-height:90vh; overflow-y:auto;
+  display:flex; flex-direction:column; gap:10px;
+}
+.acct-title { font-family:'Metal Mania',cursive; font-size:1.5rem; color:var(--gold); text-align:center; letter-spacing:.12em; text-shadow:0 0 18px rgba(212,168,48,0.45); }
+.acct-sub { font-size:1rem; color:#9080a8; font-style:italic; text-align:center; line-height:1.5; }
+.acct-input {
+  width:100%; background:#0d0a18; border:1px solid #3a2a50; color:var(--bone);
+  font-family:'Share Tech Mono',monospace; font-size:1rem; padding:10px 12px; outline:none;
+}
+.acct-input:focus { border-color:var(--crimson); }
+.acct-row { display:flex; gap:8px; }
+.acct-btn {
+  flex:1; background:transparent; border:1px solid #4a3a60; color:#c0b0d8;
+  font-family:'Share Tech Mono',monospace; font-size:.85rem; letter-spacing:.1em;
+  padding:10px 6px; cursor:pointer;
+}
+.acct-btn.primary { background:rgba(100,10,10,0.55); border-color:#cc2222; color:#f0d0d0; }
+.acct-btn:disabled { opacity:.5; cursor:default; }
+.acct-who { font-family:'Share Tech Mono',monospace; font-size:.9rem; color:var(--pale); text-align:center; word-break:break-all; }
+.acct-sync { font-size:.95rem; color:#9080a8; font-style:italic; text-align:center; line-height:1.45; }
+.acct-msg { min-height:1.2em; font-size:.95rem; text-align:center; line-height:1.4; }
+.acct-close { background:transparent; border:none; color:#8a7aa0; font-family:'Share Tech Mono',monospace; font-size:.85rem; letter-spacing:.2em; padding:6px; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -1678,6 +1754,7 @@ body::before {
   <div class="skull-divider">☠ ☠ ☠</div>
   <button class="begin-btn" id="continue-btn" onclick="continueGame()" style="display:none;margin-bottom:10px"></button>
   <button class="begin-btn" id="new-game-btn" onclick="goCreate()">ENTER THE DARKNESS</button>
+  <button class="title-acct-btn net-only" id="title-acct-btn" onclick="openAccount()">☁ SIGN IN · CLOUD SAVE</button>
 </div>
 
 <!-- ══ WORLD SELECT ══ -->
@@ -1755,6 +1832,7 @@ body::before {
     </div>
     <div id="coord-hud"><span id="coord-txt">RITTENHOUSE — HELLMOUTH</span></div>
     <div id="gps-hud"><div class="gps-dot" id="gps-dot"></div><span id="gps-txt">GPS INACTIVE</span></div>
+    <div id="raid-hud" onclick="toggleSidebar()" style="display:none"></div>
     <div id="map-nav">
       <button id="menu-btn" onclick="toggleSidebar()">☰ STATS</button>
       <button id="inv-btn" onclick="openInventory()">⚔ GEAR</button>
@@ -1786,6 +1864,10 @@ body::before {
         <button class="sb-btn" onclick="openShop()">🏪 SHOP</button>
         <button class="sb-btn" onclick="openSkills()">🌟 SKILLS</button>
       </div>
+    </div>
+    <div id="online-panel" class="net-only">
+      <div id="raid-panel" style="display:none"></div>
+      <button class="sb-btn" id="sb-acct-btn" onclick="openAccount()">☁ SIGN IN · CLOUD SAVE</button>
     </div>
     <div id="zone-panel">
       <div class="z-name" id="z-name" style="color:var(--gold)">⬡ RITTENHOUSE SQUARE</div>
@@ -1993,6 +2075,33 @@ body::before {
   </div>
 </div>
 
+<!-- ══ ACCOUNT MODAL ══ -->
+<div id="acct-modal">
+  <div class="acct-card">
+    <div class="acct-title">BIND YOUR SOUL</div>
+    <div class="acct-sub">An account carries your hunter to any device, and lets the raids know your name.</div>
+    <div id="acct-signed-out" style="display:flex;flex-direction:column;gap:10px">
+      <input id="acct-email" class="acct-input" type="email" placeholder="email" autocomplete="email" spellcheck="false">
+      <input id="acct-pass" class="acct-input" type="password" placeholder="password · 6+ characters" autocomplete="current-password">
+      <div class="acct-row">
+        <button class="acct-btn primary" onclick="acctSubmit('in')">SIGN IN</button>
+        <button class="acct-btn" onclick="acctSubmit('up')">CREATE ACCOUNT</button>
+      </div>
+    </div>
+    <div id="acct-signed-in" style="display:none">
+      <div class="acct-who" id="acct-who"></div>
+      <div class="acct-sync" id="acct-sync" style="margin:8px 0"></div>
+      <button class="acct-btn primary" id="acct-load-cloud" onclick="netLoadCloudHunter()" style="display:none;width:100%;margin-bottom:8px">LOAD CLOUD HUNTER</button>
+      <div class="acct-row">
+        <button class="acct-btn" onclick="acctSyncNow()">SYNC NOW</button>
+        <button class="acct-btn" onclick="acctSignOut()">SIGN OUT</button>
+      </div>
+    </div>
+    <div class="acct-msg" id="acct-msg"></div>
+    <button class="acct-close" onclick="closeAccount()">CLOSE</button>
+  </div>
+</div>
+
 <div id="screen-ar" class="screen">
   <video id="ar-video" autoplay playsinline muted></video>
   <canvas id="ar-canvas"></canvas>
@@ -2003,6 +2112,7 @@ body::before {
   <button id="ar-quest-btn" onclick="arQuestTap()" style="display:none;position:absolute;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(180,130,0,0.92);border:2px solid rgba(255,210,60,0.9);color:#fff;font-family:'Share Tech Mono',monospace;font-size:1rem;letter-spacing:.1em;padding:14px 32px;border-radius:8px;z-index:50;min-width:200px;"></button>
 </div>
 
+<script src="/config.js"></script>
 <script>
 'use strict';
 // ══════════════════════════════════════════════════════
@@ -3887,8 +3997,10 @@ function showBossReveal(boss){
   document.getElementById('boss-reveal-type').textContent = boss.type || '';
   document.getElementById('boss-reveal-landmark').textContent = boss.landmark ? '📍 ' + boss.landmark : '';
   document.getElementById('boss-reveal-name').textContent = boss.emoji + ' ' + boss.name;
-  document.getElementById('boss-reveal-lore').textContent = BOSS_LORE[boss.name] || '';
-  document.getElementById('boss-reveal-drop').textContent = boss.uniqueDrop ? '✦ UNIQUE DROP: ' + boss.uniqueDrop : '';
+  document.getElementById('boss-reveal-lore').textContent = BOSS_LORE[boss.name] || boss.lore || '';
+  document.getElementById('boss-reveal-drop').textContent = boss.isRaid
+    ? `⚔ SHARED HP ${fmt(Math.floor(boss.hp))} / ${fmt(boss.maxHp)} · EVERY HUNTER IN THE CITY`
+    : boss.uniqueDrop ? '✦ UNIQUE DROP: ' + boss.uniqueDrop : '';
   // Reset animation by forcing reflow
   const modal = document.getElementById('boss-reveal');
   modal.classList.remove('active');
@@ -4670,7 +4782,9 @@ function combatTick(){
   setCBUI();
 }
 
-function startCombat(ent,boss){ sndCombatStart();
+function startCombat(ent,boss){
+  if(ent && ent.isRaid && !raidCanEngage(ent)) return;
+  sndCombatStart();
   inCombat=true; isBoss=boss; curEnemy=ent;
   eStatuses=[]; Player.statuses=[];
   Player.cooldowns={};
@@ -5188,6 +5302,7 @@ function triggerEnemyHit(e, dmg, special, isCrit){
 
 // ── VICTORY ───────────────────────────────────────────
 function victory(){
+  if(curEnemy && curEnemy.isRaid && !curEnemy._dead){ raidResolveKill(); return; }
   sndVictory();
   playerCombo=0;
   const xpBase = curEnemy.xp||100;
@@ -5195,6 +5310,10 @@ function victory(){
   const goldBase = ri(curEnemy.gold[0],curEnemy.gold[1]);
   const gold = Math.floor(goldBase * (1 + (Player.goldBonus||0)));
   Player.xp+=xp; Player.gold+=gold;
+  if(curEnemy.isRaid){
+    if(curEnemy._killingBlow){ Player.gold+=gold; addLog(`☠ KILLING BLOW on ${curEnemy.name}! +${gold} bonus gold`,'lb'); }
+    else addLog(`The raid is won. Your blade was counted among the many.`,'ll');
+  }
   curEnemy.defeated=true; curEnemy.hp=0;
   curEnemy.poisonStacks=0;
   onEntityKilled(curEnemy.name, isBoss);
@@ -5507,12 +5626,14 @@ function saveGame(){
       equipped: Player.equipped,
       inventory: Player.inventory,
     },
-    bossStates: BOSSES.map(b => b.defeated || false),
+    bossStates: BOSSES.filter(b => !b.isRaid).map(b => b.defeated || false),
     world: selectedWorld,
     quests: JSON.parse(JSON.stringify(playerQuests)),
     savedAt: Date.now(),
+    owner: NET_ON ? netOwnerForSave() : null,
   };
   localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  netQueueSave(data);
 }
 
 function loadSave(){
@@ -5523,6 +5644,563 @@ function loadSave(){
 
 function deleteSave(){
   localStorage.removeItem(SAVE_KEY);
+}
+
+// ══════════════════════════════════════════════════════
+//  ONLINE — Supabase: accounts, cloud save, live raid
+//  No SDK: plain fetch + one WebSocket. Every entry point is a
+//  no-op when config.js is missing, so the game still runs offline.
+// ══════════════════════════════════════════════════════
+const NET_CFG = (window.DW_CONFIG && window.DW_CONFIG.supabaseUrl && window.DW_CONFIG.supabaseAnonKey) ? window.DW_CONFIG : null;
+const NET_ON = !!NET_CFG;
+const NET_URL = NET_ON ? NET_CFG.supabaseUrl.replace(/\/+$/,'') : '';
+const NET_KEY = NET_ON ? NET_CFG.supabaseAnonKey : '';
+const NET_SESSION_KEY = 'darkworld_session_v1';
+const RAID_POLL_MS = 20000;  // raid state / leaderboard refresh (realtime covers HP in between)
+const RAID_SYNC_MS = 1500;   // how often batched raid damage is sent
+
+let netSession = null;       // { access_token, refresh_token, expires_at, user:{id,email} }
+let netRefreshing = null;
+let netSyncText = '';
+let netCloudConflict = false; // signed in mid-game while the cloud holds a newer, different hunter
+let netConflictCloud = null;
+let netSaveTimer = null, netPendingSave = null;
+
+function netEsc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function netRequest(path, opts={}){
+  // Signed-out requests send only `apikey`, which works with both legacy anon keys and new publishable keys.
+  const headers = { apikey:NET_KEY, 'Content-Type':'application/json', ...(opts.headers||{}) };
+  if(opts.token) headers.Authorization = 'Bearer ' + opts.token;
+  const res = await fetch(NET_URL + path, {
+    method: opts.method || 'GET', headers, keepalive: !!opts.keepalive,
+    body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+  });
+  const text = await res.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch(e){ data = text; }
+  if(!res.ok){
+    const err = new Error((data && (data.msg || data.message || data.error_description || data.error)) || `HTTP ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+// ── AUTH ───────────────────────────────────────────────
+function netLoadSession(){
+  try { netSession = JSON.parse(localStorage.getItem(NET_SESSION_KEY) || 'null'); } catch(e){ netSession = null; }
+}
+
+function netStoreSession(s){
+  netSession = s;
+  if(s) localStorage.setItem(NET_SESSION_KEY, JSON.stringify(s));
+  else localStorage.removeItem(NET_SESSION_KEY);
+  renderAccountUI();
+}
+
+function netSessionFrom(d){
+  return {
+    access_token: d.access_token,
+    refresh_token: d.refresh_token,
+    expires_at: Number(d.expires_at) || Math.floor(Date.now()/1000) + Number(d.expires_in || 3600),
+    user: { id: d.user && d.user.id, email: d.user && d.user.email },
+  };
+}
+
+// Returns a valid access token, refreshing it first when it's about to expire.
+async function netAccessToken(){
+  if(!netSession) return null;
+  if(netSession.expires_at - 60 > Date.now()/1000) return netSession.access_token;
+  if(!netRefreshing){
+    netRefreshing = netRequest('/auth/v1/token?grant_type=refresh_token', { method:'POST', body:{ refresh_token: netSession.refresh_token } })
+      .then(d => netStoreSession(netSessionFrom(d)))
+      .catch(e => { if(e.status === 400 || e.status === 401) netStoreSession(null); }) // refresh token revoked/expired
+      .finally(() => { netRefreshing = null; });
+  }
+  await netRefreshing;
+  return netSession ? netSession.access_token : null;
+}
+
+async function netAuthed(path, opts={}){
+  const token = await netAccessToken();
+  if(!token){ const e = new Error('Not signed in'); e.status = 401; throw e; }
+  return netRequest(path, { ...opts, token });
+}
+
+async function netSignIn(email, password){
+  const d = await netRequest('/auth/v1/token?grant_type=password', { method:'POST', body:{ email, password } });
+  netStoreSession(netSessionFrom(d));
+  await netSyncSave();
+}
+
+// Returns false when Supabase wants the email confirmed before the first sign-in.
+async function netSignUp(email, password){
+  const d = await netRequest('/auth/v1/signup', { method:'POST', body:{ email, password } });
+  if(d && d.access_token){
+    netStoreSession(netSessionFrom(d));
+    await netSyncSave();
+    return true;
+  }
+  return false;
+}
+
+async function netSignOut(){
+  if(netPendingSave){ clearTimeout(netSaveTimer); await netPushSave(); }
+  const token = netSession && netSession.access_token;
+  netCloudConflict = false; netConflictCloud = null;
+  netSyncText = '';
+  netStoreSession(null);
+  if(token) netRequest('/auth/v1/logout', { method:'POST', token }).catch(()=>{});
+}
+
+// The email-confirmation link lands back here with the session in the URL hash.
+async function netCaptureRedirect(){
+  if(!location.hash.includes('access_token=')) return;
+  const p = new URLSearchParams(location.hash.slice(1));
+  history.replaceState(null, '', location.pathname + location.search);
+  try {
+    const user = await netRequest('/auth/v1/user', { token: p.get('access_token') });
+    netStoreSession(netSessionFrom({
+      access_token: p.get('access_token'), refresh_token: p.get('refresh_token'),
+      expires_at: p.get('expires_at'), expires_in: p.get('expires_in'), user,
+    }));
+  } catch(e){}
+}
+
+// ── CLOUD SAVE ─────────────────────────────────────────
+// Which account a local save belongs to. Saves from before accounts existed
+// have no owner and get adopted by the first account that signs in.
+function netOwnerForSave(){
+  if(netSession && !netCloudConflict) return netSession.user.id;
+  const prev = loadSave();
+  return (prev && prev.owner) || null;
+}
+
+function netQueueSave(data){
+  if(!NET_ON || !netSession || netCloudConflict) return;
+  netPendingSave = data;
+  clearTimeout(netSaveTimer);
+  netSaveTimer = setTimeout(netPushSave, 3000);
+}
+
+async function netPushSave(keepalive){
+  const data = netPendingSave;
+  netPendingSave = null;
+  if(!data || !netSession || netCloudConflict) return;
+  try {
+    await netAuthed('/rest/v1/characters?on_conflict=user_id', {
+      method:'POST', keepalive,
+      headers:{ Prefer:'resolution=merge-duplicates,return=minimal' },
+      body:{
+        user_id: netSession.user.id,
+        name: data.player.name, class_name: data.player.className,
+        level: data.player.level, world: data.world,
+        data,
+        saved_at: new Date(data.savedAt).toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    });
+    netSyncText = `Saved to the cloud · ${new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})}`;
+  } catch(e){
+    netPendingSave = netPendingSave || data;
+    netSyncText = 'Cloud unreachable — will retry.';
+    clearTimeout(netSaveTimer);
+    netSaveTimer = setTimeout(netPushSave, 30000);
+  }
+  renderAccountUI();
+}
+
+// Newest save wins. Mid-game, a newer cloud hunter is never swapped in silently.
+async function netSyncSave(){
+  if(!NET_ON || !netSession) return;
+  const uid = netSession.user.id;
+  let rows;
+  try { rows = await netAuthed(`/rest/v1/characters?select=data&user_id=eq.${encodeURIComponent(uid)}`); }
+  catch(e){ netSyncText = 'Cloud unreachable — playing on this device.'; renderAccountUI(); return; }
+  const cloud = rows && rows[0] ? rows[0].data : null;
+  const local = loadSave();
+  const localMine = !!local && (!local.owner || local.owner === uid);
+  const cloudNewer = !!cloud && (!localMine || (cloud.savedAt || 0) > (local.savedAt || 0));
+  netCloudConflict = false; netConflictCloud = null;
+
+  if(cloudNewer && Player){
+    netCloudConflict = true; netConflictCloud = cloud;
+    netSyncText = `This account has a newer hunter in the cloud: ${cloud.player.name}, Lv ${cloud.player.level}. Your current game stays on this device and won't sync.`;
+  } else if(cloudNewer){
+    localStorage.setItem(SAVE_KEY, JSON.stringify(cloud));
+    netSyncText = `Cloud hunter loaded: ${cloud.player.name}, Lv ${cloud.player.level}.`;
+  } else if(local && localMine){
+    local.owner = uid;
+    localStorage.setItem(SAVE_KEY, JSON.stringify(local));
+    if(cloud && cloud.savedAt === local.savedAt) netSyncText = 'In sync with the cloud.';
+    else { netSyncText = 'Uploading this device\'s hunter…'; netQueueSave(local); }
+  } else {
+    netSyncText = 'No hunter yet. The one you create will follow you to any device.';
+  }
+  refreshContinueButton();
+  renderAccountUI();
+}
+
+function netLoadCloudHunter(){
+  if(!netConflictCloud) return;
+  netConflictCloud.owner = netSession ? netSession.user.id : null;
+  localStorage.setItem(SAVE_KEY, JSON.stringify(netConflictCloud));
+  location.reload();
+}
+
+// ── ACCOUNT UI ─────────────────────────────────────────
+function renderAccountUI(){
+  if(!NET_ON) return;
+  const label = netSession ? `☁ ${netSession.user.email || 'SIGNED IN'}` : '☁ SIGN IN · CLOUD SAVE';
+  ['title-acct-btn','sb-acct-btn'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = label; });
+  const out = document.getElementById('acct-signed-out');
+  const inn = document.getElementById('acct-signed-in');
+  if(!out || !inn) return;
+  out.style.display = netSession ? 'none' : 'flex';
+  inn.style.display = netSession ? '' : 'none';
+  document.getElementById('acct-who').textContent = netSession ? `Bound to ${netSession.user.email}` : '';
+  document.getElementById('acct-sync').textContent = netSyncText;
+  document.getElementById('acct-load-cloud').style.display = netCloudConflict ? '' : 'none';
+}
+
+function openAccount(msg){
+  if(!NET_ON) return;
+  renderAccountUI();
+  setAcctMsg(msg || '', !!msg);
+  document.getElementById('acct-modal').classList.add('active');
+}
+
+function closeAccount(){
+  document.getElementById('acct-modal').classList.remove('active');
+}
+
+function setAcctMsg(text, bad){
+  const el = document.getElementById('acct-msg');
+  el.textContent = text;
+  el.style.color = bad ? 'var(--crimson)' : '#a090b8';
+}
+
+function setAcctBusy(busy){
+  document.querySelectorAll('#acct-modal button').forEach(b => { b.disabled = busy; });
+}
+
+async function acctSubmit(mode){
+  const email = document.getElementById('acct-email').value.trim();
+  const pass = document.getElementById('acct-pass').value;
+  if(!email || !pass){ setAcctMsg('An email and a password, wanderer.', true); return; }
+  if(pass.length < 6){ setAcctMsg('Passwords need at least 6 characters.', true); return; }
+  setAcctBusy(true);
+  setAcctMsg(mode === 'in' ? 'Opening the ledger…' : 'Inscribing your name…');
+  try {
+    if(mode === 'in'){
+      await netSignIn(email, pass);
+      setAcctMsg('Your soul is bound.');
+    } else {
+      const signedIn = await netSignUp(email, pass);
+      setAcctMsg(signedIn ? 'Account created. Your soul is bound.' : 'Check your email and confirm, then sign in here.');
+    }
+    document.getElementById('acct-pass').value = '';
+  } catch(e){
+    setAcctMsg(e.message || 'The ledger would not open.', true);
+  } finally {
+    setAcctBusy(false);
+  }
+}
+
+async function acctSyncNow(){
+  setAcctBusy(true); setAcctMsg('Syncing…');
+  if(Player) saveGame();
+  await netSyncSave();
+  if(netPendingSave){ clearTimeout(netSaveTimer); await netPushSave(); }
+  setAcctBusy(false); setAcctMsg('');
+}
+
+async function acctSignOut(){
+  setAcctBusy(true);
+  await netSignOut();
+  setAcctBusy(false);
+  setAcctMsg('Signed out. Your hunter stays on this device.');
+}
+
+// ── LIVE RAID ──────────────────────────────────────────
+// The raid boss joins BOSSES so the map, AR view and boss reveal treat it like
+// any boss. Its HP is shared: local hits lower `hp` right away, and the sync loop
+// reports the difference to raid_hit() in batches.
+//   _srv      lowest HP the server has reported
+//   _inflight damage sent but not yet confirmed
+//   pending   (_srv - _inflight) - hp  → damage dealt locally, not yet sent
+let RAID = null;
+let raidUpcoming = null;
+let raidBoard = [];
+let raidWatchStarted = false;
+let raidWS = null, raidWSHeartbeat = null, raidWSRef = 0;
+let raidErrAt = 0;
+
+function netStartRaidWatch(){
+  if(!NET_ON || raidWatchStarted) return;
+  raidWatchStarted = true;
+  netPollRaid();
+  setInterval(netPollRaid, RAID_POLL_MS);
+  setInterval(raidFlush, RAID_SYNC_MS);
+}
+
+function raidRowLive(row){
+  const now = Date.now();
+  return !!row && !row.defeated_at && Number(row.hp) > 0 && row.world === selectedWorld
+    && new Date(row.spawn_at).getTime() <= now && new Date(row.ends_at).getTime() > now;
+}
+
+async function netPollRaid(){
+  const now = encodeURIComponent(new Date().toISOString());
+  const w = encodeURIComponent(selectedWorld);
+  try {
+    const live = await netRequest(`/rest/v1/raid_bosses?select=*&world=eq.${w}&defeated_at=is.null&spawn_at=lte.${now}&ends_at=gt.${now}&order=spawn_at.desc&limit=1`);
+    if(live[0]) applyRaidRow(live[0]);
+    else if(RAID){
+      const rows = await netRequest(`/rest/v1/raid_bosses?select=*&id=eq.${RAID.raidId}`);
+      if(rows[0]) applyRaidRow(rows[0]); else endRaid(null);
+    }
+    if(RAID){
+      raidUpcoming = null;
+      raidBoard = await netRequest(`/rest/v1/raid_leaderboard?select=player_id,player_name,total&boss_id=eq.${RAID.raidId}&order=total.desc&limit=5`);
+    } else {
+      const next = await netRequest(`/rest/v1/raid_bosses?select=id,name,landmark,emoji,spawn_at&world=eq.${w}&defeated_at=is.null&spawn_at=gt.${now}&order=spawn_at.asc&limit=1`);
+      raidUpcoming = next[0] || null;
+    }
+  } catch(e){ /* offline — keep the last known state */ }
+  renderRaidUI();
+}
+
+function applyRaidRow(row){
+  if(RAID && row && row.id === RAID.raidId){
+    if(raidRowLive(row)){
+      RAID.endsAt = new Date(row.ends_at).getTime();
+      raidReconcile(Number(row.hp), 0);
+      raidEnsureOnMap();
+    } else endRaid(row);
+    return;
+  }
+  if(!raidRowLive(row)) return;
+  if(RAID) endRaid(null); // a different raid replaced this one
+  const hp = Number(row.hp);
+  RAID = {
+    raidId: row.id, world: row.world, isRaid: true, isWorld: true,
+    name: row.name, landmark: row.landmark, lore: row.lore,
+    emoji: row.emoji || '💀', portrait: row.portrait || null,
+    type: row.type || 'RAID BOSS', color: row.color || '#ff2200',
+    lat: Number(row.lat), lng: Number(row.lng), zone: 0,
+    hp, maxHp: Number(row.max_hp), atk: row.atk, def: row.def,
+    xp: row.xp, gold: [row.gold_min, row.gold_max],
+    endsAt: new Date(row.ends_at).getTime(),
+    defeated: false, statuses: [], poisonStacks: 0,
+    _srv: hp, _inflight: 0, _sending: null, _dead: false, _killingBlow: false, _resolving: false,
+  };
+  raidEnsureOnMap();
+  raidSocketConnect(row.id);
+  if(Player) addLog(`⚔ RAID: ${RAID.name} has emerged at ${RAID.landmark}! Every hunter in the city shares its wounds.`, 'lb');
+}
+
+function raidEnsureOnMap(){
+  if(RAID && BOSSES && !BOSSES.includes(RAID)) BOSSES.push(RAID);
+  markDirty();
+}
+
+function endRaid(row){
+  const r = RAID;
+  if(!r) return;
+  RAID = null; raidBoard = [];
+  raidSocketClose();
+  const killed = !!row && (!!row.defeated_at || Number(row.hp) <= 0);
+  if(inCombat && curEnemy === r){
+    if(killed){ r._dead = true; r.hp = 0; victory(); }
+    else {
+      inCombat = false; stopCombatTimer(); clearCBCache();
+      document.getElementById('combat-modal').classList.remove('active');
+      curEnemy = null;
+      addLog(`${r.name} sinks back into the dark. The raid is over.`, 'ls');
+    }
+  } else if(killed && Player){
+    addLog(`☠ ${r.name} has fallen at ${r.landmark}. The city exhales.`, 'lb');
+  }
+  r.defeated = true;
+  if(BOSSES) BOSSES = BOSSES.filter(b => b !== r);
+  markDirty();
+  renderRaidUI();
+}
+
+function raidReconcile(serverHp, settled){
+  const r = RAID;
+  if(!r) return;
+  const pending = Math.max(0, (r._srv - r._inflight) - r.hp);
+  if(settled) r._inflight = Math.max(0, r._inflight - settled);
+  if(Number.isFinite(serverHp)) r._srv = Math.min(r._srv, serverHp);
+  r.hp = Math.max(0, r._srv - r._inflight - pending);
+  if(inCombat && curEnemy === r) setCBUI();
+  renderRaidUI();
+}
+
+async function raidFlush(){
+  const r = RAID;
+  if(!r || r._dead || !netSession) return;
+  if(r._sending) return r._sending;
+  const pending = Math.floor(Math.max(0, (r._srv - r._inflight) - r.hp));
+  if(pending <= 0) return;
+  r._inflight += pending;
+  r._sending = (async () => {
+    try {
+      const res = await netAuthed('/rest/v1/rpc/raid_hit', {
+        method:'POST', body:{ p_boss: r.raidId, p_damage: pending, p_name: Player ? Player.name : null },
+      });
+      if(RAID !== r) return;
+      if(res.killed){ r._dead = true; r._killingBlow = !!res.killing_blow; }
+      raidReconcile(Number(res.hp), pending);
+    } catch(e){
+      r._inflight = Math.max(0, r._inflight - pending); // back to pending; retried next tick
+      raidNetError(e);
+    } finally {
+      r._sending = null;
+    }
+  })();
+  return r._sending;
+}
+
+// Local HP hit zero: the server decides whether the boss is really dead.
+async function raidResolveKill(){
+  const r = curEnemy;
+  if(r._resolving) return;
+  r._resolving = true;
+  setCLog('Your blow lands… the whole city holds its breath.');
+  try {
+    if(r._sending) await r._sending;
+    await raidFlush();
+  } finally {
+    r._resolving = false;
+  }
+  if(!inCombat || curEnemy !== r) return; // endRaid already finished the fight
+  if(r._dead){ victory(); return; }
+  if(r.hp <= 0){
+    r.hp = Math.max(1, r._srv - r._inflight);
+    setCLog(`The raid link falters — ${r.name} still stands!`);
+  } else {
+    setCLog(`${r.name} still stands! It has ${fmt(r.hp)} HP left.`);
+  }
+  setCBUI();
+}
+
+function raidNetError(e){
+  if(Date.now() - raidErrAt < 15000) return;
+  raidErrAt = Date.now();
+  addLog(e.status === 401 ? '⚠ Raid: sign in again so your damage counts.' : '⚠ Raid link flickers — your damage will sync when the signal returns.', 'ls');
+}
+
+// Raids need an account (damage is tracked per player) and, by default, a real GPS lock.
+function raidCanEngage(b){
+  if(b.defeated || RAID !== b){ addLog('That raid has ended.', 'ls'); return false; }
+  if(!netSession){ openAccount('Sign in to join the raid. Your damage is counted by name.'); return false; }
+  if(NET_CFG.raidRequireGps !== false && !gpsFirstLock){
+    addLog(`⚠ The raid needs your real location. Turn on GPS and travel to ${b.landmark}.`, 'ls');
+    return false;
+  }
+  return true;
+}
+
+// Realtime: Supabase's Phoenix socket, subscribed to UPDATEs on this raid's row.
+function raidSocketConnect(raidId){
+  raidSocketClose();
+  if(!NET_ON || typeof WebSocket === 'undefined') return;
+  let ws;
+  try { ws = new WebSocket(NET_URL.replace(/^http/, 'ws') + '/realtime/v1/websocket?apikey=' + encodeURIComponent(NET_KEY) + '&vsn=1.0.0'); }
+  catch(e){ return; }
+  raidWS = ws;
+  const topic = 'realtime:raid-' + raidId;
+  const send = m => { if(ws.readyState === 1) ws.send(JSON.stringify(m)); };
+  ws.onopen = () => {
+    const ref = String(++raidWSRef);
+    send({ topic, event:'phx_join', ref, join_ref:ref, payload:{
+      config:{
+        broadcast:{ self:false }, presence:{ key:'' },
+        postgres_changes:[{ event:'UPDATE', schema:'public', table:'raid_bosses', filter:'id=eq.' + raidId }],
+      },
+    }});
+    raidWSHeartbeat = setInterval(() => send({ topic:'phoenix', event:'heartbeat', payload:{}, ref:String(++raidWSRef) }), 25000);
+  };
+  ws.onmessage = e => {
+    let m;
+    try { m = JSON.parse(e.data); } catch(err){ return; }
+    if(m.event === 'postgres_changes'){
+      const rec = m.payload && m.payload.data && m.payload.data.record;
+      if(rec) applyRaidRow(rec);
+    }
+  };
+  ws.onclose = () => {
+    if(raidWS !== ws) return;
+    clearInterval(raidWSHeartbeat); raidWSHeartbeat = null; raidWS = null;
+    setTimeout(() => { if(RAID && RAID.raidId === raidId && !raidWS) raidSocketConnect(raidId); }, 8000);
+  };
+}
+
+function raidSocketClose(){
+  clearInterval(raidWSHeartbeat); raidWSHeartbeat = null;
+  const ws = raidWS;
+  raidWS = null;
+  if(ws){ try { ws.close(); } catch(e){} }
+}
+
+function fmtCountdown(ms){
+  if(ms <= 0) return 'NOW';
+  const m = Math.floor(ms/60000), d = Math.floor(m/1440), h = Math.floor((m%1440)/60);
+  return d > 0 ? `${d}D ${h}H` : h > 0 ? `${h}H ${m%60}M` : `${m%60}M`;
+}
+
+function renderRaidUI(){
+  if(!NET_ON) return;
+  const hud = document.getElementById('raid-hud');
+  const panel = document.getElementById('raid-panel');
+  if(!hud || !panel) return;
+  if(RAID){
+    const pct = Math.max(0, RAID.hp / RAID.maxHp * 100);
+    const dist = (Player && gpsFirstLock) ? distMiles(Player.lat, Player.lng, RAID.lat, RAID.lng) : null;
+    hud.style.display = 'flex';
+    hud.innerHTML = `<span class="raid-tag">⚔ RAID</span><span class="raid-hud-name">${netEsc(RAID.name)}</span><span class="raid-hud-pct">${pct.toFixed(pct < 10 ? 1 : 0)}%</span>`;
+    panel.style.display = '';
+    panel.innerHTML = `
+      <div class="raid-head"><span class="raid-tag">⚔ LIVE RAID</span><span class="raid-ends">ENDS IN ${fmtCountdown(RAID.endsAt - Date.now())}</span></div>
+      <div class="raid-name">${netEsc(RAID.emoji)} ${netEsc(RAID.name)}</div>
+      <div class="raid-where">📍 ${netEsc(RAID.landmark)}${dist !== null ? ` · ${dist.toFixed(2)} MI` : ''}</div>
+      <div class="raid-bar"><div class="raid-fill" style="width:${pct}%"></div></div>
+      <div class="raid-hp">${fmt(Math.floor(RAID.hp))} / ${fmt(RAID.maxHp)}</div>
+      ${raidBoard.length ? `<div class="raid-board">${raidBoard.map((p, i) => `
+        <div class="raid-row${netSession && p.player_id === netSession.user.id ? ' me' : ''}">
+          <span>${i + 1}. ${netEsc(p.player_name || 'Wanderer')}</span><span>${fmt(Number(p.total))}</span>
+        </div>`).join('')}</div>` : `<div class="raid-empty">No blood drawn yet. Be the first.</div>`}`;
+  } else if(raidUpcoming){
+    const eta = new Date(raidUpcoming.spawn_at).getTime() - Date.now();
+    hud.style.display = 'flex';
+    hud.innerHTML = `<span class="raid-tag">☠ SOON</span><span class="raid-hud-name">${netEsc(raidUpcoming.name)}</span><span class="raid-hud-pct">${fmtCountdown(eta)}</span>`;
+    panel.style.display = '';
+    panel.innerHTML = `
+      <div class="raid-head"><span class="raid-tag">☠ SOMETHING STIRS</span><span class="raid-ends">IN ${fmtCountdown(eta)}</span></div>
+      <div class="raid-name">${netEsc(raidUpcoming.emoji || '💀')} ${netEsc(raidUpcoming.name)}</div>
+      <div class="raid-where">📍 ${netEsc(raidUpcoming.landmark)}</div>`;
+  } else {
+    hud.style.display = 'none';
+    panel.style.display = 'none';
+  }
+}
+
+async function netInit(){
+  if(!NET_ON) return;
+  document.body.classList.add('net-on');
+  netLoadSession();
+  await netCaptureRedirect();
+  renderAccountUI();
+  if(netSession) netSyncSave();
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'hidden' && netPendingSave){ clearTimeout(netSaveTimer); netPushSave(true); }
+  });
 }
 
 // ══════════════════════════════════════════════════════
@@ -5935,21 +6613,31 @@ function buildQuestLog(){
   }).join('');
 }
 
-function initTitleScreen(){
+function refreshContinueButton(){
   const save = loadSave();
+  const btn = document.getElementById('continue-btn');
   if(save){
     const d = new Date(save.savedAt);
     const timeStr = d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' · Lv ' + save.player.level + ' ' + save.player.name;
-    const btn = document.getElementById('continue-btn');
     btn.style.display = '';
     btn.textContent = `⚔ CONTINUE — ${timeStr}`;
     document.getElementById('new-game-btn').textContent = '+ NEW GAME';
+  } else {
+    btn.style.display = 'none';
+    document.getElementById('new-game-btn').textContent = 'ENTER THE DARKNESS';
+  }
+  return save;
+}
+
+function initTitleScreen(){
+  if(refreshContinueButton()){
     // If returning player, skip intro
     introSkip();
   } else {
     // New player — show intro
     introStart();
   }
+  netInit();
 }
 
 function continueGame(){
@@ -6097,6 +6785,7 @@ let _gameTimersStarted = false;
 function startGameTimers(){
   if(_gameTimersStarted) return;
   _gameTimersStarted = true;
+  netStartRaidWatch();
   setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
   setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)markDirty(); }, 60000);
 }

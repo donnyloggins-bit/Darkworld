@@ -1,3 +1,7 @@
+[build]
+  publish = "."
+  command = "sh netlify-build.sh"
+
 [[headers]]
   for = "/*"
   [headers.values]
@@ -7,5 +11,10 @@
 
 [[headers]]
   for = "/service-worker.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/config.js"
   [headers.values]
     Cache-Control = "no-cache"

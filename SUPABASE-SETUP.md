@@ -1,0 +1,61 @@
+# Turning on DARKWORLD online (Supabase)
+
+This turns on three things: **accounts**, **cloud saves** (your hunter follows you to any phone), and **live raids** (one boss HP bar shared by everyone in the city).
+
+Until you do this, the game works exactly like before: offline, with saves on the phone only.
+
+---
+
+## 1. Create the database (5 minutes)
+
+1. Open your Supabase org → **New project**. Call it `darkworld`, pick the US East region (closest to Philly), and save the database password somewhere.
+2. When it finishes, go to **SQL Editor** → **New query**.
+3. Open `supabase/schema.sql` from this repo, copy the whole file, paste it in, and press **Run**. You should see "Success. No rows returned."
+   - Running it again later is safe. It won't wipe anything.
+
+## 2. Auth settings
+
+1. **Authentication → URL Configuration → Site URL**: set this to your Netlify URL (for example `https://darkworld.netlify.app`). The "confirm your email" link sends players back here.
+2. Optional, for testing: **Authentication → Sign In / Providers → Email** → turn off **Confirm email**. Players can then sign in right after creating an account. Turn it back on before you share the game widely.
+
+## 3. Give Netlify the keys
+
+1. In Supabase: **Project Settings → API Keys**. Copy:
+   - the **Project URL** (looks like `https://abcd1234.supabase.co`), from **Project Settings → Data API** if it isn't on that page
+   - the **anon / public** key. If you see both "publishable" and "legacy anon" keys, either one works.
+2. ⚠️ **Never** copy the `service_role` / `secret` key anywhere. That key can do anything to your database.
+3. In Netlify: your site → **Site configuration → Environment variables** → add:
+   - `SUPABASE_URL` = the Project URL
+   - `SUPABASE_ANON_KEY` = the anon/publishable key
+4. **Deploys → Trigger deploy**. The build log should say `config.js written (online mode)`.
+
+> The keys go into a generated `config.js` at deploy time. They never get committed to GitHub.
+> Note: drag-and-drop deploys skip the build step, so they stay offline. Deploy from the GitHub repo.
+
+## 4. Check it works
+
+1. Open the game on your phone. Under **ENTER THE DARKNESS** there's now a **☁ SIGN IN · CLOUD SAVE** button.
+2. Create an account and play for a minute.
+3. In Supabase → **Table Editor → characters** you should see your hunter.
+
+## 5. Start a raid
+
+1. Open `supabase/start-raid.sql`, change the boss name, landmark, coordinates, HP and times if you like, then paste it into the **SQL Editor** and **Run**.
+2. Everyone playing in that world sees a pulsing **⚔ RAID** bar on the map within about 20 seconds.
+3. Players must be signed in and physically within about 260 ft of the landmark to fight it. Every hit comes off the same HP bar.
+4. The **☰ STATS** panel shows the shared HP, time left and the top 5 damage dealers. Whoever lands the final blow gets double gold.
+
+To schedule a raid for later, set `spawn_at` to a future time (for example `'2026-10-17 19:00-04'`). Until then the map shows a **☠ SOON** countdown.
+
+Handy queries are at the bottom of `start-raid.sql`: live raids, the full damage leaderboard, and how to end a raid early.
+
+---
+
+## Local testing (optional)
+
+Copy `config.example.js` to `config.js`, fill in the same two values, and run `python3 -m http.server`. `config.js` is gitignored.
+To test raids at your desk without GPS, set `raidRequireGps: false` in your local `config.js` only.
+
+## How cheating is limited
+
+Phones can be tampered with, so the server never trusts the damage number blindly. `raid_hit()` clamps each report (250K max) and each player's total over any 10 seconds (1M max). Players can't write to the raid tables directly. Raise those caps in `schema.sql` as players get stronger.
