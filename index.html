@@ -2685,7 +2685,7 @@ const ITEMS = {
   'Death\'s Sigil': {emoji:'💀', type:'accessory', tier:3, atk:75,  crit:6,  cost:3800, desc:'+75 ATK and +6% crit.'},
   "Lich's Phylactery":  {emoji:'💀', type:'accessory', tier:3, atk:200, hp:150,    cost:5200, desc:'Contains a sliver of undeath.'},
   'Eye of the Storm':   {emoji:'🌩', type:'accessory', tier:3, crit:12, dodge:10, atk:113, cost:4800, desc:'Perfect focus. See everything.'},
-  'Tome of Devastation':{emoji:'📕', type:'accessory', tier:3, resMax:80, atk:14000,      cost:4500, desc:'+80 resource, +14,000 ATK.'},
+  'Tome of Devastation':{emoji:'📕', type:'accessory', tier:3, resMax:80, atk:140,        cost:4500, desc:'+80 resource, +140 ATK.'},
   // ── POTIONS ──
   'Minor Heal':     {emoji:'🧪', type:'potion',    tier:1, healPct:0.25,      cost:75,   desc:'Restores 25% HP.'},
   'Major Heal':     {emoji:'⚗', type:'potion',    tier:2, healPct:0.50,      cost:190,  desc:'Restores 50% HP.'},
@@ -3107,10 +3107,10 @@ function rollLootDrop(enemy, isBoss){
   }
 
   // Regular random loot drop (tier 1-3 only)
-  const dropChance = isBoss ? 0.60 : 0.25;
+  const dropChance = isBoss ? 0.60 : enemy.elite ? 1 : 0.25;
   if(Math.random() < dropChance){
     const zone = enemy.zone ?? 2;
-    const maxTier = Math.min(3, ZONE_DROP_TIERS[zone] + (isBoss ? 1 : 0));
+    const maxTier = Math.min(3, ZONE_DROP_TIERS[zone] + (isBoss || enemy.elite ? 1 : 0));
     const eligible = Object.entries(ITEMS).filter(([n,item])=>
       item.type !== 'potion' && item.tier <= maxTier && item.tier < 4 && !drops.includes(n)
     );
@@ -3412,6 +3412,8 @@ function applyStartingGear(){
 // ══════════════════════════════════════════════════════
 const canvas = document.getElementById('map-canvas');
 const ctx = canvas.getContext('2d');
+// Street-level scale: at zoom 1 the screen's half-height is MAP_MILES (zoom 2 ≈ a few blocks, like Pokémon GO).
+const MAP_MILES=0.75, MIN_ZOOM=0.12, MAX_ZOOM=4;
 let mapW,mapH,viewX=0,viewY=0,zoom=2.0;
 
 // Portrait image cache — load once, reuse every frame
@@ -3444,23 +3446,22 @@ function drawCirclePortrait(img, x, y, r){
 let dragging=false,dragStart={x:0,y:0},dragView={x:0,y:0};
 
 function ll2px(lat,lng){
-  const ppm=(mapH/2)/5;
+  const ppm=(mapH/2)/MAP_MILES;
   const cx=mapW/2+viewX, cy=mapH/2+viewY;
   const dx=(lng-CENTER.lng)*69.11*Math.cos(CENTER.lat*Math.PI/180)*ppm*zoom;
   const dy=-(lat-CENTER.lat)*69.11*ppm*zoom;
   return {x:cx+dx,y:cy+dy};
 }
-function mi2px(mi){ return mi*(mapH/2)/5*zoom; }
+function mi2px(mi){ return mi*(mapH/2)/MAP_MILES*zoom; }
 function ri(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function fmt(n){ return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'K':n.toString(); }
 
 const tileCache = new Map();
 
-function _tileZoom(){
-  if(zoom < 0.6) return 12;
-  if(zoom < 1.4) return 13;
-  if(zoom < 2.8) return 14;
-  return 15;
+function _tileZoom(){ // pick the tile level that draws closest to 1:1 at the current scale
+  const pxPerMile=(mapH/2)/MAP_MILES*zoom;
+  const z=Math.round(Math.log2(pxPerMile*24901*Math.cos(CENTER.lat*Math.PI/180)/256));
+  return Math.max(10,Math.min(17,z));
 }
 function _lngToTX(lng,z){ return Math.floor((lng+180)/360*Math.pow(2,z)); }
 function _latToTY(lat,z){
@@ -3485,7 +3486,7 @@ function _getTile(tx,ty,tz){
 }
 function drawTiles(){
   const tz=_tileZoom();
-  const ppm=(mapH/2)/5;
+  const ppm=(mapH/2)/MAP_MILES;
   const cx=mapW/2+viewX, cy=mapH/2+viewY;
   const cos=Math.cos(CENTER.lat*Math.PI/180);
   const pxToLng=px=>CENTER.lng+(px-cx)/(69.11*cos*ppm*zoom);
@@ -3508,51 +3509,213 @@ function drawTiles(){
   ctx.fillRect(0,0,mapW,mapH);
 }
 
+// ══════════════════════════════════════════════════════
+//  LIVING CITY — shared spawns + shrines
+//  The world is a grid of ~170m cells. Each cell rolls its monsters from a
+//  seed of (world, cell, time window), so every hunter standing on the same
+//  street sees the same monsters at the same moment — no server needed.
+//  Windows are staggered per cell, so the streets churn instead of resetting.
+// ══════════════════════════════════════════════════════
 let spawns=[];
-function genSpawns(){
-  spawns=[];
-  const outsidePhilly = Player && distMiles(Player.lat,Player.lng,CENTER.lat,CENTER.lng) > 3;
+let shrines=[];
+const CELL_LAT = 0.0015, CELL_LNG = 0.002;   // ≈ 167m × 170m at Philly's latitude
+const SPAWN_WINDOW_MS = 15*60*1000;          // each cell rerolls every 15 min
+const SPAWN_RADIUS_CELLS = 3;                // 7×7 cells ≈ 0.3 mi around the hunter
+const ELITE_CHANCE = 0.04;
+const SHRINE_CHANCE = 0.14;
+const SHRINE_COOLDOWN_MS = 5*60*1000;
+const LIVING_KEY = 'darkworld_living_v1';    // { killed:{spawnId:expiresAt}, shrines:{shrineId:readyAt} }
+const ZONE_NOMINAL_LEVEL = [15, 10, 6, 3, 1];// the level each danger ring is "meant" for
+const WILDS_ZONE_WEIGHTS = [0.03, 0.09, 0.2, 0.33, 0.35]; // beyond the city rings
+const SHRINE_WORDS_A = ['Votive','Reliquary','Ossuary','Altar','Candle','Lantern','Grotto','Bell','Niche','Font'];
+const SHRINE_WORDS_B = ['of the Drowned Saint','of Broken Oaths','of the Last Mass','of Ash','of the Hanged Bell',
+  'of Saint Nobody','of the Nine Wicks','of the Quiet Dead','of Brass Teeth','of the Red Ledger','of the Unburied','of Low Tide'];
 
-  if(outsidePhilly){
-    // Outside Philadelphia: spawn 30 easy mobs (zones 3-4) within 100 feet of the player
-    const MAX_FEET = 100;
-    const MAX_MILES = MAX_FEET / 5280;
-    const total = 30;
-    const easyMobs = MOB_TYPES.filter(m=>m.zone>=3 && !m.questOnly);
-    for(let i=0;i<total;i++){
-      const angle = Math.random()*2*Math.PI;
-      const r = Math.random()*MAX_MILES;
-      const lat = Player.lat + (r/69.11)*Math.cos(angle);
-      const lng = Player.lng + (r/(69.11*Math.cos(Player.lat*Math.PI/180)))*Math.sin(angle);
-      const t = easyMobs[Math.floor(Math.random()*easyMobs.length)];
-      const mult = 1+Math.random()*0.4;
-      spawns.push({...t,lat,lng,
-        hp:Math.floor(t.hp*mult),maxHp:Math.floor(t.hp*mult),
-        atk:Math.floor(t.atk*mult),def:Math.floor(t.def*mult),
-        id:spawns.length,defeated:false,statuses:[]});
-    }
+let livingState = loadLiving();
+let livingCenterKey = null, livingLastRefresh = 0;
+
+function loadLiving(){
+  try {
+    const s = JSON.parse(localStorage.getItem(LIVING_KEY) || 'null');
+    if(s && s.killed && s.shrines) return s;
+  } catch(e){}
+  return { killed:{}, shrines:{} };
+}
+
+function saveLiving(){
+  const now = Date.now();
+  for(const k in livingState.killed) if(livingState.killed[k] < now) delete livingState.killed[k];
+  for(const k in livingState.shrines) if(livingState.shrines[k] < now) delete livingState.shrines[k];
+  try { localStorage.setItem(LIVING_KEY, JSON.stringify(livingState)); } catch(e){}
+}
+
+function hashStr(s){
+  let h = 2166136261;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+function seededRng(seed){ // mulberry32
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function zoneIndexAt(lat, lng){ // -1 = the wilds beyond the city's rings
+  const mi = distMiles(lat, lng, CENTER.lat, CENTER.lng);
+  return ZONES.findIndex(z => mi <= z.max);
+}
+
+// Same species for everyone; stats scale to the hunter who meets it (like CP in Pokémon GO),
+// so the streets stay worth walking at any level.
+function buildLivingMob(id, lat, lng, rng, expiresAt){
+  const zi = zoneIndexAt(lat, lng);
+  const tierRoll = rng(), pickRoll = rng(), eliteRoll = rng(), varRoll = rng();
+  let zone = zi;
+  if(zone >= 0){ // inside the city: mostly this ring's monsters, some from the gentler rings beyond
+    zone = Math.min(ZONES.length - 1, zi + (tierRoll < 0.55 ? 0 : tierRoll < 0.85 ? 1 : 2));
   } else {
-    // Inside Philadelphia: spawn by zone rings as normal
-    const counts=[8,18,22,20,12];
-    ZONES.forEach((z,zi)=>{
-      const minR=zi?ZONES[zi-1].max:0.3;
-      const mobs=MOB_TYPES.filter(m=>m.zone===zi && !m.questOnly);
-      if(!mobs.length)return;
-      for(let i=0;i<counts[zi];i++){
-        const angle=Math.random()*2*Math.PI;
-        const r=minR+Math.random()*(z.max-minR);
-        const lat=CENTER.lat+(r/69.11)*Math.cos(angle);
-        const lng=CENTER.lng+(r/(69.11*Math.cos(CENTER.lat*Math.PI/180)))*Math.sin(angle);
-        const t=mobs[Math.floor(Math.random()*mobs.length)];
-        const mult=1+Math.random()*0.4;
-        spawns.push({...t,lat,lng,
-          hp:Math.floor(t.hp*mult),maxHp:Math.floor(t.hp*mult),
-          atk:Math.floor(t.atk*mult),def:Math.floor(t.def*mult),
-          id:spawns.length,defeated:false,statuses:[]});
+    let acc = 0; zone = WILDS_ZONE_WEIGHTS.length - 1;
+    for(let z=0; z<WILDS_ZONE_WEIGHTS.length; z++){ acc += WILDS_ZONE_WEIGHTS[z]; if(tierRoll < acc){ zone = z; break; } }
+  }
+  const pool = MOB_TYPES.filter(m => m.zone === zone && !m.questOnly);
+  const t = pool[Math.floor(pickRoll * pool.length)];
+  const elite = eliteRoll < ELITE_CHANCE;
+  const L = (Player && Player.level) || 1;
+  const gap = Math.max(0, L - 2 - ZONE_NOMINAL_LEVEL[zone]);
+  const lvl = ZONE_NOMINAL_LEVEL[zone] + gap;
+  const v = 1 + varRoll * 0.4;
+  const grow = Math.pow(1.1, gap);
+  const hp = Math.floor(t.hp * v * grow * (elite ? 2.2 : 1));
+  return {...t, lat, lng, id:'L'+id, livingId:id, expiresAt, elite, lvl, zone,
+    type: `${elite ? '★ ELITE · ' : ''}LV ${lvl} · ${zi >= 0 ? ZONES[zi].name.toUpperCase() : 'THE WILDS'}`,
+    hp, maxHp:hp,
+    atk: Math.floor(t.atk * v * grow * (elite ? 1.35 : 1)),
+    def: Math.floor(t.def * v * Math.pow(1.08, gap)),
+    xp: Math.floor(t.xp * (1 + gap * 0.15) * (elite ? 3 : 1)),
+    gold: t.gold.map(g => Math.floor(g * (1 + gap * 0.1) * (elite ? 3 : 1))),
+    defeated:false, statuses:[], poisonStacks:0};
+}
+
+function refreshLiving(force){
+  if(!Player || !CENTER) return;
+  const now = Date.now();
+  const cx0 = Math.floor(Player.lng / CELL_LNG), cy0 = Math.floor(Player.lat / CELL_LAT);
+  const key = `${selectedWorld}|${cx0}:${cy0}`;
+  if(!force && key === livingCenterKey && now - livingLastRefresh < 20000) return;
+  livingCenterKey = key; livingLastRefresh = now;
+
+  const prev = new Map(spawns.filter(s => s.livingId).map(s => [s.livingId, s]));
+  const fresh = [];
+  shrines = [];
+  for(let dy=-SPAWN_RADIUS_CELLS; dy<=SPAWN_RADIUS_CELLS; dy++){
+    for(let dx=-SPAWN_RADIUS_CELLS; dx<=SPAWN_RADIUS_CELLS; dx++){
+      const cx = cx0 + dx, cy = cy0 + dy, cell = `${cx}:${cy}`;
+
+      const srng = seededRng(hashStr('shrine|' + cell));
+      if(srng() < SHRINE_CHANCE){
+        shrines.push({ id:'S' + cell,
+          lat:(cy + 0.15 + srng()*0.7) * CELL_LAT, lng:(cx + 0.15 + srng()*0.7) * CELL_LNG,
+          name:`${SHRINE_WORDS_A[Math.floor(srng()*SHRINE_WORDS_A.length)]} ${SHRINE_WORDS_B[Math.floor(srng()*SHRINE_WORDS_B.length)]}` });
       }
-    });
+
+      const offset = hashStr('win|' + cell) % SPAWN_WINDOW_MS;
+      const win = Math.floor((now + offset) / SPAWN_WINDOW_MS);
+      const expiresAt = (win + 1) * SPAWN_WINDOW_MS - offset;
+      const rng = seededRng(hashStr(`${selectedWorld}|${cell}|${win}`));
+      const roll = rng();
+      const n = roll < 0.6 ? 0 : roll < 0.95 ? 1 : 2;
+      for(let i=0; i<n; i++){
+        const id = `${cell}:${win}:${i}`;
+        const lat = (cy + 0.1 + rng()*0.8) * CELL_LAT, lng = (cx + 0.1 + rng()*0.8) * CELL_LNG;
+        const built = buildLivingMob(id, lat, lng, rng, expiresAt); // always consume the same rng draws
+        const mob = prev.get(id) || built;
+        if(!livingState.killed[id] && !mob.defeated) fresh.push(mob);
+      }
+    }
+  }
+  spawns = spawns.filter(s => !s.livingId).concat(fresh); // quest mobs survive
+  if(inCombat && curEnemy && curEnemy.livingId && !spawns.includes(curEnemy)) spawns.push(curEnemy);
+  markDirty();
+}
+
+function genSpawns(){ refreshLiving(true); }
+
+function markLivingKilled(mob){
+  if(!mob || !mob.livingId) return;
+  livingState.killed[mob.livingId] = mob.expiresAt;
+  saveLiving();
+}
+
+function drawShrines(){
+  const now = Date.now(), t = now / 900;
+  for(const sh of shrines){
+    const p = ll2px(sh.lat, sh.lng);
+    if(p.x < -40 || p.x > mapW+40 || p.y < -40 || p.y > mapH+40) continue;
+    const spent = (livingState.shrines[sh.id] || 0) > now;
+    const r = Math.max(9, 11*zoom);
+    if(!spent){
+      ctx.globalAlpha = 0.22 + 0.1*Math.sin(t + p.x);
+      ctx.fillStyle = '#d4a020';
+      ctx.beginPath(); ctx.arc(p.x, p.y, r*2.4, 0, Math.PI*2); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
+    ctx.fillStyle = spent ? '#0c0a10' : '#1a1206'; ctx.fill();
+    ctx.strokeStyle = spent ? '#3a3040' : '#d4a020'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.globalAlpha = spent ? 0.35 : 1;
+    ctx.font = `${Math.floor(Math.max(11, 11*zoom))}px serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🕯', p.x, p.y);
+    ctx.globalAlpha = 1;
+    if(zoom > 1.2){
+      ctx.font = `${Math.max(7, 7*zoom)}px "Share Tech Mono"`;
+      ctx.fillStyle = spent ? 'rgba(120,100,140,0.6)' : 'rgba(212,160,32,0.85)';
+      ctx.textBaseline = 'top';
+      ctx.fillText(sh.name, p.x, p.y + r + 3);
+    }
   }
 }
+
+function spinShrine(sh){
+  const now = Date.now();
+  const ready = livingState.shrines[sh.id] || 0;
+  if(ready > now){
+    addLog(`🕯 ${sh.name} is spent. It rekindles in ${Math.ceil((ready-now)/60000)}m.`, 'ls');
+    return;
+  }
+  livingState.shrines[sh.id] = now + SHRINE_COOLDOWN_MS;
+  saveLiving();
+  const L = Player.level || 1;
+  const gold = ri(15, 40) * (1 + Math.floor(L/3));
+  const xp = Math.floor(xpForLevel(L) * 0.04) + 10;
+  const drops = [];
+  const r = Math.random();
+  if(r < 0.45) drops.push('Minor Heal');
+  else if(r < 0.60) drops.push(L >= 5 ? 'Major Heal' : 'Minor Heal');
+  else if(r < 0.72) drops.push('Elixir');
+  if(Math.random() < 0.05){
+    const maxTier = L < 5 ? 1 : L < 12 ? 2 : 3;
+    const pool = Object.keys(ITEMS).filter(n => ITEMS[n].type !== 'potion' && ITEMS[n].tier <= maxTier && ITEMS[n].tier < 4 && ITEMS[n].cost > 0);
+    if(pool.length) drops.push(pool[Math.floor(Math.random()*pool.length)]);
+  }
+  const kept = [];
+  drops.forEach(n => { if(Player.inventory.length < BAG_SIZE){ Player.inventory.push(n); kept.push(n); } });
+  Player.gold += gold; Player.xp += xp;
+  addLog(`🕯 ${sh.name}: +${gold} gold, +${fmt(xp)} XP${kept.length ? ' · ' + kept.join(', ') : ''}`, 'll');
+  if(kept.length < drops.length) addLog('⚠ Your bag is full. Some offerings were left behind.', 'ls');
+  showLoot(xp, gold, kept);
+  pendingLevelUps = [];
+  while(Player.xp >= Player.xpNext && Player.level < 100) levelUp();
+  setPUI(); markDirty(); saveGame();
+  if(pendingLevelUps.length) setTimeout(showNextLevelUp, 200);
+}
+
 
 function resize(){
   const c=document.getElementById('map-wrap');
@@ -3569,6 +3732,7 @@ function render(){
   drawTiles();
 
   drawGrid(); drawZones(); drawPaths();
+  drawShrines();
   spawns.forEach(s=>{ if(!s.defeated)drawMob(s); });
   BOSSES.forEach(b=>{ if(!b.defeated)drawBoss(b); });
   drawQuestMarkers();
@@ -3591,7 +3755,7 @@ function drawZones(){
   [...ZONES].reverse().forEach(z=>{
     const r=mi2px(z.max);
     ctx.beginPath(); ctx.arc(c.x,c.y,r,0,Math.PI*2);
-    ctx.fillStyle=z.color; ctx.fill();
+    ctx.globalAlpha=0.45; ctx.fillStyle=z.color; ctx.fill(); ctx.globalAlpha=1; // let the streets show through
     ctx.strokeStyle=z.color.replace(/[\d.]+\)$/,'0.6)');
     ctx.lineWidth=1; ctx.setLineDash([4,5]); ctx.stroke(); ctx.setLineDash([]);
     if(zoom>0.25){
@@ -3617,9 +3781,9 @@ function drawMob(s){
   if(p.x < -40 || p.x > mapW+40 || p.y < -40 || p.y > mapH+40) return;
   const r=Math.max(10,13*zoom);
   // Outer blood-glow
-  ctx.globalAlpha=0.38;
+  ctx.globalAlpha=0.28;
   ctx.fillStyle='rgba(200,20,40,1)';
-  ctx.beginPath(); ctx.arc(p.x,p.y,r*2.8,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(p.x,p.y,r*1.9,0,Math.PI*2); ctx.fill();
   // Mid shadow ring
   ctx.globalAlpha=0.20;
   ctx.fillStyle='rgba(60,0,10,1)';
@@ -3643,10 +3807,15 @@ function drawMob(s){
   // Thin outer silhouette ring
   ctx.beginPath(); ctx.arc(p.x,p.y,r*1.22,0,Math.PI*2);
   ctx.strokeStyle='rgba(180,0,20,0.3)'; ctx.lineWidth=1; ctx.stroke();
-  if(zoom>1.0){
-    ctx.font=`bold ${Math.max(8,9*zoom)}px "Share Tech Mono"`;
-    ctx.fillStyle='rgba(230,100,110,0.9)'; ctx.textBaseline='top'; ctx.textAlign='center';
-    ctx.fillText(s.name,p.x,p.y+r+3);
+  if(s.elite){
+    const tt=Date.now()/500;
+    ctx.beginPath(); ctx.arc(p.x,p.y,r*(1.45+0.12*Math.sin(tt)),0,Math.PI*2);
+    ctx.strokeStyle='rgba(212,160,32,0.85)'; ctx.lineWidth=2; ctx.stroke();
+  }
+  if(zoom>2.6||s.elite){
+    ctx.font=`bold ${Math.max(8,Math.min(13,9*zoom))}px "Share Tech Mono"`;
+    ctx.fillStyle=s.elite?'rgba(230,180,60,0.95)':'rgba(230,100,110,0.9)'; ctx.textBaseline='top'; ctx.textAlign='center';
+    ctx.fillText(`${s.elite?'★ ':''}${s.name}${s.lvl?' · '+s.lvl:''}`,p.x,p.y+r+3);
   }
 }
 
@@ -3864,7 +4033,7 @@ canvas.addEventListener('click',e=>{ handleClick(e.clientX,e.clientY); });
 canvas.addEventListener('wheel',e=>{
   e.preventDefault();
   const oldZoom=zoom;
-  zoom=Math.max(0.3,Math.min(4,zoom*(e.deltaY>0?0.85:1.18)));
+  zoom=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,zoom*(e.deltaY>0?0.85:1.18)));
   const ratio=zoom/oldZoom;
   viewX=e.clientX-mapW/2-(e.clientX-mapW/2-viewX)*ratio;
   viewY=e.clientY-mapH/2-(e.clientY-mapH/2-viewY)*ratio;
@@ -3936,7 +4105,7 @@ canvas.addEventListener('touchmove',e=>{
     isPinching=true; touchMoved=true;
     const dist=touchDist(e.touches);
     const mid=touchMid(e.touches);
-    const newZoom=Math.max(0.3,Math.min(4, pinchZoom*(dist/pinchDist)));
+    const newZoom=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM, pinchZoom*(dist/pinchDist)));
     const ratio=newZoom/pinchZoom;
     // Anchor the world point under pinchMid to the current mid (handles zoom + simultaneous pan)
     viewX=mid.x-mapW/2-(pinchMid.x-mapW/2-pinchView.x)*ratio;
@@ -4058,6 +4227,15 @@ function handleClick(cx,cy){
     const p=ll2px(b.lat,b.lng);
     if(Math.hypot(cx-p.x,cy-p.y)<(b.isWorld?22:16)){
       showBossReveal(b); return;
+    }
+  }
+  for(const sh of shrines){
+    const p=ll2px(sh.lat,sh.lng);
+    if(Math.hypot(cx-p.x,cy-p.y)<Math.max(11,11*zoom)){
+      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,sh.lat,sh.lng)>ENGAGE_MILES){
+        addLog(`⚠ Walk closer to light ${sh.name}.`,'ls'); return;
+      }
+      spinShrine(sh); return;
     }
   }
   for(const s of spawns){
@@ -4665,7 +4843,7 @@ function setGPSStatus(state,txt){
 function centerOnPlayer(){
   if(!Player)return;
   autoFollow=true;
-  const ppm=(mapH/2)/5;
+  const ppm=(mapH/2)/MAP_MILES;
   viewX=-(Player.lng-CENTER.lng)*69.11*Math.cos(CENTER.lat*Math.PI/180)*ppm*zoom;
   viewY=(Player.lat-CENTER.lat)*69.11*ppm*zoom;
   markDirty();
@@ -4692,6 +4870,7 @@ function startGPS(){
         Player.lat=lat; Player.lng=lng;
       }
       updateZone();
+      refreshLiving();
       if(autoFollow) centerOnPlayer(); else markDirty();
       if(!gpsFirstLock){
         gpsFirstLock=true;
@@ -5316,6 +5495,7 @@ function victory(){
   }
   curEnemy.defeated=true; curEnemy.hp=0;
   curEnemy.poisonStacks=0;
+  markLivingKilled(curEnemy);
   onEntityKilled(curEnemy.name, isBoss);
   // Bloodthirst: heal 5% max HP on kill
   if(Player.skills?.classUnique && Player.className==='Fighter'){
@@ -6787,7 +6967,8 @@ function startGameTimers(){
   _gameTimersStarted = true;
   netStartRaidWatch();
   setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
-  setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)markDirty(); }, 60000);
+  setInterval(()=>refreshLiving(true), 20000);
+  setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.questMob&&s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)markDirty(); }, 60000);
 }
 
 // ══════════════════════════════════════════════════════
