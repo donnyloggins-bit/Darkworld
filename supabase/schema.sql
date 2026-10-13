@@ -241,3 +241,26 @@ select id, world, name, emoji, spawn_at, clues
 from public.raid_bosses
 where defeated_at is null and spawn_at > now();
 grant select on public.raid_teasers to anon, authenticated;
+
+
+-- ══════════════════════════════════════════════════════
+--  ACCOUNT DELETION (required by the App Store and Google Play)
+--  Deletes the caller's login. Their cloud save, presence and raid
+--  damage go with it (on delete cascade); raids they killed keep the
+--  kill but forget who landed it.
+-- ══════════════════════════════════════════════════════
+create or replace function public.delete_my_account()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'Not signed in';
+  end if;
+  delete from auth.users where id = auth.uid();
+end;
+$$;
+revoke all on function public.delete_my_account() from public, anon;
+grant execute on function public.delete_my_account() to authenticated;

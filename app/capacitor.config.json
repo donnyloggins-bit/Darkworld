@@ -1,0 +1,19 @@
+{
+  "appId": "com.darkworldgame.app",
+  "appName": "DARKWORLD",
+  "webDir": "www",
+  "backgroundColor": "#030205",
+  "android": {
+    "backgroundColor": "#030205"
+  },
+  "ios": {
+    "backgroundColor": "#030205",
+    "contentInset": "never"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "DARK"
+    }
+  }
+}

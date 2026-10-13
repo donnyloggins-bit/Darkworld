@@ -84,10 +84,13 @@ The `ONLINE` section of `index.html` (after the save system) holds everything se
 - **Social**: `hunter_leaderboard` view (safe columns only) and `hunters_near()` (counts only; presence rows are unreadable, ~1 km cells). Never expose `user_id`, emails or exact positions.
 - **Trust**: the client is untrusted. Never add RLS policies that let players write `raid_bosses` or `raid_damage` directly; damage goes through `raid_hit()`, which clamps it.
 
+### Native apps (`app/`)
+`app/` wraps the game with Capacitor 8 for iOS/Android; it is the only place npm is used. `npm run build:web` (`app/scripts/build-www.mjs`) copies `index.html`, `privacy.html`, `manifest.json`, `icons/` and every root image into `app/www` and writes `config.js` from `SUPABASE_URL`/`SUPABASE_ANON_KEY`. `npx cap sync` copies it into the native projects. `.github/workflows/android.yml` builds a debug APK and a release AAB (signed when the `ANDROID_KEYSTORE_*` secrets exist). iOS must be built on a Mac (`npm run ios`). The service worker is skipped inside the app (`IS_NATIVE_APP`). Safe areas: use `var(--sat)`/`var(--sab)` for anything pinned to the top/bottom edge. Store requirements live in-game: Delete Account (`delete_my_account()`) and `privacy.html`. See `app/STORE-GUIDE.md`.
+
 ## Conventions & Constraints
 
 - **Portrait-only**: A landscape warning modal blocks play. Don't break this.
-- **No external JS dependencies**: Keep it that way — no npm, no CDN scripts beyond Google Fonts. Talk to Supabase with `netRequest()`/`netAuthed()`, not the SDK.
+- **No external JS dependencies**: Keep it that way — no npm in the game, no CDN scripts beyond Google Fonts (npm lives only in `app/` for the native shell). Talk to Supabase with `netRequest()`/`netAuthed()`, not the SDK.
 - **Secrets**: never commit `config.js` or `.env`. The anon key is injected at deploy time; the service-role key never goes anywhere near the client.
 - **Image assets**: Boss/NPC/mob portraits are PNG/JPEG files in the repo root, referenced by filename string in data constants. When adding new art, add the file to the root and reference it in the appropriate data constant.
 - **CSS custom properties**: Colors are defined as CSS vars at the top of the `<style>` block (`--void`, `--abyss`, `--blood`, `--gold`, etc.). Use these rather than hardcoding hex values.

@@ -1763,6 +1763,33 @@ body:not(.net-on) .net-only { display:none !important; }
 .city-name { font-size:.9rem; color:var(--bone); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .city-epi { font-size:.78rem; color:#8a7aa0; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .city-cell.got .city-epi { color:#c08080; }
+
+/* ══ SAFE AREAS (notches, status bars) ══
+   iOS (Safari + app) provides env(); the Android app injects --safe-area-inset-*. */
+:root {
+  --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+}
+#coord-hud, #hint-hud { top:calc(12px + var(--sat)); }
+#gps-hud { top:calc(46px + var(--sat)); }
+#raid-hud { top:calc(80px + var(--sat)); }
+#hunters-hud { top:calc(var(--hud-row, 80px) + var(--sat)) !important; }
+#toast { top:calc(14px + var(--sat)); }
+#map-nav, #me-hud { bottom:calc(14px + var(--sab)); }
+#ar-back, #ar-status { top:calc(20px + var(--sat)); }
+#ar-compass { bottom:calc(28px + var(--sab)); }
+#ar-filter-btn { bottom:calc(60px + var(--sab)); }
+#sidebar { padding-top:var(--sat); padding-bottom:var(--sab); }
+/* Full-screen panels sit inside the safe area (on the web both values are 0, so nothing moves) */
+.screen:not(#screen-game):not(#screen-ar), #combat-modal, #boss-reveal, #death-screen,
+#hunt-modal, #acct-modal, #inv-modal, #shop-modal, #levelup-modal, #quest-modal {
+  top:var(--sat) !important; bottom:var(--sab) !important;
+}
+
+.acct-delete { width:100%; margin-top:14px; background:transparent; border:1px solid #5a1a1a; color:#cc6060;
+  font-family:'Share Tech Mono',monospace; font-size:.78rem; letter-spacing:.12em; padding:8px; cursor:pointer; }
+.acct-delete:disabled { opacity:.5; }
+.acct-privacy { text-align:center; font-size:.85rem; color:#7a6a90; }
 </style>
 </head>
 <body>
@@ -2203,9 +2230,11 @@ body:not(.net-on) .net-only { display:none !important; }
         <button class="acct-btn" onclick="acctSyncNow()">SYNC NOW</button>
         <button class="acct-btn" onclick="acctSignOut()">SIGN OUT</button>
       </div>
+      <button class="acct-delete" onclick="acctDelete()">DELETE ACCOUNT</button>
     </div>
     <div class="acct-msg" id="acct-msg"></div>
     <button class="acct-close" onclick="closeAccount()">CLOSE</button>
+    <a class="acct-privacy" href="privacy.html">Privacy policy</a>
   </div>
 </div>
 
@@ -6729,6 +6758,28 @@ async function acctSyncNow(){
   setAcctBusy(false); setAcctMsg('');
 }
 
+// Permanently deletes the login and everything stored with it on the server.
+// The hunter saved on this device stays (it's theirs), just no longer linked.
+async function acctDelete(){
+  if(!netSession) return;
+  if(!confirm(`Delete the account ${netSession.user.email}?\n\nThis permanently erases your login, your cloud save and your raid record. It cannot be undone.`)) return;
+  if(prompt('Type DELETE to confirm.') !== 'DELETE'){ setAcctMsg('Account not deleted.'); return; }
+  setAcctBusy(true); setAcctMsg('Erasing your name from the ledger…');
+  try {
+    clearTimeout(netSaveTimer); netPendingSave = null;
+    await netAuthed('/rest/v1/rpc/delete_my_account', { method:'POST', body:{} });
+    const save = loadSave();
+    if(save && save.owner){ delete save.owner; localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }
+    netCloudConflict = false; netConflictCloud = null; netSyncText = '';
+    netStoreSession(null);
+    setAcctMsg('Your account and cloud data are deleted. Your hunter on this device remains.');
+  } catch(e){
+    setAcctMsg(e.message || 'Could not delete the account. Try again.', true);
+  } finally {
+    setAcctBusy(false);
+  }
+}
+
 async function acctSignOut(){
   setAcctBusy(true);
   await netSignOut();
@@ -7113,7 +7164,7 @@ function renderRaidUI(){
     hud.style.display = 'none';
     panel.style.display = 'none';
   }
-  if(near) near.style.top = hud.style.display === 'none' ? '80px' : '114px';
+  if(near) near.style.setProperty('--hud-row', hud.style.display === 'none' ? '80px' : '114px');
 }
 
 async function netInit(){
@@ -7884,7 +7935,8 @@ document.addEventListener('touchstart', ()=>getAudioCtx(), {once:true, passive:t
 document.addEventListener('click',      ()=>getAudioCtx(), {once:true});
 
 // ── SERVICE WORKER ─────────────────────────────────────
-if('serviceWorker' in navigator){
+const IS_NATIVE_APP = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+if('serviceWorker' in navigator && !IS_NATIVE_APP){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('/sw.js').catch(err=>console.warn('SW registration failed:',err));
   });
