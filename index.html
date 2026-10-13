@@ -1182,6 +1182,16 @@ body::before {
 
 /* Potion */
 .abtn.potion-btn { flex:0 0 74px; border-color:#1a6a5a; }
+/* Fit every action on a phone screen: 4 abilities, then potion + escape as a slim row */
+#ab-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; overflow:visible; }
+#ab-grid .abtn { height:92px; min-width:0; padding:16px 2px 6px; }
+#ab-grid .abtn-emoji { font-size:1.9rem; }
+#ab-grid .abtn-name { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#ab-grid .potion-btn .abtn-name, #ab-grid .flee-btn .abtn-name { max-width:none; overflow:visible; }
+#ab-grid .abtn.potion-btn, #ab-grid .abtn.flee-btn { grid-column:span 2; height:44px; flex-direction:row; gap:8px; padding:4px 8px 4px 56px; }
+#ab-grid .potion-btn .abtn-emoji, #ab-grid .flee-btn .abtn-emoji { font-size:1.3rem; }
+#ab-grid .potion-btn .abtn-type, #ab-grid .flee-btn .abtn-type { top:0; bottom:0; right:auto; width:50px; display:flex; align-items:center; justify-content:center; padding:0; }
+#turn-ind.riposte { color:var(--gold); text-shadow:0 0 10px rgba(212,160,32,0.8); animation:timerPulse .25s ease infinite; }
 .abtn.potion-btn .abtn-type { background:#0a3a30; color:#44ddbb; }
 .abtn.potion-btn:not(:disabled):hover { border-color:#30ccaa; box-shadow:0 0 8px rgba(48,200,160,0.3); }
 .abtn.potion-btn:disabled { border-color:#1a3a30; opacity:.45; }
@@ -1205,6 +1215,7 @@ body::before {
 .dmg-orange { color:#ff8800; font-size:3rem;   text-shadow:0 0 14px rgba(255,120,0,1); }
 .dmg-red    { color:#ff2200; font-size:3.6rem; text-shadow:0 0 18px rgba(255,40,0,1); }
 .dmg-crit   { color:#fffbe0; font-size:5rem; -webkit-text-stroke:3px #cc2200; animation:dmgCrit 1.0s ease forwards; text-shadow:0 0 20px #fff,0 0 40px #ffcc00,0 0 80px rgba(200,80,0,0.8); }
+.dmg-riposte { color:#ffe9a0; font-size:clamp(1.8rem,10vw,2.8rem); -webkit-text-stroke:2px #8a5a00; animation:dmgCrit 1.0s ease forwards; text-shadow:0 0 16px rgba(255,200,60,0.9); white-space:nowrap; }
 .dmg-overkill { color:#dd00ff; font-size:2.2rem; text-shadow:0 0 16px rgba(200,0,255,0.8); }
 .dmg-dodge  { color:#4a80cc; font-size:1.1rem; }
 .dmg-heal   { color:#22ee66; font-size:1.8rem; text-shadow:0 0 14px rgba(0,220,80,0.8); }
@@ -1928,7 +1939,7 @@ body:not(.net-on) .net-only { display:none !important; }
     <div id="cb-top">
       <div id="boss-charge-veil"></div>
       <div id="enemy-atk-flash"></div>
-      <img id="boss-portrait" src="" alt="" style="display:none;width:100%;max-height:220px;object-fit:cover;object-position:top;border-bottom:2px solid #b8962a;margin-bottom:6px;">
+      <img id="boss-portrait" src="" alt="" style="display:none;width:100%;max-height:min(220px,24vh);object-fit:cover;object-position:top;border-bottom:2px solid #b8962a;margin-bottom:6px;">
       <div id="cb-name">ENEMY</div>
       <div id="cb-type">TYPE</div>
       <span id="e-spr" class="c-sprite">💀</span>
@@ -5173,6 +5184,7 @@ let combatInterval=null, lastStatusTick=0, lastResRegen=0;
 let playerCombo=0;
 let playerActLocked=false; // global lockout between player actions
 const ACT_LOCKOUT=600; // ms between any player action
+const RIPOSTE_FRAC=0.18; // last 18% of the enemy's attack bar: strike now to parry and counter
 const CD_SCALE=2500; // ms per "cd unit"
 
 function startCombatTimer(){
@@ -5201,8 +5213,10 @@ function combatTick(){
     track.classList.toggle('timer-danger', pct>85);
   }
   if(ind){
-    if(pct>85){ ind.textContent='⚠ INCOMING ⚠'; ind.classList.add('incoming'); }
-    else { ind.textContent='ATTACK · ENEMY STRIKES WHEN BAR FILLS'; ind.classList.remove('incoming'); }
+    const inWindow = pct>(1-RIPOSTE_FRAC)*100 && !eStatuses.find(s=>s.type==='stun');
+    ind.classList.toggle('riposte', inWindow);
+    ind.classList.remove('incoming');
+    ind.textContent = inWindow ? '⚔ STRIKE NOW — RIPOSTE ⚔' : 'ATTACK · STRIKE AS THE BAR FILLS TO RIPOSTE';
   }
 
   // Enemy attack
@@ -5241,6 +5255,8 @@ function startCombat(ent,boss){
   inCombat=true; isBoss=boss; curEnemy=ent;
   eStatuses=[]; Player.statuses=[];
   Player.cooldowns={};
+  // Battle-ready: classes that build resource in combat start with enough for one Core ability
+  if(Player.cls.resStart < Player.cls.resMax*0.5) Player.res = Math.max(Player.res, Math.ceil(Player.maxRes*0.35));
   Player.titanUsed = false;
   Player.shadowStrikeUsed = false;
   Player.surgeCount = Player.surgeCount || 0;
@@ -5259,9 +5275,10 @@ function startCombat(ent,boss){
   document.getElementById('e-spr').textContent=ent.emoji;
   document.getElementById('p-spr').textContent=Player.emoji;
   document.getElementById('p-cname').textContent=Player.name;
-  setCLog(boss
+  setCLog((boss
     ?`${ent.name} fixes its ancient gaze upon you. The world grows cold.`
-    :`A ${ent.name} emerges from the darkness. It hungers for your soul.`);
+    :`A ${ent.name} emerges from the darkness. It hungers for your soul.`)
+    + ((Player.ripostes||0) < 3 ? ' Strike as its bar fills red to RIPOSTE.' : ''));
 
   playerCombo=0; playerActLocked=false; _cbLogLines=[];
   buildAbilityButtons();
@@ -5447,6 +5464,18 @@ function playerAct(ability){
     if(Player.skills?.t1==='arcane') cdMs = Math.max(0, cdMs - 400);
     if(Player.skills?.t3==='archmage') cdMs = Math.floor(cdMs * 0.70);
     Player.cooldowns[ability.name] = now + cdMs;
+  }
+
+  // Riposte: a damaging blow landed in the enemy's wind-up parries it and hits harder
+  const atkInterval = isBoss ? 5000 : 4000;
+  const untilHit = curEnemy.nextAttackAt - now;
+  if(ability.dmgMult>0 && untilHit>0 && untilHit<=atkInterval*RIPOSTE_FRAC && !eStatuses.find(s=>s.type==='stun')){
+    ability = {...ability, dmgMult: ability.dmgMult*1.5};
+    curEnemy.nextAttackAt = now + atkInterval;
+    Player.ripostes = (Player.ripostes||0) + 1;
+    showDamageNum('RIPOSTE!','dmg-riposte','left');
+    flashScreen('white'); sndDodge();
+    setCLog(`⚔ RIPOSTE! You turn ${curEnemy.name}'s blow aside and strike back.`);
   }
 
   // Resource generation effects
@@ -6086,6 +6115,7 @@ function saveGame(){
       bestiary: Player.bestiary || {},
       daily: Player.daily || null,
       walkedMi: Player.walkedMi || 0,
+      ripostes: Player.ripostes || 0,
     },
     bossStates: BOSSES.filter(b => !b.isRaid).map(b => b.defeated || false),
     world: selectedWorld,
