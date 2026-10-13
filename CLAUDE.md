@@ -78,6 +78,9 @@ New characters get `Player.tutorial` = 'fight' → 'riposte' → 'shrine' → 'h
 ### Riposte
 Using a damaging ability in the last `RIPOSTE_FRAC` of the enemy's attack bar parries the hit (resets `nextAttackAt`) and deals 1.5x.
 
+### Turf Wars
+Three orders (`FACTIONS`: lantern, bell, river) compete for `PHILLY_DISTRICTS` each week (Monday 00:00 Eastern; `turfWeekKey()` must match the server's `turf_week()`). `turfEarn(kind)` adds `TURF_POINTS` for the district the player is in to `turfPending` (and to `turfStandings` at once so the tab moves); `turfFlush()` sends the batch to `add_influence()` every 60s and requeues on failure. Holder = most points; members get `turfBonus()` (+10% XP/gold) in held districts. Hooks: `huntOnKill` (not raids or the tutorial mob), `spinShrine`, `huntOnGPS`, `victory`, `checkDistrict`, `drawTurfBanners` in `render`. Recruiting opens the TURF tab once at level 3. The server's faction wins (`turfSyncFaction`). Online-only: the tab is `net-only`. Never let the client pick the faction or district in SQL: `add_influence()` reads the faction from `player_faction`, validates districts against `turf_districts` and caps 400 points/hour.
+
 ### Online (Supabase)
 The `ONLINE` section of `index.html` (after the save system) holds everything server-side. Schema, RLS and the `raid_hit()` function live in `supabase/schema.sql`; `supabase/start-raid.sql` starts a raid. Setup steps for humans are in `SUPABASE-SETUP.md`.
 - **Gate**: `NET_ON` is false when `window.DW_CONFIG` is missing — every online entry point must no-op in that case.

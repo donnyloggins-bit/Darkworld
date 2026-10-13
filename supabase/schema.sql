@@ -264,3 +264,158 @@ end;
 $$;
 revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
+
+
+-- ══════════════════════════════════════════════════════
+--  TURF WARS — three orders fight for Philadelphia's districts
+--  Influence earned in a district (kills, shrines, walking) counts for
+--  the player's order that week (weeks start Monday, Eastern time).
+--  The order with the most influence in a district holds it.
+-- ══════════════════════════════════════════════════════
+create table if not exists public.player_faction (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  faction    text not null check (faction in ('lantern','bell','river')),
+  chosen_at  timestamptz not null default now()
+);
+alter table public.player_faction enable row level security;
+drop policy if exists "player_faction: read own" on public.player_faction;
+create policy "player_faction: read own" on public.player_faction for select to authenticated using (auth.uid() = user_id);
+
+create table if not exists public.turf_influence (
+  week      date not null,
+  district  text not null check (char_length(district) <= 40),
+  faction   text not null check (faction in ('lantern','bell','river')),
+  points    bigint not null default 0,
+  primary key (week, district, faction)
+);
+alter table public.turf_influence enable row level security;
+drop policy if exists "turf_influence: public read" on public.turf_influence;
+create policy "turf_influence: public read" on public.turf_influence for select to anon, authenticated using (true);
+
+-- hourly budget per player, so nobody can flood a district from their couch
+create table if not exists public.turf_user_hour (
+  user_id  uuid not null references auth.users(id) on delete cascade,
+  hour     timestamptz not null,
+  points   int not null default 0,
+  primary key (user_id, hour)
+);
+alter table public.turf_user_hour enable row level security; -- no policies: only the functions below touch it
+
+-- The only district names influence can go to (keep in sync with PHILLY_DISTRICTS in index.html)
+create table if not exists public.turf_districts (name text primary key);
+alter table public.turf_districts enable row level security;
+drop policy if exists "turf_districts: public read" on public.turf_districts;
+create policy "turf_districts: public read" on public.turf_districts for select to anon, authenticated using (true);
+insert into public.turf_districts (name) values
+  ('Rittenhouse'),
+  ('Logan Square'),
+  ('Fitler Square'),
+  ('Graduate Hospital'),
+  ('Washington Square West'),
+  ('Chinatown'),
+  ('Callowhill'),
+  ('Old City'),
+  ('Society Hill'),
+  ('Queen Village'),
+  ('Bella Vista'),
+  ('Pennsport'),
+  ('Passyunk Square'),
+  ('East Passyunk'),
+  ('Point Breeze'),
+  ('Grays Ferry'),
+  ('Girard Estate'),
+  ('Whitman'),
+  ('Sports Complex'),
+  ('Northern Liberties'),
+  ('Fishtown'),
+  ('Olde Kensington'),
+  ('Kensington'),
+  ('Port Richmond'),
+  ('Fairhill'),
+  ('Poplar'),
+  ('Francisville'),
+  ('Spring Garden'),
+  ('Fairmount'),
+  ('Brewerytown'),
+  ('North Central'),
+  ('Strawberry Mansion'),
+  ('Nicetown'),
+  ('Hunting Park'),
+  ('Frankford'),
+  ('East Falls'),
+  ('Manayunk'),
+  ('Roxborough'),
+  ('Germantown'),
+  ('Mount Airy'),
+  ('Chestnut Hill'),
+  ('University City'),
+  ('Powelton'),
+  ('Mantua'),
+  ('Spruce Hill'),
+  ('Cedar Park'),
+  ('Mill Creek'),
+  ('Cobbs Creek'),
+  ('Wynnefield'),
+  ('Overbrook'),
+  ('Kingsessing'),
+  ('Eastwick'),
+  ('Mayfair'),
+  ('Fox Chase')
+on conflict (name) do nothing;
+
+create or replace function public.turf_week() returns date
+language sql stable as $$ select (date_trunc('week', now() at time zone 'America/New_York'))::date $$;
+
+-- Join an order. Switching is allowed once every 30 days.
+create or replace function public.choose_faction(p_faction text)
+returns text
+language plpgsql security definer set search_path = public
+as $$
+declare uid uuid := auth.uid(); cur public.player_faction;
+begin
+  if uid is null then raise exception 'Sign in to join an order'; end if;
+  if p_faction not in ('lantern','bell','river') then raise exception 'Unknown order'; end if;
+  select * into cur from public.player_faction where user_id = uid;
+  if found and cur.faction = p_faction then return p_faction; end if;
+  if found and cur.chosen_at > now() - interval '30 days' then
+    raise exception 'You can change orders once a month';
+  end if;
+  insert into public.player_faction (user_id, faction) values (uid, p_faction)
+  on conflict (user_id) do update set faction = excluded.faction, chosen_at = now();
+  return p_faction;
+end $$;
+revoke all on function public.choose_faction(text) from public, anon;
+grant execute on function public.choose_faction(text) to authenticated;
+
+-- Add influence: p = {"Fishtown": 7, "Kensington": 2}. The order comes from the
+-- server, never the client; at most 400 points per player per hour.
+create or replace function public.add_influence(p jsonb)
+returns int
+language plpgsql security definer set search_path = public
+as $$
+declare
+  hourly_cap constant int := 400;
+  uid uuid := auth.uid(); fac text; wk date := public.turf_week(); hr timestamptz := date_trunc('hour', now());
+  budget int; total int := 0; pts int; r record;
+begin
+  if uid is null then return 0; end if;
+  select faction into fac from public.player_faction where user_id = uid;
+  if fac is null or jsonb_typeof(p) <> 'object' then return 0; end if;
+  select greatest(0, hourly_cap - coalesce((select points from public.turf_user_hour where user_id = uid and hour = hr), 0)) into budget;
+  for r in select key, value from jsonb_each_text(p) loop
+    exit when budget <= 0;
+    continue when r.value !~ '^\d{1,6}$' or not exists (select 1 from public.turf_districts where name = r.key);
+    pts := least(r.value::int, budget);
+    continue when pts <= 0;
+    insert into public.turf_influence (week, district, faction, points) values (wk, r.key, fac, pts)
+    on conflict (week, district, faction) do update set points = public.turf_influence.points + excluded.points;
+    budget := budget - pts; total := total + pts;
+  end loop;
+  if total > 0 then
+    insert into public.turf_user_hour (user_id, hour, points) values (uid, hr, total)
+    on conflict (user_id, hour) do update set points = public.turf_user_hour.points + excluded.points;
+  end if;
+  return total;
+end $$;
+revoke all on function public.add_influence(jsonb) from public, anon;
+grant execute on function public.add_influence(jsonb) to authenticated;

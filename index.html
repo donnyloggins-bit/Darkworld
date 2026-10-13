@@ -1756,6 +1756,28 @@ body:not(.net-on) .net-only { display:none !important; }
 .me-bar.xp > div { background:linear-gradient(90deg,#3a2a70,#8a6ad0); }
 
 .hunt-tab { font-size:.74rem; letter-spacing:.06em; }
+.fac-card { border:1px solid #3a2a50; border-left:3px solid var(--fc); background:linear-gradient(160deg,#1a1528,#0d0a1c); padding:10px 12px; margin-bottom:10px; }
+.fac-card.mine { box-shadow:0 0 14px color-mix(in srgb, var(--fc) 35%, transparent); }
+.fac-head { display:flex; align-items:center; gap:8px; }
+.fac-sigil { font-size:1.4rem; }
+.fac-name { font-family:'Metal Mania',cursive; font-size:1.15rem; color:var(--fc); letter-spacing:.08em; }
+.fac-motto { color:var(--pale); font-style:italic; margin:4px 0; }
+.fac-lore { font-size:.9rem; color:#8a7aa0; margin-bottom:8px; }
+.fac-btn { width:100%; background:transparent; border:1px solid var(--fc); color:var(--fc); font-family:'Share Tech Mono',monospace; font-size:.8rem; letter-spacing:.1em; padding:8px; cursor:pointer; }
+.fac-sworn { font-family:'Share Tech Mono',monospace; font-size:.8rem; color:var(--fc); letter-spacing:.12em; }
+.turf-score { display:flex; gap:8px; margin-bottom:10px; }
+.turf-team { flex:1; text-align:center; border:1px solid #3a2a50; border-top:3px solid var(--fc); padding:8px 4px; background:#0d0a18; }
+.turf-team.mine { background:color-mix(in srgb, var(--fc) 12%, #0d0a18); }
+.turf-num { font-family:'Metal Mania',cursive; font-size:1.8rem; color:var(--fc); line-height:1; }
+.turf-lbl { font-family:'Share Tech Mono',monospace; font-size:.7rem; color:#a090b8; margin-top:4px; }
+.turf-list { max-height:38vh; overflow-y:auto; border-top:1px solid #2a1a40; }
+.turf-row { display:flex; gap:8px; align-items:center; padding:7px 4px; border-bottom:1px solid #1e1430; font-family:'Share Tech Mono',monospace; font-size:.78rem; }
+.turf-row.here { background:rgba(212,168,48,0.08); }
+.turf-d { flex:1; min-width:0; color:var(--pale); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.turf-h { white-space:nowrap; }
+.turf-p { width:78px; flex-shrink:0; text-align:right; white-space:nowrap; color:#8878a8; }
+.fac-switch { margin-top:12px; }
+.fac-switch summary { font-family:'Share Tech Mono',monospace; font-size:.8rem; color:#8878a8; cursor:pointer; margin-bottom:8px; }
 .city-sub { font-size:.95rem; color:#8a7aa0; font-style:italic; margin-bottom:8px; }
 .city-head { font-family:'Metal Mania',cursive; color:var(--gold); letter-spacing:.12em; margin:12px 0 6px; }
 .city-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
@@ -2240,9 +2262,10 @@ body:not(.net-on) .net-only { display:none !important; }
       <button class="hunt-close" onclick="closeHunt()">✕ CLOSE</button>
     </div>
     <div class="hunt-tabs">
-      <button class="hunt-tab" data-tab="bounties" onclick="setHuntTab('bounties')">📜 BOUNTIES</button>
-      <button class="hunt-tab" data-tab="bestiary" onclick="setHuntTab('bestiary')">📖 BESTIARY</button>
+      <button class="hunt-tab" data-tab="bounties" onclick="setHuntTab('bounties')">📜 DAILY</button>
+      <button class="hunt-tab" data-tab="bestiary" onclick="setHuntTab('bestiary')">📖 BEASTS</button>
       <button class="hunt-tab" data-tab="city" onclick="setHuntTab('city')">🗺 CITY</button>
+      <button class="hunt-tab net-only" data-tab="turf" onclick="setHuntTab('turf')">⚑ TURF</button>
       <button class="hunt-tab net-only" data-tab="board" onclick="setHuntTab('board')">🏆 RANKS</button>
     </div>
     <div id="hunt-content"></div>
@@ -3940,8 +3963,9 @@ function spinShrine(sh){
   saveLiving();
   const L = Player.level || 1;
   const lmMult = sh.landmark ? 2 : 1;
-  const gold = ri(15, 40) * (1 + Math.floor(L/3)) * lmMult;
-  const xp = (Math.floor(xpForLevel(L) * 0.04) + 10) * lmMult;
+  const home = 1 + turfBonus();
+  const gold = Math.floor(ri(15, 40) * (1 + Math.floor(L/3)) * lmMult * home);
+  const xp = Math.floor((Math.floor(xpForLevel(L) * 0.04) + 10) * lmMult * home);
   if(sh.landmark){
     Player.landmarks = Player.landmarks || {};
     if(!Player.landmarks[sh.real]){
@@ -3965,6 +3989,7 @@ function spinShrine(sh){
   Player.gold += gold; Player.xp += xp;
   sndShrine(!!sh.landmark);
   tutOnShrine(sh);
+  if(!sh.tutorial) turfEarn(sh.landmark ? 'landmark' : 'shrine');
   huntProgress('shrine', 1);
   shrineClue(sh);
   addLog(`🕯 ${sh.name}: +${gold} gold, +${fmt(xp)} XP${kept.length ? ' · ' + kept.join(', ') : ''}`, 'll');
@@ -3996,6 +4021,7 @@ function render(){
   drawTiles();
 
   drawGrid(); drawZones(); drawPaths();
+  drawTurfBanners();
   drawShrines();
   spawns.forEach(s=>{ if(!s.defeated)drawMob(s); });
   BOSSES.forEach(b=>{ if(!b.defeated)drawBoss(b); });
@@ -4442,6 +4468,9 @@ function checkDistrict(){
   if(!d || d === currentDistrict) { currentDistrict = d; return; }
   currentDistrict = d;
   Player.districts = Player.districts || {};
+  const holder = Player.faction && turfHolder(d.name);
+  if(holder) setTimeout(() => showToast(holder === Player.faction ? `${FACTIONS[holder].sigil} HOME TURF` : `${FACTIONS[holder].sigil} ${FACTIONS[holder].short} TURF`,
+    holder === Player.faction ? `${d.name} is held by your order · +10% XP & gold` : `${d.name} is held by ${FACTIONS[holder].name}. Take it back.`), Player.districts[d.name] ? 0 : 3400);
   if(Player.districts[d.name]){
     addLog(`🗺 ${d.name} · ${d.epithet}`, 'ls');
     return;
@@ -4455,6 +4484,190 @@ function checkDistrict(){
   showToast(`${d.name.toUpperCase()}`, `${d.epithet} · district ${n} of ${PHILLY_DISTRICTS.length} claimed`);
   sndDistrictBell();
   huntLevelCheck(); setPUI(); saveGame();
+}
+
+// ══════════════════════════════════════════════════════
+//  TURF WARS — three orders fight for Philadelphia's districts
+//  Kills, shrines and walking earn influence for your order in the district
+//  you're standing in. Each week (Mon–Sun, Eastern) the order with the most
+//  influence in a district holds it. Server: choose_faction(), add_influence().
+// ══════════════════════════════════════════════════════
+const FACTIONS = {
+  lantern: { name:'The Lantern Order', short:'LANTERN', color:'#e0a32a', sigil:'🔥',
+    motto:'Keep the light. Hold the street.',
+    lore:'Watchmen since the gas-lamp days. Where a Lantern stands, the dark has to ask permission.' },
+  bell:    { name:'The Bell Covenant', short:'BELL', color:'#d0302a', sigil:'🔔',
+    motto:'Every oath has a price.',
+    lore:'Sworn on the cracked bell itself. They remember every promise this city broke — and they collect.' },
+  river:   { name:'The River Kin', short:'RIVER', color:'#2fa8a0', sigil:'🌊',
+    motto:'Two rivers. One tide.',
+    lore:'Dockhands, rowers, the drowned and the never-quite-drowned. The Schuylkill and the Delaware answer to them.' },
+};
+const TURF_POINTS = { kill:1, elite:5, boss:10, shrine:2, landmark:4, perTenthMile:1 };
+let turfPending = {}, turfWalkCarry = 0, turfStandings = {}, turfFetchedAt = 0, turfLastWeek = null;
+
+function turfWeekKey(offsetWeeks = 0){ // Monday of this week, Eastern time — same as the server's turf_week()
+  const ny = new Date(new Date().toLocaleString('en-US', { timeZone:'America/New_York' }));
+  ny.setDate(ny.getDate() - ((ny.getDay() + 6) % 7) - 7*offsetWeeks);
+  return `${ny.getFullYear()}-${String(ny.getMonth()+1).padStart(2,'0')}-${String(ny.getDate()).padStart(2,'0')}`;
+}
+
+function turfHolder(district){
+  const s = turfStandings[district]; if(!s) return null;
+  let best = null, bp = 0;
+  for(const f in s) if(s[f] > bp){ bp = s[f]; best = f; }
+  return best;
+}
+
+function turfBonus(){ // home turf: +10% XP and gold where your order holds the district
+  if(!Player || !Player.faction) return 0;
+  const d = districtAt(Player.lat, Player.lng);
+  return d && turfHolder(d.name) === Player.faction ? 0.10 : 0;
+}
+
+function turfEarn(kind, mult = 1){
+  if(!Player || !Player.faction || selectedWorld !== 'philadelphia') return;
+  const d = districtAt(Player.lat, Player.lng); if(!d) return;
+  const pts = Math.round((TURF_POINTS[kind] || 0) * mult);
+  if(pts <= 0) return;
+  turfPending[d.name] = (turfPending[d.name] || 0) + pts;
+  // show it locally right away so the TURF tab moves while you play
+  const s = turfStandings[d.name] = turfStandings[d.name] || {};
+  s[Player.faction] = (s[Player.faction] || 0) + pts;
+}
+
+function turfOnWalk(miles){
+  turfWalkCarry += miles;
+  while(turfWalkCarry >= 0.1){ turfWalkCarry -= 0.1; turfEarn('perTenthMile'); }
+}
+
+async function turfFlush(){
+  if(!NET_ON || !netSession || !Player || !Player.faction || netCloudConflict) return;
+  const batch = turfPending; if(!Object.keys(batch).length) return;
+  turfPending = {};
+  try { await netAuthed('/rest/v1/rpc/add_influence', { method:'POST', body:{ p: batch } }); }
+  catch(e){ for(const k in batch) turfPending[k] = (turfPending[k] || 0) + batch[k]; } // retry next time
+}
+
+async function turfFetch(force){
+  if(!NET_ON || (!force && Date.now() - turfFetchedAt < 110000)) return;
+  turfFetchedAt = Date.now();
+  try {
+    const rows = await netRequest(`/rest/v1/turf_influence?select=district,faction,points&week=eq.${turfWeekKey()}`);
+    const fresh = {};
+    rows.forEach(r => { (fresh[r.district] = fresh[r.district] || {})[r.faction] = Number(r.points); });
+    for(const d in turfPending){ const s = fresh[d] = fresh[d] || {}; s[Player.faction] = (s[Player.faction] || 0) + turfPending[d]; }
+    turfStandings = fresh;
+    if(!turfLastWeek){
+      const last = await netRequest(`/rest/v1/turf_influence?select=district,faction,points&week=eq.${turfWeekKey(1)}`);
+      const by = {}; last.forEach(r => { const s = by[r.district] = by[r.district] || {}; s[r.faction] = Number(r.points); });
+      const held = { lantern:0, bell:0, river:0 };
+      Object.values(by).forEach(s => { let b=null,bp=0; for(const f in s) if(s[f]>bp){ bp=s[f]; b=f; } if(b) held[b]++; });
+      turfLastWeek = held;
+    }
+    markDirty();
+    if(document.getElementById('hunt-modal').classList.contains('active') && huntTab === 'turf') renderHunt();
+  } catch(e){}
+}
+
+// Keep the server's record and the save in agreement (the server wins if they differ)
+async function turfSyncFaction(){
+  if(!NET_ON || !netSession || !Player || netCloudConflict) return;
+  try {
+    const rows = await netAuthed(`/rest/v1/player_faction?select=faction&user_id=eq.${encodeURIComponent(netSession.user.id)}`);
+    const server = rows[0] && rows[0].faction;
+    if(server && server !== Player.faction){ Player.faction = server; saveGame(); }
+    else if(!server && Player.faction) await netAuthed('/rest/v1/rpc/choose_faction', { method:'POST', body:{ p_faction: Player.faction } });
+  } catch(e){}
+}
+
+async function chooseFaction(key){
+  if(!FACTIONS[key] || !Player) return;
+  if(Player.faction && Player.faction !== key && !confirm(`Leave ${FACTIONS[Player.faction].name} for ${FACTIONS[key].name}? You can only change orders once a month.`)) return;
+  if(NET_ON && netSession){
+    try { await netAuthed('/rest/v1/rpc/choose_faction', { method:'POST', body:{ p_faction: key } }); }
+    catch(e){ showToast('THE ORDERS REFUSE', e.message || 'Try again later.'); return; }
+  }
+  const was = Player.faction;
+  Player.faction = key;
+  Player.factionSince = Player.factionSince && was ? Player.factionSince : Date.now();
+  saveGame();
+  sndDistrictBell();
+  showToast(`${FACTIONS[key].sigil} ${FACTIONS[key].name.toUpperCase()}`, FACTIONS[key].motto);
+  addLog(`${FACTIONS[key].sigil} You swear to ${FACTIONS[key].name}. ${FACTIONS[key].motto}`, 'lb');
+  renderHunt(); markDirty();
+  turfFetch(true);
+}
+
+// At level 3 the orders come recruiting (once)
+function turfMaybeRecruit(){
+  if(!NET_ON || !Player || Player.faction || Player.factionPrompted || (Player.level || 1) < 3 || tutStep() || inCombat) return;
+  if(document.querySelector('#hunt-modal.active, #levelup-modal.active, #acct-modal.active')) return;
+  Player.factionPrompted = true; saveGame();
+  showToast('THE ORDERS ARE RECRUITING', 'Choose a side. The districts are at stake.');
+  setTimeout(() => openHunt('turf'), 1200);
+}
+
+function drawTurfBanners(){
+  if(selectedWorld !== 'philadelphia' || !Object.keys(turfStandings).length) return;
+  for(const d of PHILLY_DISTRICTS){
+    const holder = turfHolder(d.name); if(!holder) continue;
+    const p = ll2px(d.lat, d.lng);
+    if(p.x < -60 || p.x > mapW+60 || p.y < -60 || p.y > mapH+60) continue;
+    const f = FACTIONS[holder], r = Math.max(9, Math.min(16, 10*zoom));
+    // banner: a pennant on a pole
+    ctx.strokeStyle = 'rgba(220,210,190,0.6)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y + r*1.6); ctx.lineTo(p.x, p.y - r*1.4); ctx.stroke();
+    ctx.fillStyle = f.color; ctx.globalAlpha = 0.9;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y - r*1.4); ctx.lineTo(p.x + r*1.8, p.y - r*0.9); ctx.lineTo(p.x, p.y - r*0.4); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.font = `${Math.floor(r*0.9)}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff'; ctx.fillText(f.sigil + '️', p.x + r*0.75, p.y - r*0.9);
+    if(zoom > 0.9){
+      ctx.font = `bold ${Math.max(8, Math.min(11, 7*zoom))}px "Share Tech Mono"`;
+      ctx.fillStyle = f.color; ctx.textBaseline = 'top';
+      ctx.fillText(`${d.name.toUpperCase()} · ${f.short}`, p.x, p.y + r*1.7);
+    }
+  }
+}
+
+function renderTurf(el){
+  if(!NET_ON){
+    el.innerHTML = `<div class="raid-empty" style="padding:20px 6px">The orders keep their ledgers online. Turf wars switch on once the game is connected to its server — until then, hunt and claim districts for yourself.</div>`;
+    return;
+  }
+  turfFetch();
+  const facCards = Object.entries(FACTIONS).map(([k,f]) => `
+    <div class="fac-card${Player.faction===k?' mine':''}" style="--fc:${f.color}">
+      <div class="fac-head"><span class="fac-sigil">${f.sigil}</span><span class="fac-name">${f.name}</span></div>
+      <div class="fac-motto">“${f.motto}”</div>
+      <div class="fac-lore">${f.lore}</div>
+      ${Player.faction===k ? '<div class="fac-sworn">✦ SWORN</div>' : `<button class="fac-btn" onclick="chooseFaction('${k}')">${Player.faction ? 'DEFECT' : 'SWEAR TO THIS ORDER'}</button>`}
+    </div>`).join('');
+  if(!Player.faction){
+    el.innerHTML = `<div class="hunt-meta"><span>⚑ CHOOSE YOUR ORDER</span><span>${netSession ? '' : 'SIGN IN TO COUNT'}</span></div>
+      <div class="city-sub">Every kill, shrine and mile you walk earns influence for your order in the district you're standing in. Each week, whoever earns the most holds it.</div>${facCards}`;
+    return;
+  }
+  const held = { lantern:0, bell:0, river:0 };
+  PHILLY_DISTRICTS.forEach(d => { const h = turfHolder(d.name); if(h) held[h]++; });
+  const here = districtAt(Player.lat, Player.lng);
+  const reset = new Date(); const daysLeft = 7 - ((reset.getDay() + 6) % 7);
+  const rows = PHILLY_DISTRICTS.map(d => {
+    const s = turfStandings[d.name] || {}; const h = turfHolder(d.name);
+    const mine = s[Player.faction] || 0, top = h ? s[h] : 0;
+    return { d, h, mine, top, here: here && here.name === d.name };
+  }).sort((a,b) => (b.here - a.here) || (b.top - a.top) || a.d.name.localeCompare(b.d.name));
+  el.innerHTML = `
+    <div class="hunt-meta"><span>${FACTIONS[Player.faction].sigil} ${FACTIONS[Player.faction].name.toUpperCase()}</span><span>RESETS IN ${daysLeft}D</span></div>
+    <div class="turf-score">${Object.entries(FACTIONS).map(([k,f]) => `<div class="turf-team${k===Player.faction?' mine':''}" style="--fc:${f.color}">
+      <div class="turf-num">${held[k]}</div><div class="turf-lbl">${f.sigil} ${f.short}</div></div>`).join('')}</div>
+    <div class="city-sub">Districts held this week${turfLastWeek ? ` · last week: ${Object.entries(turfLastWeek).map(([k,n]) => `${FACTIONS[k].short} ${n}`).join(', ')}` : ''}. Hunting where your order holds: <b style="color:var(--gold)">+10% XP & gold</b>.${netSession ? '' : ' <b style="color:var(--crimson)">Sign in so your influence counts.</b>'}</div>
+    <div class="turf-list">${rows.map(r => `<div class="turf-row${r.here?' here':''}">
+      <span class="turf-d">${r.here?'📍 ':''}${r.d.name}</span>
+      <span class="turf-h" style="color:${r.h ? FACTIONS[r.h].color : '#5a4a70'}">${r.h ? FACTIONS[r.h].sigil + ' ' + FACTIONS[r.h].short : 'UNCLAIMED'}</span>
+      <span class="turf-p">${r.h && r.h !== Player.faction ? `${r.mine} / ${r.top}` : r.mine ? `${r.mine}` : '—'}</span></div>`).join('')}</div>
+    <details class="fac-switch"><summary>The orders</summary>${facCards}</details>`;
 }
 
 // ══════════════════════════════════════════════════════
@@ -4757,6 +4970,7 @@ function huntOnKill(mob){
     else if(rank) showToast(`${rank.name} RANK`, `${mob.name} · +${Math.round(rank.bonus*100)}% damage against its kind`);
   }
   huntProgress('kill', 1, mob);
+  if(!mob.isRaid && !mob.tutorialMob) turfEarn(mob.elite ? 'elite' : (mob.isWorld || isBoss) ? 'boss' : 'kill');
 }
 
 function bestiaryBonus(name){
@@ -4778,6 +4992,7 @@ function huntOnGPS(lat, lng, accuracy){
   if(hours <= 0 || d / hours > WALK_MAX_MPH) return; // driving / teleport
   Player.walkedMi = (Player.walkedMi || 0) + d;
   huntProgress('walk', d);
+  turfOnWalk(d);
 }
 
 // ── UI ────────────────────────────────────────────────
@@ -4807,6 +5022,7 @@ function renderHunt(){
   document.querySelectorAll('.hunt-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === huntTab));
   const el = document.getElementById('hunt-content');
   if(huntTab === 'board' && NET_ON){ renderBoard(el); return; }
+  if(huntTab === 'turf'){ renderTurf(el); return; }
   if(huntTab === 'city'){
     const ds = Player.districts || {}, ls = Player.landmarks || {};
     const nd = PHILLY_DISTRICTS.filter(d => ds[d.name]).length, nl = PHILLY_LANDMARKS.filter(l => ls[l.real]).length;
@@ -6304,9 +6520,10 @@ function victory(){
   sndVictory();
   playerCombo=0;
   const xpBase = curEnemy.xp||100;
-  const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0)));
+  const home = curEnemy.isRaid ? 0 : turfBonus();
+  const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0) + home));
   const goldBase = ri(curEnemy.gold[0],curEnemy.gold[1]);
-  const gold = Math.floor(goldBase * (1 + (Player.goldBonus||0)));
+  const gold = Math.floor(goldBase * (1 + (Player.goldBonus||0) + home));
   Player.xp+=xp; Player.gold+=gold;
   if(curEnemy.isRaid){
     if(Player.raidLedger && Player.raidLedger[curEnemy.raidId]) Player.raidLedger[curEnemy.raidId].claimed = true;
@@ -6646,6 +6863,9 @@ function saveGame(){
       districts: Player.districts || {},
       landmarks: Player.landmarks || {},
       incenseUntil: Player.incenseUntil || 0,
+      faction: Player.faction || null,
+      factionSince: Player.factionSince || 0,
+      factionPrompted: Player.factionPrompted || false,
     },
     bossStates: BOSSES.filter(b => !b.isRaid).map(b => b.defeated || false),
     world: selectedWorld,
@@ -6864,6 +7084,7 @@ async function netSyncSave(){
   } else {
     netSyncText = 'No hunter yet. The one you create will follow you to any device.';
   }
+  if(Player) turfSyncFaction();
   refreshContinueButton();
   renderAccountUI();
 }
@@ -6993,6 +7214,9 @@ function netStartRaidWatch(){
   setInterval(raidFlush, RAID_SYNC_MS);
   setTimeout(netPresenceTick, 5000);
   setInterval(netPresenceTick, 60000);
+  turfFetch(true); turfSyncFaction();
+  setInterval(turfFlush, 60000);
+  setInterval(turfFetch, 120000);
 }
 
 // ── HUNTERS NEARBY ─────────────────────────────────────
@@ -7962,6 +8186,7 @@ function startGameTimers(){
   if(freshDay) setTimeout(()=>{ if(!tutStep()) showToast("TODAY'S BOUNTIES", 'Three new marks for every hunter. Tap 📖 HUNT.'); }, 1500);
   setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
   setInterval(()=>refreshLiving(true), 20000);
+  setInterval(turfMaybeRecruit, 10000);
   setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.questMob&&s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)markDirty(); }, 60000);
 }
 

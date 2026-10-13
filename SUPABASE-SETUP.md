@@ -45,6 +45,7 @@ Until you do this, the game works exactly like before: offline, with saves on th
 - **☁ Cloud save:** sign in once and your hunter follows you to any phone.
 - **👥 Hunters nearby:** a count of other signed-in hunters within about a mile. Players only ever see a number, never where anyone is.
 - **🏆 Ranks:** a leaderboard in 📖 HUNT → RANKS, sorted by level, distance walked, or bestiary.
+- **⚑ Turf wars:** from level 3 players swear to one of three orders (Lantern, Bell, River). Kills, shrines and walking earn influence for their order in the Philadelphia district they're standing in; each week (Monday to Sunday, Eastern time) the top order holds the district, and members get +10% XP and gold there. Standings are in 📖 HUNT → TURF and as banners on the map.
 - **⚔ Raids:** see below.
 
 ## 5. Turn on automatic weekly raids (recommended)
@@ -81,3 +82,5 @@ To test raids at your desk without GPS, set `raidRequireGps: false` in your loca
 ## How cheating is limited
 
 Phones can be tampered with, so the server never trusts the damage number blindly. `raid_hit()` clamps each report (250K max) and each player's total over any 10 seconds (1M max). Players can't write to the raid tables directly. Raise those caps in `schema.sql` as players get stronger.
+
+Turf influence works the same way: it only goes through `add_influence()`, which takes the player's order from the server, ignores district names that aren't real, and caps each player at 400 points an hour. Players can switch orders once every 30 days.
