@@ -723,6 +723,7 @@ body::before {
   font-family:'Share Tech Mono',monospace;
   font-size:.88rem; color:#dd4444; z-index:4;
   animation:flicker 4s ease infinite;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:calc(100vw - 150px);
 }
 #ar-compass {
   position:absolute; bottom:28px; left:50%;
@@ -1790,6 +1791,28 @@ body:not(.net-on) .net-only { display:none !important; }
   font-family:'Share Tech Mono',monospace; font-size:.78rem; letter-spacing:.12em; padding:8px; cursor:pointer; }
 .acct-delete:disabled { opacity:.5; }
 .acct-privacy { text-align:center; font-size:.85rem; color:#7a6a90; }
+
+/* ══ AR atmosphere: static CSS layers over the camera (GPU-composited, never repainted per frame) ══ */
+#ar-tint, #ar-atmo, #ar-sky, #ar-dread { position:absolute; inset:0; pointer-events:none; z-index:1; }
+#ar-atmo {
+  background:
+    linear-gradient(to bottom, rgba(3,2,5,.5) 0%, rgba(3,2,5,0) 40%, rgba(3,2,5,0) 58%, rgba(4,0,10,.18) 76%, rgba(8,0,18,.55) 100%),
+    radial-gradient(ellipse at center, rgba(0,0,0,0) 32%, rgba(0,0,0,.55) 100%);
+}
+#ar-atmo.heavy {
+  background:
+    linear-gradient(to bottom, rgba(3,2,5,.5) 0%, rgba(3,2,5,0) 40%, rgba(3,2,5,0) 58%, rgba(4,0,10,.18) 76%, rgba(8,0,18,.55) 100%),
+    radial-gradient(ellipse at center, rgba(0,0,0,0) 32%, rgba(0,0,0,.75) 100%);
+}
+#ar-atmo.vhs::after { content:''; position:absolute; inset:0;
+  background:repeating-linear-gradient(to bottom, rgba(0,0,0,.12) 0 2px, transparent 2px 6px), rgba(0,20,0,.05);
+  animation:arGlitch 3.7s steps(1) infinite; }
+@keyframes arGlitch { 0%,92%,100% { transform:none; } 93% { transform:translateX(4px); } 95% { transform:translateX(-3px); } }
+#ar-sky { opacity:0; transition:opacity .5s; background:linear-gradient(to bottom, rgba(160,0,0,.34), rgba(0,0,0,0) 44%); }
+#ar-sky::before { content:''; position:absolute; left:0; right:0; top:0; height:10px; transform-origin:top;
+  background:rgba(210,0,0,.6); animation:arBlood 1.8s ease-in-out infinite; }
+@keyframes arBlood { 0%,100% { opacity:.4; transform:scaleY(.4); } 50% { opacity:1; transform:scaleY(1); } }
+#ar-dread { opacity:0; transition:opacity .5s; background:radial-gradient(ellipse at center, rgba(0,0,0,0) 20%, rgba(0,0,0,.3) 100%); }
 </style>
 </head>
 <body>
@@ -2240,12 +2263,16 @@ body:not(.net-on) .net-only { display:none !important; }
 
 <div id="screen-ar" class="screen">
   <video id="ar-video" autoplay playsinline muted></video>
+  <div id="ar-tint"></div>
+  <div id="ar-atmo"></div>
+  <div id="ar-sky"></div>
+  <div id="ar-dread"></div>
   <canvas id="ar-canvas"></canvas>
   <button id="ar-back" onclick="stopAR()">◀ MAP</button>
-  <div id="ar-status">⬤ AR MODE · THE FALLEN CITY</div>
+  <div id="ar-status">⬤ AR · HUNTING</div>
   <div id="ar-compass"><span id="ar-heading-txt">--- °</span></div>
   <button id="ar-filter-btn" onclick="cycleARFilter()">👁 HELLVIEW</button>
-  <button id="ar-quest-btn" onclick="arQuestTap()" style="display:none;position:absolute;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(180,130,0,0.92);border:2px solid rgba(255,210,60,0.9);color:#fff;font-family:'Share Tech Mono',monospace;font-size:1rem;letter-spacing:.1em;padding:14px 32px;border-radius:8px;z-index:50;min-width:200px;"></button>
+  <button id="ar-quest-btn" onclick="arQuestTap()" style="display:none;position:absolute;bottom:calc(112px + var(--sab));left:50%;transform:translateX(-50%);background:rgba(180,130,0,0.92);border:2px solid rgba(255,210,60,0.9);color:#fff;font-family:'Share Tech Mono',monospace;font-size:.82rem;letter-spacing:.08em;padding:10px 18px;border-radius:8px;z-index:50;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;"></button>
 </div>
 
 <script src="/config.js"></script>
@@ -4884,7 +4911,13 @@ function headingLabel(h){
 // ══════════════════════════════════════════════════════
 //  AR ENGINE
 // ══════════════════════════════════════════════════════
-let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[],arVisibleQuests=[],arLastFrameTime=0,arEnemyPositions={},arEntityOpacity={};
+let arStream=null,arHeading=0,arTargetHeading=0,arAnimId=null,arOrientHandler=null,arVisibleEnemies=[],arVisibleQuests=[],arLastFrameTime=0,arEntityOpacity={};
+// Camera pose: heading (deg clockwise from north) and elevation (deg above the horizon)
+let arPitch=0,arTargetPitch=0,arHaveAbsolute=false,arGotOrientation=false;
+let arSlowAt=0,arNearby=[],arQuestKey='',arHeadingTxt='';
+const AR_HFOV=60;          // horizontal field of view of the camera feed (portrait, cover-fit)
+const AR_DPR_CAP=2;        // canvas resolution cap — sprites stay sharp, fill-rate stays sane
+const AR_MAX_DRAWN=5;      // nearest monsters kept on stage (set stays stable while turning)
 
 // ══════════════════════════════════════════════════════
 //  AR FILTER ENVIRONMENTS
@@ -4936,11 +4969,68 @@ function applyARFilter(){
   const f = AR_FILTERS[arFilterIdx];
   document.getElementById('ar-video').style.filter = f.filter;
   document.getElementById('ar-filter-btn').textContent = f.label;
+  // Tint + vignette live in CSS layers (composited by the GPU, not repainted every frame)
+  document.getElementById('ar-tint').style.background = f.overlay || 'transparent';
+  document.getElementById('ar-atmo').classList.toggle('heavy', arFilterIdx !== 0);
 }
 
 function cycleARFilter(){
   arFilterIdx = (arFilterIdx + 1) % AR_FILTERS.length;
   applyARFilter();
+}
+
+// Where the back camera points, from the W3C Euler angles (Z-X'-Y'').
+// Works held upright like a camera, not just flat on a table.
+function arPoseFromEuler(alpha, beta, gamma){
+  const d=Math.PI/180;
+  const cA=Math.cos(alpha*d), sA=Math.sin(alpha*d);
+  const cB=Math.cos(beta*d),  sB=Math.sin(beta*d);
+  const cG=Math.cos(gamma*d), sG=Math.sin(gamma*d);
+  // back-of-device vector in earth frame (x = east, y = north, z = up)
+  let east=-(cA*sG + sA*sB*cG), north=cA*sB*cG - sA*sG;
+  const up=-cB*cG;
+  if(Math.hypot(east,north)<0.25){ east=-sA*cB; north=cA*cB; } // nearly flat: use the top edge
+  return { heading:(Math.atan2(east,north)/d+360)%360, pitch:Math.asin(Math.max(-1,Math.min(1,up)))/d };
+}
+
+function arCircleSprite(src){ // portrait pre-clipped to a circle once, so frames just blit it
+  const img=getImg(src);
+  if(!img) return null;
+  arCircleSprite.cache=arCircleSprite.cache||{};
+  let c=arCircleSprite.cache[src];
+  if(!c){
+    c=document.createElement('canvas'); c.width=c.height=256;
+    const g=c.getContext('2d');
+    g.beginPath(); g.arc(128,128,128,0,Math.PI*2); g.clip();
+    g.drawImage(img,0,0,256,256);
+    arCircleSprite.cache[src]=c;
+  }
+  return c;
+}
+
+function arGlowSprite(boss){ // aura gradients rendered once, scaled per frame
+  arGlowSprite.cache=arGlowSprite.cache||{};
+  const k=boss?'b':'m';
+  if(!arGlowSprite.cache[k]){
+    const c=document.createElement('canvas'); c.width=c.height=256;
+    const g=c.getContext('2d');
+    const grd=g.createRadialGradient(128,128,0,128,128,128);
+    grd.addColorStop(0,boss?'rgba(220,160,0,0.55)':'rgba(220,20,20,0.45)');
+    grd.addColorStop(0.4,boss?'rgba(255,200,0,0.18)':'rgba(255,40,0,0.15)');
+    grd.addColorStop(0.7,boss?'rgba(120,60,0,0.10)':'rgba(100,0,0,0.08)');
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=grd; g.fillRect(0,0,256,256);
+    arGlowSprite.cache[k]=c;
+  }
+  return arGlowSprite.cache[k];
+}
+
+function arSizeCanvas(){
+  const ac=document.getElementById('ar-canvas');
+  const dpr=Math.min(window.devicePixelRatio||1, AR_DPR_CAP);
+  ac.width=Math.round(window.innerWidth*dpr); ac.height=Math.round(window.innerHeight*dpr);
+  ac.style.width=window.innerWidth+'px'; ac.style.height=window.innerHeight+'px';
+  ac._dpr=dpr;
 }
 
 async function startAR(){
@@ -4961,25 +5051,27 @@ async function startAR(){
   }catch(e){
     addLog(`⚠ Camera: ${e.message||'access denied'}. Check browser permissions.`,'ls'); return;
   }
-  // Compass
+  // Compass + tilt. Android fires both a true-north (absolute) and a relative stream with
+  // different zero points — once absolute readings arrive, the relative ones are ignored,
+  // otherwise the heading flips between the two every few milliseconds.
+  arHaveAbsolute=false; arGotOrientation=false;
   arOrientHandler=e=>{
-    let raw;
-    if(e.webkitCompassHeading!==undefined){
-      raw=e.webkitCompassHeading;
-    } else {
-      raw=(360-(e.alpha||0))%360;
-    }
-    // Store raw target; smoothing applied during render
-    arTargetHeading=raw;
+    if(e.alpha==null && e.webkitCompassHeading==null) return;
+    const absolute = e.type==='deviceorientationabsolute' || e.absolute===true;
+    if(absolute && !arHaveAbsolute){ arHaveAbsolute=true; arGotOrientation=false; } // snap once to true north
+    else if(!absolute && arHaveAbsolute && e.webkitCompassHeading==null) return;
+    const pose=arPoseFromEuler(e.alpha||0, e.beta??90, e.gamma||0);
+    arTargetHeading = e.webkitCompassHeading!=null ? e.webkitCompassHeading : pose.heading; // iOS: true north, tilt-compensated
+    arTargetPitch = pose.pitch;
+    if(!arGotOrientation){ arGotOrientation=true; arHeading=arTargetHeading; arPitch=arTargetPitch; }
   };
   window.addEventListener('deviceorientationabsolute',arOrientHandler,true);
   window.addEventListener('deviceorientation',arOrientHandler,true);
-  // Resize AR canvas — honour device pixel ratio so it's sharp on retina/3x phones
+  arSizeCanvas();
+  window.addEventListener('resize',arSizeCanvas);
   const ac=document.getElementById('ar-canvas');
-  const dpr=window.devicePixelRatio||1;
-  ac.width=window.innerWidth*dpr; ac.height=window.innerHeight*dpr;
-  ac.style.width=window.innerWidth+'px'; ac.style.height=window.innerHeight+'px';
   arLastFrameTime=performance.now()-16; // seed so first dt ≈ 16ms, not 100ms
+  arSlowAt=0; arQuestKey=''; arHeadingTxt=''; arEntityOpacity={};
   // Tap-to-fight handler
   ac._arTapHandler=e=>{
     e.preventDefault();
@@ -5009,7 +5101,7 @@ async function startAR(){
         if(inBtn){ best=v; break; }
       }
       const d=Math.hypot(tx-v.x, ty-v.yBase);
-      if(d<v.sz*2.5 && d<bestDist){ best=v; bestDist=d; }
+      if(d<v.sz*1.6 && d<bestDist){ best=v; bestDist=d; }
     }
     if(best){
       if(best.tooFar) return;
@@ -5042,12 +5134,68 @@ function stopAR(){
     window.removeEventListener('deviceorientationabsolute',arOrientHandler,true);
     window.removeEventListener('deviceorientation',arOrientHandler,true);
   }
+  window.removeEventListener('resize',arSizeCanvas);
   const ac=document.getElementById('ar-canvas');
   if(ac._arTapHandler){ ac.removeEventListener('touchend',ac._arTapHandler); ac._arTapHandler=null; }
-  arVisibleEnemies=[]; arVisibleQuests=[]; arEnemyPositions={};
+  arVisibleEnemies=[]; arVisibleQuests=[]; arNearby=[];
   const _qb=document.getElementById('ar-quest-btn'); if(_qb){_qb.style.display='none';_qb._questData=null;}
   document.getElementById('screen-ar').classList.remove('active');
   document.getElementById('screen-game').classList.add('active');
+}
+
+// Exponential smoothing on a circle: quick when you turn, steady when you hold still.
+function arSmoothAngle(cur, target, dt, wrap){
+  let diff=target-cur;
+  if(wrap){ if(diff>180) diff-=360; if(diff<-180) diff+=360; }
+  // Small wobbles (sensor noise, shaky hands) get heavy smoothing; real turns respond in ~60ms
+  const tau=Math.max(0.06, Math.min(0.4, 0.4-Math.abs(diff)/30));
+  const next=cur+diff*(1-Math.exp(-dt/tau));
+  return wrap ? (next+360)%360 : next;
+}
+
+// The slow part of AR: who's nearby, quest markers, atmosphere. 4× a second is plenty.
+function arSlowTick(){
+  const plat=Player.lat||CENTER.lat, plng=Player.lng||CENTER.lng;
+  const near=[];
+  BOSSES.forEach(b=>{ if(b.defeated) return; const dist=distMiles(plat,plng,b.lat,b.lng); if(dist<=0.5) near.push({entity:b,boss:true,dist,brg:bearing(plat,plng,b.lat,b.lng)}); });
+  spawns.forEach(s=>{ if(s.defeated) return; const dist=distMiles(plat,plng,s.lat,s.lng); if(dist<=0.15) near.push({entity:s,boss:false,dist,brg:bearing(plat,plng,s.lat,s.lng)}); });
+  near.sort((a,b)=> a.boss!==b.boss ? (a.boss?-1:1) : a.dist-b.dist);
+  arNearby=near.slice(0,AR_MAX_DRAWN);
+
+  // Atmosphere: opacity changes on CSS layers only (no full-screen repaint)
+  const minBoss=Math.min(Infinity,...near.filter(n=>n.boss).map(n=>n.dist));
+  const minMob=Math.min(Infinity,...near.filter(n=>!n.boss).map(n=>n.dist));
+  document.getElementById('ar-sky').style.opacity = minBoss<0.5 ? Math.pow(1-minBoss/0.5,1.6).toFixed(2) : '0';
+  document.getElementById('ar-dread').style.opacity = minMob<0.15 ? (1-minMob/0.15).toFixed(2) : '0';
+  const UNDEAD=['Lich Servant','Void Shade','Blood Wraith','Wailing Banshee','Lost Soul','Bog Specter','Grave Stalker'];
+  document.getElementById('ar-atmo').classList.toggle('vhs', near.some(n=>!n.boss&&n.dist<0.12&&UNDEAD.includes(n.entity.name)));
+
+  // Quest / NPC markers
+  const QUEST_AR_DIST = gpsFirstLock ? 0.3 : 2.0;
+  const quests=[];
+  NPCS.filter(n=>n.world===selectedWorld).forEach(n=>{
+    const qs=playerQuests[n.quest]; if(qs&&qs.status==='complete') return;
+    const dist=distMiles(plat,plng,n.lat,n.lng); if(dist>QUEST_AR_DIST) return;
+    quests.push({name:n.name,dist,brg:bearing(plat,plng,n.lat,n.lng),portrait:n.portrait,isNPC:true,entity:n});
+  });
+  QUESTS.filter(q=>q.world===selectedWorld&&!q.npcId&&q.lat).forEach(q=>{
+    const qs=playerQuests[q.id]; if(qs&&(qs.status==='complete'||qs.status==='active')) return;
+    const dist=distMiles(plat,plng,q.lat,q.lng); if(dist>QUEST_AR_DIST) return;
+    quests.push({name:q.name,dist,brg:bearing(plat,plng,q.lat,q.lng),portrait:null,isNPC:false,entity:q});
+  });
+  quests.sort((a,b)=>a.dist-b.dist);
+  arSlowTick.quests=quests.slice(0,2);
+  // The big SPEAK/ACCEPT button only appears once you're actually in range
+  const reach=quests.find(q=>!gpsFirstLock||q.dist<=ENGAGE_MILES);
+  const btn=document.getElementById('ar-quest-btn');
+  const key=reach?`${reach.isNPC}|${reach.name}`:'';
+  if(key!==arQuestKey){
+    arQuestKey=key;
+    if(reach){
+      btn.textContent=reach.isNPC?`SPEAK · ${reach.name.toUpperCase()}`:`ACCEPT · ${reach.name.toUpperCase()}`;
+      btn.style.display='block'; btn._questData=reach;
+    } else { btn.style.display='none'; btn._questData=null; }
+  }
 }
 
 function renderAR(){
@@ -5056,318 +5204,146 @@ function renderAR(){
 
   const canvas=document.getElementById('ar-canvas');
   const c=canvas.getContext('2d');
-  const dpr=window.devicePixelRatio||1;
+  const dpr=canvas._dpr||1;
   const W=canvas.width/dpr, H=canvas.height/dpr;
   c.setTransform(dpr,0,0,dpr,0,0);
 
-  // Time-based heading smoothing — consistent regardless of frame rate
   const now=performance.now();
   const dt=Math.min(now-arLastFrameTime,100)/1000; // seconds, cap at 100ms
   arLastFrameTime=now;
-  let diff=arTargetHeading-arHeading;
-  if(diff>180) diff-=360;
-  if(diff<-180) diff+=360;
-  // Ignore sub-1.5° jitter; 200ms time constant — smooth without feeling laggy
-  if(Math.abs(diff)>1.5){
-    const alpha=1-Math.exp(-dt/0.20);
-    arHeading=(arHeading+diff*alpha+360)%360;
-  }
+  arHeading=arSmoothAngle(arHeading,arTargetHeading,dt,true);
+  arPitch=arSmoothAngle(arPitch,arTargetPitch,dt,false);
+  if(now-arSlowAt>250){ arSlowAt=now; arSlowTick(); }
 
   c.clearRect(0,0,W,H);
-
-  const FOV=65,MAX_DIST=0.5;
   arVisibleEnemies=[]; arVisibleQuests=[]; // reset hit-test targets each frame
 
-  // Atmospheric vignette
-  const vgrd=c.createLinearGradient(0,0,0,H);
-  vgrd.addColorStop(0,'rgba(3,2,5,0.5)');
-  vgrd.addColorStop(0.4,'rgba(3,2,5,0)');
-  vgrd.addColorStop(1,'rgba(3,2,5,0.6)');
-  c.fillStyle=vgrd; c.fillRect(0,0,W,H);
+  // Real camera projection: the world stays pinned while the phone turns and tilts
+  const tanH=Math.tan(AR_HFOV/2*Math.PI/180);
+  const tanV=tanH*H/W;
+  const project=(brg, elevDeg)=>{
+    let d=brg-arHeading; if(d>180)d-=360; if(d<-180)d+=360;
+    const rel=(elevDeg-arPitch)*Math.PI/180;
+    const onScreen=Math.abs(d)<AR_HFOV/2+12;
+    const x=W/2+Math.tan(Math.max(-80,Math.min(80,d))*Math.PI/180)/tanH*(W/2);
+    const y=H/2-Math.tan(Math.max(-1.2,Math.min(1.2,rel)))/tanV*(H/2);
+    return {d,x,y,onScreen};
+  };
 
-  // Filter color overlay tint
-  const arTint = AR_FILTERS[arFilterIdx].overlay;
-  if(arTint){ c.fillStyle=arTint; c.fillRect(0,0,W,H); }
-
-  // Radial edge vignette (intensified for dark filters)
-  const vigStrength = arFilterIdx===0 ? 0.55 : 0.75;
-  const rvgrd=c.createRadialGradient(W/2,H/2,H*0.25,W/2,H/2,H*0.8);
-  rvgrd.addColorStop(0,'rgba(0,0,0,0)');
-  rvgrd.addColorStop(1,`rgba(0,0,0,${vigStrength})`);
-  c.fillStyle=rvgrd; c.fillRect(0,0,W,H);
-
-  // ── Proximity corruption atmosphere ──
-  {
-    const _plat=Player.lat||CENTER.lat, _plng=Player.lng||CENTER.lng;
-    let _minBoss=Infinity, _minMob=Infinity;
-    BOSSES.forEach(b=>{ if(!b.defeated){ const d=distMiles(_plat,_plng,b.lat,b.lng); if(d<_minBoss)_minBoss=d; }});
-    spawns.forEach(s=>{ if(!s.defeated){ const d=distMiles(_plat,_plng,s.lat,s.lng); if(d<_minMob)_minMob=d; }});
-    // Boss proximity: bleeding red sky scales 0.5mi→0
-    if(_minBoss<0.5){
-      const bp=Math.pow(1-Math.min(1,_minBoss/0.5),1.6);
-      const _t=performance.now()/900;
-      const skyGrd=c.createLinearGradient(0,0,0,H*0.44);
-      skyGrd.addColorStop(0,`rgba(160,0,0,${0.32*bp})`);
-      skyGrd.addColorStop(1,'rgba(0,0,0,0)');
-      c.fillStyle=skyGrd; c.fillRect(0,0,W,H*0.44);
-      // Pulsing blood edge at top
-      c.fillStyle=`rgba(210,0,0,${bp*(0.35+0.20*Math.sin(_t))})`;
-      c.fillRect(0,0,W,4+6*Math.abs(Math.sin(_t*0.78)));
-    }
-    // Mob proximity: extra edge darkness scales 0.15mi→0
-    if(_minMob<0.15){
-      const mp=1-_minMob/0.15;
-      const ev=c.createRadialGradient(W/2,H*0.5,H*0.12,W/2,H*0.5,H*0.72);
-      ev.addColorStop(0,'rgba(0,0,0,0)');
-      ev.addColorStop(1,`rgba(0,0,0,${0.28*mp})`);
-      c.fillStyle=ev; c.fillRect(0,0,W,H);
-    }
-    // Atmospheric ground mist — always present
-    const _mist=c.createLinearGradient(0,H,0,H*0.58);
-    _mist.addColorStop(0,'rgba(8,0,18,0.50)');
-    _mist.addColorStop(0.6,'rgba(4,0,10,0.18)');
-    _mist.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=_mist; c.fillRect(0,0,W,H);
-  }
-
-  // Collect candidates — bosses up to 0.5mi, mobs up to 0.15mi
-  const candidates=[];
-  BOSSES.filter(b=>!b.defeated).forEach(b=>{
-    const dist=distMiles(Player.lat,Player.lng,b.lat,b.lng);
-    if(dist>MAX_DIST)return;
-    let d=bearing(Player.lat,Player.lng,b.lat,b.lng)-arHeading;
-    if(d>180)d-=360; if(d<-180)d+=360;
-    if(Math.abs(d)<FOV/2+10) candidates.push({name:b.name,hp:b.hp,maxHp:b.maxHp,dist,diff:d,boss:true,entity:b});
+  // Fade: in while on screen, out when you turn away (the set itself doesn't churn)
+  const drawn=[];
+  arNearby.forEach(n=>{
+    const key=n.entity.id??n.entity.name;
+    const p=project(n.brg, n.boss?3:-2-6*(1-n.dist/0.15)); // closer monsters sit lower, on the street
+    arEntityOpacity[key]=Math.max(0,Math.min(1,(arEntityOpacity[key]||0)+(p.onScreen?dt*4:-dt*5)));
+    if(arEntityOpacity[key]>0) drawn.push({...n,key,p});
   });
-  spawns.filter(s=>!s.defeated).forEach(s=>{
-    const dist=distMiles(Player.lat,Player.lng,s.lat,s.lng);
-    if(dist>0.15)return;
-    let d=bearing(Player.lat,Player.lng,s.lat,s.lng)-arHeading;
-    if(d>180)d-=360; if(d<-180)d+=360;
-    if(Math.abs(d)<FOV/2+10) candidates.push({name:s.name,hp:s.hp,maxHp:s.maxHp,dist,diff:d,boss:false,entity:s});
-  });
+  // Far → near so close monsters overlap distant ones
+  drawn.sort((a,b)=>b.dist-a.dist);
+  const closest=drawn.filter(n=>n.p.onScreen).reduce((m,n)=>!m||n.dist<m.dist?n:m,null);
 
-  // Bosses first, then closest mobs — cap at 3 total
-  candidates.sort((a,b)=>{
-    if(a.boss!==b.boss) return a.boss?-1:1;
-    return a.dist-b.dist;
-  });
-  const visible = candidates.slice(0,3);
-  const visKeys = new Set(visible.map(e=>e.entity.id??e.name));
-
-  // Fade opacity — in for visible, out for recently gone
-  Object.keys(arEntityOpacity).forEach(k=>{
-    if(!visKeys.has(isNaN(k)?k:Number(k)))
-      arEntityOpacity[k]=Math.max(0,arEntityOpacity[k]-dt*4);
-  });
-  visible.forEach(e=>{
-    const k=e.entity.id??e.name;
-    arEntityOpacity[k]=Math.min(1,(arEntityOpacity[k]||0)+dt*3);
-  });
-
-  // Draw far→near
-  visible.sort((a,b)=>b.dist-a.dist);
-  visible.forEach((e,idx)=>{
-    const key=e.entity.id??e.name;
-    const opacity=arEntityOpacity[key]??0;
-    if(opacity<=0) return;
-
-    const targetX=W/2+(e.diff/(FOV/2))*(W/2);
-    const prevX=arEnemyPositions[key]??targetX;
-    const sx=prevX+(targetX-prevX)*Math.min(1,dt/0.15);
-    arEnemyPositions[key]=sx;
-    const x=sx;
-    const proximity=1-e.dist/MAX_DIST;
+  drawn.forEach(e=>{
+    const MAXD=e.boss?0.5:0.15;
+    const proximity=Math.max(0,1-e.dist/MAXD);
     const scale=0.45+proximity*0.60;
     const sz=Math.floor(W*0.19*scale);
-    const yBase=H*(0.30+proximity*0.10);
-
-    arVisibleEnemies.push({entity:e.entity,isBoss:e.boss,x,yBase,sz});
-
-    c.globalAlpha=opacity;
-
-    // Outer aura glow
-    const grd=c.createRadialGradient(x,yBase,0,x,yBase,sz*2.8);
-    grd.addColorStop(0,e.boss?'rgba(220,160,0,0.5)':'rgba(220,20,20,0.4)');
-    grd.addColorStop(0.5,e.boss?'rgba(120,60,0,0.15)':'rgba(100,0,0,0.12)');
-    grd.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=grd; c.beginPath(); c.arc(x,yBase,sz*2.8,0,Math.PI*2); c.fill();
-    // Inner core glow
-    const igrd=c.createRadialGradient(x,yBase,0,x,yBase,sz*1.1);
-    igrd.addColorStop(0,e.boss?'rgba(255,200,0,0.25)':'rgba(255,40,0,0.22)');
-    igrd.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=igrd; c.beginPath(); c.arc(x,yBase,sz*1.1,0,Math.PI*2); c.fill();
-
-    // Portrait circle
+    const x=e.p.x;
+    const yBase=Math.max(H*0.18,Math.min(H*0.62,e.p.y)); // keep it tappable at extreme tilts
     const r=sz*0.65;
-    const arImg=e.entity.portrait?getImg(e.entity.portrait):null;
-    if(arImg){
-      c.save();
-      c.beginPath(); c.arc(x,yBase,r,0,Math.PI*2); c.clip();
-      c.drawImage(arImg,x-r,yBase-r,r*2,r*2);
-      c.restore();
-    } else {
+    arVisibleEnemies.push({entity:e.entity,isBoss:e.boss,x,yBase,sz});
+    c.globalAlpha=arEntityOpacity[e.key];
+
+    const glow=arGlowSprite(e.boss);
+    c.drawImage(glow,x-sz*2.8,yBase-sz*2.8,sz*5.6,sz*5.6);
+    const spr=e.entity.portrait?arCircleSprite(e.entity.portrait):null;
+    if(spr){ c.drawImage(spr,x-r,yBase-r,r*2,r*2); }
+    else {
       c.beginPath(); c.arc(x,yBase,r,0,Math.PI*2);
       c.fillStyle=e.boss?'rgba(60,40,10,0.9)':'rgba(60,10,10,0.9)'; c.fill();
       c.font=`bold ${Math.floor(r)}px "Share Tech Mono",monospace`;
       c.fillStyle=e.boss?'#f0c040':'#e06060';
       c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(e.name[0],x,yBase);
+      c.fillText(e.entity.name[0],x,yBase);
     }
-    // Portrait border — thick and saturated
     c.beginPath(); c.arc(x,yBase,r,0,Math.PI*2);
-    c.strokeStyle=e.boss?'rgba(255,200,40,1)':'rgba(220,40,40,1)';
+    c.strokeStyle=e.boss?'rgba(255,200,40,1)':(e.entity.elite?'rgba(230,180,60,1)':'rgba(220,40,40,1)');
     c.lineWidth=3.5; c.stroke();
-    // Outer glow ring
     c.beginPath(); c.arc(x,yBase,r*1.18,0,Math.PI*2);
     c.strokeStyle=e.boss?`rgba(255,180,0,${0.35+0.2*Math.sin(now/400)})`:`rgba(200,0,0,${0.30+0.15*Math.sin(now/350)})`;
     c.lineWidth=1.5; c.stroke();
 
-    // Full info card only for closest (idx===visible.length-1 after far→near sort)
-    const isClosest = idx===visible.length-1;
     const ft=Math.round(e.dist*5280);
     const distTxt=ft<528?`${ft} ft`:`${(ft/5280).toFixed(2)} mi`;
-
-    if(isClosest){
-      const cardW=Math.min(W*0.5,200);
-      const cardH=72;
-      const cardX=x-cardW/2;
-      const cardY=yBase+r+6;
+    if(e===closest){
+      const cardW=Math.min(W*0.5,200), cardH=72;
+      const cardX=x-cardW/2, cardY=yBase+r+6;
       c.fillStyle='rgba(5,3,10,0.82)';
-      c.beginPath();
-      c.roundRect?c.roundRect(cardX,cardY,cardW,cardH,5):c.rect(cardX,cardY,cardW,cardH);
-      c.fill();
+      c.beginPath(); c.roundRect?c.roundRect(cardX,cardY,cardW,cardH,5):c.rect(cardX,cardY,cardW,cardH); c.fill();
       const ns=Math.max(12,Math.floor(15*scale));
       c.font=`bold ${ns}px "Share Tech Mono",monospace`;
       c.fillStyle=e.boss?'#f0c040':'#e8d8c0';
       c.textAlign='center'; c.textBaseline='top';
-      c.fillText(e.name.toUpperCase(),x,cardY+8,cardW-10);
+      c.fillText(`${e.entity.elite?'★ ':''}${e.entity.name.toUpperCase()}`,x,cardY+8,cardW-10);
       c.font=`${Math.max(11,Math.floor(13*scale))}px "Share Tech Mono",monospace`;
       c.fillStyle=e.boss?'#ffaa00':'#ff5555';
-      c.fillText(distTxt,x,cardY+8+ns+4,cardW-10);
+      c.fillText(e.entity.lvl?`${distTxt} · LV ${e.entity.lvl}`:distTxt,x,cardY+8+ns+4,cardW-10);
       const bw=cardW-16,bh=5,bx=cardX+8,by=cardY+cardH-10;
       c.fillStyle='rgba(30,10,10,0.9)'; c.fillRect(bx,by,bw,bh);
       c.fillStyle=e.boss?'#c8a030':'#aa2020';
-      c.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
-
-      // Fight button
+      c.fillRect(bx,by,bw*Math.max(0,e.entity.hp/e.entity.maxHp),bh);
       const btnW=Math.min(cardW,160),btnH=34;
       const btnX=x-btnW/2,btnY=cardY+cardH+6;
       const tooFar=e.boss&&gpsFirstLock&&e.dist>BOSS_ENGAGE_MILES;
       c.fillStyle=tooFar?'rgba(40,30,60,0.85)':(e.boss?'rgba(200,150,0,0.92)':'rgba(180,30,30,0.92)');
-      c.beginPath();
-      c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,6):c.rect(btnX,btnY,btnW,btnH);
-      c.fill();
+      c.beginPath(); c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,6):c.rect(btnX,btnY,btnW,btnH); c.fill();
       c.strokeStyle=tooFar?'rgba(120,80,160,0.6)':(e.boss?'rgba(255,220,60,0.9)':'rgba(255,80,80,0.9)');
       c.lineWidth=1.5; c.stroke();
       c.font=`bold ${Math.max(12,Math.floor(14*scale))}px "Share Tech Mono",monospace`;
       c.fillStyle=tooFar?'rgba(180,140,220,0.7)':'#fff';
       c.textAlign='center'; c.textBaseline='middle';
       c.fillText(tooFar?'GET CLOSER':'FIGHT',x,btnY+btnH/2);
-      arVisibleEnemies[arVisibleEnemies.length-1].btnY=btnY+btnH/2;
-      arVisibleEnemies[arVisibleEnemies.length-1].btnW=btnW;
-      arVisibleEnemies[arVisibleEnemies.length-1].btnH=btnH;
-      arVisibleEnemies[arVisibleEnemies.length-1].tooFar=tooFar;
+      const v=arVisibleEnemies[arVisibleEnemies.length-1];
+      v.btnY=btnY+btnH/2; v.btnW=btnW; v.btnH=btnH; v.tooFar=tooFar;
     } else {
-      // Minimal label for background entities
       c.font=`${Math.max(10,Math.floor(11*scale))}px "Share Tech Mono",monospace`;
       c.fillStyle=e.boss?'rgba(255,200,60,0.7)':'rgba(220,150,150,0.6)';
       c.textAlign='center'; c.textBaseline='top';
       c.fillText(distTxt, x, yBase+r+4);
     }
-
     c.globalAlpha=1;
   });
 
-  // ── Post-entity: VHS corruption overlay near undead ──
-  {
-    const _UNDEAD=['Lich Servant','Void Shade','Blood Wraith','Wailing Banshee','Lost Soul','Bog Specter','Grave Stalker'];
-    const _plat=Player.lat||CENTER.lat, _plng=Player.lng||CENTER.lng;
-    const _hasUndead=spawns.some(s=>!s.defeated&&_UNDEAD.includes(s.name)&&distMiles(_plat,_plng,s.lat,s.lng)<0.12);
-    if(_hasUndead){
-      // CRT scanlines
-      c.fillStyle='rgba(0,0,0,0.10)';
-      for(let _y=0;_y<H;_y+=6){ c.fillRect(0,_y,W,2.5); }
-      // Occasional horizontal glitch band
-      if(Math.random()<0.05){
-        const _gy=Math.random()*H;
-        c.save();
-        c.translate((Math.random()-0.5)*10,0);
-        c.fillStyle='rgba(160,0,0,0.07)';
-        c.fillRect(0,_gy,W,2+Math.random()*5);
-        c.restore();
-      }
-      // Sickly green-black tint
-      c.fillStyle='rgba(0,20,0,0.05)'; c.fillRect(0,0,W,H);
-    }
+  // Edge arrows: which way to turn for monsters that aren't in view
+  const offL=arNearby.some(n=>{ let d=n.brg-arHeading; if(d>180)d-=360; if(d<-180)d+=360; return d<-(AR_HFOV/2+12); });
+  const offR=arNearby.some(n=>{ let d=n.brg-arHeading; if(d>180)d-=360; if(d<-180)d+=360; return d>(AR_HFOV/2+12); });
+  if(offL||offR){
+    const pulse=0.45+0.25*Math.sin(now/300), ay=H*0.46;
+    c.fillStyle=`rgba(220,40,40,${pulse})`;
+    c.font=`bold ${Math.floor(W*0.09)}px "Share Tech Mono",monospace`;
+    c.textBaseline='middle';
+    if(offL){ c.textAlign='left'; c.fillText('‹',10,ay); }
+    if(offR){ c.textAlign='right'; c.fillText('›',W-10,ay); }
   }
 
-  // ── Quest / NPC markers in AR ──
-  const arQuestCandidates=[];
-  // When GPS hasn't locked yet, use a generous radius so indoor players still see quests
-  const QUEST_AR_DIST = gpsFirstLock ? 0.3 : 2.0;
-  const VERY_CLOSE = 0.05; // ~264ft — at this range just show centered regardless of heading
-  // NPCs with available/active quests
-  NPCS.filter(n=>n.world===selectedWorld).forEach(n=>{
-    const qs=playerQuests[n.quest];
-    if(qs&&qs.status==='complete') return;
-    const plat=Player.lat||CENTER.lat, plng=Player.lng||CENTER.lng;
-    const dist=distMiles(plat,plng,n.lat,n.lng);
-    if(dist>QUEST_AR_DIST) return;
-    let d=0;
-    if(gpsFirstLock && dist>VERY_CLOSE){
-      d=bearing(plat,plng,n.lat,n.lng)-arHeading;
-      if(d>180)d-=360; if(d<-180)d+=360;
-      if(Math.abs(d)>=FOV/2+10) return;
-    }
-    arQuestCandidates.push({name:n.name,dist,diff:d,portrait:n.portrait,isNPC:true,entity:n});
-  });
-  // Map-based quest markers (no NPC)
-  QUESTS.filter(q=>q.world===selectedWorld&&!q.npcId&&q.lat).forEach(q=>{
-    const qs=playerQuests[q.id];
-    if(qs&&qs.status==='complete') return;
-    if(qs&&qs.status==='active') return;
-    const plat=Player.lat||CENTER.lat, plng=Player.lng||CENTER.lng;
-    const dist=distMiles(plat,plng,q.lat,q.lng);
-    if(dist>QUEST_AR_DIST) return;
-    let d=0;
-    if(gpsFirstLock && dist>VERY_CLOSE){
-      d=bearing(plat,plng,q.lat,q.lng)-arHeading;
-      if(d>180)d-=360; if(d<-180)d+=360;
-      if(Math.abs(d)>=FOV/2+10) return;
-    }
-    arQuestCandidates.push({name:q.name,dist,diff:d,portrait:null,isNPC:false,entity:q});
-  });
-  // Update the HTML quest button
-  const _arQBtn=document.getElementById('ar-quest-btn');
-  if(arQuestCandidates.length>0){
-    const _closest=arQuestCandidates.sort((a,b)=>a.dist-b.dist)[0];
-    _arQBtn.textContent=_closest.isNPC?`SPEAK · ${_closest.name.toUpperCase()}`:`ACCEPT · ${_closest.name.toUpperCase()}`;
-    _arQBtn.style.display='block';
-    _arQBtn.style.opacity='1';
-    _arQBtn._questData=_closest;
-  } else {
-    _arQBtn.style.display='none';
-    _arQBtn._questData=null;
-  }
-
-  arQuestCandidates.sort((a,b)=>a.dist-b.dist).slice(0,2).forEach(e=>{
+  // Quest / NPC markers
+  const placedQ=[];
+  (arSlowTick.quests||[]).forEach(e=>{
+    const VERY_CLOSE=0.05;
+    if(!gpsFirstLock || e.dist<=VERY_CLOSE) return; // the SPEAK/ACCEPT button covers close ones
+    const p=project(e.brg,-4);
+    if(!p.onScreen || placedQ.some(x=>Math.abs(x-p.x)<W*0.3)) return;
+    placedQ.push(p.x);
     const t=Date.now()/600;
-    const targetX=W/2+(e.diff/(FOV/2))*(W/2);
-    const yBase=H*0.65;
+    const targetX=p.x, yBase=Math.max(H*0.3,Math.min(H*0.7,p.y));
     const r=Math.floor(W*0.07);
-    // Pulsing gold glow
     const pulse=r*(1.4+0.25*Math.sin(t));
     const grd=c.createRadialGradient(targetX,yBase,0,targetX,yBase,pulse*1.5);
     grd.addColorStop(0,'rgba(212,168,48,0.4)');
     grd.addColorStop(1,'rgba(0,0,0,0)');
     c.fillStyle=grd; c.beginPath(); c.arc(targetX,yBase,pulse*1.5,0,Math.PI*2); c.fill();
-    // Portrait or ! icon
-    const arImg=e.portrait?getImg(e.portrait):null;
-    if(arImg){
-      c.save(); c.beginPath(); c.arc(targetX,yBase,r,0,Math.PI*2); c.clip();
-      c.drawImage(arImg,targetX-r,yBase-r,r*2,r*2); c.restore();
-    } else {
+    const spr=e.portrait?arCircleSprite(e.portrait):null;
+    if(spr){ c.drawImage(spr,targetX-r,yBase-r,r*2,r*2); }
+    else {
       c.beginPath(); c.arc(targetX,yBase,r,0,Math.PI*2);
       c.fillStyle='rgba(20,12,5,0.88)'; c.fill();
       c.font=`bold ${Math.floor(r*1.1)}px "Share Tech Mono",monospace`;
@@ -5377,23 +5353,18 @@ function renderAR(){
     c.beginPath(); c.arc(targetX,yBase,r,0,Math.PI*2);
     c.strokeStyle=`rgba(212,168,48,${0.7+0.3*Math.sin(t)})`;
     c.lineWidth=2.5; c.stroke();
-    // Name label
     c.font=`bold ${Math.max(11,Math.floor(W*0.032))}px "Share Tech Mono",monospace`;
     c.fillStyle='#d4a830'; c.textAlign='center'; c.textBaseline='top';
     c.fillText(e.name.toUpperCase(),targetX,yBase+r+5,W*0.45);
-    // Distance
     const ft=Math.round(e.dist*5280);
     c.font=`${Math.max(10,Math.floor(W*0.027))}px "Share Tech Mono",monospace`;
     c.fillStyle='rgba(212,168,48,0.65)';
     c.fillText(`${ft} ft`,targetX,yBase+r+5+Math.max(13,Math.floor(W*0.035)));
-    // SPEAK / ACCEPT button
     const btnW=Math.min(W*0.38,150),btnH=32;
     const btnX=targetX-btnW/2,btnY=yBase+r+5+Math.max(13,Math.floor(W*0.035))+Math.max(13,Math.floor(W*0.032))+4;
     const tooFar=gpsFirstLock&&e.dist>ENGAGE_MILES;
     c.fillStyle=tooFar?'rgba(40,30,10,0.8)':'rgba(180,130,0,0.92)';
-    c.beginPath();
-    c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,6):c.rect(btnX,btnY,btnW,btnH);
-    c.fill();
+    c.beginPath(); c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,6):c.rect(btnX,btnY,btnW,btnH); c.fill();
     c.strokeStyle=tooFar?'rgba(120,90,0,0.5)':'rgba(255,210,60,0.9)'; c.lineWidth=1.5; c.stroke();
     c.font=`bold ${Math.max(11,Math.floor(W*0.03))}px "Share Tech Mono",monospace`;
     c.fillStyle=tooFar?'rgba(200,160,60,0.5)':'#fff';
@@ -5402,11 +5373,10 @@ function renderAR(){
     arVisibleQuests.push({entity:e.entity,isNPC:e.isNPC,x:targetX,yBase,sz:r,btnY:btnY+btnH/2,btnW,btnH,tooFar});
   });
 
-  // No enemies message
-  if(visible.length===0){
+  // Nothing in view
+  if(!closest){
     const fs=Math.max(18,W*0.048);
-    // Subtle cross-hair / targeting reticle
-    const cx=W/2, cy=H*0.46, cr=fs*1.2;
+    const cx=W/2, cy=H*0.24, cr=fs*1.2;
     c.strokeStyle='rgba(180,40,40,0.25)'; c.lineWidth=1;
     c.beginPath(); c.arc(cx,cy,cr,0,Math.PI*2); c.stroke();
     c.beginPath(); c.moveTo(cx-cr*1.4,cy); c.lineTo(cx-cr*0.6,cy); c.stroke();
@@ -5415,15 +5385,16 @@ function renderAR(){
     c.beginPath(); c.moveTo(cx,cy+cr*0.6); c.lineTo(cx,cy+cr*1.4); c.stroke();
     c.font=`${fs}px "Metal Mania",cursive`;
     c.fillStyle='rgba(200,100,100,0.55)';
-    c.textAlign='center';
-    c.fillText('NO PREY IN SIGHT',W/2,H*0.5);
+    c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText(arNearby.length?'TURN — THEY ARE CLOSE':'NO PREY IN SIGHT',W/2,H*0.24+fs*2.4);
     c.font=`italic ${fs*0.55}px "IM Fell English",serif`;
     c.fillStyle='rgba(160,80,80,0.38)';
-    c.fillText('turn — the darkness watches',W/2,H*0.5+fs*1.3);
+    c.fillText(!arGotOrientation?'no compass on this device — the hunt continues on the map':'turn — the darkness watches',W/2,H*0.24+fs*3.7);
   }
 
-  // Compass update
-  document.getElementById('ar-heading-txt').textContent=`${Math.round(arHeading)}° ${headingLabel(arHeading)}`;
+  // Compass readout: only touch the DOM when the text actually changes
+  const ht=`${Math.round(arHeading)}° ${headingLabel(arHeading)}`;
+  if(ht!==arHeadingTxt){ arHeadingTxt=ht; document.getElementById('ar-heading-txt').textContent=ht; }
 }
 
 function updateZone(){
