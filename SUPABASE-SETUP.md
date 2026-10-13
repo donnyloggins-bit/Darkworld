@@ -61,6 +61,13 @@ Boss HP sizes itself to your crowd: **40,000 HP per hunter who was active that w
 
 To change a boss's clues, HP floor or location, edit it in **Table Editor → raid_rotation**.
 
+## 5b. Schedule the Halloween finale (Season 0)
+
+The Hollow Night runs October 24–31. The seven nightly bosses need no setup — every phone works them out from the date. The final fight is a raid on the server:
+
+1. In the **SQL Editor**, paste `supabase/season-0.sql` and press **Run**. It schedules **THE WARDEN OF CHERRY HILL** at Eastern State Penitentiary for Halloween, 8 PM to midnight Eastern. Running it twice does nothing extra.
+2. If pg_cron is on (step 5), the Warden's health is sized to the crowd at 7:55 PM that night (120K HP per hunter active that week, at least 400K). Without pg_cron he keeps 400K. To size him by hand, run `select public.size_season_finale('hollow-2026');` before 8 PM.
+
 ## 6. Start a one-off raid (optional)
 
 1. Open `supabase/start-raid.sql`, change the boss name, landmark, coordinates, HP and times if you like, then paste it into the **SQL Editor** and **Run**.

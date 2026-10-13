@@ -229,6 +229,8 @@ grant execute on function public.hunters_near(text, text[]) to anon, authenticat
 --  RAID CLUE HUNT — upcoming raids stay secret until they rise
 -- ══════════════════════════════════════════════════════
 alter table public.raid_bosses add column if not exists clues text[] not null default '{}';
+-- Season finales are raids too; the client gives them phases and a city-wide siege.
+alter table public.raid_bosses add column if not exists season text;
 
 -- Players can only read raids that have already spawned (no peeking at
 -- the landmark through the API). Upcoming raids are visible only through
