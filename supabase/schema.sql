@@ -223,3 +223,21 @@ as $$
 $$;
 revoke all on function public.hunters_near(text, text[]) from public;
 grant execute on function public.hunters_near(text, text[]) to anon, authenticated;
+
+
+-- ══════════════════════════════════════════════════════
+--  RAID CLUE HUNT — upcoming raids stay secret until they rise
+-- ══════════════════════════════════════════════════════
+alter table public.raid_bosses add column if not exists clues text[] not null default '{}';
+
+-- Players can only read raids that have already spawned (no peeking at
+-- the landmark through the API). Upcoming raids are visible only through
+-- raid_teasers, which leaves out the location.
+drop policy if exists "raid_bosses: public read" on public.raid_bosses;
+create policy "raid_bosses: public read" on public.raid_bosses for select to anon, authenticated using (spawn_at <= now());
+
+create or replace view public.raid_teasers as
+select id, world, name, emoji, spawn_at, clues
+from public.raid_bosses
+where defeated_at is null and spawn_at > now();
+grant select on public.raid_teasers to anon, authenticated;

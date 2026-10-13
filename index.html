@@ -1739,6 +1739,9 @@ body:not(.net-on) .net-only { display:none !important; }
 .board-rank { font-family:'Share Tech Mono',monospace; color:var(--crimson); width:22px; text-align:right; }
 .board-name { flex:1; min-width:0; color:var(--bone); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .board-val { font-family:'Share Tech Mono',monospace; font-size:.85rem; color:var(--gold); white-space:nowrap; }
+
+.raid-clues-head { margin-top:8px; font-family:'Share Tech Mono',monospace; font-size:.78rem; color:var(--gold); letter-spacing:.1em; }
+.raid-clue { margin-top:5px; font-size:.95rem; color:var(--pale); font-style:italic; line-height:1.4; border-left:2px solid #5a1a1a; padding-left:8px; }
 </style>
 </head>
 <body>
@@ -3759,6 +3762,21 @@ function drawShrines(){
   }
 }
 
+// During a raid's clue hunt, shrines whisper fragments. Each shrine always gives the same
+// hunter the same fragment, so finding more means walking to new shrines (and trading notes).
+function shrineClue(sh){
+  if(typeof raidUpcoming === 'undefined' || !raidUpcoming || !(raidUpcoming.clues || []).length || Math.random() > 0.35) return;
+  const clues = raidUpcoming.clues;
+  const idx = hashStr(`${Player.name}|${sh.id}|${raidUpcoming.id}`) % clues.length;
+  Player.clues = Player.clues || {};
+  const got = Player.clues[raidUpcoming.id] = Player.clues[raidUpcoming.id] || [];
+  if(got.includes(idx)) return;
+  got.push(idx);
+  addLog(`📜 FRAGMENT (${got.length}/${clues.length}): “${clues[idx]}”`, 'lb');
+  setTimeout(() => showToast(`FRAGMENT ${got.length} / ${clues.length}`, `“${clues[idx]}”`), 900);
+  renderRaidUI();
+}
+
 function spinShrine(sh){
   const now = Date.now();
   const ready = livingState.shrines[sh.id] || 0;
@@ -3785,6 +3803,7 @@ function spinShrine(sh){
   drops.forEach(n => { if(Player.inventory.length < BAG_SIZE){ Player.inventory.push(n); kept.push(n); } });
   Player.gold += gold; Player.xp += xp;
   huntProgress('shrine', 1);
+  shrineClue(sh);
   addLog(`🕯 ${sh.name}: +${gold} gold, +${fmt(xp)} XP${kept.length ? ' · ' + kept.join(', ') : ''}`, 'll');
   if(kept.length < drops.length) addLog('⚠ Your bag is full. Some offerings were left behind.', 'ls');
   showLoot(xp, gold, kept);
@@ -6130,6 +6149,7 @@ function saveGame(){
       daily: Player.daily || null,
       walkedMi: Player.walkedMi || 0,
       ripostes: Player.ripostes || 0,
+      clues: Player.clues || {},
     },
     bossStates: BOSSES.filter(b => !b.isRaid).map(b => b.defeated || false),
     world: selectedWorld,
@@ -6530,7 +6550,7 @@ async function netPollRaid(){
       raidUpcoming = null;
       raidBoard = await netRequest(`/rest/v1/raid_leaderboard?select=player_id,player_name,total&boss_id=eq.${RAID.raidId}&order=total.desc&limit=5`);
     } else {
-      const next = await netRequest(`/rest/v1/raid_bosses?select=id,name,landmark,emoji,spawn_at&world=eq.${w}&defeated_at=is.null&spawn_at=gt.${now}&order=spawn_at.asc&limit=1`);
+      const next = await netRequest(`/rest/v1/raid_teasers?select=id,name,emoji,spawn_at,clues&world=eq.${w}&order=spawn_at.asc&limit=1`);
       raidUpcoming = next[0] || null;
     }
   } catch(e){ /* offline — keep the last known state */ }
@@ -6563,7 +6583,10 @@ function applyRaidRow(row){
   };
   raidEnsureOnMap();
   raidSocketConnect(row.id);
-  if(Player) addLog(`⚔ RAID: ${RAID.name} has emerged at ${RAID.landmark}! Every hunter in the city shares its wounds.`, 'lb');
+  if(Player){
+    addLog(`⚔ RAID: ${RAID.name} has emerged at ${RAID.landmark}! Every hunter in the city shares its wounds.`, 'lb');
+    showToast('THE RAID HAS RISEN', `${RAID.name} · ${RAID.landmark}`);
+  }
 }
 
 function raidEnsureOnMap(){
@@ -6749,10 +6772,15 @@ function renderRaidUI(){
     hud.style.display = 'flex';
     hud.innerHTML = `<span class="raid-tag">☠ SOON</span><span class="raid-hud-name">${netEsc(raidUpcoming.name)}</span><span class="raid-hud-pct">${fmtCountdown(eta)}</span>`;
     panel.style.display = '';
+    const clues = raidUpcoming.clues || [];
+    const found = ((Player && Player.clues) || {})[raidUpcoming.id] || [];
     panel.innerHTML = `
-      <div class="raid-head"><span class="raid-tag">☠ SOMETHING STIRS</span><span class="raid-ends">IN ${fmtCountdown(eta)}</span></div>
+      <div class="raid-head"><span class="raid-tag">☠ SOMETHING STIRS</span><span class="raid-ends">RISES IN ${fmtCountdown(eta)}</span></div>
       <div class="raid-name">${netEsc(raidUpcoming.emoji || '💀')} ${netEsc(raidUpcoming.name)}</div>
-      <div class="raid-where">📍 ${netEsc(raidUpcoming.landmark)}</div>`;
+      <div class="raid-where">📍 Where? Nobody knows yet.</div>
+      ${clues.length ? `<div class="raid-clues-head">📜 FRAGMENTS ${found.length} / ${clues.length}</div>
+        ${found.map(i => `<div class="raid-clue">“${netEsc(clues[i])}”</div>`).join('')}
+        <div class="raid-empty">${found.length < clues.length ? 'Light shrines across the city to find more. Every hunter finds different pieces — compare notes.' : 'You hold every fragment. Be there when it rises.'}</div>` : ''}`;
   } else {
     hud.style.display = 'none';
     panel.style.display = 'none';

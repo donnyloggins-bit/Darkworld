@@ -47,7 +47,18 @@ Until you do this, the game works exactly like before: offline, with saves on th
 - **🏆 Ranks:** a leaderboard in 📖 HUNT → RANKS, sorted by level, distance walked, or bestiary.
 - **⚔ Raids:** see below.
 
-## 5. Start a raid
+## 5. Turn on automatic weekly raids (recommended)
+
+1. Supabase → **Database → Extensions** → search **pg_cron** → enable it.
+2. **SQL Editor** → paste `supabase/weekly-raids.sql` → **Run**.
+
+That's it. Every Monday at 9 AM Eastern the server picks the next boss in the rotation (The Founder's Wrath → The Plague Ship → The Mummer's Horror → The Broad Street Beast → The Fishtown Fiend) and schedules it for **Friday 7 PM**. It stays until Sunday 11 PM.
+
+**All week is the clue hunt.** The map shows **☠ SOON** with a countdown, but *not* where the boss will rise. Lighting shrines sometimes reveals a **fragment** (a riddle about the location). Each hunter finds different fragments at different shrines, so people have to walk and compare notes to work it out. The location goes public the moment the raid rises.
+
+To change a boss's clues, HP or location, edit it in **Table Editor → raid_rotation**.
+
+## 6. Start a one-off raid (optional)
 
 1. Open `supabase/start-raid.sql`, change the boss name, landmark, coordinates, HP and times if you like, then paste it into the **SQL Editor** and **Run**.
 2. Everyone playing in that world sees a pulsing **⚔ RAID** bar on the map within about 20 seconds.
