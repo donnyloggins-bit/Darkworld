@@ -617,3 +617,198 @@ grant execute on function public.leave_crew() to authenticated;
 grant execute on function public.crew_heartbeat(text, text, int, text, text, text) to authenticated;
 grant execute on function public.crew_ping(text, text, double precision, double precision) to authenticated;
 grant execute on function public.crew_state() to authenticated;
+
+
+-- ══════════════════════════════════════════════════════
+--  WARBANDS — raid groups of 25 or 50 hunters with roles (tank / healer / damage)
+--  Like crews: nothing is readable directly, everything goes through the functions,
+--  and a warband sees only its own members. A hunter can be in a crew and a warband.
+-- ══════════════════════════════════════════════════════
+create table if not exists public.warbands (
+  id          uuid primary key default gen_random_uuid(),
+  code        text not null unique,
+  name        text not null check (char_length(name) between 2 and 28),
+  max_size    int not null default 25 check (max_size in (25, 50)),
+  created_by  uuid references auth.users(id) on delete set null,
+  created_at  timestamptz not null default now()
+);
+create table if not exists public.warband_members (
+  user_id     uuid primary key references auth.users(id) on delete cascade,
+  warband_id  uuid not null references public.warbands(id) on delete cascade,
+  name        text not null default 'Hunter',
+  class_name  text,
+  level       int not null default 1,
+  role        text not null default 'dps' check (role in ('tank','healer','dps')),
+  raid_id     uuid,                                  -- the raid this hunter is at right now
+  raid_seen   timestamptz,
+  seen_at     timestamptz not null default now(),
+  joined_at   timestamptz not null default now()
+);
+create index if not exists warband_members_band on public.warband_members(warband_id);
+create table if not exists public.warband_calls (
+  id          bigserial primary key,
+  warband_id  uuid not null references public.warbands(id) on delete cascade,
+  user_id     uuid references auth.users(id) on delete cascade,
+  name        text not null,
+  landmark    text,
+  created_at  timestamptz not null default now()
+);
+alter table public.warbands        enable row level security;
+alter table public.warband_members enable row level security;
+alter table public.warband_calls   enable row level security;
+
+create or replace function public.create_warband(p_name text, p_size int)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  nm text := btrim(coalesce(p_name, ''));
+  c text;
+  wid uuid;
+  alphabet text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+begin
+  if uid is null then raise exception 'Sign in to raise a warband'; end if;
+  if char_length(nm) < 2 or char_length(nm) > 28 then raise exception 'Warband names are 2 to 28 characters'; end if;
+  if exists (select 1 from warband_members where user_id = uid) then raise exception 'Leave your warband first'; end if;
+  loop
+    c := 'W';
+    for i in 1..5 loop c := c || substr(alphabet, 1 + floor(random() * length(alphabet))::int, 1); end loop;
+    exit when not exists (select 1 from warbands where code = c);
+  end loop;
+  insert into warbands (code, name, max_size, created_by)
+    values (c, nm, case when p_size = 50 then 50 else 25 end, uid) returning id into wid;
+  insert into warband_members (user_id, warband_id, name)
+    values (uid, wid, coalesce((select left(data->'player'->>'name', 20) from characters where user_id = uid), 'Hunter'));
+  return c;
+end;
+$$;
+
+create or replace function public.join_warband(p_code text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  wb warbands;
+  mine uuid;
+begin
+  if uid is null then raise exception 'Sign in to join a warband'; end if;
+  select * into wb from warbands where code = upper(btrim(coalesce(p_code, ''))) for update;
+  if not found then raise exception 'No warband has that code'; end if;
+  select warband_id into mine from warband_members where user_id = uid;
+  if mine = wb.id then return wb.name; end if;
+  if mine is not null then raise exception 'Leave your warband first'; end if;
+  if (select count(*) from warband_members where warband_id = wb.id) >= wb.max_size then
+    raise exception 'That warband is full (% hunters)', wb.max_size;
+  end if;
+  insert into warband_members (user_id, warband_id, name)
+    values (uid, wb.id, coalesce((select left(data->'player'->>'name', 20) from characters where user_id = uid), 'Hunter'));
+  return wb.name;
+end;
+$$;
+
+create or replace function public.leave_warband()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  wid uuid;
+begin
+  delete from warband_members where user_id = auth.uid() returning warband_id into wid;
+  if wid is not null and not exists (select 1 from warband_members where warband_id = wid) then
+    delete from warbands where id = wid;
+  end if;
+end;
+$$;
+
+-- Every ~25 s: who I am, the role I play, and which raid (if any) I'm fighting at.
+create or replace function public.warband_heartbeat(p_name text, p_class text, p_level int, p_role text, p_raid uuid)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update warband_members set
+    name       = coalesce(nullif(left(btrim(coalesce(p_name, '')), 20), ''), name),
+    class_name = left(p_class, 20),
+    level      = greatest(1, least(100, coalesce(p_level, 1))),
+    role       = case when p_role in ('tank','healer','dps') then p_role else role end,
+    raid_id    = case when exists (select 1 from raid_bosses where id = p_raid and defeated_at is null and ends_at > now()) then p_raid end,
+    raid_seen  = case when p_raid is not null then now() else raid_seen end,
+    seen_at    = now()
+  where user_id = auth.uid();
+$$;
+
+-- "Muster at the raid!" Only one call per hunter every 2 minutes.
+create or replace function public.warband_muster(p_landmark text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  me warband_members;
+begin
+  select * into me from warband_members where user_id = auth.uid();
+  if not found then raise exception 'You are not in a warband'; end if;
+  if exists (select 1 from warband_calls where user_id = me.user_id and created_at > now() - interval '2 minutes') then
+    raise exception 'The horn needs a moment';
+  end if;
+  insert into warband_calls (warband_id, user_id, name, landmark) values (me.warband_id, me.user_id, me.name, left(p_landmark, 60));
+  delete from warband_calls where warband_id = me.warband_id and created_at < now() - interval '1 day';
+end;
+$$;
+
+-- The warband panel: roster with roles, who is at the current raid, recent musters,
+-- and the top warbands on that raid by damage (names and totals only).
+create or replace function public.warband_state(p_raid uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with me as (select * from warband_members where user_id = auth.uid())
+  select case when not exists (select 1 from me) then null else jsonb_build_object(
+    'warband', (select jsonb_build_object('name', w.name, 'code', w.code, 'size', w.max_size) from warbands w where w.id = (select warband_id from me)),
+    'members', (select coalesce(jsonb_agg(jsonb_build_object(
+        'name', m.name, 'class', m.class_name, 'level', m.level, 'role', m.role,
+        'me', m.user_id = (select user_id from me),
+        'online', m.seen_at > now() - interval '3 minutes',
+        'at_raid', p_raid is not null and m.raid_id = p_raid and m.raid_seen > now() - interval '3 minutes')
+        order by m.joined_at), '[]'::jsonb)
+      from warband_members m where m.warband_id = (select warband_id from me)),
+    'calls', (select coalesce(jsonb_agg(jsonb_build_object('id', x.id, 'name', x.name, 'landmark', x.landmark, 'at', x.created_at, 'mine', x.mine)
+        order by x.created_at desc), '[]'::jsonb)
+      from (select c.id, c.name, c.landmark, c.created_at, c.user_id = (select user_id from me) as mine
+              from warband_calls c where c.warband_id = (select warband_id from me) and c.created_at > now() - interval '2 hours'
+             order by c.created_at desc limit 10) x),
+    'board', (select coalesce(jsonb_agg(jsonb_build_object('name', b.name, 'total', b.total, 'hunters', b.hunters, 'mine', b.mine)
+        order by b.total desc), '[]'::jsonb)
+      from (select w.name, sum(d.damage)::bigint as total, count(distinct d.player_id)::int as hunters,
+                   w.id = (select warband_id from me) as mine
+              from raid_damage d join warband_members m on m.user_id = d.player_id join warbands w on w.id = m.warband_id
+             where p_raid is not null and d.boss_id = p_raid
+             group by w.id, w.name order by total desc limit 5) b)
+  ) end;
+$$;
+
+revoke all on function public.create_warband(text, int) from public, anon;
+revoke all on function public.join_warband(text) from public, anon;
+revoke all on function public.leave_warband() from public, anon;
+revoke all on function public.warband_heartbeat(text, text, int, text, uuid) from public, anon;
+revoke all on function public.warband_muster(text) from public, anon;
+revoke all on function public.warband_state(uuid) from public, anon;
+grant execute on function public.create_warband(text, int) to authenticated;
+grant execute on function public.join_warband(text) to authenticated;
+grant execute on function public.leave_warband() to authenticated;
+grant execute on function public.warband_heartbeat(text, text, int, text, uuid) to authenticated;
+grant execute on function public.warband_muster(text) to authenticated;
+grant execute on function public.warband_state(uuid) to authenticated;

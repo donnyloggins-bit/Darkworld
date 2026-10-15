@@ -1783,6 +1783,15 @@ body:not(.net-on) .net-only { display:none !important; }
 .crew-ping span:last-child { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:#6a5a80; white-space:nowrap; }
 .crew-ping.mine { opacity:.7; }
 #goal-crew { color:#50c88c; margin-top:2px; }
+.wb-size, .wb-role { flex:1; background:transparent; border:1px solid #3a2a50; color:#8878a8; font-family:'Share Tech Mono',monospace; font-size:.76rem; letter-spacing:.08em; padding:9px 4px; cursor:pointer; }
+.wb-size.on, .wb-role.on { border-color:var(--gold); color:var(--gold); background:rgba(212,168,48,0.08); }
+.wb-roles { display:flex; gap:8px; }
+.wb-raid { border:1px solid #5a1a1a; border-left:2px solid var(--crimson); background:linear-gradient(160deg,#20080a,#0d0a1c); padding:10px; margin:12px 0; }
+.wb-comp { display:flex; gap:12px; align-items:center; font-family:'Share Tech Mono',monospace; font-size:.95rem; color:var(--pale); margin:6px 0; flex-wrap:wrap; }
+.wb-need { font-size:.68rem; color:#8878a8; margin-left:auto; }
+.wb-buffs { font-family:'Share Tech Mono',monospace; font-size:.74rem; color:#50c88c; }
+.wb-rh { font-family:'Share Tech Mono',monospace; font-size:.72rem; color:var(--gold); letter-spacing:.12em; margin:10px 0 2px; }
+.crew-ping.wb-mine { color:var(--gold); }
 /* ── Seasons ── */
 .title-season { margin:4px 16px 14px; max-width:340px; text-align:center; padding:10px 14px; background:rgba(20,8,4,0.78);
   border:1px solid rgba(232,134,46,0.55); box-shadow:0 0 24px rgba(232,134,46,0.18); animation:raidPulse 3s ease-in-out infinite; }
@@ -2327,9 +2336,10 @@ body:not(.net-on) .net-only { display:none !important; }
 <div id="crew-modal">
   <div class="hunt-card">
     <div class="hunt-head">
-      <div class="hunt-title">THE CREW</div>
+      <div class="hunt-title">ALLIES</div>
       <button class="hunt-close" onclick="closeCrew()">✕ CLOSE</button>
     </div>
+    <div class="hunt-tabs" id="party-tabs"><button class="hunt-tab" data-tab="crew" onclick="setPartyTab('crew')">👥 CREW · 6</button><button class="hunt-tab" data-tab="warband" onclick="setPartyTab('warband')">⚔ WARBAND · 25–50</button></div>
     <div id="crew-content"></div>
   </div>
 </div>
@@ -5102,8 +5112,11 @@ function goalTick(){
   bot.style.display = g ? 'block' : 'none'; bot.textContent = g ? g.text : '';
   bot.onclick = e => { e.stopPropagation(); if(g) g.act(); };
   const cr = document.getElementById('goal-crew');
-  cr.style.display = crewNear ? 'block' : 'none';
-  cr.textContent = crewNear ? `👥 ${crewNear} CREW WITH YOU · +${Math.round(crewBonus()*100)}% XP · +${Math.round(crewFury()*100)}% RAID DMG` : '';
+  const wz = warbandLineup();
+  const crewTxt = crewNear ? `👥 ${crewNear} CREW WITH YOU · +${Math.round(crewBonus()*100)}% XP · +${Math.round(crewFury()*100)}% RAID DMG` : '';
+  const wbTxt = wz.n >= 2 ? `⚔ WARBAND: ${wz.n} AT THE RAID · +${Math.round(warbandDmg()*100)}% DMG` : '';
+  cr.style.display = (crewTxt || wbTxt) ? 'block' : 'none';
+  cr.textContent = [crewTxt, wbTxt].filter(Boolean).join(' · ');
   cr.onclick = e => { e.stopPropagation(); openCrew(); };
 }
 
@@ -5263,15 +5276,15 @@ function crewApply(st){
 
 function crewStart(){
   if(!NET_ON || crewTimer) return;
-  crewTick();
-  crewTimer = setInterval(crewTick, CREW_TICK_MS);
+  crewTick(); warbandTick();
+  crewTimer = setInterval(() => { crewTick(); warbandTick(); }, CREW_TICK_MS);
 }
 
 function openCrew(){
   if(!NET_ON) return;
   document.getElementById('crew-modal').classList.add('active');
   renderCrew();
-  if(netSession) crewTick();
+  if(netSession){ crewTick(); warbandTick(); }
 }
 function closeCrew(){ document.getElementById('crew-modal').classList.remove('active'); }
 
@@ -5334,6 +5347,8 @@ function crewAgo(iso){
 
 function renderCrew(){
   const el = document.getElementById('crew-content'); if(!el) return;
+  document.querySelectorAll('#party-tabs .hunt-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === partyTab));
+  if(partyTab === 'warband' && netSession){ renderWarband(el); return; }
   const msg = crewMsg ? `<div class="crew-msg">${crewMsg}</div>` : '';
   if(!netSession){
     el.innerHTML = `<div class="city-sub">Crews are up to ${CREW_MAX} friends who hunt the city together: see where your crew is hunting, call them to a raid, and hit harder side by side.</div>
@@ -5410,6 +5425,183 @@ function crewMaybeInvite(){
   openCrew();
 }
 crewReadInvite();
+
+// ══════════════════════════════════════════════════════
+//  WARBANDS — raid groups of 25 or 50 with roles (tank / healer / damage)
+//  A standing raid group, separate from your crew. At a raid, every warband member
+//  fighting the same boss strengthens the others: more hunters → more damage,
+//  tanks soak the boss's blows, healers mend, and a full line-up adds a bonus.
+//  Server: create_warband / join_warband / leave_warband / warband_heartbeat /
+//  warband_muster / warband_state (supabase/schema.sql).
+// ══════════════════════════════════════════════════════
+const CLASS_ROLES = {
+  Fighter:['tank','dps'], Paladin:['tank','healer'], Monk:['tank','dps'],
+  Cleric:['healer','dps'], Druid:['healer','dps'],
+  Ranger:['dps'], 'Magic-User':['dps'], Illusionist:['dps'], Thief:['dps'], Assassin:['dps'],
+};
+const ROLE_INFO = {
+  tank:   { icon:'🛡', name:'TANK',   desc:'Draws the boss. Every hunter at the raid takes 15% less damage while a tank is there.' },
+  healer: { icon:'✚', name:'HEALER', desc:'Mends the line. Hunters at the raid recover health every few seconds.' },
+  dps:    { icon:'⚔', name:'DAMAGE', desc:'Brings it down. The more of the warband at the raid, the harder everyone hits.' },
+};
+const WARBAND_RAID_MI = 0.6;   // within this of the raid, you count as "at the raid"
+let warbandState = null, warbandLastCall = 0, partyTab = 'crew', _wbHealAt = 0;
+
+function myRoles(){ return CLASS_ROLES[Player && Player.className] || ['dps']; }
+function myRole(){ const r = myRoles(); return Player && r.includes(Player.role) ? Player.role : r[0]; }
+
+function warbandAtRaid(){
+  return !!(RAID && Player && ((inCombat && curEnemy === RAID) || (gpsFirstLock && distMiles(Player.lat, Player.lng, RAID.lat, RAID.lng) < WARBAND_RAID_MI)));
+}
+// Who from the warband is fighting this raid right now (you included)
+function warbandLineup(){
+  const z = { n:0, tank:0, healer:0, dps:0 };
+  if(!warbandState || !RAID) return z;
+  for(const m of warbandState.members){ if(m.at_raid){ z.n++; z[m.role] = (z[m.role] || 0) + 1; } }
+  return z;
+}
+function warbandFull(z = warbandLineup()){ return z.tank >= 1 && z.healer >= 2 && z.dps >= 5; }
+// +2% raid damage per other member at the raid (max +30%), +10% more with a full line-up
+function warbandDmg(){
+  const z = warbandLineup(); if(z.n < 2) return 0;
+  return Math.min(0.30, 0.02 * (z.n - 1)) + (warbandFull(z) ? 0.10 : 0);
+}
+function warbandMitigation(){ return warbandLineup().tank >= 1 ? 0.15 : 0; }
+function warbandHealPct(){ const h = warbandLineup().healer; return h >= 2 ? 0.025 : h === 1 ? 0.015 : 0; }
+// Called from combatTick during a raid fight
+function warbandCombatTick(now){
+  if(!curEnemy || !curEnemy.isRaid) return;
+  const pct = warbandHealPct();
+  if(!pct || now - _wbHealAt < 3000 || Player.hp >= Player.maxHp) return;
+  _wbHealAt = now;
+  const h = Math.max(1, Math.floor(Player.maxHp * pct));
+  Player.hp = Math.min(Player.maxHp, Player.hp + h);
+  showDamageNum('+' + fmt(h), 'dmg-heal', 'left');
+}
+
+async function warbandTick(){
+  if(!NET_ON || !netSession || !Player || netCloudConflict) return;
+  try {
+    if(warbandState) await crewRpc('warband_heartbeat', { p_name: Player.name, p_class: Player.className, p_level: Player.level || 1,
+      p_role: myRole(), p_raid: warbandAtRaid() ? RAID.raidId : null });
+    warbandApply(await crewRpc('warband_state', { p_raid: RAID ? RAID.raidId : null }));
+  } catch(e){}
+}
+function warbandApply(st){
+  const was = warbandState;
+  warbandState = st && st.warband && Array.isArray(st.members) ? st : null;
+  if(warbandState){
+    const calls = warbandState.calls || [];
+    if(was) calls.filter(c => !c.mine && c.id > warbandLastCall).slice(0, 1).forEach(c => {
+      showToast(`📯 ${netEsc(warbandState.warband.name).toUpperCase()} MUSTERS`, `${netEsc(c.name)} calls the warband${c.landmark ? ' to ' + netEsc(c.landmark) : ''}`);
+      addLog(`📯 ${netEsc(c.name)} sounds the horn${c.landmark ? ' at ' + netEsc(c.landmark) : ''}. The warband gathers.`, 'lb');
+      sndRaidRise(); buzz('heavy');
+    });
+    warbandLastCall = Math.max(warbandLastCall, ...calls.map(c => c.id), 0);
+  }
+  if(document.getElementById('crew-modal').classList.contains('active') && partyTab === 'warband') renderCrew();
+}
+
+async function wbAct(fn, body, okMsg){
+  if(crewBusy) return;
+  crewBusy = true; crewMsg = ''; renderCrew();
+  try {
+    const r = await crewRpc(fn, body);
+    if(okMsg) crewMsg = typeof okMsg === 'function' ? okMsg(r) : okMsg;
+    warbandApply(await crewRpc('warband_state', { p_raid: RAID ? RAID.raidId : null }));
+    return r;
+  } catch(e){ crewMsg = '⚠ ' + ((e && e.message) || 'The war ledger is out of reach. Try again.'); }
+  finally { crewBusy = false; renderCrew(); }
+}
+let _wbSize = 25;
+function wbPickSize(n){ _wbSize = n; document.querySelectorAll('.wb-size').forEach(b => b.classList.toggle('on', Number(b.dataset.n) === n)); }
+async function wbCreate(){
+  const name = ((document.getElementById('wb-name-in') || {}).value || '').trim();
+  const c = await wbAct('create_warband', { p_name: name, p_size: _wbSize }, `Your warband is raised. Share the code with your raiders.`);
+  if(c) sndDistrictBell();
+}
+async function wbJoin(){
+  const code = ((document.getElementById('wb-code-in') || {}).value || '').trim().toUpperCase();
+  if(!code){ crewMsg = 'Enter the warband code (it starts with W).'; renderCrew(); return; }
+  const n = await wbAct('join_warband', { p_code: code }, r => `You joined ${netEsc(r)}.`);
+  if(n){ sndDistrictBell(); showToast('⚔ WARBAND JOINED', netEsc(n)); }
+}
+async function wbLeave(){
+  if(!warbandState || !confirm(`Leave ${warbandState.warband.name}?`)) return;
+  await wbAct('leave_warband', {}, 'You left the warband.');
+}
+async function wbSetRole(r){
+  if(!myRoles().includes(r)) return;
+  Player.role = r; saveGame();
+  await wbAct('warband_heartbeat', { p_name: Player.name, p_class: Player.className, p_level: Player.level || 1, p_role: r, p_raid: warbandAtRaid() ? RAID.raidId : null }, `You fight as ${ROLE_INFO[r].name}.`);
+}
+async function wbMuster(){
+  if(!warbandState || !RAID) return;
+  await wbAct('warband_muster', { p_landmark: RAID.landmark || RAID.name }, `The horn sounds. Your warband is called to ${netEsc(RAID.landmark || RAID.name)}.`);
+  buzz('heavy');
+}
+async function wbInvite(){
+  if(!warbandState) return;
+  const w = warbandState.warband;
+  const text = `Raid with "${w.name}" in DARKWORLD. Open 👥 CREW → WARBAND and enter ${w.code}`;
+  try {
+    if(navigator.share){ await navigator.share({ title:'DARKWORLD', text, url: location.origin + location.pathname }); return; }
+    await navigator.clipboard.writeText(`${text}\n${location.origin}${location.pathname}`);
+    crewMsg = 'Warband invite copied.';
+  } catch(e){ crewMsg = `Share this code: ${w.code}`; }
+  renderCrew();
+}
+
+function setPartyTab(t){ partyTab = t; crewMsg = ''; renderCrew(); if(t === 'warband') warbandTick(); }
+
+function renderWarband(el){
+  const msg = crewMsg ? `<div class="crew-msg">${crewMsg}</div>` : '';
+  if(!warbandState){
+    el.innerHTML = `${msg}
+      <div class="city-sub">A warband is a raid group of <b style="color:var(--gold)">25 or 50</b> hunters. At a raid, everyone from your warband fighting the same boss makes the rest stronger: tanks soak its blows, healers mend, and every extra raider adds damage.</div>
+      <div class="city-head">JOIN A WARBAND</div>
+      <div class="crew-row-in"><input id="wb-code-in" class="crew-in" maxlength="8" placeholder="W-CODE" autocomplete="off" spellcheck="false">
+        <button class="fac-btn crew-go" style="--fc:var(--gold)" onclick="wbJoin()" ${crewBusy ? 'disabled' : ''}>JOIN</button></div>
+      <div class="city-head">OR RAISE YOUR OWN</div>
+      <div class="crew-row-in"><input id="wb-name-in" class="crew-in" maxlength="28" placeholder="Warband name" autocomplete="off"></div>
+      <div class="crew-row-in">${[25, 50].map(n => `<button class="wb-size${_wbSize === n ? ' on' : ''}" data-n="${n}" onclick="wbPickSize(${n})">${n} HUNTERS</button>`).join('')}
+        <button class="fac-btn crew-go" style="--fc:var(--gold)" onclick="wbCreate()" ${crewBusy ? 'disabled' : ''}>RAISE</button></div>`;
+    return;
+  }
+  const w = warbandState.warband, mine = myRole(), z = warbandLineup();
+  const roles = myRoles().map(r => `<button class="wb-role${mine === r ? ' on' : ''}" onclick="wbSetRole('${r}')" ${crewBusy ? 'disabled' : ''}>${ROLE_INFO[r].icon} ${ROLE_INFO[r].name}</button>`).join('');
+  const buffs = [];
+  if(z.n >= 2) buffs.push(`+${Math.round(Math.min(0.30, 0.02 * (z.n - 1)) * 100)}% damage (${z.n} here)`);
+  if(warbandFull(z)) buffs.push('+10% full line-up');
+  if(z.tank) buffs.push('-15% damage taken');
+  if(z.healer) buffs.push(`${warbandHealPct() * 100}% health every 3s`);
+  const raidBox = RAID ? `<div class="wb-raid">
+      <div class="lock-num">AT THE RAID · ${netEsc(RAID.name)}</div>
+      <div class="wb-comp"><span>🛡 ${z.tank}</span><span>✚ ${z.healer}</span><span>⚔ ${z.dps}</span><span class="wb-need">${warbandFull(z) ? '✦ FULL LINE-UP' : 'full line-up: 1 🛡 · 2 ✚ · 5 ⚔'}</span></div>
+      <div class="wb-buffs">${buffs.length ? buffs.join(' · ') : 'Bring your warband here — bonuses start at 2 hunters.'}</div>
+      <button class="fac-btn" style="--fc:var(--crimson);margin-top:8px" onclick="wbMuster()" ${crewBusy ? 'disabled' : ''}>📯 SOUND THE HORN — MUSTER AT ${netEsc((RAID.landmark || RAID.name).toUpperCase())}</button>
+    </div>` : `<div class="raid-empty">No raid is up right now. When one rises, sound the horn here to call the whole warband.</div>`;
+  const byRole = r => warbandState.members.filter(m => m.role === r).map(m => {
+    const dot = m.me ? 'me' : m.at_raid ? 'near' : m.online ? 'on' : 'off';
+    return `<div class="crew-mem"><span class="crew-dot ${dot}"></span><span class="crew-mn">${netEsc(m.name)}</span>
+      <span class="crew-mc">${netEsc(m.class || '')} · LV ${m.level}</span><span class="crew-mw">${m.me ? 'you' : m.at_raid ? 'at the raid' : m.online ? 'out hunting' : 'away'}</span></div>`;
+  }).join('');
+  const roster = ['tank', 'healer', 'dps'].map(r => {
+    const rows = byRole(r); const n = warbandState.members.filter(m => m.role === r).length;
+    return n ? `<div class="wb-rh">${ROLE_INFO[r].icon} ${ROLE_INFO[r].name}S · ${n}</div>${rows}` : '';
+  }).join('');
+  const board = (warbandState.board || []).map((b, i) => `<div class="crew-ping${b.mine ? ' wb-mine' : ''}"><span>${i + 1}. <b>${netEsc(b.name)}</b> · ${b.hunters} hunter${b.hunters === 1 ? '' : 's'}</span><span>${fmt(b.total)}</span></div>`).join('');
+  el.innerHTML = `${msg}
+    <div class="crew-head"><div><div class="season-num">YOUR WARBAND · ${warbandState.members.length}/${w.size}</div><div class="crew-name">${netEsc(w.name)}</div></div>
+      <div class="crew-code">CODE<b>${netEsc(w.code)}</b></div></div>
+    <button class="fac-btn" style="--fc:var(--gold);margin-bottom:12px" onclick="wbInvite()">✉ RECRUIT RAIDERS</button>
+    <div class="city-head">YOUR ROLE</div>
+    <div class="wb-roles">${roles}</div><div class="city-sub" style="margin-top:6px">${ROLE_INFO[mine].desc}</div>
+    ${raidBox}
+    ${board ? `<div class="city-head">WARBANDS ON THIS RAID</div>${board}` : ''}
+    <div class="city-head">THE ROSTER</div>${roster}
+    <div class="hunt-foot">Your warband sees your name, class, role and whether you're at the raid — nothing else. <a href="#" onclick="event.preventDefault();wbLeave()">Leave warband</a></div>`;
+}
 
 // ══════════════════════════════════════════════════════
 //  FIRST HUNT — a guided first two minutes for new hunters
@@ -6665,6 +6857,7 @@ function stopCombatTimer(){
 function combatTick(){
   if(!inCombat){ stopCombatTimer(); return; }
   const now=Date.now();
+  warbandCombatTick(now);
   const attackInterval = isBoss ? 5000 : 4000;
 
   // Enemy attack timer bar
@@ -7138,7 +7331,7 @@ function calcDamage(ability){
   if(curEnemy && !curEnemy.isRaid){ const bb=bestiaryBonus(curEnemy.name); if(bb) dmg=Math.floor(dmg*(1+bb)); }
 
   // Crew Fury: raids hit harder with your crew beside you
-  if(curEnemy && curEnemy.isRaid && crewNear) dmg=Math.floor(dmg*(1+crewFury()));
+  if(curEnemy && curEnemy.isRaid) dmg=Math.floor(dmg*(1+crewFury()+warbandDmg()));
 
   // Season finale: half damage when sieging from across the city
   if(curEnemy && curEnemy.isFinale) dmg=Math.floor(dmg*seasonSiegeMult(curEnemy));
@@ -7199,6 +7392,7 @@ function doEnemyAttack(){
   const special = isBoss && Math.random()<0.15;
   let dmg=Math.floor(e.atk*(special?1.5:1.0)*(0.85+Math.random()*0.3));
   dmg=Math.max(1,dmg-Math.floor(Player.def*0.5));
+  if(e.isRaid) dmg=Math.max(1,Math.floor(dmg*(1-warbandMitigation()))); // a warband tank soaks the raid's blows
   if(isCrit){ dmg=Math.floor(dmg*1.7); }
 
   if(special){
@@ -7619,6 +7813,7 @@ function saveGame(){
       landmarks: Player.landmarks || {},
       incenseUntil: Player.incenseUntil || 0,
       faction: Player.faction || null,
+      role: Player.role || null,
       season: Player.season || {},
       titles: Player.titles || [],
       factionSince: Player.factionSince || 0,
@@ -7750,7 +7945,7 @@ async function netSignOut(){
   const token = netSession && netSession.access_token;
   netCloudConflict = false; netConflictCloud = null;
   netSyncText = '';
-  crewState = null; crewNear = 0;
+  crewState = null; crewNear = 0; warbandState = null;
   netStoreSession(null);
   if(token) netRequest('/auth/v1/logout', { method:'POST', token }).catch(()=>{});
 }

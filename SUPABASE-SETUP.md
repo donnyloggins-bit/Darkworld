@@ -47,6 +47,7 @@ Until you do this, the game works exactly like before: offline, with saves on th
 - **🏆 Ranks:** a leaderboard in 📖 HUNT → RANKS, sorted by level, distance walked, or bestiary.
 - **⚑ Turf wars:** from level 3 players swear to one of three orders (Lantern, Bell, River). Kills, shrines and walking earn influence for their order in the Philadelphia district they're standing in; each week (Monday to Sunday, Eastern time) the top order holds the district, and members get +10% XP and gold there. Standings are in 📖 HUNT → TURF and as banners on the map.
 - **👥 Crews:** groups of up to 6 friends. Make one in 👥 CREW and share the invite link. Crewmates see each other's district and whether they're out, send quick calls ("Raid now", "I'm here"), and get +5% XP and gold and +10% raid damage per crewmate hunting in the same part of the city. Exact positions are never shared unless a player sends "I'm here", and even then only to about a block.
+- **⚔ Warbands:** raid groups of 25 or 50 with tank, healer and damage roles. Everyone from a warband fighting the same raid strengthens the others, and each raid ranks warbands by damage.
 - **⚔ Raids:** see below.
 
 ## 5. Turn on automatic weekly raids (recommended)
