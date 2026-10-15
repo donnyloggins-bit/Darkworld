@@ -104,6 +104,9 @@ self.addEventListener('fetch', e => {
   // Supabase (auth, saves, live raid) — never cache, always live
   if (url.includes('.supabase.co') || e.request.method !== 'GET') return;
 
+  // Music streams with range requests, which the cache can't store: always from the network
+  if (e.request.headers.has('range') || /\.(m4a|mp3)(\?|$)/.test(url)) return;
+
   // Runtime config — network-first so key changes take effect, cached copy offline
   if (new URL(url).pathname === '/config.js') {
     e.respondWith(

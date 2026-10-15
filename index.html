@@ -1504,6 +1504,18 @@ body::before {
     rgba(3,2,5,0.78) 38%,
     rgba(3,2,5,0.18) 100%);
 }
+#boss-reveal-fx {
+  position:absolute; inset:0; width:100%; height:100%;
+  z-index:1; pointer-events:none;
+}
+.live-box { border-color:rgba(255,150,60,0.55); cursor:default; }
+.live-play {
+  margin-top:10px; width:100%; padding:11px 0; cursor:pointer;
+  background:linear-gradient(180deg,rgba(120,50,10,0.75),rgba(50,18,0,0.9));
+  border:1px solid rgba(255,150,60,0.7); color:#ffd9a8;
+  font-family:'Share Tech Mono',monospace; font-size:.78rem; letter-spacing:.16em;
+}
+.live-play:active { border-color:var(--gold); color:var(--gold); }
 #boss-reveal-content {
   position:relative; z-index:2;
   width:100%; padding:0 24px 44px;
@@ -2252,6 +2264,7 @@ body:not(.net-on) .net-only { display:none !important; }
 <div id="boss-reveal">
   <div id="boss-reveal-bg"></div>
   <div id="boss-reveal-overlay"></div>
+  <canvas id="boss-reveal-fx" aria-hidden="true"></canvas>
   <div id="boss-reveal-content">
     <div id="boss-reveal-type"></div>
     <div id="boss-reveal-landmark"></div>
@@ -4929,6 +4942,16 @@ const SEASONS = [{
   finaleSlides:[
     { img:'spooky-aerial.jpg', label:'HALLOWEEN · 8 PM', lines:['The last lock is broken.', 'The Warden of Cherry Hill is out.', 'Every hunter in Philadelphia — to Eastern State.'] },
   ],
+  // The band plays the fight. Set confirmed:true once the show is booked: until then the game
+  // only offers the soundtrack and never promises a live set at the site.
+  liveShow:{
+    band:'Six Demon Bag', confirmed:false,
+    stage:'the Fairmount Avenue sidewalk, outside the gate',
+    track:{ title:'Dirty Old Town', src:'six-demon-bag-dirty-old-town.m4a' },
+    open:'Six Demon Bag take the stage outside the gate. The fight starts on the first chord.',
+    phases:[ '', 'The band kicks into the second set as the cell doors swing open.', 'The streetlights die. The stage is the only light left on Fairmount Avenue.' ],
+    close:'The last chord rings out over Cherry Hill.',
+  },
 }];
 const SEASON_SIEGE_MI = 0.3;   // full damage at the finale site; half from anywhere else in the city
 const SEASON_CITY_MI = 15;     // how far from the site you can still join the siege
@@ -5080,7 +5103,11 @@ function seasonMaybeFinaleScene(){
   if(rec.finaleSeen || inCombat || seasonModalsOpen()) return;
   rec.finaleSeen = true; saveGame();
   sndRaidRise(); buzz('slam');
-  playCutscene(s.finaleSlides, () => openSeason());
+  const show = s.liveShow;
+  const slides = show && show.confirmed
+    ? [...s.finaleSlides, { img:'hellgate-arch.jpg', label:`LIVE · ${show.band.toUpperCase()}`, lines:[show.open, `Find the stage on ${show.stage}.`, 'Bring every hunter you know.'] }]
+    : s.finaleSlides;
+  playCutscene(slides, () => openSeason());
 }
 
 // ── Combat hooks ───────────────────────────────────────
@@ -5119,6 +5146,7 @@ function seasonFinalePhaseTick(list = BOSSES || []){
       const ph = FINALE_PHASES[idx];
       showToast(`${b.emoji} ${ph.tag}`, ph.line);
       addLog(`🗝 ${b.name} — ${ph.tag}. ${ph.line}`, 'lb');
+      showLiveSetLine(idx);
       sndRaidRise(); buzz('slam');
       if(inCombat && curEnemy === b){ shakeScreen(true); setCLog(ph.line); }
     }
@@ -5153,6 +5181,7 @@ function seasonOnRaidEnd(r, row){
   const rec = seasonRec(s);
   rec.result = row && row.defeated_at ? 'won' : 'lost';
   if(rec.result === 'won' && rec.finaleDmg > 0) grantTitle('Breaker of the Warden');
+  if(rec.result === 'won') showLiveSetClose();
   saveGame();
 }
 
@@ -5314,6 +5343,7 @@ function renderSeason(){
       <div class="lock-place">📍 ${s.site.name} · ${s.finaleLabel}</div>
       <div class="city-sub" style="margin:6px 0 0">One health bar for the whole city. Full damage within a few blocks of the gate; half damage from anywhere else in Philadelphia. ${s.site.note}</div>
     </div>
+    ${liveShowHtml(s)}
     <div class="city-head">YOUR SEASON</div>
     ${rw(rec.shards > 0, `Hollow shards ${rec.shards} / ${s.nights.length}`, 'one per lock you break')}
     ${rw(rec.rewards.lantern, 'The Hollow Lantern', `${SEASON_LANTERN_SHARDS} shards · title Nightwalker`)}
@@ -7059,11 +7089,13 @@ function showBossReveal(boss){
   modal.classList.remove('active');
   void modal.offsetWidth;
   modal.classList.add('active');
+  riftFxStart();
 }
 
 function hideBossReveal(){
   document.getElementById('boss-reveal').classList.remove('active');
   _bossRevealTarget = null;
+  riftFxStop();
 }
 
 function engageBossFromReveal(){
@@ -7076,6 +7108,143 @@ function engageBossFromReveal(){
   }
   hideBossReveal();
   startCombat(b, true);
+}
+
+// ══════════════════════════════════════════════════════
+//  THE LIVE SET — Six Demon Bag play the season finale.
+//  The band's track plays in the app; when the show is booked (liveShow.confirmed)
+//  the finale also points hunters at the stage and calls each phase as a new set.
+// ══════════════════════════════════════════════════════
+let liveAudio = null;
+function liveShowHtml(s){
+  const show = s && s.liveShow; if(!show) return '';
+  const playing = liveAudio && !liveAudio.paused;
+  const where = show.confirmed
+    ? `<div class="lock-place">📍 LIVE on ${show.stage} · ${s.finaleLabel}</div>
+       <div class="city-sub" style="margin:6px 0 0">${show.band} play the fight live. Every phase of the Warden is a new set, and the last chord lands with the last blow.</div>`
+    : `<div class="city-sub" style="margin:6px 0 0">The soundtrack of the Hollow Night, by ${show.band}.</div>`;
+  return `<div class="city-head">${show.confirmed ? 'THE LIVE SET' : 'THE SOUNDTRACK'}</div>
+    <div class="finale-box live-box">
+      <div class="lock-name">🎸 ${show.band}</div>
+      ${where}
+      <button class="live-play" onclick="event.stopPropagation();toggleLiveTrack()">${playing ? '❚❚ PAUSE' : '▶ PLAY'} · ${show.track.title}</button>
+    </div>`;
+}
+function toggleLiveTrack(){
+  const s = currentSeason(); const show = s && s.liveShow; if(!show) return;
+  if(!liveAudio){
+    liveAudio = new Audio(show.track.src);
+    liveAudio.loop = true; liveAudio.volume = 0.7;
+    liveAudio.addEventListener('pause', () => { if(document.getElementById('season-modal').classList.contains('active')) renderSeason(); });
+  }
+  if(liveAudio.paused){
+    liveAudio.play().catch(() => addLog('⚠ The track would not start. Tap play again.', 'ls'));
+  } else {
+    liveAudio.pause();
+  }
+  renderSeason();
+}
+// Called when the finale crosses into a new phase
+function showLiveSetLine(idx){
+  const s = currentSeason(); const show = s && s.liveShow;
+  if(!show || !show.confirmed) return;
+  const line = show.phases[idx];
+  if(!line) return;
+  setTimeout(() => showToast(`🎸 ${show.band.toUpperCase()}`, line), 2600);
+  addLog(`🎸 ${line}`, 'lb');
+}
+function showLiveSetClose(){
+  const s = currentSeason(); const show = s && s.liveShow;
+  if(!show || !show.confirmed) return;
+  setTimeout(() => showToast(`🎸 ${show.band.toUpperCase()}`, show.close), 2600);
+  addLog(`🎸 ${show.close}`, 'lb');
+}
+
+// ══════════════════════════════════════════════════════
+//  RIFT REVEAL — a boss doesn't fade in, the street tears open.
+//  Colour rule for the whole game: fire is the hunters' side, cold blue is the dark's.
+//  Embers rise from the tear; cold mist rolls off the creature. Runs only while the
+//  reveal is open, and not at all for players who ask for reduced motion.
+// ══════════════════════════════════════════════════════
+let _riftFx = null;
+function riftFxStart(){
+  const cv = document.getElementById('boss-reveal-fx');
+  if(!cv || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  riftFxStop();
+  const ctx = cv.getContext('2d');
+  const fx = { cv, ctx, t0:performance.now(), last:performance.now(), parts:[], raf:0 };
+  _riftFx = fx;
+  const size = () => {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    fx.w = cv.clientWidth; fx.h = cv.clientHeight; fx.dpr = dpr;
+    cv.width = Math.round(fx.w * dpr); cv.height = Math.round(fx.h * dpr);
+  };
+  size();
+  fx.onResize = size;
+  window.addEventListener('resize', size);
+  const spawn = (kind) => {
+    const w = fx.w, h = fx.h;
+    if(kind === 'ember') fx.parts.push({ kind, x:w * (0.15 + Math.random() * 0.7), y:h * (0.55 + Math.random() * 0.45), vx:(Math.random() - 0.5) * 20, vy:-30 - Math.random() * 70, life:0, max:2 + Math.random() * 2.5, r:0.8 + Math.random() * 1.8 });
+    else fx.parts.push({ kind, x:w * (0.2 + Math.random() * 0.6), y:h * (0.12 + Math.random() * 0.4), vx:(Math.random() - 0.5) * 14, vy:-4 - Math.random() * 8, life:0, max:3 + Math.random() * 3, r:30 + Math.random() * 60 });
+  };
+  for(let i = 0; i < 40; i++){ spawn('ember'); fx.parts[fx.parts.length - 1].life = Math.random() * 2; }
+  const frame = (now) => {
+    if(_riftFx !== fx) return;
+    const dt = Math.min(0.05, (now - fx.last) / 1000); fx.last = now;
+    const t = (now - fx.t0) / 1000, w = fx.w, h = fx.h;
+    ctx.setTransform(fx.dpr, 0, 0, fx.dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'lighter';
+    // The tear: a ragged seam of fire down the middle that splits open in the first second, then smoulders
+    const open = Math.min(1, t / 0.9), fade = t < 0.9 ? 1 : Math.max(0.18, 1 - (t - 0.9) / 1.4);
+    const cx = w / 2, top = h * 0.04, bot = h * 0.56; // stays above the name and lore
+    for(const side of [-1, 1]){
+      ctx.beginPath();
+      for(let i = 0; i <= 40; i++){
+        const k = i / 40, y = top + (bot - top) * k;
+        const bulge = Math.sin(k * Math.PI) * w * 0.22 * open;
+        const jag = Math.sin(k * 37 + t * 6) * 5 + Math.sin(k * 91 - t * 9) * 3;
+        const x = cx + side * (bulge + jag * open);
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.strokeStyle = `rgba(255,150,60,${0.85 * fade})`; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.strokeStyle = `rgba(255,80,20,${0.35 * fade})`; ctx.lineWidth = 9; ctx.stroke();
+    }
+    if(t < 1.2){
+      const g = ctx.createRadialGradient(cx, h * 0.3, 0, cx, h * 0.3, w * 0.6);
+      g.addColorStop(0, `rgba(255,120,40,${0.35 * (1 - t / 1.2)})`); g.addColorStop(1, 'rgba(255,60,20,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    }
+    if(Math.random() < 0.9) spawn('ember');
+    if(Math.random() < 0.08) spawn('mist');
+    for(const p of fx.parts){
+      p.life += dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      if(p.kind === 'ember') p.vx += Math.sin(p.life * 3 + p.y * 0.02) * 18 * dt;
+      const k = 1 - p.life / p.max; if(k <= 0) continue;
+      if(p.kind === 'ember'){
+        ctx.fillStyle = `rgba(255,${(120 + 90 * k) | 0},50,${0.9 * k})`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (0.6 + 0.6 * k), 0, Math.PI * 2); ctx.fill();
+      } else {
+        const a = Math.sin(Math.PI * (p.life / p.max)) * 0.07;
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        g.addColorStop(0, `rgba(110,140,255,${a})`); g.addColorStop(1, 'rgba(110,140,255,0)');
+        ctx.fillStyle = g; ctx.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+      }
+    }
+    fx.parts = fx.parts.filter(p => p.life < p.max && p.y > -80);
+    if(fx.parts.length > 260) fx.parts.splice(0, fx.parts.length - 260);
+    ctx.globalCompositeOperation = 'source-over';
+    fx.raf = requestAnimationFrame(frame);
+  };
+  fx.raf = requestAnimationFrame(frame);
+}
+function riftFxStop(){
+  if(!_riftFx) return;
+  cancelAnimationFrame(_riftFx.raf);
+  window.removeEventListener('resize', _riftFx.onResize);
+  const { ctx, cv } = _riftFx;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+  _riftFx = null;
 }
 
 // One tap must act once: a tap that lights a shrine must not also fall through to the monster under it
