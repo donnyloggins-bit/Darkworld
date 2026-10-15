@@ -698,6 +698,18 @@ body::before {
   cursor:pointer; z-index:5; letter-spacing:.08em;
   white-space:nowrap;
 }
+#ar-snap-btn { position:absolute; right:14px; bottom:calc(52px + var(--sab)); z-index:5; width:56px; height:56px; border-radius:50%;
+  background:rgba(13,10,20,0.88); border:2px solid #d4a017; font-size:1.5rem; cursor:pointer; box-shadow:0 0 14px rgba(212,160,23,.35); }
+#ar-snap-btn:active { transform:scale(.92); }
+#snap-flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:60; }
+#snap-flash.go { animation:snapflash .45s ease-out; }
+@keyframes snapflash { 0% { opacity:.85; } 100% { opacity:0; } }
+#snap-modal { position:absolute; inset:0; z-index:61; display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+  background:rgba(3,2,5,.92); padding:calc(16px + var(--sat)) 16px calc(16px + var(--sab)); }
+#snap-modal.active { display:flex; }
+#snap-img { max-width:100%; max-height:calc(100% - 80px); border:1px solid #4a3a60; box-shadow:0 0 30px rgba(139,0,0,.5); }
+.snap-row { display:flex; gap:8px; width:100%; max-width:420px; }
+.snap-row .fac-btn { flex:1; }
 #ar-filter-btn:hover { color:var(--bone); border-bottom-color:var(--gold); }
 #ar-canvas {
   position:absolute; inset:0;
@@ -1756,6 +1768,14 @@ body:not(.net-on) .net-only { display:none !important; }
 .me-bar.xp > div { background:linear-gradient(90deg,#3a2a70,#8a6ad0); }
 
 .hunt-tab { font-size:.74rem; letter-spacing:.06em; }
+/* ── The Doors Below ── */
+#delve-modal { display:none; position:fixed; inset:0; z-index:165; background:rgba(5,3,12,0.97); justify-content:center; overflow-y:auto; padding:16px 12px 32px; }
+#delve-modal.active { display:flex; }
+.dv-pips { display:flex; gap:8px; justify-content:center; margin:0 0 12px; }
+.dv-pip { width:30px; height:30px; border:1px solid #3a2a50; color:#6a5a80; display:flex; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; font-size:.8rem; }
+.dv-pip.now { border-color:var(--gold); color:var(--gold); box-shadow:0 0 10px rgba(212,168,48,0.35); }
+.dv-pip.done { border-color:#3a8a4a; color:#6ac07a; background:rgba(40,90,50,0.2); }
+.dv-pip.boss { border-color:#5a1a1a; color:var(--crimson); }
 /* ── The Book ── */
 #book-modal { display:none; position:fixed; inset:0; z-index:165; background:rgba(5,3,12,0.97); justify-content:center; overflow-y:auto; padding:16px 12px 32px; }
 #book-modal.active { display:flex; }
@@ -1853,6 +1873,15 @@ body:not(.net-on) .net-only { display:none !important; }
 .finale-box { border:1px solid rgba(232,134,46,0.5); background:linear-gradient(160deg,#28140a,#0d0a1c); padding:10px 12px; cursor:pointer; }
 .srw { display:flex; justify-content:space-between; gap:10px; font-family:'Share Tech Mono',monospace; font-size:.76rem; color:#8878a8; padding:7px 4px; border-bottom:1px solid #1e1430; }
 .srw.got { color:var(--gold); }
+.ef-bar { position:relative; height:12px; background:#140c20; border:1px solid #3a2a50; border-radius:6px; overflow:hidden; margin:6px 0 0; }
+.ef-bar > div { height:100%; background:linear-gradient(90deg,#8a4a10,#e8862e); }
+.ef-bar i { position:absolute; top:0; bottom:0; width:2px; margin-left:-1px; background:rgba(255,230,180,.55); }
+.ef-tier { flex-direction:column; align-items:flex-start; gap:2px; }
+.ef-tier span:last-child { font-size:.7rem; opacity:.85; text-align:left; padding-left:18px; }
+.ef-ord { display:grid; grid-template-columns:1fr auto; gap:2px 8px; font-family:'Share Tech Mono',monospace; font-size:.76rem; padding:6px 4px 0; }
+.ef-ord b { color:var(--gold); font-weight:normal; }
+.ef-mini { grid-column:1 / -1; height:4px; background:#140c20; border-radius:2px; overflow:hidden; }
+.ef-mini > div { height:100%; }
 .srw span:first-child { white-space:nowrap; }
 .srw span:last-child { text-align:right; color:#6a5a80; font-size:.68rem; }
 .hunt-foot a { color:var(--gold); }
@@ -1905,7 +1934,7 @@ body:not(.net-on) .net-only { display:none !important; }
 #sidebar { padding-top:var(--sat); padding-bottom:var(--sab); }
 /* Full-screen panels sit inside the safe area (on the web both values are 0, so nothing moves) */
 .screen:not(#screen-game):not(#screen-ar), #combat-modal, #boss-reveal, #death-screen,
-#hunt-modal, #season-modal, #crew-modal, #book-modal, #acct-modal, #inv-modal, #shop-modal, #levelup-modal, #quest-modal {
+#hunt-modal, #season-modal, #crew-modal, #book-modal, #delve-modal, #acct-modal, #inv-modal, #shop-modal, #levelup-modal, #quest-modal {
   top:var(--sat) !important; bottom:var(--sab) !important;
 }
 
@@ -2359,6 +2388,16 @@ body:not(.net-on) .net-only { display:none !important; }
 </div>
 
 <!-- ══ HUNT: bounties + bestiary ══ -->
+<div id="delve-modal">
+  <div class="hunt-card">
+    <div class="hunt-head">
+      <div class="hunt-title">THE DOORS BELOW</div>
+      <button class="hunt-close" onclick="closeDelve()">✕ CLOSE</button>
+    </div>
+    <div id="delve-content"></div>
+  </div>
+</div>
+
 <div id="book-modal">
   <div class="hunt-card">
     <div class="hunt-head">
@@ -2450,6 +2489,16 @@ body:not(.net-on) .net-only { display:none !important; }
   <div id="ar-status">⬤ AR · HUNTING</div>
   <div id="ar-compass"><span id="ar-heading-txt">--- °</span></div>
   <button id="ar-filter-btn" onclick="cycleARFilter()">👁 HELLVIEW</button>
+  <button id="ar-snap-btn" onclick="arSnapshot()" aria-label="Take a photo">📸</button>
+  <div id="snap-flash"></div>
+  <div id="snap-modal">
+    <img id="snap-img" alt="Your Darkworld photo">
+    <div class="snap-row">
+      <button class="fac-btn" style="--fc:var(--gold)" onclick="snapShare()">SHARE</button>
+      <button class="fac-btn" style="--fc:#6a5a80" onclick="snapSave()">SAVE</button>
+      <button class="fac-btn" style="--fc:var(--crimson)" onclick="snapClose()">BACK</button>
+    </div>
+  </div>
   <button id="ar-quest-btn" onclick="arQuestTap()" style="display:none;position:absolute;bottom:calc(112px + var(--sab));left:50%;transform:translateX(-50%);background:rgba(180,130,0,0.92);border:2px solid rgba(255,210,60,0.9);color:#fff;font-family:'Share Tech Mono',monospace;font-size:.82rem;letter-spacing:.08em;padding:10px 18px;border-radius:8px;z-index:50;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;"></button>
 </div>
 
@@ -4190,6 +4239,7 @@ function render(){
   drawBloodMoonOverlay();
   drawTurfBanners();
   drawSeasonSite();
+  drawDelveDoors();
   drawShrines();
   drawBloodRings();
   spawns.forEach(s=>{ if(!s.defeated)drawMob(s); });
@@ -4715,7 +4765,7 @@ async function turfFlush(){
   if(!NET_ON || !netSession || !Player || !Player.faction || netCloudConflict) return;
   const batch = turfPending; if(!Object.keys(batch).length) return;
   turfPending = {};
-  try { await netAuthed('/rest/v1/rpc/add_influence', { method:'POST', body:{ p: batch } }); }
+  try { const got = await netAuthed('/rest/v1/rpc/add_influence', { method:'POST', body:{ p: batch } }); effortOnFlush(Number(got) || 0); }
   catch(e){ for(const k in batch) turfPending[k] = (turfPending[k] || 0) + batch[k]; } // retry next time
 }
 
@@ -4848,6 +4898,7 @@ function renderTurf(el){
 const SEASONS = [{
   id:'hollow-2026', num:0, name:'The Hollow Night', short:'THE HOLLOW NIGHT', color:'#e8862e', sigil:'🎃',
   villain:'THE WARDEN OF CHERRY HILL', villainPortrait:'iron-officer.jpg', villainEmoji:'🗝',
+  vanguard:'Vanguard of the Hollow Night',
   villainLore:'The first warden of Eastern State kept every key on one iron ring. The prison closed in 1971. He never handed the ring back.',
   omenAt:'2026-10-13T00:00:00-04:00', startAt:'2026-10-24T00:00:00-04:00',
   finaleAt:'2026-10-31T20:00:00-04:00', finaleEnd:'2026-11-01T00:00:00-04:00', endAt:'2026-11-08T00:00:00-05:00',
@@ -5009,7 +5060,7 @@ function seasonSync(){
 }
 
 function seasonModalsOpen(){
-  return !!document.querySelector('#hunt-modal.active, #levelup-modal.active, #acct-modal.active, #inv-modal.active, #shop-modal.active, #quest-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #boss-reveal.active, #combat-modal.active, #screen-ar.active, #sidebar.open, #coach.show')
+  return !!document.querySelector('#hunt-modal.active, #levelup-modal.active, #acct-modal.active, #inv-modal.active, #shop-modal.active, #quest-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #boss-reveal.active, #combat-modal.active, #screen-ar.active, #sidebar.open, #coach.show')
     || document.getElementById('cutscene-overlay').style.display === 'block';
 }
 // The omen plays once per season, the first quiet moment after the tutorial
@@ -5040,7 +5091,7 @@ function bossTooFar(b){
 }
 function seasonSiegeMult(b){
   if(!b || !b.isFinale || !gpsFirstLock) return 1;
-  return distMiles(Player.lat, Player.lng, b.lat, b.lng) > SEASON_SIEGE_MI ? 0.5 : 1;
+  return distMiles(Player.lat, Player.lng, b.lat, b.lng) > SEASON_SIEGE_MI ? (effortHas('bells') ? 0.65 : 0.5) : 1;
 }
 function seasonFinaleHit(dmg){
   const s = currentSeason(); if(!s) return;
@@ -5138,7 +5189,7 @@ function seasonLine(){
   const s = currentSeason(); if(!s || selectedWorld !== 'philadelphia') return null;
   const ph = seasonPhase(s), now = seasonNow();
   const far = (lat, lng) => gpsFirstLock ? ` · ${distMiles(Player.lat, Player.lng, lat, lng).toFixed(1)} mi` : '';
-  if(ph === 'omen') return `${s.sigil} ${s.short} BEGINS IN ${fmtCountdown(seasonT(s.startAt) - now).toUpperCase()}`;
+  if(ph === 'omen') return `${s.sigil} ${s.short} BEGINS IN ${fmtCountdown(seasonT(s.startAt) - now).toUpperCase()}${effortLine()}`;
   if(ph === 'finale') return `🗝 THE WARDEN IS OUT · ${s.site.short}${far(s.site.lat, s.site.lng)}`;
   if(ph === 'after') return `${s.sigil} ${s.short} IS OVER · SEE HOW THE CITY DID`;
   const n = tonightsLieutenant(s), rec = seasonRec(s);
@@ -5153,6 +5204,10 @@ function nextGoal(){
   const b = d && d.bounties && d.bounties.find(x => !x.done);
   if(b) return { text:`📜 ${b.label} · ${b.type === 'walk' ? b.progress.toFixed(2) : Math.floor(b.progress)}/${b.goal}`, act:() => openHunt('bounties') };
   const rg = relicGoal(); if(rg) return rg;
+  if(selectedWorld === 'philadelphia'){
+    const dv = DELVES.filter(d => (Player.level || 1) >= d.minLvl && !delveLocked(d)).pop();
+    if(dv) return { text:`🚪 ${dv.name} is open today${gpsFirstLock ? ` · ${distMiles(Player.lat, Player.lng, dv.lat, dv.lng).toFixed(1)} mi` : ''}`, act:() => openDelve(dv.id) };
+  }
   if(NET_ON && (Player.level || 1) >= 3 && !Player.faction) return { text:'⚑ Choose your order — the districts are at stake', act:() => openHunt('turf') };
   if(selectedWorld === 'philadelphia' && gpsFirstLock){
     const ds = Player.districts || {};
@@ -5252,6 +5307,7 @@ function renderSeason(){
     <div class="city-head">THE SEVEN LOCKS</div>
     <div class="city-sub">Each night one of the Warden's keepers rises somewhere in the city, from 6 PM until dawn. Go there and break the lock.</div>
     ${locks}
+    ${effortHtml(s)}
     <div class="city-head">THE FINAL FIGHT</div>
     <div class="finale-box" onclick="seasonGoTo(${s.site.lat},${s.site.lng})">
       <div class="lock-name">${s.villainEmoji} ${s.villain}</div>
@@ -5265,6 +5321,85 @@ function renderSeason(){
     ${rw(rec.rewards.key, 'The Key of Cherry Hill', 'strike the Warden in the finale')}
     ${rw((Player.titles || []).includes('Breaker of the Warden'), 'Breaker of the Warden', 'be there when he falls')}
     <div class="hunt-foot">Season keepsakes can never be bought or earned again. <a href="#" onclick="event.preventDefault();closeSeason();playCutscene(currentSeason().omen)">Replay the omen</a></div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  ARM THE CITY — the war effort before each finale (our Gates of Ahn'Qiraj)
+//  Every point of turf influence earned between the omen and the finale also
+//  goes into one city-wide total (server: add_influence → war_effort). Three
+//  tiers change the finale for everyone; the order that gave most is honored.
+//  Online only. The goal lives in season_efforts so the server can act on it.
+// ══════════════════════════════════════════════════════
+const EFFORT_TIERS = [
+  { at:0.25, key:'lanterns', name:'THE LANTERNS ARE LIT', desc:'+10% damage against the Warden for every hunter' },
+  { at:0.60, key:'bells',    name:'THE BELLS ARE RUNG',   desc:'Sieging from across the city deals 65% damage, not 50%' },
+  { at:1.00, key:'river',    name:'THE RIVER IS TURNED',  desc:'The Warden comes out with 15% less health' },
+];
+let effortState = null, effortFetchedAt = 0;
+
+function effortPct(){ return effortState && effortState.goal ? Math.min(1, effortState.total / effortState.goal) : 0; }
+function effortHas(key){ const t = EFFORT_TIERS.find(x => x.key === key); return !!(t && effortState && effortPct() >= t.at); }
+function effortOpen(s){ const ph = seasonPhase(s); return ph === 'omen' || ph === 'nights'; }
+function effortLeader(){
+  if(!effortState) return null;
+  let best = null, bp = 0; for(const f in effortState.by){ if(effortState.by[f] > bp){ bp = effortState.by[f]; best = f; } }
+  return best;
+}
+async function effortFetch(force){
+  const s = currentSeason();
+  if(!NET_ON || !s || (!force && Date.now() - effortFetchedAt < 110000)) return;
+  effortFetchedAt = Date.now();
+  try {
+    const [cfg, rows] = await Promise.all([
+      netRequest(`/rest/v1/season_efforts?select=goal&season=eq.${encodeURIComponent(s.id)}`),
+      netRequest(`/rest/v1/war_effort?select=faction,points&season=eq.${encodeURIComponent(s.id)}`)]);
+    if(!Array.isArray(cfg) || !cfg.length) { effortState = null; return; }
+    const by = { lantern:0, bell:0, river:0 }; let total = 0;
+    (rows || []).forEach(r => { by[r.faction] = Number(r.points) || 0; total += by[r.faction]; });
+    const before = effortPct();
+    effortState = { goal:Number(cfg[0].goal) || 0, total, by };
+    effortAnnounce(s, before);
+    if(document.getElementById('season-modal').classList.contains('active')) renderSeason();
+  } catch(e){}
+}
+// A tier crossed since we last looked: tell the hunter once
+function effortAnnounce(s, before){
+  const rec = seasonRec(s); rec.effortSeen = rec.effortSeen || {};
+  const pct = effortPct();
+  for(const t of EFFORT_TIERS){
+    if(pct >= t.at && !rec.effortSeen[t.key]){
+      rec.effortSeen[t.key] = true;
+      if(before > 0 || t.at === 1) { showToast(`🏮 ${t.name}`, t.desc); sndRaidRise(); }
+      addLog(`🏮 The city is ${Math.round(t.at * 100)}% armed: ${t.name}. ${t.desc}.`, 'lb');
+    }
+  }
+  // When the finale arrives, the order that armed the city most is honored
+  const ph = seasonPhase(s), lead = effortLeader();
+  if((ph === 'finale' || ph === 'after') && lead && Player.faction === lead && (rec.effort || 0) > 0 && grantTitle(s.vanguard))
+    setTimeout(() => showToast('🏮 VANGUARD', `${FACTIONS[lead].name} armed the city most · a new title`), 2400);
+  saveGame();
+}
+// Called with what add_influence actually accepted
+function effortOnFlush(accepted){
+  const s = currentSeason(); if(!s || !effortOpen(s) || !(accepted > 0)) return;
+  const rec = seasonRec(s); rec.effort = (rec.effort || 0) + accepted;
+  if(effortState){ effortState.total += accepted; if(Player.faction) effortState.by[Player.faction] = (effortState.by[Player.faction] || 0) + accepted; }
+}
+function effortDmgMult(b){ return b && b.isFinale && effortHas('lanterns') ? 1.10 : 1; }
+function effortLine(){ return effortState ? ` · CITY ${Math.round(effortPct() * 100)}% ARMED` : ''; }
+function effortHtml(s){
+  if(!NET_ON) return '';
+  const rec = seasonRec(s), pct = effortPct();
+  const head = `<div class="city-head">ARM THE CITY</div>
+    <div class="city-sub">Until the finale, every point of influence any hunter earns — kills, shrines, walking — also arms the city against the Warden. Join an order to add yours.</div>`;
+  if(!effortState) return head + '<div class="raid-empty">The war effort has not been called yet.</div>';
+  const bar = `<div class="ef-bar"><div style="width:${(pct * 100).toFixed(1)}%"></div>${EFFORT_TIERS.map(t => `<i style="left:${t.at * 100}%"></i>`).join('')}</div>
+    <div class="hunt-foot" style="margin:2px 0 8px">${fmt(effortState.total)} / ${fmt(effortState.goal)} · ${Math.round(pct * 100)}%</div>`;
+  const tiers = EFFORT_TIERS.map(t => `<div class="srw ef-tier${pct >= t.at ? ' got' : ''}"><span>${pct >= t.at ? '🏮' : '◇'} ${Math.round(t.at * 100)}% · ${t.name}</span><span>${t.desc}</span></div>`).join('');
+  const lead = effortLeader(), tot = Math.max(1, effortState.total);
+  const orders = Object.keys(FACTIONS).map(f => `<div class="ef-ord"><span style="color:${FACTIONS[f].color}">${FACTIONS[f].sigil} ${FACTIONS[f].name}${f === lead ? ' · LEADS' : ''}</span><b>${fmt(effortState.by[f] || 0)}</b><div class="ef-mini"><div style="width:${(100 * (effortState.by[f] || 0) / tot).toFixed(1)}%;background:${FACTIONS[f].color}"></div></div></div>`).join('');
+  return `${head}${bar}${tiers}${orders}
+    <div class="hunt-foot">Your part: ${fmt(rec.effort || 0)}. The order that gives most when the finale begins is named ${s.vanguard}.</div>`;
 }
 
 // ══════════════════════════════════════════════════════
@@ -5771,6 +5906,8 @@ function codexChapters(){
       entries: BLOOD_MOONS.map(b => ({ id:'moon:' + b.date, title:`${b.title} · ${b.species}`, text:b.lore, open: !!(P.bloodMoons && P.bloodMoons[b.date] && P.bloodMoons[b.date].kills), hint:`Hunt under the Blood Moon · ${bloodMoonLabel(b)}` })) },
     { id:'relic', title:'IX · THE TONGUE OF THE BELL', loud:true,
       entries: RELIC_PAGES.map((p, i) => ({ id:'relic:' + i, title:p.title, text:p.text, open: relicStep() > i, hint: i === 0 ? `Reach level ${RELIC_MIN_LEVEL}` : 'Keep following the Bell' })) },
+    { id:'doors', title:'X · THE DOORS BELOW', loud:true,
+      entries: DELVES.map(d => ({ id:'door:' + d.id, title:`${d.name} · ${d.door}`, text:d.page, open: !!(P.delves && P.delves[d.id] && P.delves[d.id].clears), hint:`Clear it (level ${d.minLvl}+)` })) },
   ];
 }
 const DISTRICT_LORE = {
@@ -6050,6 +6187,290 @@ function drawBloodRings(){
     ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(230,20,30,0.85)'; ctx.lineWidth = 2.5; ctx.stroke();
   }
+}
+
+// ══════════════════════════════════════════════════════
+//  THE DOORS BELOW — short dungeons behind real basement doors (WoW-style)
+//  Stand at the door, descend, fight through four rooms and a boss. One rest per run.
+//  A cleared door locks until midnight Eastern; dying or fleeing ends the run.
+//  Rewards: a chest (gold, XP, a guaranteed item of the door's tier), 2 bell shards,
+//  and the door's page in the Book. Progress: Player.delves[id] = { day, clears }.
+// ══════════════════════════════════════════════════════
+const DELVES = [
+  { id:'market-cellar', name:'The Market Cellar', door:'Reading Terminal Market', lat:39.9535, lng:-75.1594, minLvl:1, tier:2, emoji:'🚪',
+    blurb:'Under the Terminal Market, past the cold rooms, the old Reading Railroad freight cellar goes down much further than it should.',
+    rooms:[ { name:'The Loading Dock',  pool:['Cursed Rat','Shadow Imp'] },
+            { name:'Cold Storage',      pool:['Rot Golem','Plague Hound'] },
+            { name:'The Old Stalls',    pool:['Lost Soul','Shadow Imp','Cursed Rat'] },
+            { name:'The Furnace Room',  pool:['Blood Wraith','Void Shade'] } ],
+    boss:{ name:'THE BUTCHER OF FILBERT STREET', emoji:'🔪', portrait:'city-beast-frazetta.jpg', color:'#b02020',
+      lore:'He ran the meat stall at the end of the row for forty years. When the doors opened he went down to the freight cellar with his cleavers and never came back up. Now he keeps the cellar stocked.' },
+    page:"Behind the produce stalls, past a door marked EMPLOYEES ONLY, a freight elevator still runs. It only goes down. The hunters who took it found the old Reading Railroad cellar intact, rails and all, and something keeping it the way it likes: cold, dark, and stocked." },
+  { id:'lost-concourse', name:'The Lost Concourse', door:'30th Street Station', lat:39.9559, lng:-75.1824, minLvl:8, tier:3, emoji:'🚪',
+    blurb:'A stairway off the main concourse leads to a second, lower station: lit, clean, and timetabled for trains that left in 1943.',
+    rooms:[ { name:'The Lower Platform', pool:['Lost Soul','Wailing Banshee'] },
+            { name:'The Waiting Room',   pool:['Hollow Knight','Lich Servant'] },
+            { name:'The Baggage Hall',   pool:['Rot Golem','Bone Archer'] },
+            { name:'Track Zero',         pool:['Void Shade','Blood Wraith','Wailing Banshee'] } ],
+    boss:{ name:'THE STATIONMASTER', emoji:'🚂', portrait:'blood-wraith-sword.jpg', color:'#7a6ab8',
+      lore:'He keeps the timetable for every train that never arrived. Passengers who miss their train in the Lost Concourse are added to his staff.' },
+    page:"30th Street has a second concourse under the first. Its departure board still flips through destinations that no longer exist — Reading Terminal, the Pennsylvania Railroad to Pittsburgh, a midnight train simply marked BELOW. The clocks there all read 3:17." },
+  { id:'upside-hall', name:'The Upside-Down Hall', door:'City Hall · William Penn', lat:39.9521, lng:-75.1640, minLvl:18, tier:3, emoji:'🚪',
+    blurb:'The marble stairway under City Hall. It goes past the subway, past the bedrock, and ends in a second City Hall hanging upside down.',
+    rooms:[ { name:'The Marble Stair',     pool:['Hollow Knight','Lich Servant'] },
+            { name:'The Hanging Corridor', pool:['Void Shade','Grave Stalker'] },
+            { name:'The Inverted Chamber', pool:['Blood Wraith','Wailing Banshee','Bone Archer'] },
+            { name:'The Clock Room',       pool:['Void Shade','Hollow Knight','Grave Stalker'] } ],
+    boss:{ name:'THE MAYOR BELOW', emoji:'🏛', portrait:'jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.jpg', color:'#c89838',
+      lore:'Whatever governs the city under the city. It has kept its own records since 1682, and every one of them is a name.' },
+    page:"At the bottom of the white stair, the second City Hall hangs from the bedrock like a stalactite, its tower pointing down into the dark. Its clock runs. It is the only clock in Philadelphia that does. The hunters who reached the clock room say it is not counting the hours. It is counting down." },
+];
+const DELVE_REST_PCT = 0.35;
+let delveRun = null; // { id, room, rested, state:'between'|'fight'|'cleared'|'failed' }
+
+function delveDay(){ // Eastern date, so every door resets at midnight in Philadelphia
+  const d = new Date(new Date(seasonNow()).toLocaleString('en-US', { timeZone:'America/New_York' }));
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function delveRec(id){ Player.delves = Player.delves || {}; return Player.delves[id] = Player.delves[id] || { day:null, clears:0 }; }
+function delveLocked(dv){ return delveRec(dv.id).day === delveDay(); }
+
+function delveMob(dv, roomIdx, isBossRoom){
+  const L = Player.level || 1, k = 1 + roomIdx * 0.12;
+  if(isBossRoom){
+    const b = dv.boss, hp = Math.max(1200, Math.floor(Player.atk * 30));
+    return { ...b, landmark:dv.door, isDelve:true, delveId:dv.id, zone:0, type:`${dv.name.toUpperCase()} · THE DEPTHS`,
+      hp, maxHp:hp, atk:Math.floor(Player.maxHp * 0.11 + Player.def * 0.5), def:Math.floor(Player.atk * 0.13),
+      xp:Math.floor(xpForLevel(L) * 0.2) + 150, gold:[200 + L * 30, 400 + L * 50], defeated:false, statuses:[], poisonStacks:0 };
+  }
+  const room = dv.rooms[roomIdx];
+  const name = room.pool[Math.floor(Math.random() * room.pool.length)];
+  const t = MOB_TYPES.find(m => m.name === name) || MOB_TYPES[0];
+  const hp = Math.max(t.hp, Math.floor(Player.atk * 7 * k));
+  return { ...t, isDelve:true, delveId:dv.id, lat:dv.lat, lng:dv.lng, type:`${dv.name.toUpperCase()} · ${room.name.toUpperCase()}`,
+    hp, maxHp:hp, atk:Math.floor((Player.maxHp * 0.07 + Player.def * 0.5) * k), def:Math.floor(Player.atk * 0.08),
+    xp:Math.floor(t.xp * 0.4 + xpForLevel(L) * 0.03), gold:[20 + L * 6, 50 + L * 10], elite:false, defeated:false, statuses:[], poisonStacks:0 };
+}
+
+function openDelve(id){
+  const dv = DELVES.find(d => d.id === id); if(!dv || !Player) return;
+  if(!delveRun || delveRun.id !== id || delveRun.state === 'cleared' || delveRun.state === 'failed') delveRun = { id, room:0, rested:false, state:'intro' };
+  renderDelve();
+  document.getElementById('delve-modal').classList.add('active');
+}
+function closeDelve(){
+  document.getElementById('delve-modal').classList.remove('active');
+  if(delveRun && delveRun.state === 'between'){ addLog('You climb back up into the city. The door will wait — but your progress below will not.', 'ls'); delveRun = null; }
+}
+function delveDescend(){
+  const dv = DELVES.find(d => d.id === delveRun.id);
+  if((Player.level || 1) < dv.minLvl){ showToast('🚪 NOT YET', `${dv.name} needs level ${dv.minLvl}`); return; }
+  if(delveLocked(dv)){ showToast('🚪 THE DOOR IS SHUT', 'It opens again at midnight'); return; }
+  if(gpsFirstLock && distMiles(Player.lat, Player.lng, dv.lat, dv.lng) > ENGAGE_MILES){ showToast('🚪 TOO FAR', `Go to ${dv.door} to descend`); return; }
+  delveRun.state = 'between'; delveRun.room = 0;
+  sndRaidRise();
+  addLog(`🚪 You descend into ${dv.name}.`, 'lb');
+  delveFight();
+}
+function delveFight(){
+  const dv = DELVES.find(d => d.id === delveRun.id);
+  const isBoss = delveRun.room >= dv.rooms.length;
+  const mob = delveMob(dv, delveRun.room, isBoss);
+  delveRun.state = 'fight';
+  document.getElementById('delve-modal').classList.remove('active');
+  startCombat(mob, isBoss);
+}
+function delveRest(){
+  if(!delveRun || delveRun.rested) return;
+  delveRun.rested = true;
+  const h = Math.floor(Player.maxHp * DELVE_REST_PCT);
+  Player.hp = Math.min(Player.maxHp, Player.hp + h);
+  Player.res = Math.min(Player.maxRes, Player.res + Math.floor(Player.maxRes * 0.5));
+  addLog(`🕯 You rest by a candle someone left burning. +${fmt(h)} HP.`, 'll');
+  sndShrine(false); setPUI(); renderDelve();
+}
+// Called from victory(): advance the run, or open the chest after the boss
+function delveOnVictory(mob){
+  if(!mob || !mob.isDelve || !delveRun || delveRun.id !== mob.delveId) return;
+  const dv = DELVES.find(d => d.id === delveRun.id);
+  if(delveRun.room >= dv.rooms.length){
+    delveRun.state = 'cleared';
+    const rec = delveRec(dv.id); rec.day = delveDay(); rec.clears = (rec.clears || 0) + 1;
+    const L = Player.level || 1;
+    const gold = Math.floor((300 + L * 40) * (dv.tier === 3 ? 1.6 : 1)), xp = Math.floor(xpForLevel(L) * 0.25);
+    const pool = Object.keys(ITEMS).filter(n => ITEMS[n].type !== 'potion' && ITEMS[n].tier === dv.tier && ITEMS[n].cost > 0 && !ownsItem(n));
+    const item = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+    if(item && Player.inventory.length < BAG_SIZE) Player.inventory.push(item);
+    Player.gold += gold; Player.xp += xp;
+    delveRun.chest = { gold, xp, item };
+    relicShard(2, dv.name);
+    if(grantTitle('Delver')) setTimeout(() => showToast('🚪 DELVER', 'Your first door below, cleared · a new title'), 2600);
+    addLog(`🚪 ${dv.name} cleared. The chest: +${gold} gold, +${fmt(xp)} XP${item ? ' · ' + item : ''}. The door shuts until midnight.`, 'lb');
+    sndLevelUp(); huntLevelCheck(); setPUI(); saveGame();
+  } else {
+    delveRun.room++;
+    delveRun.state = 'between';
+  }
+  const reopen = () => {
+    if(inCombat || !delveRun) return;
+    if(document.getElementById('levelup-modal').classList.contains('active') || pendingLevelUps.length) return setTimeout(reopen, 600); // after the level-up
+    renderDelve(); document.getElementById('delve-modal').classList.add('active');
+  };
+  setTimeout(reopen, 1400);
+}
+function delveOnEnd(why){ // death or flight during a run
+  if(!delveRun || delveRun.state !== 'fight') return;
+  const dv = DELVES.find(d => d.id === delveRun.id);
+  delveRun.state = 'failed';
+  addLog(why === 'fled' ? `🚪 You flee back up the stairs. ${dv.name} will be waiting.` : `🚪 ${dv.name} keeps you. Your run is over — try again today.`, 'ls');
+}
+
+function renderDelve(){
+  const el = document.getElementById('delve-content'); if(!el || !delveRun) return;
+  const dv = DELVES.find(d => d.id === delveRun.id);
+  const n = dv.rooms.length;
+  const pips = dv.rooms.map((r, i) => `<span class="dv-pip${i < delveRun.room || delveRun.state === 'cleared' ? ' done' : i === delveRun.room && delveRun.state !== 'intro' ? ' now' : ''}">${i + 1}</span>`).join('')
+    + `<span class="dv-pip boss${delveRun.state === 'cleared' ? ' done' : delveRun.room >= n ? ' now' : ''}">☠</span>`;
+  const head = `<div class="season-hero" style="background-image:url('${dv.boss.portrait}');height:140px">
+      <div class="season-num">THE DOORS BELOW · ${dv.door.toUpperCase()}</div><div class="season-name" style="font-size:1.6rem">${dv.name}</div></div>
+    <div class="dv-pips">${pips}</div>`;
+  if(delveRun.state === 'intro'){
+    const locked = delveLocked(dv), low = (Player.level || 1) < dv.minLvl;
+    const far = gpsFirstLock ? distMiles(Player.lat, Player.lng, dv.lat, dv.lng) : 0;
+    el.innerHTML = `${head}<div class="city-sub">${dv.blurb}</div>
+      <div class="city-sub">Four rooms and ${dv.boss.name}. One rest by the candle. Fall or flee and the run is over. Clear it for a chest with a guaranteed ${dv.tier === 3 ? 'rare' : 'uncommon'} item — then the door shuts until midnight.${crewNear ? ` <b style="color:#50c88c">Your crew is with you: +${Math.round(crewBonus()*100)}% XP and gold.</b>` : ''}</div>
+      ${locked ? '<div class="raid-empty">You cleared this door today. It opens again at midnight.</div>'
+        : low ? `<div class="raid-empty">This door is too deep for you yet — level ${dv.minLvl}.</div>`
+        : far > ENGAGE_MILES ? `<div class="raid-empty">Go to ${dv.door} to descend (${far.toFixed(2)} mi away).</div>`
+        : `<button class="fac-btn" style="--fc:var(--crimson)" onclick="delveDescend()">🚪 DESCEND</button>`}
+      <div class="hunt-foot">Cleared ${delveRec(dv.id).clears || 0} time${delveRec(dv.id).clears === 1 ? '' : 's'}.</div>`;
+    return;
+  }
+  if(delveRun.state === 'between'){
+    const next = delveRun.room >= n ? `☠ ${dv.boss.name}` : dv.rooms[delveRun.room].name;
+    el.innerHTML = `${head}<div class="city-sub">The room is quiet. Ahead: <b style="color:var(--gold)">${next}</b>. You have ${fmt(Player.hp)} / ${fmt(Player.maxHp)} HP.</div>
+      <button class="fac-btn" style="--fc:var(--crimson);margin-bottom:8px" onclick="delveFight()">⚔ PRESS ON</button>
+      ${delveRun.rested ? '' : `<button class="fac-btn" style="--fc:var(--gold)" onclick="delveRest()">🕯 REST BY THE CANDLE (+${Math.round(DELVE_REST_PCT*100)}% HP, once)</button>`}
+      <div class="hunt-foot">Leaving now ends the run.</div>`;
+    return;
+  }
+  if(delveRun.state === 'cleared'){
+    const c = delveRun.chest || {};
+    el.innerHTML = `${head}<div class="city-head">THE CHEST</div>
+      <div class="city-sub">+${fmt(c.gold || 0)} gold · +${fmt(c.xp || 0)} XP${c.item ? ` · ${ITEMS[c.item].emoji} <b style="color:var(--gold)">${c.item}</b>` : ''} · 2 bell shards${Player.relic && Player.relic.step === 1 ? '' : ' (when you hunt for them)'}</div>
+      <div class="book-page"><div class="book-pt">${dv.name}</div><div class="book-tx">${dv.page}</div></div>
+      <button class="fac-btn" style="--fc:var(--gold)" onclick="closeDelve()">CLIMB BACK UP</button>`;
+    return;
+  }
+  el.innerHTML = `${head}<div class="raid-empty">The run is over. The door is still open — try again today.</div>
+    <button class="fac-btn" style="--fc:var(--gold)" onclick="delveRun=null;closeDelve()">CLOSE</button>`;
+}
+
+function drawDelveDoors(){
+  if(selectedWorld !== 'philadelphia') return;
+  const t = Date.now() / 700;
+  for(const dv of DELVES){
+    const p = ll2px(dv.lat, dv.lng);
+    if(p.x < -40 || p.x > mapW + 40 || p.y < -40 || p.y > mapH + 40) continue;
+    const r = Math.max(11, 14 * zoom), locked = Player && delveLocked(dv);
+    ctx.beginPath(); ctx.arc(p.x, p.y, r * (1.5 + 0.1 * Math.sin(t)), 0, Math.PI * 2);
+    ctx.fillStyle = locked ? 'rgba(60,50,80,0.18)' : 'rgba(120,40,200,0.22)'; ctx.fill();
+    ctx.fillStyle = '#0a0612'; ctx.fillRect(p.x - r * 0.7, p.y - r, r * 1.4, r * 2);
+    ctx.strokeStyle = locked ? '#4a3a60' : '#a070e0'; ctx.lineWidth = 2; ctx.strokeRect(p.x - r * 0.7, p.y - r, r * 1.4, r * 2);
+    ctx.fillStyle = locked ? '#4a3a60' : '#c8a0ff'; ctx.beginPath(); ctx.arc(p.x + r * 0.35, p.y, r * 0.12, 0, Math.PI * 2); ctx.fill();
+    if(zoom > 0.6){
+      ctx.font = `bold ${Math.max(9, Math.min(12, 9 * zoom))}px "Share Tech Mono"`; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillStyle = locked ? '#6a5a80' : '#c8a0ff'; ctx.fillText(`${dv.name}${locked ? ' · SHUT' : ''}`, p.x, p.y + r + 5);
+    }
+  }
+  markDirty();
+}
+function delveAt(cx, cy){
+  if(selectedWorld !== 'philadelphia') return null;
+  for(const dv of DELVES){ const p = ll2px(dv.lat, dv.lng); if(Math.hypot(cx - p.x, cy - p.y) < Math.max(16, 18 * zoom)) return dv; }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════
+//  AR SNAPSHOT — 📸 in AR makes a share card: the camera (with the current
+//  filter), the monsters in frame, and a Darkworld frame with who, where, when.
+//  Shared as an image file when the phone allows it, otherwise saved.
+// ══════════════════════════════════════════════════════
+let snapBlob = null, snapUrl = null, arCleanFrame = false;
+function sndShutter(){
+  noise({ gain:0.14, attack:0.002, release:0.06, filter:'highpass', filterFreq:2500, wet:0.05 });
+  noise({ gain:0.10, attack:0.002, release:0.08, filter:'bandpass', filterFreq:1200, wet:0.05, at:0.07 });
+  buzz('light');
+}
+function arSnapshot(){
+  if(!Player) return;
+  const arc = document.getElementById('ar-canvas'), vid = document.getElementById('ar-video');
+  const W = arc.clientWidth || window.innerWidth, H = arc.clientHeight || window.innerHeight;
+  const k = Math.min(2, 1920 / Math.max(W, H)); // ~1080×1920 on a phone
+  const out = document.createElement('canvas'); out.width = Math.round(W * k); out.height = Math.round(H * k);
+  const c = out.getContext('2d'); c.scale(k, k);
+  c.fillStyle = '#05030a'; c.fillRect(0, 0, W, H);
+  // 1. the camera, cropped like object-fit:cover, with the AR filter
+  if(vid && vid.readyState >= 2 && vid.videoWidth){
+    const vr = vid.videoWidth / vid.videoHeight, sr = W / H;
+    let sw = vid.videoWidth, sh = vid.videoHeight, sx = 0, sy = 0;
+    if(vr > sr){ sw = sh * sr; sx = (vid.videoWidth - sw) / 2; } else { sh = sw / sr; sy = (vid.videoHeight - sh) / 2; }
+    try { c.filter = AR_FILTERS[arFilterIdx].filter || 'none'; } catch(e){}
+    c.drawImage(vid, sx, sy, sw, sh, 0, 0, W, H);
+    try { c.filter = 'none'; } catch(e){}
+  }
+  const ov = AR_FILTERS[arFilterIdx].overlay; if(ov){ c.fillStyle = ov; c.fillRect(0, 0, W, H); }
+  const vg = c.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.7)');
+  c.fillStyle = vg; c.fillRect(0, 0, W, H);
+  // 2. the monsters, redrawn once without the FIGHT buttons
+  if(arAnimId){ cancelAnimationFrame(arAnimId); arCleanFrame = true; try { renderAR(); } finally { arCleanFrame = false; } }
+  try { c.drawImage(arc, 0, 0, W, H); } catch(e){}
+  // 3. the frame
+  const band = 118, by = H - band;
+  const g = c.createLinearGradient(0, by - 40, 0, H);
+  g.addColorStop(0, 'rgba(5,3,10,0)'); g.addColorStop(0.35, 'rgba(5,3,10,0.86)'); g.addColorStop(1, 'rgba(5,3,10,0.96)');
+  c.fillStyle = g; c.fillRect(0, by - 40, W, band + 40);
+  c.fillStyle = '#8b0000'; c.fillRect(0, by + 2, W, 2);
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  c.fillStyle = '#d4a017'; c.font = '30px "Metal Mania", serif'; c.fillText('DARKWORLD', 16, by + 40);
+  const foe = arVisibleEnemies.slice().sort((a, b) => (b.isBoss - a.isBoss) || (b.sz - a.sz))[0];
+  c.fillStyle = '#e8dcc0'; c.font = 'italic 16px "IM Fell English", serif';
+  c.fillText(foe ? `${Player.name} faces ${foe.entity.name}` : `${Player.name} hunts the city`, 16, by + 66);
+  const d = selectedWorld === 'philadelphia' && gpsFirstLock ? districtAt(Player.lat, Player.lng) : null;
+  const when = new Date(seasonNow()).toLocaleString('en-US', { timeZone:'America/New_York', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+  c.fillStyle = '#9080b0'; c.font = '12px "Share Tech Mono", monospace';
+  c.fillText(`LVL ${Player.level} ${Player.className.toUpperCase()} · ${d ? d.name.toUpperCase() + ' · ' : ''}${(WORLDS[selectedWorld]?.name || 'PHILADELPHIA').toUpperCase()}`, 16, by + 88);
+  c.fillText(`${when.toUpperCase()}${Player.titles && Player.titles.length ? ' · ' + Player.titles[Player.titles.length - 1].toUpperCase() : ''}`, 16, by + 106);
+  c.textAlign = 'right'; c.fillStyle = '#6a5a80'; c.fillText(location.host || 'darkworld', W - 16, by + 106);
+  // flash, shutter, preview
+  const fl = document.getElementById('snap-flash'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+  sndShutter();
+  Player.snaps = (Player.snaps || 0) + 1;
+  out.toBlob(b => {
+    if(!b) return;
+    snapBlob = b; if(snapUrl) URL.revokeObjectURL(snapUrl); snapUrl = URL.createObjectURL(b);
+    document.getElementById('snap-img').src = snapUrl;
+    document.getElementById('snap-modal').classList.add('active');
+  }, 'image/jpeg', 0.9);
+  saveGame();
+}
+function snapClose(){ document.getElementById('snap-modal').classList.remove('active'); }
+function snapFileName(){ return `darkworld-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.jpg`; }
+async function snapShare(){
+  if(!snapBlob) return;
+  const file = new File([snapBlob], snapFileName(), { type:'image/jpeg' });
+  const text = 'The city is overrun. #Darkworld';
+  try {
+    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], title:'DARKWORLD', text }); return; }
+  } catch(e){ if(e && e.name === 'AbortError') return; }
+  snapSave();
+}
+function snapSave(){
+  if(!snapUrl) return;
+  const a = document.createElement('a'); a.href = snapUrl; a.download = snapFileName();
+  document.body.appendChild(a); a.click(); a.remove();
+  showToast('📸 SAVED', 'Look for it in your downloads');
 }
 
 // ══════════════════════════════════════════════════════
@@ -6697,6 +7118,7 @@ function handleClick(cx,cy){
       showBossReveal(b); return;
     }
   }
+  const door = delveAt(cx, cy); if(door){ openDelve(door.id); return; }
   for(const sh of shrines){
     const p=ll2px(sh.lat,sh.lng);
     if(Math.hypot(cx-p.x,cy-p.y)<Math.max(11,11*zoom)*(sh.landmark?1.6:1)){
@@ -7122,6 +7544,7 @@ function renderAR(){
       const btnW=Math.min(cardW,160),btnH=34;
       const btnX=x-btnW/2,btnY=cardY+cardH+6;
       const tooFar=e.boss&&bossTooFar(e.entity);
+      if(!arCleanFrame){ // a snapshot leaves the button out
       c.fillStyle=tooFar?'rgba(40,30,60,0.85)':(e.boss?'rgba(200,150,0,0.92)':'rgba(180,30,30,0.92)');
       c.beginPath(); c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,6):c.rect(btnX,btnY,btnW,btnH); c.fill();
       c.strokeStyle=tooFar?'rgba(120,80,160,0.6)':(e.boss?'rgba(255,220,60,0.9)':'rgba(255,80,80,0.9)');
@@ -7130,6 +7553,7 @@ function renderAR(){
       c.fillStyle=tooFar?'rgba(180,140,220,0.7)':'#fff';
       c.textAlign='center'; c.textBaseline='middle';
       c.fillText(tooFar?'GET CLOSER':'FIGHT',x,btnY+btnH/2);
+      }
       const v=arVisibleEnemies[arVisibleEnemies.length-1];
       v.btnY=btnY+btnH/2; v.btnW=btnW; v.btnH=btnH; v.tooFar=tooFar;
     } else {
@@ -7812,7 +8236,7 @@ function calcDamage(ability){
   if(curEnemy && curEnemy.isRaid) dmg=Math.floor(dmg*(1+crewFury()+warbandDmg()));
 
   // Season finale: half damage when sieging from across the city
-  if(curEnemy && curEnemy.isFinale) dmg=Math.floor(dmg*seasonSiegeMult(curEnemy));
+  if(curEnemy && curEnemy.isFinale) dmg=Math.floor(dmg*seasonSiegeMult(curEnemy)*effortDmgMult(curEnemy));
 
   // Defense mitigation
   if(!ignoreDef) dmg=Math.max(1,dmg-Math.floor(curEnemy.def*0.3));
@@ -7964,9 +8388,10 @@ function victory(){
   tutOnVictory(curEnemy);
   seasonOnVictory(curEnemy);
   bloodMoonOnKill(curEnemy);
-  if(isBoss && !curEnemy.isRaid && !curEnemy.isSeason && !curEnemy.isRelic){ Player.terrors = Player.terrors || {}; Player.terrors[curEnemy.name] = Player.terrors[curEnemy.name] || Date.now(); }
+  if(isBoss && !curEnemy.isRaid && !curEnemy.isSeason && !curEnemy.isRelic && !curEnemy.isDelve){ Player.terrors = Player.terrors || {}; Player.terrors[curEnemy.name] = Player.terrors[curEnemy.name] || Date.now(); }
   relicOnKill(curEnemy, isBoss);
   relicOnVictory(curEnemy);
+  delveOnVictory(curEnemy);
   onEntityKilled(curEnemy.name, isBoss);
   // Bloodthirst: heal 5% max HP on kill
   if(Player.skills?.classUnique && Player.className==='Fighter'){
@@ -8119,6 +8544,7 @@ function doFlee(){
     inCombat=false; stopCombatTimer(); clearCBCache();
     document.getElementById('combat-modal').classList.remove('active');
     addLog('You vanish into the shadows...','ls'); markDirty();
+    delveOnEnd('fled');
   } else {
     setCLog('You failed to escape!');
     addLog('Failed to flee!','lc');
@@ -8126,6 +8552,7 @@ function doFlee(){
 }
 
 function dead(){ sndDeath();
+  delveOnEnd('died');
   inCombat=false; stopCombatTimer(); clearCBCache();
   document.getElementById('combat-modal').classList.remove('active');
   document.getElementById('death-screen').classList.add('active');
@@ -8303,6 +8730,7 @@ function saveGame(){
       terrors: Player.terrors || {},
       relic: Player.relic || null,
       bloodSigils: Player.bloodSigils || 0,
+      delves: Player.delves || {},
       bloodMoons: Player.bloodMoons || {},
       titles: Player.titles || [],
       factionSince: Player.factionSince || 0,
@@ -8661,6 +9089,7 @@ function netStartRaidWatch(){
   crewStart();
   setInterval(turfFlush, 60000);
   setInterval(turfFetch, 120000);
+  effortFetch(true); setInterval(effortFetch, 120000);
 }
 
 // ── HUNTERS NEARBY ─────────────────────────────────────

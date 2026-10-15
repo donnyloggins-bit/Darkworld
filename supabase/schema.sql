@@ -391,6 +391,28 @@ grant execute on function public.choose_faction(text) to authenticated;
 
 -- Add influence: p = {"Fishtown": 7, "Kensington": 2}. The order comes from the
 -- server, never the client; at most 400 points per player per hour.
+-- War effort: before each season finale, influence also arms the whole city.
+-- A season's window and goal live in season_efforts (set in season-N.sql).
+create table if not exists public.season_efforts (
+  season    text primary key,
+  opens_at  timestamptz not null,
+  closes_at timestamptz not null,
+  goal      bigint not null check (goal > 0)
+);
+alter table public.season_efforts enable row level security;
+drop policy if exists "season_efforts: public read" on public.season_efforts;
+create policy "season_efforts: public read" on public.season_efforts for select to anon, authenticated using (true);
+
+create table if not exists public.war_effort (
+  season   text not null references public.season_efforts(season) on delete cascade,
+  faction  text not null check (faction in ('lantern','bell','river')),
+  points   bigint not null default 0,
+  primary key (season, faction)
+);
+alter table public.war_effort enable row level security;
+drop policy if exists "war_effort: public read" on public.war_effort;
+create policy "war_effort: public read" on public.war_effort for select to anon, authenticated using (true);
+
 create or replace function public.add_influence(p jsonb)
 returns int
 language plpgsql security definer set search_path = public
@@ -416,6 +438,9 @@ begin
   if total > 0 then
     insert into public.turf_user_hour (user_id, hour, points) values (uid, hr, total)
     on conflict (user_id, hour) do update set points = public.turf_user_hour.points + excluded.points;
+    insert into public.war_effort (season, faction, points)
+    select e.season, fac, total from public.season_efforts e where now() >= e.opens_at and now() < e.closes_at
+    on conflict (season, faction) do update set points = public.war_effort.points + excluded.points;
   end if;
   return total;
 end $$;

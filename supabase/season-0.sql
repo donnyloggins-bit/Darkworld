@@ -22,7 +22,13 @@ select 'philadelphia', 'hollow-2026', 'THE WARDEN OF CHERRY HILL', 'Eastern Stat
              'He comes out on Halloween at 8 PM, at the gate on Fairmount Avenue.']
 where not exists (select 1 from public.raid_bosses where season = 'hollow-2026');
 
--- Size the Warden to the crowd: 120K HP per hunter seen in the last week, never below 400K.
+-- Arm the City: from the omen until the Warden comes out, influence also counts here.
+insert into public.season_efforts (season, opens_at, closes_at, goal)
+values ('hollow-2026', timestamptz '2026-10-13 00:00:00 America/New_York', timestamptz '2026-10-31 20:00:00 America/New_York', 250000)
+on conflict (season) do nothing;
+
+-- Size the Warden to the crowd: 120K HP per hunter seen in the last week, never below 400K
+-- (15% less if the city was fully armed).
 create or replace function public.size_season_finale(p_season text)
 returns bigint
 language plpgsql
@@ -35,6 +41,12 @@ declare
 begin
   select count(*) into active from public.hunter_presence where seen_at > now() - interval '7 days';
   new_hp := greatest(400000, active::bigint * 120000);
+  -- The River Is Turned: a fully armed city takes 15% off his health
+  if exists (select 1 from public.season_efforts e
+              where e.season = p_season
+                and (select coalesce(sum(points), 0) from public.war_effort w where w.season = e.season) >= e.goal) then
+    new_hp := (new_hp * 85) / 100;
+  end if;
   update public.raid_bosses set max_hp = new_hp, hp = new_hp
    where season = p_season and spawn_at > now() and defeated_at is null;
   return new_hp;
