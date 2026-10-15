@@ -1,0 +1,71 @@
+name: Android app
+
+# Builds the DARKWORLD Android app from index.html + art.
+#  - darkworld-debug.apk: install directly on an Android phone to playtest
+#  - darkworld-release.aab: upload to Google Play (signed only when the
+#    ANDROID_KEYSTORE_* secrets are set; see app/STORE-GUIDE.md)
+on:
+  push:
+    paths: ['index.html', 'privacy.html', 'manifest.json', '*.png', '*.jpg', '*.jpeg', 'icons/**', 'app/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Capacitor
+        run: npm ci
+
+      - name: Bundle the game
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: npm run build:web && npx cap sync android
+
+      - name: Decode upload key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+          else
+            echo "No signing secrets: the Play bundle will be unsigned (the debug APK still installs)."
+          fi
+
+      - name: Build
+        working-directory: app/android
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: 1.0.${{ github.run_number }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug bundleRelease
+          mkdir -p ../dist
+          cp app/build/outputs/apk/debug/app-debug.apk ../dist/darkworld-debug.apk
+          cp app/build/outputs/bundle/release/app-release.aab ../dist/darkworld-release.aab
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: darkworld-android-${{ github.run_number }}
+          path: app/dist/
+          retention-days: 30
