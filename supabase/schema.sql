@@ -574,6 +574,79 @@ begin
 end;
 $$;
 
+-- ══════════════════════════════════════════════════════
+--  CREW GIFTS — one votive a day to each crewmate (Eastern date). The recipient opens
+--  them for a small reward. Crewmates are addressed by an opaque per-crew id, never a user id.
+-- ══════════════════════════════════════════════════════
+create table if not exists public.crew_gifts (
+  id         bigserial primary key,
+  crew_id    uuid not null references public.crews(id) on delete cascade,
+  from_user  uuid references auth.users(id) on delete cascade,
+  to_user    uuid not null references auth.users(id) on delete cascade,
+  from_name  text not null,
+  day        date not null default (now() at time zone 'America/New_York')::date,
+  opened_at  timestamptz,
+  created_at timestamptz not null default now(),
+  unique (from_user, to_user, day)
+);
+create index if not exists crew_gifts_to on public.crew_gifts(to_user) where opened_at is null;
+alter table public.crew_gifts enable row level security;
+
+-- The opaque id a crewmate is known by inside their crew
+create or replace function public.crew_mid(p_crew uuid, p_user uuid)
+returns text language sql immutable as $$ select left(md5(p_crew::text || ':' || p_user::text), 12) $$;
+revoke all on function public.crew_mid(uuid, uuid) from public, anon, authenticated;
+
+create or replace function public.crew_send_gift(p_mid text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  me crew_members;
+  target uuid;
+begin
+  select * into me from crew_members where user_id = auth.uid();
+  if not found then raise exception 'You are not in a crew'; end if;
+  select user_id into target from crew_members
+   where crew_id = me.crew_id and user_id <> me.user_id and crew_mid(crew_id, user_id) = p_mid;
+  if target is null then raise exception 'That hunter is not in your crew'; end if;
+  insert into crew_gifts (crew_id, from_user, to_user, from_name) values (me.crew_id, me.user_id, target, me.name)
+  on conflict (from_user, to_user, day) do nothing;
+  if not found then raise exception 'You already sent them a votive today'; end if;
+  delete from crew_gifts where created_at < now() - interval '14 days';
+end;
+$$;
+
+-- Opens every waiting votive (at most 20 a day) and returns who they were from
+create or replace function public.crew_open_gifts()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  today date := (now() at time zone 'America/New_York')::date;
+  room int;
+  out jsonb;
+begin
+  if auth.uid() is null then return '[]'::jsonb; end if;
+  room := greatest(0, 20 - (select count(*) from crew_gifts where to_user = auth.uid() and (opened_at at time zone 'America/New_York')::date = today));
+  with picked as (
+    select id from crew_gifts where to_user = auth.uid() and opened_at is null order by created_at limit room
+  ), upd as (
+    update crew_gifts g set opened_at = now() from picked where g.id = picked.id returning g.from_name
+  )
+  select coalesce(jsonb_agg(from_name), '[]'::jsonb) into out from upd;
+  return out;
+end;
+$$;
+revoke all on function public.crew_send_gift(text) from public, anon;
+revoke all on function public.crew_open_gifts() from public, anon;
+grant execute on function public.crew_send_gift(text) to authenticated;
+grant execute on function public.crew_open_gifts() to authenticated;
+
 -- Everything the crew panel needs. Never returns user ids, emails or anyone's exact position
 -- (only a 'here' call, which its sender chose to send).
 create or replace function public.crew_state()
@@ -586,9 +659,13 @@ as $$
   with me as (select * from crew_members where user_id = auth.uid())
   select case when not exists (select 1 from me) then null else jsonb_build_object(
     'crew', (select jsonb_build_object('name', c.name, 'code', c.code) from crews c, me where c.id = me.crew_id),
+    'gifts', (select count(*)::int from crew_gifts g, me where g.to_user = me.user_id and g.opened_at is null),
     'members', (select coalesce(jsonb_agg(jsonb_build_object(
         'name', m.name, 'class', m.class_name, 'level', m.level, 'district', m.district,
         'seen', m.seen_at, 'me', m.user_id = me.user_id,
+        'mid', case when m.user_id <> me.user_id then crew_mid(m.crew_id, m.user_id) end,
+        'gifted', exists (select 1 from crew_gifts g where g.from_user = me.user_id and g.to_user = m.user_id
+                          and g.day = (now() at time zone 'America/New_York')::date),
         'online', m.seen_at > now() - interval '3 minutes',
         'near', m.user_id <> me.user_id and m.world = me.world and m.cell = me.cell
                 and m.seen_at > now() - interval '3 minutes' and me.seen_at > now() - interval '3 minutes')
@@ -812,3 +889,52 @@ grant execute on function public.leave_warband() to authenticated;
 grant execute on function public.warband_heartbeat(text, text, int, text, uuid) to authenticated;
 grant execute on function public.warband_muster(text) to authenticated;
 grant execute on function public.warband_state(uuid) to authenticated;
+
+
+-- ══════════════════════════════════════════════════════
+--  CALL TO ARMS — "I'm going" for an upcoming or live raid. Anyone can read the head-count;
+--  nobody can see who signed up.
+-- ══════════════════════════════════════════════════════
+create table if not exists public.raid_rsvps (
+  boss_id    uuid not null references public.raid_bosses(id) on delete cascade,
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (boss_id, user_id)
+);
+alter table public.raid_rsvps enable row level security;
+
+create or replace function public.raid_rsvp(p_boss uuid, p_going boolean)
+returns int
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null then raise exception 'Sign in to answer the call'; end if;
+  if not exists (select 1 from raid_bosses where id = p_boss and defeated_at is null and ends_at > now()) then
+    raise exception 'That raid is over';
+  end if;
+  if p_going then
+    insert into raid_rsvps (boss_id, user_id) values (p_boss, auth.uid()) on conflict do nothing;
+  else
+    delete from raid_rsvps where boss_id = p_boss and user_id = auth.uid();
+  end if;
+  return (select count(*)::int from raid_rsvps where boss_id = p_boss);
+end;
+$$;
+
+create or replace function public.raid_rsvp_state(p_boss uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select jsonb_build_object(
+    'going', (select count(*)::int from raid_rsvps where boss_id = p_boss),
+    'me', auth.uid() is not null and exists (select 1 from raid_rsvps where boss_id = p_boss and user_id = auth.uid()));
+$$;
+revoke all on function public.raid_rsvp(uuid, boolean) from public, anon;
+grant execute on function public.raid_rsvp(uuid, boolean) to authenticated;
+revoke all on function public.raid_rsvp_state(uuid) from public;
+grant execute on function public.raid_rsvp_state(uuid) to anon, authenticated;

@@ -1756,6 +1756,25 @@ body:not(.net-on) .net-only { display:none !important; }
 .me-bar.xp > div { background:linear-gradient(90deg,#3a2a70,#8a6ad0); }
 
 .hunt-tab { font-size:.74rem; letter-spacing:.06em; }
+/* ── The Book ── */
+#book-modal { display:none; position:fixed; inset:0; z-index:165; background:rgba(5,3,12,0.97); justify-content:center; overflow-y:auto; padding:16px 12px 32px; }
+#book-modal.active { display:flex; }
+.book-sub { font-family:'Share Tech Mono',monospace; font-size:.7rem; letter-spacing:.3em; color:#8878a8; margin:-8px 0 12px; }
+.book-ch { display:flex; justify-content:space-between; gap:10px; padding:12px 6px; border-bottom:1px solid #2a1f3a; cursor:pointer; font-family:'Metal Mania',cursive; color:var(--pale); letter-spacing:.06em; font-size:1.02rem; }
+.book-ch span:last-child { font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#8878a8; }
+.book-back { font-family:'Share Tech Mono',monospace; font-size:.75rem; color:var(--gold); letter-spacing:.12em; cursor:pointer; margin-bottom:4px; }
+.book-page { border-left:2px solid #6a4a20; background:linear-gradient(160deg,#1c1610,#0d0a12); padding:10px 12px; margin-bottom:10px; }
+.book-page.locked { border-left-color:#2a1f3a; background:#0d0a14; opacity:.6; }
+.book-pt { font-family:'Metal Mania',cursive; color:var(--gold); letter-spacing:.04em; font-size:1rem; margin-bottom:4px; }
+.book-tx { color:#d8ccb4; font-size:.98rem; line-height:1.5; }
+.book-page.locked .book-tx { font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#6a5a80; }
+#book-btn.has-new::after { content:' •'; color:var(--gold); }
+.relic-box { border:1px solid rgba(255,154,60,0.45); background:linear-gradient(160deg,#24160a,#0d0a12); padding:10px 12px; margin-bottom:12px; }
+.relic-row { color:var(--pale); font-size:.95rem; padding:6px 0; border-bottom:1px solid #2a1f20; }
+.relic-row b { float:right; font-family:'Share Tech Mono',monospace; color:#ff9a3c; }
+.relic-row.done { color:#6ac07a; } .relic-row.later { color:#6a5a80; }
+.relic-bells { display:flex; flex-wrap:wrap; gap:4px 10px; margin-top:6px; }
+.relic-bell { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:#8878a8; } .relic-bell.rung { color:#ff9a3c; }
 /* ── Crews ── */
 #crew-modal { display:none; position:fixed; inset:0; z-index:165; background:rgba(5,3,12,0.97); justify-content:center; overflow-y:auto; padding:16px 12px 32px; }
 #crew-modal.active { display:flex; }
@@ -1783,6 +1802,11 @@ body:not(.net-on) .net-only { display:none !important; }
 .crew-ping span:last-child { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:#6a5a80; white-space:nowrap; }
 .crew-ping.mine { opacity:.7; }
 #goal-crew { color:#50c88c; margin-top:2px; }
+.crew-gift { background:transparent; border:1px solid #6a4a20; color:#e8862e; font-size:.9rem; padding:2px 6px; cursor:pointer; flex-shrink:0; }
+.crew-gift.sent { border-color:transparent; opacity:.35; }
+.crew-hint { font-family:'Share Tech Mono',monospace; font-size:.62rem; color:#8878a8; letter-spacing:.04em; }
+.rsvp-btn { width:100%; margin-top:10px; background:transparent; border:1px solid var(--crimson); color:var(--pale); font-family:'Share Tech Mono',monospace; font-size:.74rem; letter-spacing:.08em; padding:9px 6px; cursor:pointer; }
+.rsvp-btn.on { background:rgba(140,10,10,0.35); color:#fff; }
 .wb-size, .wb-role { flex:1; background:transparent; border:1px solid #3a2a50; color:#8878a8; font-family:'Share Tech Mono',monospace; font-size:.76rem; letter-spacing:.08em; padding:9px 4px; cursor:pointer; }
 .wb-size.on, .wb-role.on { border-color:var(--gold); color:var(--gold); background:rgba(212,168,48,0.08); }
 .wb-roles { display:flex; gap:8px; }
@@ -1797,6 +1821,7 @@ body:not(.net-on) .net-only { display:none !important; }
   border:1px solid rgba(232,134,46,0.55); box-shadow:0 0 24px rgba(232,134,46,0.18); animation:raidPulse 3s ease-in-out infinite; }
 .ts-head { font-family:'Share Tech Mono',monospace; font-size:.78rem; letter-spacing:.14em; color:#e8862e; }
 .ts-body { color:var(--pale); font-size:1rem; margin-top:4px; }
+.ts-moon { font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#e0303a; margin-top:6px; letter-spacing:.06em; }
 .ts-clock { font-family:'Metal Mania',cursive; font-size:1.5rem; color:var(--gold); margin-top:4px; letter-spacing:.08em; }
 #goal-hud { position:absolute; left:12px; bottom:calc(66px + var(--sab)); z-index:5; width:min(240px,calc(100vw - 168px)); cursor:pointer;
   background:rgba(13,10,20,0.92); border:1px solid #3a2a50; border-left:2px solid #e8862e; padding:5px 8px;
@@ -1880,7 +1905,7 @@ body:not(.net-on) .net-only { display:none !important; }
 #sidebar { padding-top:var(--sat); padding-bottom:var(--sab); }
 /* Full-screen panels sit inside the safe area (on the web both values are 0, so nothing moves) */
 .screen:not(#screen-game):not(#screen-ar), #combat-modal, #boss-reveal, #death-screen,
-#hunt-modal, #season-modal, #crew-modal, #acct-modal, #inv-modal, #shop-modal, #levelup-modal, #quest-modal {
+#hunt-modal, #season-modal, #crew-modal, #book-modal, #acct-modal, #inv-modal, #shop-modal, #levelup-modal, #quest-modal {
   top:var(--sat) !important; bottom:var(--sab) !important;
 }
 
@@ -2094,6 +2119,7 @@ body:not(.net-on) .net-only { display:none !important; }
       <button id="quest-btn" onclick="openQuestLog()">📜 QUESTS</button>
       <button id="hunt-btn" onclick="openHunt()">📖 HUNT</button>
       <button id="crew-btn" class="net-only" onclick="openCrew()">👥 CREW</button>
+      <button id="book-btn" onclick="openBook()">📕 BOOK</button>
       <button id="sound-btn" onclick="toggleSound()">🔊 SOUND</button>
       <button id="ar-btn" onclick="startAR()">👁 AR VIEW</button>
       <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER</button>
@@ -2333,6 +2359,17 @@ body:not(.net-on) .net-only { display:none !important; }
 </div>
 
 <!-- ══ HUNT: bounties + bestiary ══ -->
+<div id="book-modal">
+  <div class="hunt-card">
+    <div class="hunt-head">
+      <div class="hunt-title">THE BOOK</div>
+      <button class="hunt-close" onclick="closeBook()">✕ CLOSE</button>
+    </div>
+    <div class="book-sub">OF THE FALLEN CITY</div>
+    <div id="book-content"></div>
+  </div>
+</div>
+
 <div id="crew-modal">
   <div class="hunt-card">
     <div class="hunt-head">
@@ -3005,6 +3042,17 @@ const ITEMS = {
   'Shadowfang':       {emoji:'🗡', type:'weapon', tier:4, classReq:'Thief',       atk:525, crit:16, dodge:10,  cost:0, desc:'Kills before the shadow falls.'},
   'Venom Edge':       {emoji:'🐍', type:'weapon', tier:4, classReq:'Assassin',    atk:600, crit:12,            cost:0, desc:'The poison compounds. The target always dies.'},
   'Dragon Fist Wraps':{emoji:'🐉', type:'weapon', tier:4, classReq:'Monk',        atk:688, crit:8,             cost:0, desc:'Strike of ten thousand deaths. Your chi is now fire.'},
+  // ── RELICS (tier 5): the Tongue of the Bell, reforged for each class. Never sold or dropped. ──
+  'Brazen Tongue':           {emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Fighter',     atk:720, crit:12, hp:150,         cost:0, desc:'The Liberty Bell\'s tongue, beaten into a greatsword. Your riposte rings the Bell.'},
+  'Pass and Stow':           {emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Paladin',     atk:600, hp:400, def:40,          cost:0, desc:'A warhammer bearing the names of the men who recast the Bell. Your riposte rings the Bell.'},
+  "Whitechapel's Echo":      {emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Ranger',      atk:650, crit:16, dodge:10,       cost:0, desc:'A bronze longbow; its string hums the note the Bell was cast in. Your riposte rings the Bell.'},
+  'The Crack That Sings':    {emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Magic-User',  atk:800, resMax:220,              cost:0, desc:'A staff split down the middle like the Bell itself; the split glows when it speaks. Your riposte rings the Bell.'},
+  'Leviticus Glass':         {emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Illusionist', atk:780, resMax:240,              cost:0, desc:'An orb engraved PROCLAIM LIBERTY. What you see in it is never quite where it is. Your riposte rings the Bell.'},
+  'Unto All the Inhabitants':{emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Cleric',      atk:560, hp:420,                  cost:0, desc:'A mace cast from bell-metal; it rings for every soul it shelters. Your riposte rings the Bell.'},
+  'Seventeen Fifty-Three':   {emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Thief',       atk:680, crit:20, dodge:12,       cost:0, desc:'A dagger stamped with the year the Bell was recast. It makes no sound until it is too late. Your riposte rings the Bell.'},
+  'The Hairline':            {emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Assassin',    atk:760, crit:16,                 cost:0, desc:'A needle-thin blade with a crack running its length. Wounds it leaves never close. Your riposte rings the Bell.'},
+  'The Toll':                {emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Monk',        atk:860, crit:10,                 cost:0, desc:'Bronze wraps that ring when they land. Count the tolls. Your riposte rings the Bell.'},
+  'Bellmetal Bough':         {emoji:'🔔', type:'weapon', tier:5, relic:true, classReq:'Druid',       atk:600, resMax:200, hp:200,      cost:0, desc:'A living branch grown through bell-bronze. It flowers when the Bell rings. Your riposte rings the Bell.'},
   "Nature's Fury":    {emoji:'🌿', type:'weapon', tier:4, classReq:'Druid',       atk:475, resMax:150, hp:150,  cost:0, desc:'The wild answers your call. Grow. Devour.'},
   // ── BOSS UNIQUE DROPS (legendary accessories, any class) ──
   'Crown of Malechar':       {emoji:'👑', type:'accessory', tier:4, hp:625, atk:188, crit:10,             cost:0, desc:'The Lich-King\'s crown. Cold with ancient malice.'},
@@ -3187,13 +3235,13 @@ function renderInventory(){
     const item = ITEMS[name];
     if(!item) return '';
     const isPotion = item.type==='potion';
-    const isLegendary = item.tier === 4;
+    const isLegendary = item.tier >= 4;
     const wrongClass = item.classReq && item.classReq !== Player.className;
     let cls = 'bag-item';
     if(isPotion) cls += ' potion';
     if(isLegendary) cls += ' legendary';
     const extra = isLegendary
-      ? `<div class="bi-legendary">✦ LEGENDARY${item.classReq ? ' · '+item.classReq.toUpperCase() : ''}</div>`
+      ? `<div class="bi-legendary">✦ ${item.relic ? 'RELIC' : 'LEGENDARY'}${item.classReq ? ' · '+item.classReq.toUpperCase() : ''}</div>`
       : (wrongClass ? `<div class="bi-req">REQ: ${item.classReq}</div>` : '');
     return `<div class="${cls}" onclick="${isPotion?`usePotion('${name}')`:`equipItem('${name}')`}">
       <div class="bi-emoji">${item.emoji}</div>
@@ -3906,16 +3954,21 @@ function buildLivingMob(id, lat, lng, rng, expiresAt, eliteChance = ELITE_CHANCE
   const district = districtAt(lat, lng);
   const fav = district ? pool.filter(m => DISTRICT_BIOMES[district.biome].includes(m.name)) : [];
   const weighted = pool.concat(fav, fav, fav);
-  const t = weighted[Math.floor(pickRoll * weighted.length)];
+  let t = weighted[Math.floor(pickRoll * weighted.length)];
+  let blood = false;
+  if(_livingBloodMoon && pickRoll < 0.6){ // Blood Moon: the featured species takes over (same draws, so still shared)
+    const f = MOB_TYPES.find(m => m.name === _livingBloodMoon.species);
+    if(f){ t = f; zone = f.zone; blood = varRoll > 0.9; }
+  }
   const elite = eliteRoll < eliteChance;
   const L = (Player && Player.level) || 1;
   const gap = Math.max(0, L - 2 - ZONE_NOMINAL_LEVEL[zone]);
   const lvl = ZONE_NOMINAL_LEVEL[zone] + gap;
   const v = 1 + varRoll * 0.4;
   const grow = Math.pow(1.1, gap);
-  const hp = Math.floor(t.hp * v * grow * (elite ? 2.2 : 1));
-  return {...t, lat, lng, id:'L'+id, livingId:id, expiresAt, elite, lvl, zone,
-    type: `${elite ? '★ ELITE · ' : ''}LV ${lvl} · ${zi >= 0 ? ZONES[zi].name.toUpperCase() : 'THE WILDS'}`,
+  const hp = Math.floor(t.hp * v * grow * (elite ? 2.2 : 1) * (blood ? 1.5 : 1));
+  return {...t, lat, lng, id:'L'+id, livingId:id, expiresAt, elite, lvl, zone, bloodMoon:blood,
+    type: `${blood ? '🩸 BLOOD MOON · ' : ''}${elite ? '★ ELITE · ' : ''}LV ${lvl} · ${zi >= 0 ? ZONES[zi].name.toUpperCase() : 'THE WILDS'}`,
     hp, maxHp:hp,
     atk: Math.floor(t.atk * v * grow * (elite ? 1.35 : 1)),
     def: Math.floor(t.def * v * Math.pow(1.08, gap)),
@@ -3935,6 +3988,8 @@ function refreshLiving(force){
   const prev = new Map(spawns.filter(s => s.livingId).map(s => [s.livingId, s]));
   const fresh = [];
   const surge = seasonNightSurge(); // same clock for every hunter, so the city stays shared
+  _livingBloodMoon = selectedWorld === 'philadelphia' ? activeBloodMoon() : null;
+  const moon = _livingBloodMoon;
   shrines = [];
   for(let dy=-SPAWN_RADIUS_CELLS; dy<=SPAWN_RADIUS_CELLS; dy++){
     for(let dx=-SPAWN_RADIUS_CELLS; dx<=SPAWN_RADIUS_CELLS; dx++){
@@ -3954,9 +4009,10 @@ function refreshLiving(force){
       const expiresAt = (win + 1) * SPAWN_WINDOW_MS - offset;
       const rng = seededRng(hashStr(`${selectedWorld}|${cell}|${win}`));
       const roll = rng();
-      const n = surge ? (roll < 0.3 ? 0 : roll < 0.8 ? 1 : 2) : (roll < 0.6 ? 0 : roll < 0.95 ? 1 : 2);
+      const n = moon ? (roll < 0.25 ? 0 : roll < 0.6 ? 1 : roll < 0.9 ? 2 : 3)
+        : surge ? (roll < 0.3 ? 0 : roll < 0.8 ? 1 : 2) : (roll < 0.6 ? 0 : roll < 0.95 ? 1 : 2);
       for(let i=0; i<n; i++){
-        const id = `${cell}:${win}:${i}`;
+        const id = `${cell}:${win}:${i}${moon ? ':bm' : ''}`;
         const lat = (cy + 0.1 + rng()*0.8) * CELL_LAT, lng = (cx + 0.1 + rng()*0.8) * CELL_LNG;
         const built = buildLivingMob(id, lat, lng, rng, expiresAt); // always consume the same rng draws
         const mob = prev.get(id) || built;
@@ -4098,6 +4154,7 @@ function spinShrine(sh){
   sndShrine(!!sh.landmark);
   tutOnShrine(sh);
   if(!sh.tutorial) turfEarn(sh.landmark ? 'landmark' : 'shrine');
+  relicOnShrine(sh);
   huntProgress('shrine', 1);
   shrineClue(sh);
   addLog(`🕯 ${sh.name}: +${gold} gold, +${fmt(xp)} XP${kept.length ? ' · ' + kept.join(', ') : ''}`, 'll');
@@ -4130,9 +4187,11 @@ function render(){
 
   drawGrid(); drawZones(); drawPaths();
   drawSeasonOverlay();
+  drawBloodMoonOverlay();
   drawTurfBanners();
   drawSeasonSite();
   drawShrines();
+  drawBloodRings();
   spawns.forEach(s=>{ if(!s.defeated)drawMob(s); });
   BOSSES.forEach(b=>{ if(!b.defeated)drawBoss(b); });
   drawQuestMarkers();
@@ -4177,7 +4236,7 @@ function drawZones(){
 function drawPaths(){
   ctx.strokeStyle='rgba(40,20,10,0.5)'; ctx.lineWidth=0.8; ctx.setLineDash([3,6]);
   BOSSES.forEach(b=>{
-    if(b.isWorld||b.isSeason)return;
+    if(b.isWorld||b.isSeason||b.isRelic)return;
     const f=ll2px(CENTER.lat,CENTER.lng), t=ll2px(b.lat,b.lng);
     ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(t.x,t.y); ctx.stroke();
   });
@@ -4950,7 +5009,7 @@ function seasonSync(){
 }
 
 function seasonModalsOpen(){
-  return !!document.querySelector('#hunt-modal.active, #levelup-modal.active, #acct-modal.active, #inv-modal.active, #shop-modal.active, #quest-modal.active, #season-modal.active, #crew-modal.active, #boss-reveal.active, #combat-modal.active, #screen-ar.active, #sidebar.open, #coach.show')
+  return !!document.querySelector('#hunt-modal.active, #levelup-modal.active, #acct-modal.active, #inv-modal.active, #shop-modal.active, #quest-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #boss-reveal.active, #combat-modal.active, #screen-ar.active, #sidebar.open, #coach.show')
     || document.getElementById('cutscene-overlay').style.display === 'block';
 }
 // The omen plays once per season, the first quiet moment after the tutorial
@@ -5093,6 +5152,7 @@ function nextGoal(){
   const d = Player.daily;
   const b = d && d.bounties && d.bounties.find(x => !x.done);
   if(b) return { text:`📜 ${b.label} · ${b.type === 'walk' ? b.progress.toFixed(2) : Math.floor(b.progress)}/${b.goal}`, act:() => openHunt('bounties') };
+  const rg = relicGoal(); if(rg) return rg;
   if(NET_ON && (Player.level || 1) >= 3 && !Player.faction) return { text:'⚑ Choose your order — the districts are at stake', act:() => openHunt('turf') };
   if(selectedWorld === 'philadelphia' && gpsFirstLock){
     const ds = Player.districts || {};
@@ -5105,7 +5165,7 @@ function nextGoal(){
 function goalTick(){
   const el = document.getElementById('goal-hud'); if(!el || !Player) return;
   if(tutStep()){ el.style.display = 'none'; return; }
-  const sl = seasonLine(), g = nextGoal();
+  const sl = bloodMoonLine() || seasonLine(), g = nextGoal();
   el.style.display = (sl || g) ? 'block' : 'none';
   const top = document.getElementById('goal-season'), bot = document.getElementById('goal-next');
   top.style.display = sl ? 'block' : 'none'; top.textContent = sl || '';
@@ -5124,7 +5184,14 @@ function goalTick(){
 function renderTitleSeason(){
   const el = document.getElementById('title-season'); if(!el) return;
   const s = currentSeason();
-  if(!s){ el.style.display = 'none'; return; }
+  const live = activeBloodMoon(), nxm = nextBloodMoon();
+  const moon = live ? `<div class="ts-moon">🩸 BLOOD MOON NOW · ${live.species} everywhere until 10 PM</div>`
+    : nxm && bloodMoonWindow(nxm)[0] - seasonNow() < 21 * 86400e3 ? `<div class="ts-moon">🩸 Next Blood Moon · ${bloodMoonLabel(nxm)} · ${nxm.species}</div>` : '';
+  if(!s){
+    el.style.display = moon ? 'block' : 'none';
+    el.innerHTML = moon ? `<div class="ts-head">🩸 THE BLOOD MOON</div>${moon}` : '';
+    return;
+  }
   const ph = seasonPhase(s), now = seasonNow(), n = tonightsLieutenant(s);
   const head = ph === 'omen' ? `${s.sigil} SEASON ${s.num} · ${s.short}`
     : ph === 'finale' ? '🗝 LIVE NOW · THE FINAL FIGHT'
@@ -5137,7 +5204,7 @@ function renderTitleSeason(){
   const clock = ph === 'omen' ? fmtCountdown(seasonT(s.startAt) - now)
     : ph === 'nights' ? `finale in ${fmtCountdown(seasonT(s.finaleAt) - now)}` : '';
   el.style.display = 'block';
-  el.innerHTML = `<div class="ts-head">${head}</div><div class="ts-body">${body}</div>${clock ? `<div class="ts-clock">${clock}</div>` : ''}`;
+  el.innerHTML = `<div class="ts-head">${head}</div><div class="ts-body">${body}</div>${clock ? `<div class="ts-clock">${clock}</div>` : ''}${moon}`;
 }
 
 // ── The season panel ───────────────────────────────────
@@ -5218,6 +5285,7 @@ const CREW_CALLS = {
   lock:  { emoji:'🔒', label:"Tonight's lock — let's go", short:'THE LOCK' },
   done:  { emoji:'🌙', label:'Done for tonight',       short:'DONE' },
 };
+let crewGiftsSeen = 0;
 let crewState = null, crewNear = 0, crewLastPing = 0, crewTimer = null, crewBusy = false, crewMsg = '';
 
 // Bonuses for hunting together: +5% XP/gold and +10% raid damage per crewmate in your square (max 3)
@@ -5269,6 +5337,9 @@ function crewApply(st){
       sndBounty(); buzz('bell');
     });
     crewLastPing = Math.max(crewLastPing, ...crewState.pings.map(p => p.id), 0);
+    const g = Number(crewState.gifts) || 0;
+    if(was && g > crewGiftsSeen) showToast('🕯 A VOTIVE FROM YOUR CREW', `${g} waiting · open them in 👥 CREW`);
+    crewGiftsSeen = g;
   }
   if(document.getElementById('crew-modal').classList.contains('active')) renderCrew();
   markDirty();
@@ -5340,6 +5411,30 @@ async function crewInvite(){
   renderCrew();
 }
 
+async function crewSendGift(mid){
+  const m = crewState && crewState.members.find(x => x.mid === mid); if(!m) return;
+  await crewAct('crew_send_gift', { p_mid: mid }, `🕯 A votive is on its way to ${netEsc(m.name)}.`);
+  buzz('tap');
+}
+// Each votive opens into something small: a draught, some gold, a little XP — or a bell shard while you hunt for them
+async function crewOpenGifts(){
+  const from = await crewAct('crew_open_gifts', {}, null);
+  if(!Array.isArray(from) || !from.length) return;
+  const L = Player.level || 1, drops = []; let gold = 0, xp = 0;
+  from.forEach(() => {
+    const r = Math.random();
+    if(r < 0.15 && Player.relic && Player.relic.step === 1) relicShard(1, 'a votive');
+    else if(r < 0.45){ if(Player.inventory.length < BAG_SIZE){ const n = L >= 5 ? 'Major Heal' : 'Minor Heal'; Player.inventory.push(n); drops.push(n); } else gold += 40 + L * 8; }
+    else if(r < 0.75) gold += 40 + L * 8;
+    else xp += Math.floor(xpForLevel(L) * 0.03) + 15;
+  });
+  Player.gold += gold; Player.xp += xp;
+  crewMsg = `🕯 You opened ${from.length} votive${from.length === 1 ? '' : 's'} from ${[...new Set(from.map(netEsc))].join(', ')}.`;
+  crewGiftsSeen = 0;
+  showLoot(xp, gold, drops);
+  huntLevelCheck(); setPUI(); saveGame(); renderCrew();
+}
+
 function crewAgo(iso){
   const m = Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 60000));
   return m < 1 ? 'just now' : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
@@ -5372,9 +5467,13 @@ function renderCrew(){
   const members = crewState.members.map(m => {
     const dot = m.me ? 'me' : m.near ? 'near' : m.online ? 'on' : 'off';
     const where = m.me ? 'you' : m.near ? 'hunting with you' : m.online ? (m.district ? `in ${netEsc(m.district)}` : 'online') : `seen ${crewAgo(m.seen)}`;
+    const gift = m.me || !m.mid ? '' : m.gifted ? '<span class="crew-gift sent" title="Votive sent today">🕯</span>'
+      : `<button class="crew-gift" data-mid="${netEsc(m.mid)}" onclick="crewSendGift(this.dataset.mid)" title="Send a votive" ${crewBusy ? 'disabled' : ''}>🕯</button>`;
     return `<div class="crew-mem"><span class="crew-dot ${dot}"></span><span class="crew-mn">${netEsc(m.name)}</span>
-      <span class="crew-mc">${netEsc(m.class || '')} · LV ${m.level}</span><span class="crew-mw">${where}</span></div>`;
+      <span class="crew-mc">${netEsc(m.class || '')} · LV ${m.level}</span><span class="crew-mw">${where}</span>${gift}</div>`;
   }).join('');
+  const giftsWaiting = Number(crewState.gifts) || 0;
+  const giftBox = giftsWaiting ? `<button class="fac-btn" style="--fc:#e8862e;margin-bottom:12px" onclick="crewOpenGifts()" ${crewBusy ? 'disabled' : ''}>🕯 OPEN ${giftsWaiting} VOTIVE${giftsWaiting === 1 ? '' : 'S'} FROM YOUR CREW</button>` : '';
   const calls = Object.entries(CREW_CALLS).map(([k, v]) =>
     `<button class="crew-call" onclick="crewCall('${k}')" ${crewBusy ? 'disabled' : ''}>${v.emoji}<span>${v.short}</span></button>`).join('');
   const pings = crewState.pings.slice(0, 8).map(p => {
@@ -5386,8 +5485,9 @@ function renderCrew(){
     <div class="crew-head"><div><div class="season-num">YOUR CREW</div><div class="crew-name">${netEsc(c.name)}</div></div>
       <div class="crew-code">CODE<b>${netEsc(c.code)}</b></div></div>
     ${bonus}
+    ${giftBox}
     <button class="fac-btn" style="--fc:var(--gold);margin-bottom:12px" onclick="crewInvite()">✉ INVITE FRIENDS (${crewState.members.length}/${CREW_MAX})</button>
-    <div class="city-head">HUNTERS</div>${members}
+    <div class="city-head">HUNTERS <span class="crew-hint">· 🕯 send each a votive once a day</span></div>${members}
     <div class="city-head">CALL YOUR CREW</div><div class="crew-calls">${calls}</div>
     <div class="city-head">RECENT CALLS</div>${pings}
     <div class="hunt-foot">Your crew sees your district and when you were last out — never your exact spot, unless you send "I'm here". <a href="#" onclick="event.preventDefault();crewLeave()">Leave crew</a></div>`;
@@ -5601,6 +5701,355 @@ function renderWarband(el){
     ${board ? `<div class="city-head">WARBANDS ON THIS RAID</div>${board}` : ''}
     <div class="city-head">THE ROSTER</div>${roster}
     <div class="hunt-foot">Your warband sees your name, class, role and whether you're at the raid — nothing else. <a href="#" onclick="event.preventDefault();wbLeave()">Leave warband</a></div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  THE BOOK OF THE FALLEN CITY — the lore, a page at a time
+//  Pages open as you play: the story by level, terrors when you beat them, species on
+//  first kill, districts when claimed, landmarks when lit, the orders, the season,
+//  and the relic. Opened pages are saved in Player.codex; story/terror/season/relic
+//  pages announce themselves, the rest just light the book's "new" mark.
+// ══════════════════════════════════════════════════════
+const LORE_STORY = [
+  { id:'lee-tioga', lvl:1, title:'Lee & Tioga',
+    text:"Everyone in the neighborhood knows the papi store at Lee and Tioga. Hoagies, loosies, lottery, a cat asleep on the bread. In 2009 a delivery came that nobody ordered: six boxes, no return address, cold to the touch in August. Papi stacked them in the basement. His nephew went down for a case of water three days later and did not come back up. Papi padlocked the door. Fifteen years he kept the store open over it, cash only, radio loud, while something pushed from the other side." },
+  { id:'three-seventeen', lvl:2, title:'3:17 AM',
+    text:"The night the padlock gave, every basement door in Philadelphia opened at the same moment. The clock on City Hall stopped at 3:17 and has not moved since. People who were awake say the city went quiet first — no traffic, no trains, not even the dogs — and then the bells of Old City rang once, all together, though no one was in the towers. That is what the survivors call the Shattering. The ones who weren't awake never woke." },
+  { id:'doors-below', lvl:4, title:'The Doors Below',
+    text:"Every staircase that goes down goes further now. A rowhome cellar in Kensington opens onto steps that end somewhere under the river. The SEPTA tunnels have stations no map shows, lit, empty, with the trains still running. Nobody has walked to the bottom and come back to describe it. What comes up the stairs is hungry, and it learns the streets quickly. It does not like light, salt, or bells, and it does not like being seen." },
+  { id:'hunters', lvl:6, title:'Who Hunts',
+    text:"Most people can't see them. They feel a cold spot on the corner and cross the street without knowing why. But point a phone camera down the block and there they are — on the screen, standing where the cold is. Nobody knows why the lens shows what the eye won't. The ones who started walking toward the cold spots instead of away from them call themselves hunters. There are more of them every week." },
+  { id:'lich-king', lvl:9, title:'The Lich-King of Rittenhouse',
+    text:"Malechar was the first to climb all the way up. He took Rittenhouse Square in the first week and has held it since, sitting in the park among the dead sparrows, writing names in a book. Whose names, nobody is sure. Every name he writes, one of the city's rowhomes goes dark that night. The hunters who have faced him say he is not angry, only patient. He has been waiting a very long time for the doors to open." },
+  { id:'bell-remembers', lvl:10, title:'What the Bell Remembers',
+    text:"At 3:17 the Liberty Bell rang too. Everyone inside the glass pavilion on Market Street heard it, and that is the strange part: the Bell has had no tongue since 1846, when it cracked for good. Something rang it anyway. The Bellwright's apprentices — the few who still keep its history — say a bell that rings whole can close a door as surely as a bell that cracks can open one. They also say the tongue was taken, not lost, and that the thing that took it is still in the city." },
+  { id:'orders', lvl:12, title:'The Three Orders',
+    text:"By the second week the hunters had split three ways. The Lantern Order keeps the old watchmen's oath and holds the lit streets. The Bell Covenant swore on the crack in the Bell itself and keeps a ledger of every promise the city broke. The River Kin came off the docks and the rowing clubs and answer to the Schuylkill and the Delaware. They fight each other for the districts by day. At night, when something big comes up the stairs, they fight it together." },
+  { id:'under-penn', lvl:20, title:'Under William Penn',
+    text:"The deepest door is under City Hall. Every hunter who has gone into the basement there has come back out with the same story: a stairway of white marble going down past the subway, past the bedrock, past anything a city should have under it, and at the bottom a second City Hall, upside down, with its own clock — still running. Whatever lives in that building is why the doors opened. It has started to notice the hunters." },
+];
+const SPECIES_LORE = {
+  'Lich Servant':   "Clerks of the Lich-King. They carry his ledger pages from door to door and do not care whether you are on the list.",
+  'Void Shade':     "A hole in the shape of a person. Streetlights dim when one passes under them, and stay dim for an hour.",
+  'Blood Wraith':   "What is left when someone dies angry on a street corner. Drawn to sirens; drawn even more to whoever called them.",
+  'Plague Hound':   "They hunt in the alleys behind the rowhomes in threes. The fourth one is always behind you.",
+  'Bone Archer':    "Revolutionary dead from the potter's fields. They still keep their ranks and still fire on anyone in red.",
+  'Hollow Knight':  "Armor with nothing inside, walking a patrol route no one living remembers. It salutes before it kills you.",
+  'Wailing Banshee':"She screams the name of the next person on the block to die. Hunters learn not to listen for their own.",
+  'Rot Golem':      "Built from whatever the river washes up. Every one has a shopping cart somewhere in its chest.",
+  'Grave Stalker':  "It walks the cemetery fences at night counting headstones. When the count is wrong, it goes looking for the difference.",
+  'Bog Specter':    "From the old marshes the airport was built on. It smells of jet fuel and cattails and leaves wet footprints on dry concrete.",
+  'Cursed Rat':     "Philadelphia always had rats. These ones learned to open doors.",
+  'Lost Soul':      "The newly dead who came up the stairs by mistake. Most are frightened, not cruel. Set them free quickly.",
+  'Shadow Imp':     "Small, quick and delighted. It steals keys, phones and the last few minutes of your memory.",
+  'Drowned Sailor': "Every sailor the Delaware ever took, coming ashore at Penn's Landing in wet wool, looking for a ship that sank in 1777.",
+};
+const ORDER_LORE_LVL = 3;
+
+function codexChapters(){
+  const P = Player, lvl = P.level || 1;
+  const s = SEASONS[0];
+  const srec = P.season && s ? P.season[s.id] : null;
+  const bossNames = (WORLDS.philadelphia.bosses || []).map(b => b.name);
+  return [
+    { id:'story', title:'I · THE SHATTERING', loud:true,
+      entries: LORE_STORY.map(e => ({ id:'story:' + e.id, title:e.title, text:e.text, open: lvl >= e.lvl, hint:`Reach level ${e.lvl}` })) },
+    { id:'terrors', title:'II · THE TERRORS', loud:true,
+      entries: bossNames.map(n => ({ id:'terror:' + n, title:n, text: BOSS_LORE[n] || '', open: !!(P.terrors && P.terrors[n]), hint:'Defeat it' })) },
+    { id:'beasts', title:'III · THE BESTIARY',
+      entries: Object.keys(SPECIES_LORE).map(n => ({ id:'beast:' + n, title:n, text:SPECIES_LORE[n], open: !!(P.bestiary && P.bestiary[n]), hint:'Slay one' })) },
+    { id:'districts', title:'IV · THE DISTRICTS',
+      entries: PHILLY_DISTRICTS.map(d => ({ id:'district:' + d.name, title:`${d.name} — ${d.epithet}`, text: DISTRICT_LORE[d.biome] || '', open: !!(P.districts && P.districts[d.name]), hint:'Walk into it' })) },
+    { id:'landmarks', title:'V · THE LANDMARKS',
+      entries: PHILLY_LANDMARKS.map(l => ({ id:'landmark:' + l.real, title:`${l.name} · ${l.real}`, text:l.lore, open: !!(P.landmarks && P.landmarks[l.real]), hint:'Light its shrine' })) },
+    { id:'orders', title:'VI · THE ORDERS',
+      entries: Object.entries(FACTIONS).map(([k, f]) => ({ id:'order:' + k, title:f.name, text:`“${f.motto}” ${f.lore}`, open: lvl >= ORDER_LORE_LVL || P.faction === k, hint:`Reach level ${ORDER_LORE_LVL}` })) },
+    ...(s ? [{ id:'season', title:`VII · ${s.short}`, loud:true,
+      entries: [{ id:'season:villain', title:s.villain, text:s.villainLore, open: !!(srec && srec.omenSeen), hint:'Witness the omen' }]
+        .concat(s.nights.map((n, i) => ({ id:'season:' + n.date, title:`Lock ${i + 1} · ${n.name}`, text:n.lore, open: !!(srec && srec.nights[n.date]), hint:`Break it on ${nightLabel(n)} after dark` }))) }] : []),
+    { id:'moons', title:'VIII · THE BLOOD MOONS', loud:true,
+      entries: BLOOD_MOONS.map(b => ({ id:'moon:' + b.date, title:`${b.title} · ${b.species}`, text:b.lore, open: !!(P.bloodMoons && P.bloodMoons[b.date] && P.bloodMoons[b.date].kills), hint:`Hunt under the Blood Moon · ${bloodMoonLabel(b)}` })) },
+    { id:'relic', title:'IX · THE TONGUE OF THE BELL', loud:true,
+      entries: RELIC_PAGES.map((p, i) => ({ id:'relic:' + i, title:p.title, text:p.text, open: relicStep() > i, hint: i === 0 ? `Reach level ${RELIC_MIN_LEVEL}` : 'Keep following the Bell' })) },
+  ];
+}
+const DISTRICT_LORE = {
+  river:      "River ground. The water here came up the storm drains on the night of the Shattering and never fully went back down. Drowned things walk at low tide.",
+  grave:      "Grave ground. There were burials here before there were streets, and not all of them were moved. The dead keep the old property lines.",
+  industrial: "Mill ground. The factories closed a long time ago, but something keeps the machines turning after midnight, and it is not running on electricity.",
+  colonial:   "Old ground. The city was founded on these blocks, and the founders never quite left. The colonial dead still keep their posts.",
+  streets:    "Rowhome ground. Block after block of front stoops and back alleys, and every basement in it has a second door now.",
+};
+
+let _codexNew = false;
+function codexAll(){ const out = []; for(const c of codexChapters()) for(const e of c.entries) out.push({ ...e, loud: !!c.loud, chapter:c.title }); return out; }
+function codexTick(){
+  if(!Player || tutStep()) return;
+  const first = !Player.codex;
+  Player.codex = Player.codex || {};
+  const fresh = codexAll().filter(e => e.open && !Player.codex[e.id]);
+  if(!fresh.length) return;
+  fresh.forEach(e => Player.codex[e.id] = Date.now());
+  if(first) return saveGame(); // an old save opening the book for the first time: no fanfare
+  _codexNew = true;
+  document.getElementById('book-btn')?.classList.add('has-new');
+  const loud = fresh.filter(e => e.loud);
+  if(loud.length){
+    showToast('📕 A NEW PAGE', `${loud[0].title}${loud.length > 1 ? ` (+${loud.length - 1} more)` : ''} · The Book of the Fallen City`);
+    addLog(`📕 A new page in the Book of the Fallen City: ${loud[0].title}.`, 'lb');
+  }
+  saveGame();
+}
+
+let bookChapter = null;
+function openBook(ch){
+  if(!Player) return;
+  codexTick();
+  bookChapter = ch || null;
+  _codexNew = false; document.getElementById('book-btn')?.classList.remove('has-new');
+  renderBook();
+  document.getElementById('book-modal').classList.add('active');
+}
+function closeBook(){ document.getElementById('book-modal').classList.remove('active'); }
+function renderBook(){
+  const el = document.getElementById('book-content'); if(!el) return;
+  const chs = codexChapters();
+  const seen = Player.codex || {};
+  if(!bookChapter){
+    const total = chs.reduce((a, c) => a + c.entries.length, 0), open = chs.reduce((a, c) => a + c.entries.filter(e => e.open).length, 0);
+    el.innerHTML = `<div class="city-sub">Everything the hunters have learned about what came up the stairs. ${open} of ${total} pages found.</div>
+      ${chs.map(c => { const n = c.entries.filter(e => e.open).length;
+        return `<div class="book-ch" onclick="bookChapter='${c.id}';renderBook()"><span>${c.title}</span><span>${n} / ${c.entries.length}</span></div>`; }).join('')}`;
+    return;
+  }
+  const c = chs.find(x => x.id === bookChapter); if(!c){ bookChapter = null; return renderBook(); }
+  const extra = c.id === 'relic' ? relicStatusHtml() : '';
+  el.innerHTML = `<div class="book-back" onclick="bookChapter=null;renderBook()">‹ ALL CHAPTERS</div>
+    <div class="city-head">${c.title}</div>${extra}
+    ${c.entries.map(e => e.open
+      ? `<div class="book-page"><div class="book-pt">${e.title}</div><div class="book-tx">${e.text}</div></div>`
+      : `<div class="book-page locked"><div class="book-pt">· · ·</div><div class="book-tx">${e.hint}</div></div>`).join('')}`;
+}
+
+// ══════════════════════════════════════════════════════
+//  THE TONGUE OF THE BELL — the first relic questline (WoW-style legendary chase)
+//  Level 10 → gather 40 bell shards (lieutenants, raids, bosses, elites, landmarks) →
+//  ring the thirteen bells (light 13 landmark shrines) → defeat the Bellwright at the
+//  Liberty Bell → a relic weapon for your class. Progress lives in Player.relic.
+// ══════════════════════════════════════════════════════
+const RELIC_MIN_LEVEL = 10;
+const RELIC_SHARDS = 40;
+const RELIC_BELLS = ['Christ Church', "St. Peter's Church", 'Mother Bethel AME', "Carpenters' Hall", "Elfreth's Alley",
+  'City Hall · William Penn', 'Masonic Temple', "Wanamaker's Eagle", '30th Street Station', 'Philadelphia Museum of Art',
+  'Penn Treaty Park', "Bartram's Garden", 'Cliveden'];
+const RELIC_SITE = { name:'the Liberty Bell Center', lat:39.9496, lng:-75.1503 };
+const RELIC_WEAPONS = {
+  Fighter:      'Brazen Tongue',
+  Paladin:      'Pass and Stow',
+  Ranger:       "Whitechapel's Echo",
+  'Magic-User': 'The Crack That Sings',
+  Illusionist:  'Leviticus Glass',
+  Cleric:       'Unto All the Inhabitants',
+  Thief:        'Seventeen Fifty-Three',
+  Assassin:     'The Hairline',
+  Monk:         'The Toll',
+  Druid:        'Bellmetal Bough',
+};
+const RELIC_PAGES = [
+  { title:'The Bellwright’s Apprentice', text:"An old woman in a Liberty Bell Center lanyard stopped you on Market Street. “You’ve heard it too,” she said. “The Bell still wants to ring. Its tongue was cast from the same metal as the Bell — and when the doors opened, the tongue shattered and the pieces went down the stairs with everything else. Bring me forty shards of it. The things that come up carry them. The big ones carry more.”" },
+  { title:'Forty Shards', text:"The shards are warm and hum faintly against each other. Laid together on the Bellwright’s apprentice’s table they almost make a shape. “Now it has to be tuned,” she says. “Thirteen bells rang for the thirteen colonies on the day they read the Declaration. Light a shrine at each place they hung, and the tongue will remember its note.”" },
+  { title:'The Thirteen Bells', text:"At the thirteenth shrine the shards ring on their own, one clear note that the whole street hears. People on the sidewalk look up without knowing why. That night the apprentice doesn’t answer her phone. In her place, on the steps of the Liberty Bell Center, something stands waiting — tall, aproned, its hands black with old bronze: the Bellwright, who cast the tongue in 1753, and who took it back." },
+  { title:'A Bell Rung Whole', text:"The Bellwright falls with a sound like a bell dropped from its frame. The tongue is yours, and it is not a tongue anymore: it has become a weapon shaped to your hand. When you parry with it, it rings. Every hunter within a block hears it, and every door below hears it too. For the first time since 3:17, one of them closes." },
+];
+const BELLWRIGHT = { name:'THE BELLWRIGHT', landmark:RELIC_SITE.name, emoji:'🔔', portrait:'iron-officer.jpg', color:'#c89838',
+  lore:'He cast the Liberty Bell’s tongue in 1753 and never forgave the city for cracking it. He wants it back, and he will take your hands with it.' };
+
+function relicStep(){ // 0 not started · 1 shards · 2 bells · 3 Bellwright · 4 done
+  const r = Player && Player.relic; return r ? r.step : 0;
+}
+function relicTick(){
+  if(!Player || tutStep()) return;
+  if(!Player.relic && (Player.level || 1) >= RELIC_MIN_LEVEL){
+    Player.relic = { step:1, shards:0, bells:{} };
+    setTimeout(() => showToast('🔔 THE TONGUE OF THE BELL', 'A relic questline begins · see the Book, chapter IX'), 400);
+    addLog('🔔 The Bellwright’s apprentice finds you on Market Street. A relic questline begins: the Tongue of the Bell.', 'lb');
+    sndDistrictBell(); saveGame();
+  }
+  relicSyncBoss();
+}
+function relicShard(n, why){
+  const r = Player.relic; if(!r || r.step !== 1 || n <= 0) return;
+  r.shards = Math.min(RELIC_SHARDS, r.shards + n);
+  addLog(`🔔 +${n} bell shard${n === 1 ? '' : 's'} (${why}) · ${r.shards}/${RELIC_SHARDS}`, 'll');
+  if(r.shards >= RELIC_SHARDS){
+    r.step = 2;
+    setTimeout(() => showToast('🔔 FORTY SHARDS', 'Now ring the thirteen bells · see the Book'), 600);
+    sndDistrictBell();
+  }
+  saveGame();
+}
+function relicOnKill(mob, boss){
+  if(!Player.relic || Player.relic.step !== 1 || !mob || mob.tutorialMob) return;
+  if(mob.isSeason && mob.seasonNight) relicShard(4, mob.name);
+  else if(mob.isRaid) relicShard(6, 'raid');
+  else if(boss) relicShard(2, mob.name);
+  else if(mob.elite && Math.random() < 0.25) relicShard(1, 'elite');
+}
+function relicOnShrine(sh){
+  const r = Player.relic; if(!r || !sh || !sh.landmark) return;
+  if(r.step === 1) relicShard(1, sh.real);
+  else if(r.step === 2 && RELIC_BELLS.includes(sh.real) && !r.bells[sh.real]){
+    r.bells[sh.real] = Date.now();
+    const n = Object.keys(r.bells).length;
+    sndDistrictBell();
+    showToast(`🔔 BELL ${n} OF ${RELIC_BELLS.length}`, `${sh.real} rings back`);
+    if(n >= RELIC_BELLS.length){
+      r.step = 3;
+      setTimeout(() => showToast('🔔 THE BELLWRIGHT WAITS', `At ${RELIC_SITE.name} on Market Street`), 2400);
+      relicSyncBoss();
+    }
+    saveGame();
+  }
+}
+let _bellwright = null;
+function relicSyncBoss(){
+  if(!BOSSES) return;
+  const want = Player && Player.relic && Player.relic.step === 3 && selectedWorld === 'philadelphia';
+  if(want && !BOSSES.includes(_bellwright)){
+    const hp = Math.max(2500, Math.floor(Player.atk * 40));
+    _bellwright = _bellwright && !_bellwright.defeated ? _bellwright : { ...BELLWRIGHT, lat:RELIC_SITE.lat, lng:RELIC_SITE.lng, zone:0,
+      isRelic:true, isSeason:false, type:'RELIC · THE TONGUE OF THE BELL', hp, maxHp:hp,
+      atk:Math.floor(Player.maxHp * 0.12 + Player.def * 0.5), def:Math.floor(Player.atk * 0.15),
+      xp:Math.floor(xpForLevel(Player.level || 1) * 0.5), gold:[600, 1200], defeated:false, statuses:[], poisonStacks:0 };
+    BOSSES.push(_bellwright); markDirty();
+  } else if(!want && _bellwright && BOSSES.includes(_bellwright) && !(inCombat && curEnemy === _bellwright)){
+    BOSSES = BOSSES.filter(b => b !== _bellwright); markDirty();
+  }
+}
+function relicOnVictory(mob){
+  if(!mob || !mob.isRelic || !Player.relic || Player.relic.step !== 3) return;
+  Player.relic.step = 4;
+  const w = RELIC_WEAPONS[Player.className] || 'Brazen Tongue';
+  if(!ownsItem(w)) Player.inventory.push(w);
+  grantTitle('Bellringer');
+  setTimeout(relicSyncBoss, 0); // off the map once the fight has closed
+  setTimeout(() => { showToast(`🔔 ${w.toUpperCase()}`, 'RELIC · your riposte now rings the Bell · title: Bellringer'); sndLevelUp(); }, 900);
+  addLog(`🔔 The Bellwright falls. The Tongue of the Bell becomes ${w}, a relic shaped to your hand.`, 'lb');
+}
+function hasRelicEquipped(){ const w = Player && Player.equipped && Player.equipped.weapon; return !!(w && ITEMS[w] && ITEMS[w].relic); }
+function relicGoal(){
+  const r = Player && Player.relic; if(!r) return null;
+  if(r.step === 1) return { text:`🔔 Tongue of the Bell · ${r.shards}/${RELIC_SHARDS} shards`, act:() => openBook('relic') };
+  if(r.step === 2) return { text:`🔔 Ring the bells · ${Object.keys(r.bells).length}/${RELIC_BELLS.length} landmarks`, act:() => openBook('relic') };
+  if(r.step === 3) return { text:`🔔 The Bellwright waits at the Liberty Bell`, act:() => openBook('relic') };
+  return null;
+}
+function relicStatusHtml(){
+  const r = Player.relic;
+  if(!r) return `<div class="city-sub">The first relic of the Fallen City. It begins at level ${RELIC_MIN_LEVEL}.</div>`;
+  const bells = RELIC_BELLS.map(b => `<span class="relic-bell${r.bells[b] ? ' rung' : ''}">${r.bells[b] ? '🔔' : '○'} ${b}</span>`).join('');
+  const w = RELIC_WEAPONS[Player.className];
+  return `<div class="relic-box">
+    <div class="relic-row${r.step > 1 ? ' done' : ''}">1 · Gather ${RELIC_SHARDS} bell shards <b>${Math.min(r.shards, RELIC_SHARDS)}/${RELIC_SHARDS}</b><div class="city-sub" style="margin:2px 0 0">Lieutenants 4 · raids 6 · terrors 2 · landmark shrines 1 · elites sometimes</div></div>
+    <div class="relic-row${r.step > 2 ? ' done' : ''}${r.step < 2 ? ' later' : ''}">2 · Ring the thirteen bells <b>${Object.keys(r.bells).length}/${RELIC_BELLS.length}</b>${r.step === 2 ? `<div class="relic-bells">${bells}</div>` : ''}</div>
+    <div class="relic-row${r.step > 3 ? ' done' : ''}${r.step < 3 ? ' later' : ''}">3 · Defeat the Bellwright at the Liberty Bell</div>
+    <div class="relic-row${r.step > 3 ? ' done' : ' later'}">✦ ${w || 'Your relic'} — your riposte rings the Bell (+50% riposte damage)</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BLOOD MOONS — one evening a month the whole city floods with one kind of monster
+//  (our Community Day). 7–10 PM Eastern on a Saturday: about three times the spawns,
+//  most of them the featured species, triple XP for it, and rare blood variants that
+//  drop Blood Sigils (which also count toward the Tongue of the Bell). Deterministic:
+//  everyone sees the same moon, because it rides the same seeded roll.
+// ══════════════════════════════════════════════════════
+const BLOOD_MOONS = [
+  { date:'2026-11-07', tz:'-05:00', species:'Drowned Sailor',  title:'The Drowning Moon',
+    lore:"The first Blood Moon after the Hollow Night rose over the Delaware, and the river gave back its sailors all at once. They came up Market Street in wet wool, in step, looking for the ships they went down with." },
+  { date:'2026-12-05', tz:'-05:00', species:'Hollow Knight',   title:'The Iron Moon',
+    lore:"Under the December moon every suit of armor in the city stood up empty and walked the old patrol routes, from the Navy Yard to the Art Museum. They salute before they strike. Salute back; it confuses them." },
+  { date:'2027-01-09', tz:'-05:00', species:'Wailing Banshee', title:'The Keening Moon',
+    lore:"In January the banshees came out of the rowhome chimneys all at once and sang the names of the whole block. The hunters who went out that night wore earplugs and still heard their own." },
+  { date:'2027-02-06', tz:'-05:00', species:'Plague Hound',    title:'The Hunting Moon',
+    lore:"The hounds ran in packs of a hundred under the February moon. They hunt in threes, so the fourth one is always behind you. That night there were a lot of fourth ones." },
+  { date:'2027-03-06', tz:'-05:00', species:'Bog Specter',     title:'The Marsh Moon',
+    lore:"In March the old marshes remembered they used to be here. Bog specters rose out of the airport runways and the stadium parking lots, wet footprints spreading north across dry concrete." },
+  { date:'2027-04-03', tz:'-04:00', species:'Grave Stalker',   title:'The Counting Moon',
+    lore:"Every grave stalker in the city counted its cemetery on the April moon and came up one short. They went looking for the difference. Some of them found it." },
+];
+const BLOOD_MOON_HOURS = 3;
+const BLOOD_SIGIL_TITLE_AT = 10;
+let _livingBloodMoon = null, _bmAnnounced = null;
+
+function bloodMoonWindow(bm){ const a = Date.parse(`${bm.date}T19:00:00${bm.tz}`); return [a, a + BLOOD_MOON_HOURS * 3600e3]; }
+function activeBloodMoon(){
+  const now = seasonNow();
+  return BLOOD_MOONS.find(b => { const [a, e] = bloodMoonWindow(b); return now >= a && now < e; }) || null;
+}
+function nextBloodMoon(){ const now = seasonNow(); return BLOOD_MOONS.find(b => bloodMoonWindow(b)[1] > now) || null; }
+function bloodMoonLabel(bm){
+  const d = new Date(`${bm.date}T12:00:00Z`);
+  return `${['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getUTCDay()]} ${['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getUTCMonth()]} ${d.getUTCDate()} · 7 PM`;
+}
+function bloodMoonRec(bm){
+  Player.bloodMoons = Player.bloodMoons || {};
+  return Player.bloodMoons[bm.date] = Player.bloodMoons[bm.date] || { kills:0, sigils:0 };
+}
+// The HUD line for a Blood Moon: live now, or tonight
+function bloodMoonLine(){
+  if(selectedWorld !== 'philadelphia') return null;
+  const now = seasonNow(), live = activeBloodMoon();
+  if(live) return `🩸 BLOOD MOON · ${live.species.toUpperCase()} ×3 XP · ${fmtCountdown(bloodMoonWindow(live)[1] - now).toUpperCase()} LEFT`;
+  const nx = nextBloodMoon();
+  if(nx && bloodMoonWindow(nx)[0] - now < 20 * 3600e3) return `🩸 BLOOD MOON TONIGHT 7 PM · ${nx.species.toUpperCase()}`;
+  return null;
+}
+function bloodMoonTick(){
+  if(!Player || selectedWorld !== 'philadelphia') return;
+  const bm = activeBloodMoon();
+  if(bm && _bmAnnounced !== bm.date && !tutStep()){
+    _bmAnnounced = bm.date;
+    showToast(`🩸 ${bm.title.toUpperCase()}`, `The Blood Moon is up until 10 PM · ${bm.species} everywhere · ×3 XP`);
+    addLog(`🩸 ${bm.title} rises. ${bm.species} flood the city until 10 PM. Blood variants drop Blood Sigils.`, 'lb');
+    sndRaidRise(); buzz('heavy');
+    refreshLiving(true);
+  }
+  if(!bm && _livingBloodMoon) refreshLiving(true); // the moon set: back to the usual city
+}
+function bloodMoonOnKill(mob){
+  const bm = activeBloodMoon();
+  if(!bm || !mob || mob.name !== bm.species) return;
+  const rec = bloodMoonRec(bm);
+  rec.kills++;
+  if(mob.bloodMoon){
+    rec.sigils++;
+    Player.bloodSigils = (Player.bloodSigils || 0) + 1;
+    showToast('🩸 BLOOD SIGIL', `${Player.bloodSigils} carried · ${bm.title}`);
+    relicShard(1, 'blood sigil');
+    if(Player.bloodSigils >= BLOOD_SIGIL_TITLE_AT && grantTitle('Moonstruck'))
+      setTimeout(() => showToast('🩸 MOONSTRUCK', `${BLOOD_SIGIL_TITLE_AT} Blood Sigils · a new title`), 2800);
+  }
+}
+function drawBloodMoonOverlay(){
+  if(!_livingBloodMoon) return;
+  const t = Date.now() / 1400;
+  ctx.fillStyle = `rgba(120,0,10,${0.10 + 0.03 * Math.sin(t)})`; ctx.fillRect(0, 0, mapW, mapH);
+  markDirty();
+}
+
+// Blood variants wear a red halo on the map
+function drawBloodRings(){
+  if(!_livingBloodMoon) return;
+  const t = Date.now() / 300;
+  for(const s of spawns){
+    if(!s.bloodMoon || s.defeated) continue;
+    const p = ll2px(s.lat, s.lng);
+    if(p.x < -40 || p.x > mapW + 40 || p.y < -40 || p.y > mapH + 40) continue;
+    const r = Math.max(10, 13 * zoom) * (1.5 + 0.12 * Math.sin(t));
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(230,20,30,0.85)'; ctx.lineWidth = 2.5; ctx.stroke();
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -5935,14 +6384,36 @@ function huntOnGPS(lat, lng, accuracy){
 }
 
 // ── UI ────────────────────────────────────────────────
-let _toastTimer = null;
+// Toasts: a new one waits its turn if the current one has been up for less than TOAST_MIN_MS,
+// so announcements that land together (a moon rising, a district claimed) are all seen.
+const TOAST_MIN_MS = 2200;
+let _toastTimer = null, _toastShownAt = 0, _toastQueue = [], _toastNext = null;
+const _toastLog = []; // every announcement requested, newest last (tests and debugging read it)
 function showToast(title, body){
   const el = document.getElementById('toast');
   if(!el) return;
+  _toastLog.push(`${title} ${body}`); if(_toastLog.length > 30) _toastLog.shift();
+  const wait = TOAST_MIN_MS - (Date.now() - _toastShownAt);
+  if(wait > 0 && el.classList.contains('show')){
+    if(!_toastQueue.some(q => q[0] === title && q[1] === body)) _toastQueue.push([title, body]);
+    if(_toastQueue.length > 4) _toastQueue.shift();
+    if(!_toastNext) _toastNext = setTimeout(_toastDrain, wait);
+    return;
+  }
+  _toastShow(el, title, body);
+}
+function _toastShow(el, title, body){
   el.innerHTML = `<div class="toast-title">${title}</div><div class="toast-body">${body}</div>`;
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  _toastShownAt = Date.now();
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+function _toastDrain(){
+  _toastNext = null;
+  const q = _toastQueue.shift(); if(!q) return;
+  _toastShow(document.getElementById('toast'), q[0], q[1]);
+  if(_toastQueue.length) _toastNext = setTimeout(_toastDrain, TOAST_MIN_MS);
 }
 
 function openHunt(tab){
@@ -6021,7 +6492,6 @@ function renderHunt(){
 // ══════════════════════════════════════════════════════
 //  INPUT
 // ══════════════════════════════════════════════════════
-canvas.addEventListener('click',e=>{ handleClick(e.clientX,e.clientY); });
 canvas.addEventListener('wheel',e=>{
   e.preventDefault();
   const oldZoom=zoom;
@@ -6118,9 +6588,10 @@ canvas.addEventListener('touchend',e=>{
   if(e.touches.length<2) isPinching=false;
   if(!touchMoved && e.changedTouches.length===1){
     const t=e.changedTouches[0];
+    e.preventDefault(); // no synthetic mouseup/click afterwards — one tap, one action
     handleClick(t.clientX,t.clientY);
   }
-});
+},{passive:false});
 
 const ENGAGE_MILES=0.1;
 const BOSS_ENGAGE_MILES=0.05; // ~264 ft — bosses must be approached
@@ -6186,8 +6657,13 @@ function engageBossFromReveal(){
   startCombat(b, true);
 }
 
+// One tap must act once: a tap that lights a shrine must not also fall through to the monster under it
+let _lastTap = { t:0, x:0, y:0 };
 function handleClick(cx,cy){
   if(inCombat)return;
+  const now = Date.now();
+  if(now - _lastTap.t < 400 && Math.hypot(cx - _lastTap.x, cy - _lastTap.y) < 12) return;
+  _lastTap = { t:now, x:cx, y:cy };
   // NPCs
   for(const npc of NPCS){
     if(npc.world!==selectedWorld)continue;
@@ -7134,7 +7610,9 @@ function playerAct(ability){
   const untilHit = curEnemy.nextAttackAt - now;
   let riposted = false;
   if(ability.dmgMult>0 && untilHit>0 && untilHit<=atkInterval*RIPOSTE_FRAC && !eStatuses.find(s=>s.type==='stun')){
-    ability = {...ability, dmgMult: ability.dmgMult*1.5};
+    const relicRing = hasRelicEquipped();
+    ability = {...ability, dmgMult: ability.dmgMult*(relicRing ? 2.25 : 1.5)};
+    if(relicRing){ setTimeout(()=>showDamageNum('THE BELL TOLLS','dmg-crit','right'),140); sndDistrictBell(); }
     curEnemy.nextAttackAt = now + atkInterval;
     Player.ripostes = (Player.ripostes||0) + 1;
     riposted = true;
@@ -7469,7 +7947,8 @@ function victory(){
   playerCombo=0;
   const xpBase = curEnemy.xp||100;
   const home = (curEnemy.isRaid ? 0 : turfBonus()) + crewBonus();
-  const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0) + home));
+  const moonNow = activeBloodMoon(), moonX = moonNow && curEnemy.name === moonNow.species ? 3 : 1;
+  const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0) + home) * moonX);
   const goldBase = ri(curEnemy.gold[0],curEnemy.gold[1]);
   const gold = Math.floor(goldBase * (1 + (Player.goldBonus||0) + home));
   Player.xp+=xp; Player.gold+=gold;
@@ -7484,6 +7963,10 @@ function victory(){
   huntOnKill(curEnemy);
   tutOnVictory(curEnemy);
   seasonOnVictory(curEnemy);
+  bloodMoonOnKill(curEnemy);
+  if(isBoss && !curEnemy.isRaid && !curEnemy.isSeason && !curEnemy.isRelic){ Player.terrors = Player.terrors || {}; Player.terrors[curEnemy.name] = Player.terrors[curEnemy.name] || Date.now(); }
+  relicOnKill(curEnemy, isBoss);
+  relicOnVictory(curEnemy);
   onEntityKilled(curEnemy.name, isBoss);
   // Bloodthirst: heal 5% max HP on kill
   if(Player.skills?.classUnique && Player.className==='Fighter'){
@@ -7745,7 +8228,8 @@ function showLoot(xp, gold, drops){ sndLoot();
     const item=ITEMS[n];
     const tier=item?.tier||1;
     let color='#8878a8'; let glow=''; let badge='';
-    if(tier===4){ color='#ffd700'; glow='text-shadow:0 0 10px #ffd700,0 0 20px #d4a830;'; badge='<span style="font-size:.6rem;border:1px solid #ffd700;color:#ffd700;padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">LEGENDARY</span>'; }
+    if(tier===5){ color='#ff9a3c'; glow='text-shadow:0 0 12px #ff9a3c,0 0 24px #c86010;'; badge='<span style="font-size:.6rem;border:1px solid #ff9a3c;color:#ff9a3c;padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">RELIC</span>'; }
+    else if(tier===4){ color='#ffd700'; glow='text-shadow:0 0 10px #ffd700,0 0 20px #d4a830;'; badge='<span style="font-size:.6rem;border:1px solid #ffd700;color:#ffd700;padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">LEGENDARY</span>'; }
     else if(tier===3){ color='#cc88ff'; glow='text-shadow:0 0 8px #9944cc;'; badge='<span style="font-size:.6rem;border:1px solid #cc88ff;color:#cc88ff;padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">RARE</span>'; }
     html+=`<div style="color:${color};${glow}font-size:.88rem;margin-bottom:3px;">${item?.emoji||'📦'} ${n}${badge}</div>`;
   });
@@ -7815,11 +8299,16 @@ function saveGame(){
       faction: Player.faction || null,
       role: Player.role || null,
       season: Player.season || {},
+      codex: Player.codex || null,
+      terrors: Player.terrors || {},
+      relic: Player.relic || null,
+      bloodSigils: Player.bloodSigils || 0,
+      bloodMoons: Player.bloodMoons || {},
       titles: Player.titles || [],
       factionSince: Player.factionSince || 0,
       factionPrompted: Player.factionPrompted || false,
     },
-    bossStates: BOSSES.filter(b => !b.isRaid && !b.isSeason).map(b => b.defeated || false),
+    bossStates: BOSSES.filter(b => !b.isRaid && !b.isSeason && !b.isRelic).map(b => b.defeated || false),
     world: selectedWorld,
     quests: JSON.parse(JSON.stringify(playerQuests)),
     savedAt: Date.now(),
@@ -7941,7 +8430,7 @@ async function netSignUp(email, password){
 }
 
 async function netSignOut(){
-  if(netPendingSave){ clearTimeout(netSaveTimer); await netPushSave(); }
+  if(netPendingSave){ clearTimeout(netSaveTimer); netSaveTimer = null; await netPushSave(); }
   const token = netSession && netSession.access_token;
   netCloudConflict = false; netConflictCloud = null;
   netSyncText = '';
@@ -7973,11 +8462,12 @@ function netOwnerForSave(){
   return (prev && prev.owner) || null;
 }
 
+// Push at most 3 s after the first unsent save, always with the newest data. (A plain debounce
+// never fired while the game kept saving every few seconds.)
 function netQueueSave(data){
   if(!NET_ON || !netSession || netCloudConflict) return;
   netPendingSave = data;
-  clearTimeout(netSaveTimer);
-  netSaveTimer = setTimeout(netPushSave, 3000);
+  if(!netSaveTimer) netSaveTimer = setTimeout(() => { netSaveTimer = null; netPushSave(); }, 3000);
 }
 
 async function netPushSave(keepalive){
@@ -8004,8 +8494,8 @@ async function netPushSave(keepalive){
   } catch(e){
     netPendingSave = netPendingSave || data;
     netSyncText = 'Cloud unreachable — will retry.';
-    clearTimeout(netSaveTimer);
-    netSaveTimer = setTimeout(netPushSave, 30000);
+    clearTimeout(netSaveTimer); netSaveTimer = null;
+    netSaveTimer = setTimeout(() => { netSaveTimer = null; netPushSave(); }, 30000);
   }
   renderAccountUI();
 }
@@ -8112,7 +8602,7 @@ async function acctSyncNow(){
   setAcctBusy(true); setAcctMsg('Syncing…');
   if(Player) saveGame();
   await netSyncSave();
-  if(netPendingSave){ clearTimeout(netSaveTimer); await netPushSave(); }
+  if(netPendingSave){ clearTimeout(netSaveTimer); netSaveTimer = null; await netPushSave(); }
   setAcctBusy(false); setAcctMsg('');
 }
 
@@ -8124,7 +8614,7 @@ async function acctDelete(){
   if(prompt('Type DELETE to confirm.') !== 'DELETE'){ setAcctMsg('Account not deleted.'); return; }
   setAcctBusy(true); setAcctMsg('Erasing your name from the ledger…');
   try {
-    clearTimeout(netSaveTimer); netPendingSave = null;
+    clearTimeout(netSaveTimer); netSaveTimer = null; netPendingSave = null;
     await netAuthed('/rest/v1/rpc/delete_my_account', { method:'POST', body:{} });
     const save = loadSave();
     if(save && save.owner){ delete save.owner; localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }
@@ -8237,6 +8727,7 @@ function claimRaidSpoils(raidId){
   const L = Player && Player.raidLedger && Player.raidLedger[raidId];
   if(!L || L.claimed || L.dmg <= 0) return;
   L.claimed = true;
+  relicShard(6, 'raid');
   const share = Math.min(1, L.dmg / (L.maxHp * 0.02)); // 2% of the boss = full share
   const mult = 0.3 + 0.7 * share;
   const xp = Math.floor(L.xp * mult);
@@ -8287,6 +8778,7 @@ async function netPollRaid(){
       raidUpcoming = next[0] || null;
     }
     await netSettleRaidLedger();
+    await raidRsvpFetch();
   } catch(e){ /* offline — keep the last known state */ }
   renderRaidUI();
 }
@@ -8328,6 +8820,7 @@ function applyRaidRow(row){
 function raidEnsureOnMap(){
   if(RAID && BOSSES && !BOSSES.includes(RAID)) BOSSES.push(RAID);
   markDirty();
+  renderRaidUI(); // show the raid the moment it lands, not at the end of the poll
 }
 
 function endRaid(row){
@@ -8485,6 +8978,34 @@ function fmtCountdown(ms){
   return d > 0 ? `${d}D ${h}H` : h > 0 ? `${h}H ${m%60}M` : `${m%60}M`;
 }
 
+// ── CALL TO ARMS: "I'm going" head-counts for the live or upcoming raid ──
+let raidRsvp = null; // { id, going, me }
+function raidRsvpTarget(){ return RAID ? RAID.raidId : raidUpcoming ? raidUpcoming.id : null; }
+async function raidRsvpFetch(){
+  const id = raidRsvpTarget(); if(!NET_ON || !id){ raidRsvp = null; return; }
+  try {
+    const token = netSession ? await netAccessToken() : null;
+    const st = await netRequest('/rest/v1/rpc/raid_rsvp_state', { method:'POST', token: token || undefined, body:{ p_boss:id } });
+    raidRsvp = { id, going: Number(st.going) || 0, me: !!st.me };
+  } catch(e){}
+}
+async function raidRsvpToggle(){
+  const id = raidRsvpTarget(); if(!id) return;
+  if(!netSession){ openAccount('Sign in to answer the call to arms.'); return; }
+  const going = !(raidRsvp && raidRsvp.id === id && raidRsvp.me);
+  try {
+    const n = await netAuthed('/rest/v1/rpc/raid_rsvp', { method:'POST', body:{ p_boss:id, p_going:going } });
+    raidRsvp = { id, going: Number(n) || 0, me: going };
+    if(going){ showToast('⚔ YOU ANSWERED THE CALL', `${raidRsvp.going} hunter${raidRsvp.going === 1 ? '' : 's'} going`); buzz('tap'); }
+  } catch(e){ addLog('⚠ ' + ((e && e.message) || 'The call to arms did not go through.'), 'ls'); }
+  renderRaidUI();
+}
+function raidRsvpHtml(){
+  const id = raidRsvpTarget(); if(!id) return '';
+  const r = raidRsvp && raidRsvp.id === id ? raidRsvp : { going:0, me:false };
+  return `<button class="rsvp-btn${r.me ? ' on' : ''}" onclick="raidRsvpToggle()">${r.me ? '✓ YOU\'RE GOING' : '⚔ I\'M GOING'} · ${r.going} hunter${r.going === 1 ? '' : 's'} answered the call</button>`;
+}
+
 function renderRaidUI(){
   if(!NET_ON) return;
   const hud = document.getElementById('raid-hud');
@@ -8510,11 +9031,11 @@ function renderRaidUI(){
       ${raidBoard.length ? `<div class="raid-board">${raidBoard.map((p, i) => `
         <div class="raid-row${netSession && p.player_id === netSession.user.id ? ' me' : ''}">
           <span>${i + 1}. ${netEsc(p.player_name || 'Wanderer')}</span><span>${fmt(Number(p.total))}</span>
-        </div>`).join('')}</div>` : `<div class="raid-empty">No blood drawn yet. Be the first.</div>`}`;
+        </div>`).join('')}</div>` : `<div class="raid-empty">No blood drawn yet. Be the first.</div>`}${raidRsvpHtml()}`;
   } else if(raidUpcoming){
     const eta = new Date(raidUpcoming.spawn_at).getTime() - Date.now();
     hud.style.display = 'flex';
-    hud.innerHTML = `<span class="raid-tag">☠ SOON</span><span class="raid-hud-name">${netEsc(raidUpcoming.name)}</span><span class="raid-hud-pct">${fmtCountdown(eta)}</span>`;
+    hud.innerHTML = `<span class="raid-tag">☠ SOON</span><span class="raid-hud-name">${netEsc(raidUpcoming.name)}</span><span class="raid-hud-pct">${fmtCountdown(eta)}${raidRsvp && raidRsvp.id === raidUpcoming.id && raidRsvp.going ? ` · ${raidRsvp.going} GOING` : ''}</span>`;
     panel.style.display = '';
     const clues = raidUpcoming.clues || [];
     const found = ((Player && Player.clues) || {})[raidUpcoming.id] || [];
@@ -8524,7 +9045,7 @@ function renderRaidUI(){
       <div class="raid-where">📍 Where? Nobody knows yet.</div>
       ${clues.length ? `<div class="raid-clues-head">📜 FRAGMENTS ${found.length} / ${clues.length}</div>
         ${found.map(i => `<div class="raid-clue">“${netEsc(clues[i])}”</div>`).join('')}
-        <div class="raid-empty">${found.length < clues.length ? 'Light shrines across the city to find more. Every hunter finds different pieces — compare notes.' : 'You hold every fragment. Be there when it rises.'}</div>` : ''}`;
+        <div class="raid-empty">${found.length < clues.length ? 'Light shrines across the city to find more. Every hunter finds different pieces — compare notes.' : 'You hold every fragment. Be there when it rises.'}</div>` : ''}${raidRsvpHtml()}`;
   } else {
     hud.style.display = 'none';
     panel.style.display = 'none';
@@ -8540,7 +9061,7 @@ async function netInit(){
   renderAccountUI();
   if(netSession) netSyncSave();
   document.addEventListener('visibilitychange', () => {
-    if(document.visibilityState === 'hidden' && netPendingSave){ clearTimeout(netSaveTimer); netPushSave(true); }
+    if(document.visibilityState === 'hidden' && netPendingSave){ clearTimeout(netSaveTimer); netSaveTimer = null; netPushSave(true); }
   });
 }
 
@@ -9141,7 +9662,7 @@ function startGameTimers(){
   setInterval(updateAmbience, 2000);
   const freshDay = !Player.daily || Player.daily.date !== todayKey();
   ensureDaily();
-  if(freshDay) setTimeout(()=>{ if(!tutStep()) showToast("TODAY'S BOUNTIES", 'Three new marks for every hunter. Tap 📖 HUNT.'); }, 1500);
+  if(freshDay) setTimeout(()=>{ if(!tutStep() && !activeBloodMoon()) showToast("TODAY'S BOUNTIES", 'Three new marks for every hunter. Tap 📖 HUNT.'); }, 1500);
   setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
   setInterval(()=>refreshLiving(true), 20000);
   setInterval(turfMaybeRecruit, 10000);
@@ -9151,6 +9672,9 @@ function startGameTimers(){
   setInterval(goalTick, 1500);
   setInterval(seasonMaybeOmen, 3000);
   setInterval(crewMaybeInvite, 3000);
+  codexTick(); relicTick(); bloodMoonTick();
+  setInterval(bloodMoonTick, 5000);
+  setInterval(() => { codexTick(); relicTick(); }, 4000);
   setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.questMob&&s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)markDirty(); }, 60000);
 }
 
