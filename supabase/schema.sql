@@ -421,3 +421,199 @@ begin
 end $$;
 revoke all on function public.add_influence(jsonb) from public, anon;
 grant execute on function public.add_influence(jsonb) to authenticated;
+
+
+-- ══════════════════════════════════════════════════════
+--  CREWS — up to 6 friends who hunt and raid together
+--  No table here is readable or writable directly. Everything goes through the
+--  functions below, and a crew only ever sees its own members and pings.
+-- ══════════════════════════════════════════════════════
+create table if not exists public.crews (
+  id          uuid primary key default gen_random_uuid(),
+  code        text not null unique,
+  name        text not null check (char_length(name) between 2 and 24),
+  created_by  uuid references auth.users(id) on delete set null,
+  created_at  timestamptz not null default now()
+);
+create table if not exists public.crew_members (
+  user_id     uuid primary key references auth.users(id) on delete cascade,  -- one crew per hunter
+  crew_id     uuid not null references public.crews(id) on delete cascade,
+  name        text not null default 'Hunter',
+  class_name  text,
+  level       int not null default 1,
+  district    text,
+  world       text,
+  cell        text,                                   -- the same ~1 km square as hunter_presence
+  seen_at     timestamptz not null default now(),
+  joined_at   timestamptz not null default now()
+);
+create index if not exists crew_members_crew on public.crew_members(crew_id);
+create table if not exists public.crew_pings (
+  id          bigserial primary key,
+  crew_id     uuid not null references public.crews(id) on delete cascade,
+  user_id     uuid references auth.users(id) on delete cascade,
+  name        text not null,
+  kind        text not null check (kind in ('rally','here','omw','lock','done')),
+  district    text,
+  lat         double precision,                       -- only for 'here', rounded to ~100 m
+  lng         double precision,
+  created_at  timestamptz not null default now()
+);
+create index if not exists crew_pings_crew on public.crew_pings(crew_id, created_at desc);
+alter table public.crews        enable row level security;
+alter table public.crew_members enable row level security;
+alter table public.crew_pings   enable row level security;
+
+create or replace function public.create_crew(p_name text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  nm text := btrim(coalesce(p_name, ''));
+  c text;
+  cid uuid;
+  alphabet text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+begin
+  if uid is null then raise exception 'Sign in to form a crew'; end if;
+  if char_length(nm) < 2 or char_length(nm) > 24 then raise exception 'Crew names are 2 to 24 characters'; end if;
+  if exists (select 1 from crew_members where user_id = uid) then raise exception 'Leave your crew first'; end if;
+  loop
+    c := '';
+    for i in 1..6 loop c := c || substr(alphabet, 1 + floor(random() * length(alphabet))::int, 1); end loop;
+    exit when not exists (select 1 from crews where code = c);
+  end loop;
+  insert into crews (code, name, created_by) values (c, nm, uid) returning id into cid;
+  insert into crew_members (user_id, crew_id, name)
+    values (uid, cid, coalesce((select left(data->'player'->>'name', 20) from characters where user_id = uid), 'Hunter'));
+  return c;
+end;
+$$;
+
+create or replace function public.join_crew(p_code text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  cr crews;
+  mine uuid;
+begin
+  if uid is null then raise exception 'Sign in to join a crew'; end if;
+  select * into cr from crews where code = upper(btrim(coalesce(p_code, ''))) for update;
+  if not found then raise exception 'No crew has that code'; end if;
+  select crew_id into mine from crew_members where user_id = uid;
+  if mine = cr.id then return cr.name; end if;
+  if mine is not null then raise exception 'Leave your crew first'; end if;
+  if (select count(*) from crew_members where crew_id = cr.id) >= 6 then raise exception 'That crew is full (6 hunters)'; end if;
+  insert into crew_members (user_id, crew_id, name)
+    values (uid, cr.id, coalesce((select left(data->'player'->>'name', 20) from characters where user_id = uid), 'Hunter'));
+  return cr.name;
+end;
+$$;
+
+create or replace function public.leave_crew()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  cid uuid;
+begin
+  delete from crew_members where user_id = auth.uid() returning crew_id into cid;
+  if cid is not null and not exists (select 1 from crew_members where crew_id = cid) then
+    delete from crews where id = cid;
+  end if;
+end;
+$$;
+
+-- Called by the game about every 30 s: who I am and roughly where (district + 1 km square).
+create or replace function public.crew_heartbeat(p_name text, p_class text, p_level int, p_district text, p_world text, p_cell text)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update crew_members set
+    name       = coalesce(nullif(left(btrim(coalesce(p_name, '')), 20), ''), name),
+    class_name = left(p_class, 20),
+    level      = greatest(1, least(100, coalesce(p_level, 1))),
+    district   = case when p_district is null or exists (select 1 from turf_districts where name = p_district) then p_district else district end,
+    world      = left(p_world, 20),
+    cell       = case when p_cell ~ '^-?\d{1,6}:-?\d{1,6}$' then p_cell else null end,
+    seen_at    = now()
+  where user_id = auth.uid();
+$$;
+
+create or replace function public.crew_ping(p_kind text, p_district text, p_lat double precision, p_lng double precision)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  me crew_members;
+begin
+  select * into me from crew_members where user_id = auth.uid();
+  if not found then raise exception 'You are not in a crew'; end if;
+  if p_kind not in ('rally','here','omw','lock','done') then raise exception 'Unknown call'; end if;
+  if exists (select 1 from crew_pings where user_id = me.user_id and created_at > now() - interval '15 seconds') then
+    raise exception 'Give your crew a moment';
+  end if;
+  insert into crew_pings (crew_id, user_id, name, kind, district, lat, lng)
+  values (me.crew_id, me.user_id, me.name, p_kind,
+          case when exists (select 1 from turf_districts where name = p_district) then p_district end,
+          case when p_kind = 'here' and p_lat between -90 and 90 then round(p_lat::numeric, 3)::double precision end,
+          case when p_kind = 'here' and p_lng between -180 and 180 then round(p_lng::numeric, 3)::double precision end);
+  delete from crew_pings where crew_id = me.crew_id and created_at < now() - interval '1 day';
+end;
+$$;
+
+-- Everything the crew panel needs. Never returns user ids, emails or anyone's exact position
+-- (only a 'here' call, which its sender chose to send).
+create or replace function public.crew_state()
+returns jsonb
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with me as (select * from crew_members where user_id = auth.uid())
+  select case when not exists (select 1 from me) then null else jsonb_build_object(
+    'crew', (select jsonb_build_object('name', c.name, 'code', c.code) from crews c, me where c.id = me.crew_id),
+    'members', (select coalesce(jsonb_agg(jsonb_build_object(
+        'name', m.name, 'class', m.class_name, 'level', m.level, 'district', m.district,
+        'seen', m.seen_at, 'me', m.user_id = me.user_id,
+        'online', m.seen_at > now() - interval '3 minutes',
+        'near', m.user_id <> me.user_id and m.world = me.world and m.cell = me.cell
+                and m.seen_at > now() - interval '3 minutes' and me.seen_at > now() - interval '3 minutes')
+        order by m.joined_at), '[]'::jsonb)
+      from crew_members m, me where m.crew_id = me.crew_id),
+    'pings', (select coalesce(jsonb_agg(jsonb_build_object(
+        'id', x.id, 'name', x.name, 'kind', x.kind, 'district', x.district, 'lat', x.lat, 'lng', x.lng,
+        'at', x.created_at, 'mine', x.mine) order by x.created_at desc), '[]'::jsonb)
+      from (select p.id, p.name, p.kind, p.district, p.lat, p.lng, p.created_at,
+                   p.user_id = (select user_id from me) as mine
+              from crew_pings p
+             where p.crew_id = (select crew_id from me) and p.created_at > now() - interval '2 hours'
+             order by p.created_at desc limit 20) x)
+  ) end;
+$$;
+
+revoke all on function public.create_crew(text) from public, anon;
+revoke all on function public.join_crew(text) from public, anon;
+revoke all on function public.leave_crew() from public, anon;
+revoke all on function public.crew_heartbeat(text, text, int, text, text, text) from public, anon;
+revoke all on function public.crew_ping(text, text, double precision, double precision) from public, anon;
+revoke all on function public.crew_state() from public, anon;
+grant execute on function public.create_crew(text) to authenticated;
+grant execute on function public.join_crew(text) to authenticated;
+grant execute on function public.leave_crew() to authenticated;
+grant execute on function public.crew_heartbeat(text, text, int, text, text, text) to authenticated;
+grant execute on function public.crew_ping(text, text, double precision, double precision) to authenticated;
+grant execute on function public.crew_state() to authenticated;

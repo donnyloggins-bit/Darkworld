@@ -1756,6 +1756,33 @@ body:not(.net-on) .net-only { display:none !important; }
 .me-bar.xp > div { background:linear-gradient(90deg,#3a2a70,#8a6ad0); }
 
 .hunt-tab { font-size:.74rem; letter-spacing:.06em; }
+/* ── Crews ── */
+#crew-modal { display:none; position:fixed; inset:0; z-index:165; background:rgba(5,3,12,0.97); justify-content:center; overflow-y:auto; padding:16px 12px 32px; }
+#crew-modal.active { display:flex; }
+.crew-head { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; margin-bottom:10px; }
+.crew-name { font-family:'Metal Mania',cursive; font-size:1.7rem; color:var(--gold); letter-spacing:.05em; line-height:1.1; }
+.crew-code { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:#8878a8; text-align:right; letter-spacing:.12em; }
+.crew-code b { display:block; font-size:1.25rem; color:var(--pale); letter-spacing:.2em; }
+.crew-msg { font-family:'Share Tech Mono',monospace; font-size:.78rem; color:var(--pale); border:1px solid #3a2a50; border-left:2px solid var(--gold); padding:8px 10px; margin-bottom:10px; word-break:break-all; }
+.crew-invite { border:1px solid rgba(80,200,140,0.5); background:rgba(20,40,30,0.5); padding:10px; margin-bottom:10px; color:var(--pale); }
+.crew-bonus { font-family:'Share Tech Mono',monospace; font-size:.76rem; color:#50c88c; border:1px solid rgba(80,200,140,0.4); padding:7px 10px; margin-bottom:10px; }
+.crew-row-in { display:flex; gap:8px; margin-bottom:6px; }
+.crew-in { flex:1; min-width:0; background:#0d0a18; border:1px solid #3a2a50; color:var(--pale); font-family:'Share Tech Mono',monospace; font-size:1rem; letter-spacing:.12em; padding:9px 10px; }
+.crew-go { width:auto !important; padding:8px 16px !important; }
+.crew-mem { display:flex; align-items:center; gap:8px; padding:8px 4px; border-bottom:1px solid #1e1430; font-family:'Share Tech Mono',monospace; font-size:.78rem; }
+.crew-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; background:#3a2a50; }
+.crew-dot.on { background:#c8a030; } .crew-dot.near { background:#50c88c; box-shadow:0 0 8px #50c88c; } .crew-dot.me { background:var(--pale); }
+.crew-mn { color:var(--pale); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:34%; }
+.crew-mc { color:#8878a8; white-space:nowrap; }
+.crew-mw { flex:1; text-align:right; color:#a090b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.crew-calls { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.crew-call { background:linear-gradient(160deg,#1a1528,#0d0a1c); border:1px solid #3a2a50; color:var(--pale); font-size:1.3rem; padding:8px 2px 6px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.crew-call span { font-family:'Share Tech Mono',monospace; font-size:.58rem; letter-spacing:.06em; color:#a090b8; }
+.crew-call:disabled { opacity:.5; }
+.crew-ping { display:flex; justify-content:space-between; gap:8px; font-size:.88rem; color:#c0b0d0; padding:6px 2px; border-bottom:1px solid #1e1430; }
+.crew-ping span:last-child { font-family:'Share Tech Mono',monospace; font-size:.68rem; color:#6a5a80; white-space:nowrap; }
+.crew-ping.mine { opacity:.7; }
+#goal-crew { color:#50c88c; margin-top:2px; }
 /* ── Seasons ── */
 .title-season { margin:4px 16px 14px; max-width:340px; text-align:center; padding:10px 14px; background:rgba(20,8,4,0.78);
   border:1px solid rgba(232,134,46,0.55); box-shadow:0 0 24px rgba(232,134,46,0.18); animation:raidPulse 3s ease-in-out infinite; }
@@ -1844,7 +1871,7 @@ body:not(.net-on) .net-only { display:none !important; }
 #sidebar { padding-top:var(--sat); padding-bottom:var(--sab); }
 /* Full-screen panels sit inside the safe area (on the web both values are 0, so nothing moves) */
 .screen:not(#screen-game):not(#screen-ar), #combat-modal, #boss-reveal, #death-screen,
-#hunt-modal, #season-modal, #acct-modal, #inv-modal, #shop-modal, #levelup-modal, #quest-modal {
+#hunt-modal, #season-modal, #crew-modal, #acct-modal, #inv-modal, #shop-modal, #levelup-modal, #quest-modal {
   top:var(--sat) !important; bottom:var(--sab) !important;
 }
 
@@ -2046,7 +2073,7 @@ body:not(.net-on) .net-only { display:none !important; }
     <div id="gps-hud"><div class="gps-dot" id="gps-dot"></div><span id="gps-txt">GPS INACTIVE</span></div>
     <div id="raid-hud" onclick="toggleSidebar()" style="display:none"></div>
     <div id="hunters-hud" style="display:none"></div>
-    <div id="goal-hud" style="display:none" onclick="openSeason()"><div id="goal-season"></div><div id="goal-next"></div></div>
+    <div id="goal-hud" style="display:none" onclick="openSeason()"><div id="goal-season"></div><div id="goal-crew"></div><div id="goal-next"></div></div>
     <div id="me-hud" onclick="toggleSidebar()">
       <div class="me-top"><span id="me-emoji">⚔</span><span id="me-lvl">LV 1</span><span id="me-gold">0 G</span></div>
       <div class="me-bar"><div id="me-hp"></div></div>
@@ -2057,6 +2084,7 @@ body:not(.net-on) .net-only { display:none !important; }
       <button id="inv-btn" onclick="openInventory()">⚔ GEAR</button>
       <button id="quest-btn" onclick="openQuestLog()">📜 QUESTS</button>
       <button id="hunt-btn" onclick="openHunt()">📖 HUNT</button>
+      <button id="crew-btn" class="net-only" onclick="openCrew()">👥 CREW</button>
       <button id="sound-btn" onclick="toggleSound()">🔊 SOUND</button>
       <button id="ar-btn" onclick="startAR()">👁 AR VIEW</button>
       <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER</button>
@@ -2296,6 +2324,16 @@ body:not(.net-on) .net-only { display:none !important; }
 </div>
 
 <!-- ══ HUNT: bounties + bestiary ══ -->
+<div id="crew-modal">
+  <div class="hunt-card">
+    <div class="hunt-head">
+      <div class="hunt-title">THE CREW</div>
+      <button class="hunt-close" onclick="closeCrew()">✕ CLOSE</button>
+    </div>
+    <div id="crew-content"></div>
+  </div>
+</div>
+
 <div id="season-modal">
   <div class="hunt-card">
     <div class="hunt-head">
@@ -4023,7 +4061,7 @@ function spinShrine(sh){
   saveLiving();
   const L = Player.level || 1;
   const lmMult = sh.landmark ? 2 : 1;
-  const home = 1 + turfBonus();
+  const home = 1 + turfBonus() + crewBonus();
   const gold = Math.floor(ri(15, 40) * (1 + Math.floor(L/3)) * lmMult * home);
   const xp = Math.floor((Math.floor(xpForLevel(L) * 0.04) + 10) * lmMult * home);
   if(sh.landmark){
@@ -4090,6 +4128,7 @@ function render(){
   drawQuestMarkers();
   drawNPCs();
   drawDungeons();
+  drawCrewSpots();
   drawPlayer();
   drawTutorialMarker();
   if(Player && (Player.incenseUntil||0) > Date.now()){
@@ -4901,7 +4940,7 @@ function seasonSync(){
 }
 
 function seasonModalsOpen(){
-  return !!document.querySelector('#hunt-modal.active, #levelup-modal.active, #acct-modal.active, #inv-modal.active, #shop-modal.active, #quest-modal.active, #season-modal.active, #boss-reveal.active, #combat-modal.active, #screen-ar.active, #sidebar.open, #coach.show')
+  return !!document.querySelector('#hunt-modal.active, #levelup-modal.active, #acct-modal.active, #inv-modal.active, #shop-modal.active, #quest-modal.active, #season-modal.active, #crew-modal.active, #boss-reveal.active, #combat-modal.active, #screen-ar.active, #sidebar.open, #coach.show')
     || document.getElementById('cutscene-overlay').style.display === 'block';
 }
 // The omen plays once per season, the first quiet moment after the tutorial
@@ -5062,6 +5101,10 @@ function goalTick(){
   top.style.display = sl ? 'block' : 'none'; top.textContent = sl || '';
   bot.style.display = g ? 'block' : 'none'; bot.textContent = g ? g.text : '';
   bot.onclick = e => { e.stopPropagation(); if(g) g.act(); };
+  const cr = document.getElementById('goal-crew');
+  cr.style.display = crewNear ? 'block' : 'none';
+  cr.textContent = crewNear ? `👥 ${crewNear} CREW WITH YOU · +${Math.round(crewBonus()*100)}% XP · +${Math.round(crewFury()*100)}% RAID DMG` : '';
+  cr.onclick = e => { e.stopPropagation(); openCrew(); };
 }
 
 // ── Title screen banner ────────────────────────────────
@@ -5143,6 +5186,230 @@ function renderSeason(){
     ${rw((Player.titles || []).includes('Breaker of the Warden'), 'Breaker of the Warden', 'be there when he falls')}
     <div class="hunt-foot">Season keepsakes can never be bought or earned again. <a href="#" onclick="event.preventDefault();closeSeason();playCutscene(currentSeason().omen)">Replay the omen</a></div>`;
 }
+
+// ══════════════════════════════════════════════════════
+//  CREWS — up to 6 friends who hunt and raid together
+//  Invite by code or link. Crewmates see each other's district and online status,
+//  send quick calls ("Raid now", "I'm here"), and get bonuses when they hunt in the
+//  same ~1 km square. Server: create_crew / join_crew / leave_crew / crew_heartbeat /
+//  crew_ping / crew_state (supabase/schema.sql).
+// ══════════════════════════════════════════════════════
+const CREW_MAX = 6;
+const CREW_TICK_MS = 25000;
+const CREW_SPOT_MS = 30 * 60000;         // an "I'm here" marker stays on the map this long
+const CREW_INVITE_KEY = 'darkworld_crew_invite';
+const CREW_CALLS = {
+  rally: { emoji:'⚔', label:'Raid now — come fight', short:'RAID NOW' },
+  here:  { emoji:'📍', label:"I'm here — find me",    short:"I'M HERE" },
+  omw:   { emoji:'🏃', label:'On my way',              short:'ON MY WAY' },
+  lock:  { emoji:'🔒', label:"Tonight's lock — let's go", short:'THE LOCK' },
+  done:  { emoji:'🌙', label:'Done for tonight',       short:'DONE' },
+};
+let crewState = null, crewNear = 0, crewLastPing = 0, crewTimer = null, crewBusy = false, crewMsg = '';
+
+// Bonuses for hunting together: +5% XP/gold and +10% raid damage per crewmate in your square (max 3)
+function crewBonus(){ return Math.min(3, crewNear) * 0.05; }
+function crewFury(){ return Math.min(3, crewNear) * 0.10; }
+
+function crewInviteLink(code){ return `${location.origin}${location.pathname}?crew=${encodeURIComponent(code)}`; }
+
+// ?crew=CODE in the link: remember it until the hunter can act on it
+function crewReadInvite(){
+  try {
+    const u = new URL(location.href), c = u.searchParams.get('crew');
+    if(c && /^[A-Za-z0-9]{4,8}$/.test(c)){
+      localStorage.setItem(CREW_INVITE_KEY, c.toUpperCase());
+      u.searchParams.delete('crew');
+      history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+    }
+  } catch(e){}
+}
+function crewPendingInvite(){ try { return localStorage.getItem(CREW_INVITE_KEY) || ''; } catch(e){ return ''; } }
+function crewClearInvite(){ try { localStorage.removeItem(CREW_INVITE_KEY); } catch(e){} }
+
+async function crewRpc(fn, body = {}){
+  return netAuthed(`/rest/v1/rpc/${fn}`, { method:'POST', body });
+}
+
+async function crewTick(){
+  if(!NET_ON || !netSession || !Player || netCloudConflict) return;
+  try {
+    const d = districtAt(Player.lat, Player.lng);
+    if(crewState) await crewRpc('crew_heartbeat', { p_name: Player.name, p_class: Player.className, p_level: Player.level || 1,
+      p_district: d ? d.name : null, p_world: selectedWorld, p_cell: gpsFirstLock ? presenceCell() : null });
+    const st = await crewRpc('crew_state');
+    crewApply(st);
+  } catch(e){ /* offline: keep what we had */ }
+}
+
+function crewApply(st){
+  const was = crewState;
+  crewState = st && st.crew && Array.isArray(st.members) && Array.isArray(st.pings) ? st : null;
+  crewNear = crewState ? crewState.members.filter(m => m.near).length : 0;
+  // new calls from crewmates since the last look
+  if(crewState){
+    const fresh = crewState.pings.filter(p => !p.mine && p.id > crewLastPing);
+    if(was) fresh.slice(0, 2).reverse().forEach(p => {
+      const c = CREW_CALLS[p.kind] || CREW_CALLS.rally;
+      showToast(`${c.emoji} ${netEsc(p.name).toUpperCase()}`, `${c.label}${p.district ? ' · ' + netEsc(p.district) : ''}`);
+      addLog(`👥 ${netEsc(p.name)}: ${c.label}${p.district ? ' (' + netEsc(p.district) + ')' : ''}`, 'lb');
+      sndBounty(); buzz('bell');
+    });
+    crewLastPing = Math.max(crewLastPing, ...crewState.pings.map(p => p.id), 0);
+  }
+  if(document.getElementById('crew-modal').classList.contains('active')) renderCrew();
+  markDirty();
+}
+
+function crewStart(){
+  if(!NET_ON || crewTimer) return;
+  crewTick();
+  crewTimer = setInterval(crewTick, CREW_TICK_MS);
+}
+
+function openCrew(){
+  if(!NET_ON) return;
+  document.getElementById('crew-modal').classList.add('active');
+  renderCrew();
+  if(netSession) crewTick();
+}
+function closeCrew(){ document.getElementById('crew-modal').classList.remove('active'); }
+
+async function crewAct(fn, body, okMsg){
+  if(crewBusy) return;
+  crewBusy = true; crewMsg = ''; renderCrew();
+  try {
+    const r = await crewRpc(fn, body);
+    if(okMsg) crewMsg = typeof okMsg === 'function' ? okMsg(r) : okMsg;
+    const st = await crewRpc('crew_state');
+    crewApply(st);
+    return r;
+  } catch(e){
+    crewMsg = '⚠ ' + ((e && e.message) || 'The crew ledger is out of reach. Try again.');
+  } finally {
+    crewBusy = false; renderCrew();
+  }
+}
+
+async function crewCreate(){
+  const name = (document.getElementById('crew-name-in') || {}).value || '';
+  const code = await crewAct('create_crew', { p_name: name.trim() }, 'Your crew is formed. Send the invite to your friends.');
+  if(code){ sndDistrictBell(); }
+}
+async function crewJoin(code){
+  code = (code || (document.getElementById('crew-code-in') || {}).value || '').trim().toUpperCase();
+  if(!code){ crewMsg = 'Enter the 6-letter crew code.'; renderCrew(); return; }
+  const name = await crewAct('join_crew', { p_code: code }, r => `You joined ${netEsc(r)}.`);
+  if(name){ crewClearInvite(); sndDistrictBell(); showToast('👥 CREW JOINED', netEsc(name)); }
+}
+async function crewLeave(){
+  if(!crewState || !confirm(`Leave ${crewState.crew.name}?`)) return;
+  await crewAct('leave_crew', {}, 'You left the crew.');
+  crewNear = 0;
+}
+async function crewCall(kind){
+  if(!crewState) return;
+  const d = Player && districtAt(Player.lat, Player.lng);
+  const spot = kind === 'here' && Player && gpsFirstLock;
+  await crewAct('crew_ping', { p_kind: kind, p_district: d ? d.name : null,
+    p_lat: spot ? Player.lat : null, p_lng: spot ? Player.lng : null }, `Sent: ${CREW_CALLS[kind].label}`);
+  buzz('tap');
+}
+async function crewInvite(){
+  if(!crewState) return;
+  const link = crewInviteLink(crewState.crew.code);
+  const text = `Join my crew "${crewState.crew.name}" in DARKWORLD — the city is overrun. Code ${crewState.crew.code}`;
+  try {
+    if(navigator.share){ await navigator.share({ title:'DARKWORLD', text, url: link }); return; }
+    await navigator.clipboard.writeText(`${text}\n${link}`);
+    crewMsg = 'Invite link copied. Paste it to your friends.';
+  } catch(e){ crewMsg = `Send this link: ${link}`; }
+  renderCrew();
+}
+
+function crewAgo(iso){
+  const m = Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 60000));
+  return m < 1 ? 'just now' : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
+}
+
+function renderCrew(){
+  const el = document.getElementById('crew-content'); if(!el) return;
+  const msg = crewMsg ? `<div class="crew-msg">${crewMsg}</div>` : '';
+  if(!netSession){
+    el.innerHTML = `<div class="city-sub">Crews are up to ${CREW_MAX} friends who hunt the city together: see where your crew is hunting, call them to a raid, and hit harder side by side.</div>
+      ${crewPendingInvite() ? `<div class="crew-invite">You were invited to crew <b>${netEsc(crewPendingInvite())}</b>. Sign in to join.</div>` : ''}
+      <button class="fac-btn" style="--fc:var(--gold)" onclick="closeCrew();openAccount('Sign in to join a crew.')">☁ SIGN IN TO FORM A CREW</button>`;
+    return;
+  }
+  if(!crewState){
+    const inv = crewPendingInvite();
+    el.innerHTML = `${msg}
+      <div class="city-sub">Hunt with up to ${CREW_MAX} friends. In the same square of the city you each get <b style="color:var(--gold)">+5% XP & gold</b> and <b style="color:var(--gold)">+10% raid damage</b> per crewmate (up to three).</div>
+      <div class="city-head">JOIN A CREW</div>
+      <div class="crew-row-in"><input id="crew-code-in" class="crew-in" maxlength="8" placeholder="CODE" value="${netEsc(inv)}" autocomplete="off" spellcheck="false">
+        <button class="fac-btn crew-go" style="--fc:var(--gold)" onclick="crewJoin()" ${crewBusy ? 'disabled' : ''}>JOIN</button></div>
+      <div class="city-head">OR FORM YOUR OWN</div>
+      <div class="crew-row-in"><input id="crew-name-in" class="crew-in" maxlength="24" placeholder="Crew name" autocomplete="off">
+        <button class="fac-btn crew-go" style="--fc:var(--gold)" onclick="crewCreate()" ${crewBusy ? 'disabled' : ''}>FORM</button></div>`;
+    return;
+  }
+  const c = crewState.crew;
+  const members = crewState.members.map(m => {
+    const dot = m.me ? 'me' : m.near ? 'near' : m.online ? 'on' : 'off';
+    const where = m.me ? 'you' : m.near ? 'hunting with you' : m.online ? (m.district ? `in ${netEsc(m.district)}` : 'online') : `seen ${crewAgo(m.seen)}`;
+    return `<div class="crew-mem"><span class="crew-dot ${dot}"></span><span class="crew-mn">${netEsc(m.name)}</span>
+      <span class="crew-mc">${netEsc(m.class || '')} · LV ${m.level}</span><span class="crew-mw">${where}</span></div>`;
+  }).join('');
+  const calls = Object.entries(CREW_CALLS).map(([k, v]) =>
+    `<button class="crew-call" onclick="crewCall('${k}')" ${crewBusy ? 'disabled' : ''}>${v.emoji}<span>${v.short}</span></button>`).join('');
+  const pings = crewState.pings.slice(0, 8).map(p => {
+    const v = CREW_CALLS[p.kind] || CREW_CALLS.rally;
+    return `<div class="crew-ping${p.mine ? ' mine' : ''}"><span>${v.emoji} <b>${p.mine ? 'You' : netEsc(p.name)}</b> · ${v.label}${p.district ? ` · ${netEsc(p.district)}` : ''}</span><span>${crewAgo(p.at)}</span></div>`;
+  }).join('') || '<div class="raid-empty">No calls yet. Send one — your crew sees it within half a minute.</div>';
+  const bonus = crewNear ? `<div class="crew-bonus">👥 ${crewNear} of your crew with you · +${Math.round(crewBonus()*100)}% XP & gold · +${Math.round(crewFury()*100)}% raid damage</div>` : '';
+  el.innerHTML = `${msg}
+    <div class="crew-head"><div><div class="season-num">YOUR CREW</div><div class="crew-name">${netEsc(c.name)}</div></div>
+      <div class="crew-code">CODE<b>${netEsc(c.code)}</b></div></div>
+    ${bonus}
+    <button class="fac-btn" style="--fc:var(--gold);margin-bottom:12px" onclick="crewInvite()">✉ INVITE FRIENDS (${crewState.members.length}/${CREW_MAX})</button>
+    <div class="city-head">HUNTERS</div>${members}
+    <div class="city-head">CALL YOUR CREW</div><div class="crew-calls">${calls}</div>
+    <div class="city-head">RECENT CALLS</div>${pings}
+    <div class="hunt-foot">Your crew sees your district and when you were last out — never your exact spot, unless you send "I'm here". <a href="#" onclick="event.preventDefault();crewLeave()">Leave crew</a></div>`;
+}
+
+// "I'm here" calls from crewmates show on the map for half an hour
+function drawCrewSpots(){
+  if(!crewState) return;
+  const now = Date.now(), t = now / 500;
+  const seen = new Set();
+  for(const p of crewState.pings){
+    if(p.mine || p.kind !== 'here' || p.lat == null || seen.has(p.name)) continue;
+    if(now - Date.parse(p.at) > CREW_SPOT_MS) continue;
+    seen.add(p.name);
+    const q = ll2px(p.lat, p.lng);
+    if(q.x < -40 || q.x > mapW + 40 || q.y < -40 || q.y > mapH + 40) continue;
+    const r = Math.max(10, 12 * zoom);
+    ctx.beginPath(); ctx.arc(q.x, q.y, r * (1.6 + 0.2 * Math.sin(t)), 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(80,200,140,0.18)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#0d1a14'; ctx.fill(); ctx.strokeStyle = '#50c88c'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.font = `bold ${Math.floor(r * 1.1)}px "Share Tech Mono"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#50c88c'; ctx.fillText((p.name || '?').slice(0, 1).toUpperCase(), q.x, q.y + 1);
+    ctx.font = `bold ${Math.max(9, Math.min(12, 9 * zoom))}px "Share Tech Mono"`; ctx.textBaseline = 'top';
+    ctx.fillText(`${p.name} · ${crewAgo(p.at)}`, q.x, q.y + r + 4);
+  }
+  markDirty();
+}
+
+// Arrived through an invite link: offer the crew once the tutorial is out of the way
+let _crewInviteShown = false;
+function crewMaybeInvite(){
+  if(_crewInviteShown || !NET_ON || !Player || tutStep() || inCombat || crewState || !crewPendingInvite() || seasonModalsOpen()) return;
+  _crewInviteShown = true;
+  openCrew();
+}
+crewReadInvite();
 
 // ══════════════════════════════════════════════════════
 //  FIRST HUNT — a guided first two minutes for new hunters
@@ -6870,6 +7137,9 @@ function calcDamage(ability){
   // Bestiary mastery: bonus damage against species you've hunted a lot
   if(curEnemy && !curEnemy.isRaid){ const bb=bestiaryBonus(curEnemy.name); if(bb) dmg=Math.floor(dmg*(1+bb)); }
 
+  // Crew Fury: raids hit harder with your crew beside you
+  if(curEnemy && curEnemy.isRaid && crewNear) dmg=Math.floor(dmg*(1+crewFury()));
+
   // Season finale: half damage when sieging from across the city
   if(curEnemy && curEnemy.isFinale) dmg=Math.floor(dmg*seasonSiegeMult(curEnemy));
 
@@ -7004,7 +7274,7 @@ function victory(){
   sndVictory();
   playerCombo=0;
   const xpBase = curEnemy.xp||100;
-  const home = curEnemy.isRaid ? 0 : turfBonus();
+  const home = (curEnemy.isRaid ? 0 : turfBonus()) + crewBonus();
   const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0) + home));
   const goldBase = ri(curEnemy.gold[0],curEnemy.gold[1]);
   const gold = Math.floor(goldBase * (1 + (Player.goldBonus||0) + home));
@@ -7480,6 +7750,7 @@ async function netSignOut(){
   const token = netSession && netSession.access_token;
   netCloudConflict = false; netConflictCloud = null;
   netSyncText = '';
+  crewState = null; crewNear = 0;
   netStoreSession(null);
   if(token) netRequest('/auth/v1/logout', { method:'POST', token }).catch(()=>{});
 }
@@ -7571,7 +7842,7 @@ async function netSyncSave(){
   } else {
     netSyncText = 'No hunter yet. The one you create will follow you to any device.';
   }
-  if(Player) turfSyncFaction();
+  if(Player){ turfSyncFaction(); crewTick(); }
   refreshContinueButton();
   renderAccountUI();
 }
@@ -7702,6 +7973,7 @@ function netStartRaidWatch(){
   setTimeout(netPresenceTick, 5000);
   setInterval(netPresenceTick, 60000);
   turfFetch(true); turfSyncFaction();
+  crewStart();
   setInterval(turfFlush, 60000);
   setInterval(turfFetch, 120000);
 }
@@ -8683,6 +8955,7 @@ function startGameTimers(){
   setInterval(seasonFinalePhaseTick, 500);
   setInterval(goalTick, 1500);
   setInterval(seasonMaybeOmen, 3000);
+  setInterval(crewMaybeInvite, 3000);
   setInterval(()=>{ let r=false; spawns.forEach(s=>{if(s.questMob&&s.defeated&&Math.random()<0.12){s.defeated=false;s.hp=s.maxHp;s.statuses=[];s.poisonStacks=0;r=true;}}); if(r)markDirty(); }, 60000);
 }
 
