@@ -3113,7 +3113,7 @@ const ITEMS = {
   'Soul of the Iron Ghost':  {emoji:'⚙',  type:'accessory', tier:4, def:150, hp:375,                      cost:0, desc:'The ghost\'s will made manifest in iron and silence.'},
   // ── SEASON KEEPSAKES (never sold, never dropped) ──
   'Hollow Lantern':          {emoji:'🎃', type:'accessory', tier:3, atk:60, crit:8, dodge:6, cost:0, season:true, desc:'Lit from a candle in Cherry Hill. Season 0 · The Hollow Night. +60 ATK, +8% crit, +6% dodge.'},
-  'Key of Cherry Hill':      {emoji:'🗝', type:'accessory', tier:4, atk:150, def:60, hp:200, cost:0, season:true, desc:"One key from the Warden's iron ring. Only those who fought on the Hollow Night carry one."},
+  'Key of Cherry Hill':      {emoji:'🗝', type:'accessory', tier:4, atk:150, def:60, hp:200, cost:0, season:true, desc:"One key from the Ghost's iron ring. Only those who fought on the Hollow Night carry one."},
   'Plague Sigil':            {emoji:'🕸', type:'accessory', tier:4, atk:250, crit:12, dodge:8,            cost:0, desc:'Vexara\'s mark. Death follows where you walk.'},
   "Wraith's Veil":           {emoji:'🌫', type:'accessory', tier:4, dodge:20, hp:250,                     cost:0, desc:'You are half-ghost now. Blades find only air.'},
   "Death's Ledger":          {emoji:'📖', type:'accessory', tier:4, atk:225, crit:10,                     cost:0, desc:'Every soul you claim is recorded. Interest compounds.'},
@@ -4901,9 +4901,9 @@ function renderTurf(el){
 // ══════════════════════════════════════════════════════
 const SEASONS = [{
   id:'hollow-2026', num:0, name:'The Hollow Night', short:'THE HOLLOW NIGHT', color:'#e8862e', sigil:'🎃',
-  villain:'THE WARDEN OF CHERRY HILL', villainPortrait:'iron-officer.jpg', villainEmoji:'🗝',
+  villain:'THE GHOST OF THE NORTH STAR', villainPortrait:'iron-officer.jpg', villainEmoji:'🗝',
   vanguard:'Vanguard of the Hollow Night',
-  villainLore:'The first warden of Eastern State kept every key on one iron ring. The prison closed in 1971. He never handed the ring back.',
+  villainLore:'The first warden of Eastern State kept every key on one iron ring. The prison closed in 1971. He never handed the ring back. Now he is the Ghost of the North Star.',
   omenAt:'2026-10-13T00:00:00-04:00', startAt:'2026-10-24T00:00:00-04:00',
   finaleAt:'2026-10-31T20:00:00-04:00', finaleEnd:'2026-11-01T00:00:00-04:00', endAt:'2026-11-08T00:00:00-05:00',
   tz:'-04:00', finaleLabel:'Halloween night · 8 PM to midnight',
@@ -4923,15 +4923,15 @@ const SEASONS = [{
     { date:'2026-10-29', name:'THE SEXTON', place:'Christ Church Burial Ground, Arch Street', lat:39.9522, lng:-75.1470, portrait:'gravewanderer.jpeg', emoji:'⚰', color:'#b89a60',
       lore:'He digs one grave a night beside Franklin. Tonight the hole is exactly your size. Fight him from the Arch Street fence.' },
     { date:'2026-10-30', name:'THE TURNKEY', place:'the Art Museum steps', lat:39.9653, lng:-75.1797, portrait:'hollowknight.jpeg', emoji:'🗝', color:'#d0302a',
-      lore:'He holds the last of the seven keys and has never lost a fight on these steps. Break him and the Warden walks free tomorrow night.' },
+      lore:'He holds the last of the seven keys and has never lost a fight on these steps. Break him and the Ghost walks free tomorrow night.' },
   ],
   omen:[
     { img:'philly-dark-skyline.jpg', label:'FAIRMOUNT · 1829', lines:['They built Eastern State to break men with silence.', 'Hooded when they walked. Alone when they slept.', 'The first warden kept every key on one iron ring.'] },
     { img:'hellgate-arch.jpg', label:'CHERRY HILL · TONIGHT', lines:['The prison closed in 1971.', 'The warden never left.', 'This week his seven keepers walk the city — one each night, after dark.'] },
-    { img:'iron-officer.jpg', label:'THE WARDEN OF CHERRY HILL', lines:['Break his seven locks before Halloween.', 'Then meet him at the gate on Fairmount Avenue —', 'with every hunter in Philadelphia behind you.'] },
+    { img:'iron-officer.jpg', label:'THE GHOST OF THE NORTH STAR', lines:['Break his seven locks before Halloween.', 'Then meet him at the gate on Fairmount Avenue —', 'with every hunter in Philadelphia behind you.'] },
   ],
   finaleSlides:[
-    { img:'spooky-aerial.jpg', label:'HALLOWEEN · 8 PM', lines:['The last lock is broken.', 'The Warden of Cherry Hill is out.', 'Every hunter in Philadelphia — to Eastern State.'] },
+    { img:'spooky-aerial.jpg', label:'HALLOWEEN · 8 PM', lines:['The last lock is broken.', 'The Ghost of the North Star is out.', 'Every hunter in Philadelphia — to Eastern State.'] },
   ],
 }];
 const SEASON_SIEGE_MI = 0.3;   // full damage at the finale site; half from anywhere else in the city
@@ -5037,7 +5037,7 @@ function seasonSync(){
   if(s && selectedWorld === 'philadelphia'){
     const n = tonightsLieutenant(s);
     if(n && !seasonRec(s).nights[n.date]) want.push(seasonLieutenant(s, n));
-    // online, the finale is the server's raid (supabase/season-0.sql); offline you face a solo Warden
+    // online, the finale is the server's raid (supabase/season-0.sql); offline you face a solo Ghost
     if(ph === 'finale' && !NET_ON){ const f = seasonLocalFinale(s); if(!f.defeated) want.push(f); }
   }
   const keys = new Set(want.map(b => b.seasonKey));
@@ -5105,14 +5105,14 @@ function seasonFinaleHit(dmg){
     rec.rewards.key = true;
     const got = grantItem('Key of Cherry Hill');
     grantTitle('Survivor of the Hollow Night');
-    setTimeout(() => showToast('🗝 YOU FOUGHT THE WARDEN', `${got ? 'Key of Cherry Hill · ' : ''}title: Survivor of the Hollow Night`), 400);
-    addLog('🗝 You stood against the Warden. The Key of Cherry Hill is yours, and so is the title Survivor of the Hollow Night.', 'lb');
+    setTimeout(() => showToast('🗝 YOU FOUGHT THE GHOST', `${got ? 'Key of Cherry Hill · ' : ''}title: Survivor of the Hollow Night`), 400);
+    addLog('🗝 You stood against the Ghost. The Key of Cherry Hill is yours, and so is the title Survivor of the Hollow Night.', 'lb');
   }
 }
 function seasonFinalePhaseTick(list = BOSSES || []){
   for(const b of list){
     if(!b.isFinale || b.defeated) continue;
-    // Everyone in the city should matter: the Warden hits and guards in proportion to the hunter facing him
+    // Everyone in the city should matter: the Ghost hits and guards in proportion to the hunter facing him
     b._baseAtk = Math.floor(Player.maxHp * 0.11 + Player.def * 0.5);
     b.def = Math.floor(Player.atk * 0.15);
     const frac = b.hp / b.maxHp;
@@ -5148,7 +5148,7 @@ function seasonOnVictory(mob){
     if(rec.shards >= s.nights.length && grantTitle('Keeper of the Seven Keys'))
       setTimeout(() => showToast('🗝 ALL SEVEN LOCKS', 'title: Keeper of the Seven Keys'), 6800);
   }
-  if(mob.isFinale && !mob.isRaid){ rec.rewards.warden = true; grantTitle('Breaker of the Warden'); }
+  if(mob.isFinale && !mob.isRaid){ rec.rewards.warden = true; grantTitle('Breaker of the North Star'); }
 }
 // The raid ended — everyone who fought shares the outcome
 function seasonOnRaidEnd(r, row){
@@ -5156,7 +5156,7 @@ function seasonOnRaidEnd(r, row){
   const s = currentSeason(); if(!s) return;
   const rec = seasonRec(s);
   rec.result = row && row.defeated_at ? 'won' : 'lost';
-  if(rec.result === 'won' && rec.finaleDmg > 0) grantTitle('Breaker of the Warden');
+  if(rec.result === 'won' && rec.finaleDmg > 0) grantTitle('Breaker of the North Star');
   saveGame();
 }
 
@@ -5180,7 +5180,7 @@ function drawSeasonSite(){
   ctx.setLineDash([4, 5]); ctx.strokeStyle = `rgba(232,134,46,${0.5 + 0.3 * strength})`; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
   if(zoom > 0.45){
-    const label = ph === 'finale' ? 'THE WARDEN IS OUT' : `${s.site.short} · ${fmtCountdown(seasonT(s.finaleAt) - seasonNow())}`;
+    const label = ph === 'finale' ? 'THE GHOST IS OUT' : `${s.site.short} · ${fmtCountdown(seasonT(s.finaleAt) - seasonNow())}`;
     ctx.font = `bold ${Math.max(9, Math.min(12, 9 * zoom))}px "Share Tech Mono"`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = s.color;
     ctx.fillText(`${s.sigil}️ ${label}`, p.x, p.y + R + 6);
@@ -5194,13 +5194,13 @@ function seasonLine(){
   const ph = seasonPhase(s), now = seasonNow();
   const far = (lat, lng) => gpsFirstLock ? ` · ${distMiles(Player.lat, Player.lng, lat, lng).toFixed(1)} mi` : '';
   if(ph === 'omen') return `${s.sigil} ${s.short} BEGINS IN ${fmtCountdown(seasonT(s.startAt) - now).toUpperCase()}${effortLine()}`;
-  if(ph === 'finale') return `🗝 THE WARDEN IS OUT · ${s.site.short}${far(s.site.lat, s.site.lng)}`;
+  if(ph === 'finale') return `🗝 THE GHOST IS OUT · ${s.site.short}${far(s.site.lat, s.site.lng)}`;
   if(ph === 'after') return `${s.sigil} ${s.short} IS OVER · SEE HOW THE CITY DID`;
   const n = tonightsLieutenant(s), rec = seasonRec(s);
   if(n && !rec.nights[n.date]) return `🔒 TONIGHT: ${n.name}${far(n.lat, n.lng)}`;
   const nx = nextLieutenant(s);
   if(nx) return `🔒 LOCK ${s.nights.indexOf(nx) + 1} OPENS IN ${fmtCountdown(nightWindow(s, nx)[0] - now).toUpperCase()}`;
-  return `🗝 THE WARDEN · ${fmtCountdown(seasonT(s.finaleAt) - now).toUpperCase()}`;
+  return `🗝 THE GHOST · ${fmtCountdown(seasonT(s.finaleAt) - now).toUpperCase()}`;
 }
 function nextGoal(){
   if(!Player) return null;
@@ -5289,7 +5289,7 @@ function renderSeason(){
   const status = ph === 'omen' ? `Begins in <b>${fmtCountdown(seasonT(s.startAt) - now)}</b>`
     : ph === 'nights' ? `${locksBroken(s)} of ${s.nights.length} locks broken · the finale is in <b>${fmtCountdown(seasonT(s.finaleAt) - now)}</b>`
     : ph === 'finale' ? '<b style="color:var(--crimson)">LIVE NOW</b> — every hunter in the city'
-    : rec.result === 'won' ? 'The Warden fell. Philadelphia held.' : 'The night is over.';
+    : rec.result === 'won' ? 'The Ghost fell. Philadelphia held.' : 'The night is over.';
   const locks = s.nights.map((n, i) => {
     const [a, b] = nightWindow(s, n);
     const mine = !!rec.nights[n.date], live = now >= a && now < b, past = now >= b;
@@ -5311,7 +5311,7 @@ function renderSeason(){
     </div>
     <div class="city-sub">${s.villainLore}</div>
     <div class="city-head">THE SEVEN LOCKS</div>
-    <div class="city-sub">Each night one of the Warden's keepers rises somewhere in the city, from 6 PM until dawn. Go there and break the lock.</div>
+    <div class="city-sub">Each night one of the Ghost's keepers rises somewhere in the city, from 6 PM until dawn. Go there and break the lock.</div>
     ${locks}
     ${effortHtml(s)}
     <div class="city-head">THE FINAL FIGHT</div>
@@ -5324,8 +5324,8 @@ function renderSeason(){
     ${rw(rec.shards > 0, `Hollow shards ${rec.shards} / ${s.nights.length}`, 'one per lock you break')}
     ${rw(rec.rewards.lantern, 'The Hollow Lantern', `${SEASON_LANTERN_SHARDS} shards · title Nightwalker`)}
     ${rw(rec.shards >= s.nights.length, 'Keeper of the Seven Keys', 'break all seven locks')}
-    ${rw(rec.rewards.key, 'The Key of Cherry Hill', 'strike the Warden in the finale')}
-    ${rw((Player.titles || []).includes('Breaker of the Warden'), 'Breaker of the Warden', 'be there when he falls')}
+    ${rw(rec.rewards.key, 'The Key of Cherry Hill', 'strike the Ghost in the finale')}
+    ${rw((Player.titles || []).includes('Breaker of the North Star'), 'Breaker of the North Star', 'be there when he falls')}
     <div class="hunt-foot">Season keepsakes can never be bought or earned again. <a href="#" onclick="event.preventDefault();closeSeason();playCutscene(currentSeason().omen)">Replay the omen</a></div>`;
 }
 
@@ -5337,9 +5337,9 @@ function renderSeason(){
 //  Online only. The goal lives in season_efforts so the server can act on it.
 // ══════════════════════════════════════════════════════
 const EFFORT_TIERS = [
-  { at:0.25, key:'lanterns', name:'THE LANTERNS ARE LIT', desc:'+10% damage against the Warden for every hunter' },
+  { at:0.25, key:'lanterns', name:'THE LANTERNS ARE LIT', desc:'+10% damage against the Ghost for every hunter' },
   { at:0.60, key:'bells',    name:'THE BELLS ARE RUNG',   desc:'Sieging from across the city deals 65% damage, not 50%' },
-  { at:1.00, key:'river',    name:'THE RIVER IS TURNED',  desc:'The Warden comes out with 15% less health' },
+  { at:1.00, key:'river',    name:'THE RIVER IS TURNED',  desc:'The Ghost comes out with 15% less health' },
 ];
 let effortState = null, effortFetchedAt = 0;
 
@@ -5397,7 +5397,7 @@ function effortHtml(s){
   if(!NET_ON) return '';
   const rec = seasonRec(s), pct = effortPct();
   const head = `<div class="city-head">ARM THE CITY</div>
-    <div class="city-sub">Until the finale, every point of influence any hunter earns — kills, shrines, walking — also arms the city against the Warden. Join an order to add yours.</div>`;
+    <div class="city-sub">Until the finale, every point of influence any hunter earns — kills, shrines, walking — also arms the city against the Ghost. Join an order to add yours.</div>`;
   if(!effortState) return head + '<div class="raid-empty">The war effort has not been called yet.</div>';
   const bar = `<div class="ef-bar"><div style="width:${(pct * 100).toFixed(1)}%"></div>${EFFORT_TIERS.map(t => `<i style="left:${t.at * 100}%"></i>`).join('')}</div>
     <div class="hunt-foot" style="margin:2px 0 8px">${fmt(effortState.total)} / ${fmt(effortState.goal)} · ${Math.round(pct * 100)}%</div>`;

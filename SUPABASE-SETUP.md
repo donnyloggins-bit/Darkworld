@@ -68,9 +68,9 @@ To change a boss's clues, HP floor or location, edit it in **Table Editor → ra
 
 The Hollow Night runs October 24–31. The seven nightly bosses need no setup — every phone works them out from the date. The final fight is a raid on the server:
 
-1. In the **SQL Editor**, paste `supabase/season-0.sql` and press **Run**. It schedules **THE WARDEN OF CHERRY HILL** at Eastern State Penitentiary for Halloween, 8 PM to midnight Eastern. Running it twice does nothing extra.
-2. If pg_cron is on (step 5), the Warden's health is sized to the crowd at 7:55 PM that night (120K HP per hunter active that week, at least 400K). Without pg_cron he keeps 400K. To size him by hand, run `select public.size_season_finale('hollow-2026');` before 8 PM.
-3. The same file opens **Arm the City**, the war effort that runs from now until the Warden comes out: every point of turf influence also fills a city-wide bar with a goal of 250K. Re-run `schema.sql` first (it adds the `season_efforts` and `war_effort` tables). If the city reaches the goal, the Warden is sized 15% smaller. To change the goal: `update public.season_efforts set goal = 150000 where season = 'hollow-2026';`. To see progress: `select * from public.war_effort;`.
+1. In the **SQL Editor**, paste `supabase/season-0.sql` and press **Run**. It schedules **THE GHOST OF THE NORTH STAR** at Eastern State Penitentiary for Halloween, 8 PM to midnight Eastern. Running it twice does nothing extra.
+2. If pg_cron is on (step 5), the Ghost's health is sized to the crowd at 7:55 PM that night (120K HP per hunter active that week, at least 400K). Without pg_cron he keeps 400K. To size him by hand, run `select public.size_season_finale('hollow-2026');` before 8 PM.
+3. The same file opens **Arm the City**, the war effort that runs from now until the Ghost comes out: every point of turf influence also fills a city-wide bar with a goal of 250K. Re-run `schema.sql` first (it adds the `season_efforts` and `war_effort` tables). If the city reaches the goal, the Ghost is sized 15% smaller. To change the goal: `update public.season_efforts set goal = 150000 where season = 'hollow-2026';`. To see progress: `select * from public.war_effort;`.
 
 ## 6. Start a one-off raid (optional)
 
