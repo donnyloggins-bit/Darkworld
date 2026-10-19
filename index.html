@@ -751,6 +751,7 @@ body::before {
   z-index:4; letter-spacing:.2em; white-space:nowrap;
 }
 /* #ar-btn handled by #map-nav */
+#ar-btn.ar-new { color:var(--gold); animation:coachPulse 1.1s ease-in-out infinite; }
 
 /* GPS */
 #gps-hud {
@@ -5205,6 +5206,7 @@ function nextGoal(){
   if(!Player) return null;
   const d = Player.daily;
   const b = d && d.bounties && d.bounties.find(x => !x.done);
+  if(!arSeen()) return { text:'👁 Tap here for AR — see the monsters standing on your street', act:() => startAR() };
   if(b) return { text:`📜 ${b.label} · ${b.type === 'walk' ? b.progress.toFixed(2) : Math.floor(b.progress)}/${b.goal}`, act:() => openHunt('bounties') };
   const rg = relicGoal(); if(rg) return rg;
   if(selectedWorld === 'philadelphia'){
@@ -5222,6 +5224,7 @@ function nextGoal(){
 }
 function goalTick(){
   const el = document.getElementById('goal-hud'); if(!el || !Player) return;
+  arNudgeSync();
   if(tutStep()){ el.style.display = 'none'; return; }
   const sl = bloodMoonLine() || seasonLine(), g = nextGoal();
   el.style.display = (sl || g) ? 'block' : 'none';
@@ -6399,6 +6402,9 @@ function delveAt(cx, cy){
 //  (hold up → turn → fight → camera/filter/map). Per device, replayable with ❔.
 // ══════════════════════════════════════════════════════
 const AR_TUT_KEY = 'darkworld_artut_v1';
+const AR_SEEN_KEY = 'darkworld_ar_seen_v1';
+function arSeen(){ try { return !!localStorage.getItem(AR_SEEN_KEY) || localStorage.getItem(AR_TUT_KEY) === 'done'; } catch(e){ return true; } }
+function arNudgeSync(){ const b = document.getElementById('ar-btn'); if(b) b.classList.toggle('ar-new', !arSeen()); }
 let arTutStep = 0, arTutTimer = null;
 function arTutMaybe(){
   let seen = false; try { seen = localStorage.getItem(AR_TUT_KEY) === 'done'; } catch(e){}
@@ -6652,7 +6658,14 @@ function tutOnHuntOpen(){
 function tutOnHuntClosed(){
   if(tutStep() !== 'walk') return;
   coach('The city is yours. <b>Walk</b> — new monsters rise every block, shrines burn on every corner, and every neighborhood you enter is yours to claim.',
-    { button:'BEGIN THE HUNT', onButton: tutFinish });
+    { button:'NEXT', onButton: tutShowAR });
+}
+function tutShowAR(){
+  if(tutStep() !== 'walk') return;
+  coachGlow('#ar-btn');
+  const b = document.getElementById('ar-btn'); if(b && b.scrollIntoView) b.scrollIntoView({ block:'nearest', inline:'center' });
+  coach('One more thing. Tap <b>👁 AR VIEW</b> and hold up your phone: the camera shows the monsters <b>standing on your street</b>, in their real direction.',
+    { button:'OPEN AR', onButton:() => { tutFinish(); startAR(); }, skip:'tutFinish()', skipLabel:'later' });
 }
 
 function tutFinish(){
@@ -7324,6 +7337,9 @@ function arSizeCanvas(){
 
 async function startAR(){
   if(!Player)return;
+  if(tutStep() === 'walk') tutFinish();
+  try { localStorage.setItem(AR_SEEN_KEY, '1'); } catch(e){}
+  arNudgeSync();
   // iOS compass permission
   if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
     try{ await DeviceOrientationEvent.requestPermission(); }
