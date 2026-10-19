@@ -7092,10 +7092,7 @@ function handleClick(cx,cy){
     if(qs&&qs.status==='complete')continue;
     const p=ll2px(npc.lat,npc.lng);
     if(Math.hypot(cx-p.x,cy-p.y)<Math.max(14,14*zoom)){
-      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,npc.lat,npc.lng)>ENGAGE_MILES){
-        addLog(`⚠ Move closer to speak with ${npc.name}.`,'ls'); return;
-      }
-      openNPCDialogue(npc); return;
+      openNPCDialogue(npc); return; // quest givers can be reached from anywhere
     }
   }
   // Quest markers (no NPC)
@@ -7719,6 +7716,8 @@ function startGPS(){
         Player.lat=lat; Player.lng=lng; // snap exactly on first lock
         updateZone();
         genSpawns();
+        // quest monsters placed before GPS knew where you were: bring them to you
+        QUESTS.forEach(q=>questBringClose(spawns.filter(m=>m.questMob&&m.questId===q.id&&!m.defeated)));
         centerOnPlayer();
         addLog('⬤ GPS locked. Darkness finds you wherever you roam.','lb');
       }
@@ -9719,8 +9718,35 @@ function openQuestMarkerDialogue(q){
   }
 }
 
+// Take a quest from the quest log, wherever you are
+function questTake(id){
+  const q = QUESTS.find(x=>x.id===id); if(!q) return;
+  closeQuestLog();
+  const npc = q.npcId && NPCS.find(n=>n.id===q.npcId);
+  if(npc) openNPCDialogue(npc); else openQuestMarkerDialogue(q);
+}
+// Quest monsters normally rise at the quest's landmark. A hunter more than
+// QUEST_NEAR_MI away gets them near where they stand instead.
+const QUEST_NEAR_MI = 0.75;
+function questBringClose(fresh){
+  if(!gpsFirstLock || !Player || !fresh.length) return;
+  const cLat = fresh.reduce((a,m)=>a+m.lat,0)/fresh.length, cLng = fresh.reduce((a,m)=>a+m.lng,0)/fresh.length;
+  if(distMiles(Player.lat, Player.lng, cLat, cLng) <= QUEST_NEAR_MI) return;
+  // keep the shape, but shrink it so every monster is within a short walk (~0.05–0.15 mi)
+  const k = 0.35;
+  fresh.forEach(m=>{ m.lat = Player.lat + (m.lat - cLat) * k + 0.0012; m.lng = Player.lng + (m.lng - cLng) * k; });
+}
+
 // ── Quest mob spawning ────────────────────────────────
 function spawnQuestMobs(q){
+  const _qFrom = spawns.length;
+  spawnQuestMobsAt(q);
+  const fresh = spawns.slice(_qFrom).filter(m=>m.questMob);
+  fresh.forEach(m=>m.questId=q.id);
+  questBringClose(fresh);
+  markDirty();
+}
+function spawnQuestMobsAt(q){
   function spawnNear(mobName, count, baseLat, baseLng, spread=0.04){
     const mob = MOB_TYPES.find(m=>m.name===mobName);
     if(!mob) return;
@@ -9902,6 +9928,7 @@ function buildQuestLog(){
       </div>
       <div style="border-top:1px solid #2a1a3a;padding-top:8px;margin-bottom:8px;">${stages}</div>
       <div style="font-size:.75rem;color:#6a5a80;font-family:'Share Tech Mono',monospace;">⚔ ${q.rewardDesc}</div>
+      ${qs.status==='available' ? `<button class="fac-btn" style="--fc:var(--gold);margin-top:10px" onclick="questTake('${q.id}')">📜 TAKE THIS QUEST</button>` : ''}
     </div>`;
   }).join('');
 }
