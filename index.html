@@ -701,6 +701,8 @@ body::before {
 #ar-snap-btn { position:absolute; right:14px; bottom:calc(52px + var(--sab)); z-index:5; width:56px; height:56px; border-radius:50%;
   background:rgba(13,10,20,0.88); border:2px solid #d4a017; font-size:1.5rem; cursor:pointer; box-shadow:0 0 14px rgba(212,160,23,.35); }
 #ar-snap-btn:active { transform:scale(.92); }
+#ar-help-btn { position:absolute; right:22px; bottom:calc(120px + var(--sab)); z-index:5; width:40px; height:40px; border-radius:50%;
+  background:rgba(13,10,20,0.85); border:1px solid #4a3a60; font-size:1rem; cursor:pointer; }
 #snap-flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:60; }
 #snap-flash.go { animation:snapflash .45s ease-out; }
 @keyframes snapflash { 0% { opacity:.85; } 100% { opacity:0; } }
@@ -2490,6 +2492,7 @@ body:not(.net-on) .net-only { display:none !important; }
   <div id="ar-compass"><span id="ar-heading-txt">--- °</span></div>
   <button id="ar-filter-btn" onclick="cycleARFilter()">👁 HELLVIEW</button>
   <button id="ar-snap-btn" onclick="arSnapshot()" aria-label="Take a photo">📸</button>
+  <button id="ar-help-btn" onclick="arTutShow(1)" aria-label="How AR works">❔</button>
   <div id="snap-flash"></div>
   <div id="snap-modal">
     <img id="snap-img" alt="Your Darkworld photo">
@@ -6392,6 +6395,45 @@ function delveAt(cx, cy){
 }
 
 // ══════════════════════════════════════════════════════
+//  AR TUTORIAL — four coach cards the first time a hunter opens AR
+//  (hold up → turn → fight → camera/filter/map). Per device, replayable with ❔.
+// ══════════════════════════════════════════════════════
+const AR_TUT_KEY = 'darkworld_artut_v1';
+let arTutStep = 0, arTutTimer = null;
+function arTutMaybe(){
+  let seen = false; try { seen = localStorage.getItem(AR_TUT_KEY) === 'done'; } catch(e){}
+  if(!seen && !tutStep()) setTimeout(() => arTutShow(1), 700);
+}
+function arTutShow(n){
+  if(!document.getElementById('screen-ar').classList.contains('active')) return;
+  arTutStep = n; clearInterval(arTutTimer); arTutTimer = null; coachGlow(null);
+  const skip = { skip:'arTutEnd()', skipLabel:'skip' };
+  if(n === 1){
+    coach('📱 <b>Hold your phone up</b>, like you\'re taking a photo.<br>The Dark World is laid over your street: every monster stands where it is on the map, in its real direction.',
+      { button:'NEXT', onButton:() => arTutShow(2), ...skip });
+  } else if(n === 2){
+    coach('↻ <b>Turn slowly</b> on the spot.<br>The <b>red arrows</b> at the edges of the screen point to monsters you can\'t see yet. Turn toward them.',
+      { button:'NEXT', onButton:() => arTutShow(3), ...skip });
+    // move on by itself once a monster comes into view
+    arTutTimer = setInterval(() => { if(arTutStep === 2 && arVisibleEnemies.length) arTutShow(3); }, 500);
+  } else if(n === 3){
+    const v = arVisibleEnemies[0];
+    coach(v ? `👁 There — <b>${v.entity.name}</b>.<br>Walk until you're within about 500 ft, then tap <b>FIGHT</b> under it. Bigger means closer.`
+            : '👁 Nothing in view right now.<br>When a monster appears, walk until you\'re within about 500 ft and tap <b>FIGHT</b> under it. New ones rise every 15 minutes.',
+      { button:'NEXT', onButton:() => arTutShow(4), ...skip });
+  } else {
+    coachGlow('#ar-snap-btn');
+    coach('📸 takes a <b>photo</b> of the monster to share.<br>👁 changes how the Dark World <b>looks</b>. <b>◀ MAP</b> takes you back. ❔ shows this again.',
+      { button:'GOT IT', onButton:arTutEnd, skip:'arTutEnd()', skipLabel:'' });
+  }
+}
+function arTutEnd(){
+  arTutStep = 0; clearInterval(arTutTimer); arTutTimer = null;
+  coachGlow(null); coachHide();
+  try { localStorage.setItem(AR_TUT_KEY, 'done'); } catch(e){}
+}
+
+// ══════════════════════════════════════════════════════
 //  AR SNAPSHOT — 📸 in AR makes a share card: the camera (with the current
 //  filter), the monsters in frame, and a Darkworld frame with who, where, when.
 //  Shared as an image file when the phone allows it, otherwise saved.
@@ -6483,11 +6525,11 @@ const DARK_NAMES = ['Ash Mercer','Vesper Kane','Silas Thorne','Mara Holloway','G
 
 function tutStep(){ return Player && Player.tutorial && Player.tutorial !== 'done' ? Player.tutorial : null; }
 
-function coach(html, { button=null, onButton=null } = {}){
+function coach(html, { button=null, onButton=null, skip='tutSkip()', skipLabel='skip tutorial' } = {}){
   const el = document.getElementById('coach');
   el.innerHTML = `<div class="coach-text">${html}</div>
     <div class="coach-row">${button ? `<button class="coach-btn" id="coach-btn">${button}</button>` : '<span></span>'}
-    <button class="coach-skip" onclick="tutSkip()">skip tutorial</button></div>`;
+    <button class="coach-skip" onclick="${skip}">${skipLabel}</button></div>`;
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   if(button) document.getElementById('coach-btn').onclick = onButton;
 }
@@ -7363,6 +7405,7 @@ async function startAR(){
   arFilterIdx = getTimeOfDayFilterIdx();
   applyARFilter();
   renderAR();
+  arTutMaybe();
 }
 
 function arQuestTap(){
@@ -7375,6 +7418,7 @@ function arQuestTap(){
 }
 
 function stopAR(){
+  if(arTutStep){ arTutStep = 0; clearInterval(arTutTimer); arTutTimer = null; coachGlow(null); coachHide(); }
   if(arAnimId){cancelAnimationFrame(arAnimId);arAnimId=null;}
   if(arStream){arStream.getTracks().forEach(t=>t.stop());arStream=null;}
   if(arOrientHandler){
