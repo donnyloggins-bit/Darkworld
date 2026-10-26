@@ -1183,6 +1183,8 @@ body::before {
 #motion-row { grid-column:1 / -1; display:flex; gap:6px; }
 #motion-row button { background:rgba(13,10,20,.9); border:1px solid #4a3a60; color:#b8a8d0; font-family:'Share Tech Mono',monospace; font-size:.7rem; letter-spacing:.06em; padding:7px 6px; cursor:pointer; }
 #motion-btn { flex:1; text-align:left; }
+#mo-pad { width:34px; flex:0 0 34px; border:1px solid #4a3a60; border-radius:50%; position:relative; background:rgba(13,10,20,.9); }
+#mo-dot { position:absolute; left:50%; top:50%; width:8px; height:8px; margin:-4px 0 0 -4px; border-radius:50%; background:var(--gold); box-shadow:0 0 6px var(--gold); }
 
 .abtn:disabled:not(.on-cooldown) { opacity:.4; cursor:not-allowed; }
 
@@ -6418,32 +6420,46 @@ function delveAt(cx, cy){
 //  Taps keep working; 🤚 in the fight turns motion off.
 // ══════════════════════════════════════════════════════
 const MOTION_PREF_KEY = 'darkworld_motion_v1';
-const MOTION_TH = 150;        // deg/s at sensitivity 1 — a quick little flick, not a swing
-const MOTION_REARM = 55;      // the phone counts as settled below this
+const MOTION_TH = 110;        // deg/s at sensitivity 1 — a quick little flick, not a swing
+const MOTION_REARM = 45;      // the phone counts as settled below this
 const MOTION_REARM_MS = 90;   // ...for this long
 const MOTION_DOMINANCE = 1.5; // the winning axis must beat the others by this much
 const MOTION_DIRS = ['L','R','F','B'];
 const MOTION_ARROWS = { L:'←', R:'→', F:'↑', B:'↓' };
 let motionPref = { on:true, sens:1, map:null };
 try { motionPref = { ...motionPref, ...(JSON.parse(localStorage.getItem(MOTION_PREF_KEY) || 'null') || {}) }; } catch(e){}
-let _mo = { seen:false, armed:true, quietSince:0, lastFire:0, calib:null, savedAttack:0 };
+let _mo = { seen:false, armed:true, quietSince:0, lastFire:0, calib:null, savedAttack:0,
+  touch: ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0,
+  tilt:{ n:null, armed:false, b:0, g:0 } };
+// Tilt: lean the phone past MOTION_TILT_DEG from where you held it when the fight began.
+// Comes back within MOTION_TILT_REARM of that center to re-arm; the center follows you slowly.
+const MOTION_TILT_DEG = 16, MOTION_TILT_REARM = 7;
 
 function motionSave(){ try { localStorage.setItem(MOTION_PREF_KEY, JSON.stringify(motionPref)); } catch(e){} }
 function motionActive(){ return motionPref.on && _mo.seen && inCombat && document.getElementById('combat-modal').classList.contains('active'); }
 // Default guess until calibrated: twist counterclockwise = left, tip the top away = forward
-function motionMap(){ return motionPref.map || { l:['alpha', 1], f:['beta', -1] }; }
+function motionMap(){ return motionPref.map || { l:['gamma', -1], f:['beta', -1] }; }
 function motionDirOf(axis, sign){
   const m = motionMap();
   if(axis === m.l[0]) return sign === m.l[1] ? 'L' : 'R';
   if(axis === m.f[0]) return sign === m.f[1] ? 'F' : 'B';
   return null;
 }
-function motionRequestPermission(){
+function motionRequestPermission(force){
+  const asks = [];
   try {
-    if(typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function' && !_mo.asked){
-      _mo.asked = true; DeviceMotionEvent.requestPermission().catch(() => {});
-    }
+    if((force || !_mo.asked) && typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function')
+      asks.push(DeviceMotionEvent.requestPermission());
+    if((force || !_mo.asked) && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function')
+      asks.push(DeviceOrientationEvent.requestPermission());
   } catch(e){}
+  _mo.asked = true;
+  return Promise.all(asks.map(p => p.catch(() => 'denied')));
+}
+function motionSeen(){
+  if(_mo.seen) return;
+  _mo.seen = true;
+  if(inCombat){ motionDecorate(); if(motionPref.on && !motionPref.map && !tutStep() && !_mo.calib) motionCalibrate(); }
 }
 function motionDominant(r){
   const v = [['alpha', r.alpha || 0], ['beta', r.beta || 0], ['gamma', r.gamma || 0]].sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
@@ -6451,7 +6467,7 @@ function motionDominant(r){
 }
 function motionHandler(e){
   const r = e.rotationRate; if(!r || (r.alpha == null && r.beta == null && r.gamma == null)) return;
-  if(!_mo.seen){ _mo.seen = true; if(inCombat) motionDecorate(); }
+  motionSeen();
   if(!inCombat) return;
   const now = performance.now(), d = motionDominant(r);
   const th = MOTION_TH / Math.max(0.4, motionPref.sens || 1);
@@ -6464,9 +6480,43 @@ function motionHandler(e){
   const dir = motionDirOf(d.axis, Math.sign(d.val));
   motionLean(_mo.armed && d.mag > th * 0.45 ? dir : null);
   if(!_mo.armed || d.mag < th || d.mag < d.second * MOTION_DOMINANCE || !dir) return;
-  if(now - _mo.lastFire < 220) return;
-  _mo.armed = false; _mo.quietSince = 0; _mo.lastFire = now;
+  if(now - _mo.lastFire < 300) return;
+  _mo.armed = false; _mo.quietSince = 0; _mo.lastFire = now; _mo.tilt.armed = false;
   motionFire(dir);
+}
+// Tilt path (deviceorientation): slow, slight leans work too
+function motionTiltHandler(e){
+  if(e.beta == null || e.gamma == null) return;
+  motionSeen();
+  if(!inCombat) return;
+  const T = _mo.tilt, now = performance.now();
+  if(!T.n){ T.n = { b:e.beta, g:e.gamma }; T.armed = true; }
+  const db = e.beta - T.n.b, dg = e.gamma - T.n.g;
+  T.b = db; T.g = dg; motionDot(dg, db);
+  const mag = Math.max(Math.abs(db), Math.abs(dg));
+  if(mag < MOTION_TILT_REARM){
+    T.armed = true;
+    T.n.b += (e.beta - T.n.b) * 0.05; T.n.g += (e.gamma - T.n.g) * 0.05; // follow posture changes
+    if(!_mo.calib) motionLean(null);
+    return;
+  }
+  if(_mo.calib){ motionCalibTilt(db, dg); return; }
+  if(!motionActive()) return;
+  const deg = MOTION_TILT_DEG / Math.max(0.4, motionPref.sens || 1);
+  const horiz = Math.abs(dg) >= Math.abs(db);
+  const dir = horiz ? (dg < 0 ? 'L' : 'R') : (db < 0 ? 'F' : 'B');
+  motionLean(T.armed && mag > deg * 0.5 ? dir : null);
+  if(!T.armed || mag < deg || Math.min(Math.abs(db), Math.abs(dg)) * 1.4 > mag) return;
+  if(now - _mo.lastFire < 400) return;
+  T.armed = false; _mo.lastFire = now; _mo.armed = false;
+  motionFire(dir);
+}
+let _moDotAt = 0;
+function motionDot(dx, dy){
+  const now = performance.now(); if(now - _moDotAt < 50) return; _moDotAt = now;
+  const d = document.getElementById('mo-dot'); if(!d) return;
+  const k = 11 / MOTION_TILT_DEG;
+  d.style.transform = `translate(${Math.max(-13, Math.min(13, dx * k))}px, ${Math.max(-13, Math.min(13, dy * k))}px)`;
 }
 function motionFire(dir){
   const i = MOTION_DIRS.indexOf(dir), a = Player.cls.abilities[i]; if(!a) return;
@@ -6494,18 +6544,34 @@ function motionDecorate(){
     tag.style.display = _mo.seen && motionPref.on ? '' : 'none';
   });
   let row = document.getElementById('motion-row');
-  if(!_mo.seen){ if(row) row.remove(); return; }
+  if(!_mo.seen && !_mo.touch){ if(row) row.remove(); return; }
   if(!row){
     row = document.createElement('div'); row.id = 'motion-row';
-    row.innerHTML = `<button id="motion-btn" onclick="motionToggle()"></button><button id="motion-tune" onclick="motionCalibrate()">⟲ TUNE</button>`;
+    row.innerHTML = `<span id="mo-pad"><i id="mo-dot"></i></span><button id="motion-btn" onclick="motionToggle()"></button><button id="motion-tune" onclick="motionCalibrate()">⟲ TUNE</button>`;
     grid.appendChild(row);
   }
-  document.getElementById('motion-btn').textContent = motionPref.on ? '🤚 MOTION ON · flick ← → · tip ↑ · pull ↓' : '🤚 MOTION OFF · tap to fight with flicks';
+  document.getElementById('motion-btn').textContent =
+    !_mo.seen ? '🤚 TAP TO TURN ON MOTION CONTROLS'
+    : motionPref.on ? '🤚 MOTION ON · lean or flick ← → ↑ ↓' : '🤚 MOTION OFF · tap to fight with motion';
+  document.getElementById('motion-tune').style.display = _mo.seen ? '' : 'none';
+  document.getElementById('mo-pad').style.display = _mo.seen && motionPref.on ? '' : 'none';
 }
-function motionToggle(){ motionPref.on = !motionPref.on; motionSave(); motionRequestPermission(); motionDecorate(); buzz('tap'); }
+function motionToggle(){
+  if(!_mo.seen){ // nothing from the sensors yet: ask (iPhone needs this tap), then wait for readings
+    motionPref.on = true; motionSave();
+    motionRequestPermission(true).then(res => {
+      setTimeout(() => { if(!_mo.seen && inCombat){
+        setCLog(res.includes('denied') ? 'Motion is blocked. Allow "Motion & Orientation" for this site in your browser settings, then try again.' : 'This phone isn\'t sending motion readings. Taps still work.');
+      } }, 1500);
+    });
+    buzz('tap'); return;
+  }
+  motionPref.on = !motionPref.on; motionSave(); motionDecorate(); buzz('tap');
+}
 function motionOnCombatStart(){
   motionRequestPermission();
   _mo.armed = false; _mo.quietSince = 0; _mo.lean = null;
+  _mo.tilt.n = null; _mo.tilt.armed = false; // the center is wherever you hold the phone now
   motionDecorate();
   if(_mo.seen && motionPref.on && !motionPref.map && !tutStep()) setTimeout(() => { if(inCombat && !motionPref.map) motionCalibrate(); }, 600);
 }
@@ -6515,32 +6581,48 @@ function motionCalibrate(){
   motionRequestPermission();
   if(curEnemy){ _mo.savedAttack = curEnemy.nextAttackAt; curEnemy.nextAttackAt = Date.now() + 600000; } // the monster waits
   _mo.calib = { step:'l' };
-  coach('🤚 <b>Fight with flicks.</b> A small, quick twist of the wrist is enough.<br>Flick your phone to the <b>LEFT</b>, like a quick slash.',
+  _mo.tilt.n = null;
+  coach('🤚 <b>Fight with motion.</b> A slight lean or a quick little flick is enough.<br>Lean or flick your phone to the <b>LEFT</b>, then back to center.',
     { skip:'motionCalibEnd(false)', skipLabel:'use taps' });
 }
 function motionCalibStep(d, th){
-  const c = _mo.calib;
   if(!_mo.armed || d.mag < th * 0.8 || d.mag < d.second * MOTION_DOMINANCE) return;
-  _mo.armed = false; _mo.quietSince = 0;
+  _mo.armed = false; _mo.quietSince = 0; _mo.tilt.armed = false;
+  motionCalibCapture(d.axis, Math.sign(d.val));
+}
+// A slow lean during tuning counts too: leaning left/right turns the phone about its long
+// axis (rotationRate.gamma), tipping away about its short axis (rotationRate.beta)
+function motionCalibTilt(db, dg){
+  const T = _mo.tilt, deg = MOTION_TILT_DEG * 0.8, mag = Math.max(Math.abs(db), Math.abs(dg));
+  if(!T.armed || mag < deg || Math.min(Math.abs(db), Math.abs(dg)) * 1.4 > mag) return;
+  T.armed = false; _mo.armed = false;
+  if(Math.abs(dg) >= Math.abs(db)) motionCalibCapture('gamma', Math.sign(dg)); else motionCalibCapture('beta', Math.sign(db));
+}
+function motionCalibCapture(axis, sign){
+  const c = _mo.calib; if(!c) return;
+  const now = performance.now(); if(now - (c.at || 0) < 700) return; // ignore coming back to center
+  c.at = now;
+  const d = { axis, val:sign };
   if(c.step === 'l'){
     c.l = [d.axis, Math.sign(d.val)]; c.step = 'f'; buzz('tap');
-    coach('Good. Now <b>tip the top of the phone AWAY</b> from you — a quick little push, like casting a spell.', { skip:'motionCalibEnd(false)', skipLabel:'use taps' });
+    coach('Good. Now <b>tip the top of the phone AWAY</b> from you — a slight push, like casting a spell — then back.', { skip:'motionCalibEnd(false)', skipLabel:'use taps' });
   } else if(c.step === 'f'){
     if(d.axis === c.l[0]){ coach('That felt like the same move. <b>Tip the top AWAY</b> from you instead — forward, not sideways.', { skip:'motionCalibEnd(false)', skipLabel:'use taps' }); return; }
     motionPref.map = { l:c.l, f:[d.axis, Math.sign(d.val)] }; motionPref.on = true; motionSave();
     buzz('heavy');
-    coach('<b>Ready.</b> ← left and → right for your first two attacks, ↑ tip away for the third, ↓ pull back for your signature. Timing still counts: flick as the bar fills red to <b>RIPOSTE</b>.',
+    coach('<b>Ready.</b> Lean or flick ← left and → right for your first two attacks, ↑ tip away for the third, ↓ pull back for your signature. Come back to center between moves. Timing still counts: strike as the bar fills red to <b>RIPOSTE</b>.',
       { button:'FIGHT', onButton:() => motionCalibEnd(true), skip:'motionCalibEnd(true)', skipLabel:'' });
     _mo.calib.step = 'done';
   }
 }
 function motionCalibEnd(ok){
-  if(!ok){ motionPref.on = false; motionPref.map = motionPref.map || { l:['alpha', 1], f:['beta', -1] }; motionSave(); }
+  if(!ok){ motionPref.on = false; motionPref.map = motionPref.map || { l:['gamma', -1], f:['beta', -1] }; motionSave(); }
   _mo.calib = null; coachHide();
   if(inCombat && curEnemy) curEnemy.nextAttackAt = Date.now() + 2500;
   motionDecorate();
 }
 window.addEventListener('devicemotion', motionHandler);
+window.addEventListener('deviceorientation', motionTiltHandler);
 
 // ══════════════════════════════════════════════════════
 //  AR TUTORIAL — four coach cards the first time a hunter opens AR
