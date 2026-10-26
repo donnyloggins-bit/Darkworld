@@ -115,6 +115,9 @@ A WoW-style legendary chase (`Player.relic.step`: 1 shards → 2 bells → 3 Bel
 ### Call to arms and crew gifts
 `raid_rsvp(boss, going)` / `raid_rsvp_state(boss)` give an "I'm going" head-count for the live or upcoming raid (`raidRsvp`, fetched in `netPollRaid`, button from `raidRsvpHtml()`). Nobody can see who signed up. Crew votives: `crew_send_gift(mid)` once a day per crewmate (Eastern date). Crewmates are addressed by `crew_mid()`, an opaque per-crew id, never a user id. `crew_open_gifts()` opens up to 20 a day; the client rolls the reward (`crewOpenGifts`). Never put player-typed names inside inline `onclick` strings: pass ids via `data-*` attributes.
 
+### Juice (Gilded, killing blow, loot rarity, clip mode)
+**Gilded** monsters are the "shiny": `buildLivingMob` marks a non-elite, non-blood spawn gilded when `eliteRoll > 1 - GILDED_CHANCE` (~1 in 70; the same draw, so every hunter sees the same one). ×1.6 HP, ×5 XP and gold, a guaranteed item one tier up, a gold aura on the map and AR. `gildedTick()` (every 4 s) toasts the first sighting within `GILDED_ALERT_MI`, and `nextGoal()` points at the nearest one with a compass word. `gildedOnKill` records `Player.gilded[species]` (saved), a bell shard, and the title Goldseeker at `GILDED_TITLE_AT` kinds. Every win runs `killingBlowFx` (shake, flash, SLAIN). Loot uses WoW colors (`RARITY`: common, uncommon green, rare blue, legendary orange, relic gold) and rare-or-better drops get `lootBeam`. In AR, 🎬 (`toggleClipMode`) hides every button, label, toast and coach card and the FIGHT buttons (`arCleanFrame`) for recording; leaving AR ends it.
+
 ### Toasts
 While a menu is open the toast moves to the bottom (`#toast.low`) so it never covers the menu's title. `showToast()` queues a toast that arrives while another has been up for less than `TOAST_MIN_MS`, so simultaneous announcements are all seen. `_toastLog` keeps the last 30 requested toasts; tests read it instead of `#toast`.
 

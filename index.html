@@ -701,6 +701,28 @@ body::before {
 #ar-snap-btn { position:absolute; right:14px; bottom:calc(52px + var(--sab)); z-index:5; width:56px; height:56px; border-radius:50%;
   background:rgba(13,10,20,0.88); border:2px solid #d4a017; font-size:1.5rem; cursor:pointer; box-shadow:0 0 14px rgba(212,160,23,.35); }
 #ar-snap-btn:active { transform:scale(.92); }
+/* juice: killing blow, loot beam, clip mode */
+#combat-modal.kb-shake { animation:kbShake .42s cubic-bezier(.36,.07,.19,.97); }
+@keyframes kbShake { 10%,90% { transform:translate(-2px,1px); } 20%,80% { transform:translate(4px,-2px); } 30%,50%,70% { transform:translate(-7px,3px); } 40%,60% { transform:translate(7px,-3px); } }
+#loot-beam { position:fixed; inset:0; z-index:420; pointer-events:none; display:none; align-items:center; justify-content:center; }
+#loot-beam.show { display:flex; animation:lbFade 2.4s ease-out forwards; }
+@keyframes lbFade { 0% { opacity:0; } 8% { opacity:1; } 80% { opacity:1; } 100% { opacity:0; } }
+#loot-beam .lb-ray { position:absolute; left:50%; top:-10%; width:120px; height:120%; margin-left:-60px;
+  background:linear-gradient(90deg, transparent, var(--rc), transparent); opacity:.45; filter:blur(6px); animation:lbRay 2.4s ease-out; }
+@keyframes lbRay { 0% { transform:scaleX(.1); } 20% { transform:scaleX(1.4); } 100% { transform:scaleX(1); } }
+#loot-beam .lb-card { position:relative; text-align:center; padding:16px 22px; background:rgba(8,5,14,.88); border:2px solid var(--rc);
+  box-shadow:0 0 40px var(--rc); animation:lbPop .5s cubic-bezier(.2,1.5,.4,1); }
+@keyframes lbPop { 0% { transform:scale(.4); } 100% { transform:scale(1); } }
+#loot-beam .lb-tag { font-family:'Share Tech Mono',monospace; letter-spacing:.3em; font-size:.75rem; color:var(--rc); }
+#loot-beam .lb-emoji { font-size:3rem; margin:6px 0; }
+#loot-beam .lb-name { font-family:'Metal Mania',cursive; font-size:1.4rem; color:var(--rc); text-shadow:0 0 14px var(--rc); }
+#ar-clip-btn { position:absolute; right:22px; bottom:calc(170px + var(--sab)); z-index:6; width:40px; height:40px; border-radius:50%;
+  background:rgba(13,10,20,0.85); border:1px solid #4a3a60; font-size:1rem; cursor:pointer; }
+#screen-ar.clip #ar-back, #screen-ar.clip #ar-status, #screen-ar.clip #ar-compass, #screen-ar.clip #ar-filter-btn,
+#screen-ar.clip #ar-snap-btn, #screen-ar.clip #ar-help-btn, #screen-ar.clip #ar-quest-btn { display:none !important; }
+body.ar-clip #toast, body.ar-clip #coach, body.ar-clip #loot-beam { display:none !important; }
+#screen-ar.clip #ar-clip-btn { opacity:.25; top:calc(10px + var(--sat)); bottom:auto; right:10px; }
+
 #ar-help-btn { position:absolute; right:22px; bottom:calc(120px + var(--sab)); z-index:5; width:40px; height:40px; border-radius:50%;
   background:rgba(13,10,20,0.85); border:1px solid #4a3a60; font-size:1rem; cursor:pointer; }
 #snap-flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:60; }
@@ -2285,6 +2307,7 @@ body:not(.net-on) .net-only { display:none !important; }
 </div>
 
 <!-- ══ DEATH ══ -->
+<div id="loot-beam"></div>
 <div id="death-screen">
   <h2>YOU HAVE FALLEN</h2>
   <p>The darkness claims another soul to the eternal void...</p>
@@ -2510,6 +2533,7 @@ body:not(.net-on) .net-only { display:none !important; }
   <button id="ar-filter-btn" onclick="cycleARFilter()">👁 HELLVIEW</button>
   <button id="ar-snap-btn" onclick="arSnapshot()" aria-label="Take a photo">📸</button>
   <button id="ar-help-btn" onclick="arTutShow(1)" aria-label="How AR works">❔</button>
+  <button id="ar-clip-btn" onclick="toggleClipMode()" aria-label="Clip mode: hide buttons for recording">🎬</button>
   <div id="snap-flash"></div>
   <div id="snap-modal">
     <img id="snap-img" alt="Your Darkworld photo">
@@ -3543,10 +3567,10 @@ function rollLootDrop(enemy, isBoss){
   }
 
   // Regular random loot drop (tier 1-3 only)
-  const dropChance = isBoss ? 0.60 : enemy.elite ? 1 : 0.25;
+  const dropChance = isBoss ? 0.60 : (enemy.elite || enemy.gilded) ? 1 : 0.25;
   if(Math.random() < dropChance){
     const zone = enemy.zone ?? 2;
-    const maxTier = Math.min(3, ZONE_DROP_TIERS[zone] + (isBoss || enemy.elite ? 1 : 0));
+    const maxTier = Math.min(3, ZONE_DROP_TIERS[zone] + (isBoss || enemy.elite ? 1 : 0) + (enemy.gilded ? 1 : 0));
     const eligible = Object.entries(ITEMS).filter(([n,item])=>
       item.type !== 'potion' && item.tier <= maxTier && item.tier < 4 && !item.season && !drops.includes(n)
     );
@@ -4008,6 +4032,7 @@ function zoneIndexAt(lat, lng){ // -1 = the wilds beyond the city's rings
 
 // Same species for everyone; stats scale to the hunter who meets it (like CP in Pokémon GO),
 // so the streets stay worth walking at any level.
+const GILDED_CHANCE = 0.015; // about 1 monster in 70
 function buildLivingMob(id, lat, lng, rng, expiresAt, eliteChance = ELITE_CHANCE){
   const zi = zoneIndexAt(lat, lng);
   const tierRoll = rng(), pickRoll = rng(), eliteRoll = rng(), varRoll = rng();
@@ -4030,19 +4055,20 @@ function buildLivingMob(id, lat, lng, rng, expiresAt, eliteChance = ELITE_CHANCE
     if(f){ t = f; zone = f.zone; blood = varRoll > 0.9; }
   }
   const elite = eliteRoll < eliteChance;
+  const gilded = !elite && !blood && eliteRoll > 1 - GILDED_CHANCE; // rare gold variant, same draw so every hunter sees it
   const L = (Player && Player.level) || 1;
   const gap = Math.max(0, L - 2 - ZONE_NOMINAL_LEVEL[zone]);
   const lvl = ZONE_NOMINAL_LEVEL[zone] + gap;
   const v = 1 + varRoll * 0.4;
   const grow = Math.pow(1.1, gap);
-  const hp = Math.floor(t.hp * v * grow * (elite ? 2.2 : 1) * (blood ? 1.5 : 1));
-  return {...t, lat, lng, id:'L'+id, livingId:id, expiresAt, elite, lvl, zone, bloodMoon:blood,
-    type: `${blood ? '🩸 BLOOD MOON · ' : ''}${elite ? '★ ELITE · ' : ''}LV ${lvl} · ${zi >= 0 ? ZONES[zi].name.toUpperCase() : 'THE WILDS'}`,
+  const hp = Math.floor(t.hp * v * grow * (elite ? 2.2 : 1) * (blood ? 1.5 : 1) * (gilded ? 1.6 : 1));
+  return {...t, lat, lng, id:'L'+id, livingId:id, expiresAt, elite, lvl, zone, bloodMoon:blood, gilded,
+    type: `${gilded ? '✦ GILDED · ' : ''}${blood ? '🩸 BLOOD MOON · ' : ''}${elite ? '★ ELITE · ' : ''}LV ${lvl} · ${zi >= 0 ? ZONES[zi].name.toUpperCase() : 'THE WILDS'}`,
     hp, maxHp:hp,
     atk: Math.floor(t.atk * v * grow * (elite ? 1.35 : 1)),
     def: Math.floor(t.def * v * Math.pow(1.08, gap)),
-    xp: Math.floor(t.xp * (1 + gap * 0.15) * (elite ? 3 : 1)),
-    gold: t.gold.map(g => Math.floor(g * (1 + gap * 0.1) * (elite ? 3 : 1))),
+    xp: Math.floor(t.xp * (1 + gap * 0.15) * (elite ? 3 : 1) * (gilded ? 5 : 1)),
+    gold: t.gold.map(g => Math.floor(g * (1 + gap * 0.1) * (elite ? 3 : 1) * (gilded ? 5 : 1))),
     defeated:false, statuses:[], poisonStacks:0};
 }
 
@@ -4349,10 +4375,19 @@ function drawMob(s){
     ctx.beginPath(); ctx.arc(p.x,p.y,r*(1.45+0.12*Math.sin(tt)),0,Math.PI*2);
     ctx.strokeStyle='rgba(212,160,32,0.85)'; ctx.lineWidth=2; ctx.stroke();
   }
-  if(zoom>2.6||s.elite){
+  if(s.gilded){ // gold aura with turning sparks
+    const tt=Date.now()/400;
+    ctx.globalAlpha=0.35+0.15*Math.sin(tt); ctx.fillStyle='#ffd34d';
+    ctx.beginPath(); ctx.arc(p.x,p.y,r*2.1,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2); ctx.strokeStyle='#ffd34d'; ctx.lineWidth=3; ctx.stroke();
+    for(let k=0;k<6;k++){ const a=tt*0.6+k*Math.PI/3, rr=r*1.7; ctx.fillStyle='#fff3b0';
+      ctx.beginPath(); ctx.arc(p.x+Math.cos(a)*rr,p.y+Math.sin(a)*rr,Math.max(1.5,2*zoom),0,Math.PI*2); ctx.fill(); }
+    markDirty();
+  }
+  if(zoom>2.6||s.elite||s.gilded){
     ctx.font=`bold ${Math.max(8,Math.min(13,9*zoom))}px "Share Tech Mono"`;
-    ctx.fillStyle=s.elite?'rgba(230,180,60,0.95)':'rgba(230,100,110,0.9)'; ctx.textBaseline='top'; ctx.textAlign='center';
-    ctx.fillText(`${s.elite?'★ ':''}${s.name}${s.lvl?' · '+s.lvl:''}`,p.x,p.y+r+3);
+    ctx.fillStyle=s.gilded?'#ffd34d':s.elite?'rgba(230,180,60,0.95)':'rgba(230,100,110,0.9)'; ctx.textBaseline='top'; ctx.textAlign='center';
+    ctx.fillText(`${s.gilded?'✦ GILDED ':s.elite?'★ ':''}${s.name}${s.lvl?' · '+s.lvl:''}`,p.x,p.y+r+3);
   }
 }
 
@@ -5223,6 +5258,8 @@ function nextGoal(){
   const d = Player.daily;
   const b = d && d.bounties && d.bounties.find(x => !x.done);
   if(!arSeen()) return { text:'👁 Tap here for AR — see the monsters standing on your street', act:() => startAR() };
+  const gn = gildedNearest();
+  if(gn) return { text:`✦ GILDED ${gn.m.name.toUpperCase()} · ${gn.d.toFixed(2)} mi ${gn.dir}`, act:() => seasonGoTo(gn.m.lat, gn.m.lng) };
   if(b) return { text:`📜 ${b.label} · ${b.type === 'walk' ? b.progress.toFixed(2) : Math.floor(b.progress)}/${b.goal}`, act:() => openHunt('bounties') };
   const rg = relicGoal(); if(rg) return rg;
   if(selectedWorld === 'philadelphia'){
@@ -7686,6 +7723,7 @@ function arQuestTap(){
 }
 
 function stopAR(){
+  if(arClipMode) toggleClipMode();
   if(arTutStep){ arTutStep = 0; clearInterval(arTutTimer); arTutTimer = null; coachGlow(null); coachHide(); }
   if(arAnimId){cancelAnimationFrame(arAnimId);arAnimId=null;}
   if(arStream){arStream.getTracks().forEach(t=>t.stop());arStream=null;}
@@ -7825,7 +7863,7 @@ function renderAR(){
       c.fillText(e.entity.name[0],x,yBase);
     }
     c.beginPath(); c.arc(x,yBase,r,0,Math.PI*2);
-    c.strokeStyle=e.boss?'rgba(255,200,40,1)':(e.entity.elite?'rgba(230,180,60,1)':'rgba(220,40,40,1)');
+    c.strokeStyle=e.boss?'rgba(255,200,40,1)':e.entity.gilded?'#ffd34d':(e.entity.elite?'rgba(230,180,60,1)':'rgba(220,40,40,1)');
     c.lineWidth=3.5; c.stroke();
     c.beginPath(); c.arc(x,yBase,r*1.18,0,Math.PI*2);
     c.strokeStyle=e.boss?`rgba(255,180,0,${0.35+0.2*Math.sin(now/400)})`:`rgba(200,0,0,${0.30+0.15*Math.sin(now/350)})`;
@@ -8680,6 +8718,8 @@ function triggerEnemyHit(e, dmg, special, isCrit){
 function victory(){
   if(curEnemy && curEnemy.isRaid && !curEnemy._dead){ raidResolveKill(); return; }
   sndVictory();
+  killingBlowFx(curEnemy);
+  if(curEnemy && curEnemy.gilded) gildedOnKill(curEnemy);
   playerCombo=0;
   const xpBase = curEnemy.xp||100;
   const home = (curEnemy.isRaid ? 0 : turfBonus()) + crewBonus();
@@ -8963,15 +9003,16 @@ function showLoot(xp, gold, drops){ sndLoot(); if(drops && drops.length) setTime
   let html=`<div style="color:#c8b060;font-size:.85rem;margin-bottom:6px;">+${fmt(xp)} XP &nbsp;·&nbsp; +${gold} Gold</div>`;
 
   // Item drops with rarity styling
+  let best = null;
   drops.forEach(n=>{
     const item=ITEMS[n];
-    const tier=item?.tier||1;
-    let color='#8878a8'; let glow=''; let badge='';
-    if(tier===5){ color='#ff9a3c'; glow='text-shadow:0 0 12px #ff9a3c,0 0 24px #c86010;'; badge='<span style="font-size:.6rem;border:1px solid #ff9a3c;color:#ff9a3c;padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">RELIC</span>'; }
-    else if(tier===4){ color='#ffd700'; glow='text-shadow:0 0 10px #ffd700,0 0 20px #d4a830;'; badge='<span style="font-size:.6rem;border:1px solid #ffd700;color:#ffd700;padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">LEGENDARY</span>'; }
-    else if(tier===3){ color='#cc88ff'; glow='text-shadow:0 0 8px #9944cc;'; badge='<span style="font-size:.6rem;border:1px solid #cc88ff;color:#cc88ff;padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">RARE</span>'; }
-    html+=`<div style="color:${color};${glow}font-size:.88rem;margin-bottom:3px;">${item?.emoji||'📦'} ${n}${badge}</div>`;
+    const tier=item?.tier||1, r=RARITY[tier]||RARITY[1];
+    const glow = tier>=3 ? `text-shadow:0 0 10px ${r.color};` : '';
+    const badge = tier>=2 ? `<span style="font-size:.6rem;border:1px solid ${r.color};color:${r.color};padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">${r.name}</span>` : '';
+    html+=`<div style="color:${r.color};${glow}font-size:.88rem;margin-bottom:3px;">${item?.emoji||'📦'} ${n}${badge}</div>`;
+    if(item && tier>=3 && (!best || tier>best.item.tier)) best={ item, n };
   });
+  if(best) setTimeout(() => lootBeam(best.item, best.n), 350);
 
   if(!drops.length) html+=`<div style="color:#4a3a60;font-size:.8rem;">No items dropped.</div>`;
 
@@ -8980,6 +9021,79 @@ function showLoot(xp, gold, drops){ sndLoot(); if(drops && drops.length) setTime
   document.getElementById('loot-txt').innerHTML=html;
   pop.style.display='block';
   pop.onclick=()=>{ pop.style.display='none'; pop.onclick=null; };
+}
+
+// ══════════════════════════════════════════════════════
+//  JUICE — Gilded monsters, the killing blow, loot reveals, clip mode
+//  Gilded (our "shiny"): ~1 in 70 living spawns, rolled from the same seeded draw as
+//  elites so every hunter sees the same one. ×1.6 HP, ×5 XP and gold, a better item,
+//  a gold aura, a "nearby" alert and a collection (Player.gilded).
+// ══════════════════════════════════════════════════════
+const GILDED_ALERT_MI = 0.5, GILDED_TITLE_AT = 5;
+const _gildedSeen = new Set();
+function compassWord(deg){ return ['N','NE','E','SE','S','SW','W','NW'][Math.round(((deg % 360) + 360) % 360 / 45) % 8]; }
+function gildedNearest(){
+  if(!Player || !gpsFirstLock) return null;
+  let best = null, bd = GILDED_ALERT_MI;
+  for(const m of spawns){ if(!m.gilded || m.defeated) continue; const d = distMiles(Player.lat, Player.lng, m.lat, m.lng); if(d < bd){ bd = d; best = m; } }
+  return best ? { m:best, d:bd, dir:compassWord(bearing(Player.lat, Player.lng, best.lat, best.lng)) } : null;
+}
+function gildedTick(){
+  const g = gildedNearest(); if(!g || _gildedSeen.has(g.m.id) || tutStep()) return;
+  _gildedSeen.add(g.m.id);
+  const firstKind = !(Player.gilded && Player.gilded[g.m.name]);
+  showToast(`✦ A GILDED ${g.m.name.toUpperCase()}`, `${g.d.toFixed(2)} mi ${g.dir}${firstKind ? ' · a new one for your collection' : ''}`);
+  bell(1567, { gain:0.06, length:1.4, wet:0.6 }); bell(2093, { gain:0.04, length:1.2, wet:0.6, at:0.12 }); buzz('light');
+}
+function gildedOnKill(m){
+  Player.gilded = Player.gilded || {};
+  const first = !Player.gilded[m.name];
+  Player.gilded[m.name] = (Player.gilded[m.name] || 0) + 1;
+  const kinds = Object.keys(Player.gilded).length;
+  setTimeout(() => showToast(`✦ GILDED ${m.name.toUpperCase()}`, first ? `New! ${kinds} gilded kind${kinds === 1 ? '' : 's'} collected` : `${Player.gilded[m.name]} taken · ${kinds} kinds collected`), 900);
+  if(kinds >= GILDED_TITLE_AT && grantTitle('Goldseeker')) setTimeout(() => showToast('✦ GOLDSEEKER', `${GILDED_TITLE_AT} gilded kinds · a new title`), 3600);
+  relicShard(1, 'a gilded kill');
+}
+setInterval(() => { try { gildedTick(); } catch(e){} }, 4000);
+
+// The killing blow: a hit-stop, a flash and a shake, so every win lands
+function killingBlowFx(m){
+  try {
+    const box = document.getElementById('combat-modal');
+    box.classList.remove('kb-shake'); void box.offsetWidth; box.classList.add('kb-shake');
+    flashScreen('white');
+    showDamageNum(m && (m.gilded || m.elite) ? '✦ SLAIN' : 'SLAIN', 'dmg-crit', 'right');
+    buzz('heavy');
+    setTimeout(() => box.classList.remove('kb-shake'), 500);
+  } catch(e){}
+}
+
+// Loot: WoW colors, and a beam for rare-and-up drops
+const RARITY = {
+  1:{ name:'COMMON',    color:'#c8c0d8' },
+  2:{ name:'UNCOMMON',  color:'#3ee26b' },
+  3:{ name:'RARE',      color:'#3f9bff' },
+  4:{ name:'LEGENDARY', color:'#ff8c1a' },
+  5:{ name:'RELIC',     color:'#ffd34d' },
+};
+function lootBeam(item, name){
+  const r = RARITY[item.tier] || RARITY[3];
+  const el = document.getElementById('loot-beam'); if(!el) return;
+  el.style.setProperty('--rc', r.color);
+  el.innerHTML = `<div class="lb-ray"></div><div class="lb-card"><div class="lb-tag">${r.name}</div><div class="lb-emoji">${item.emoji || '📦'}</div><div class="lb-name">${name}</div></div>`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  buzz('win');
+  setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+// 🎬 Clip mode (AR): hide every button and label, keep the monsters, for recording
+let arClipMode = false;
+function toggleClipMode(){
+  arClipMode = !arClipMode;
+  document.getElementById('screen-ar').classList.toggle('clip', arClipMode);
+  document.body.classList.toggle('ar-clip', arClipMode); // banners and coach cards stay out of the shot
+  arCleanFrame = arClipMode;
+  if(arClipMode) coachHide();
 }
 
 // ══════════════════════════════════════════════════════
@@ -9043,6 +9157,7 @@ function saveGame(){
       relic: Player.relic || null,
       bloodSigils: Player.bloodSigils || 0,
       delves: Player.delves || {},
+      gilded: Player.gilded || {},
       bloodMoons: Player.bloodMoons || {},
       titles: Player.titles || [],
       factionSince: Player.factionSince || 0,
