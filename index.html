@@ -1213,10 +1213,11 @@ body::before {
 .abtn.potion-btn { flex:0 0 74px; border-color:#1a6a5a; }
 /* Fit every action on a phone screen: 4 abilities, then potion + escape as a slim row */
 #ab-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; overflow:visible; }
-#ab-grid .abtn { height:92px; min-width:0; padding:16px 2px 6px; }
-#ab-grid .abtn-emoji { font-size:1.9rem; }
-#ab-grid .abtn-name { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#ab-grid .potion-btn .abtn-name, #ab-grid .flee-btn .abtn-name { max-width:none; overflow:visible; }
+#ab-grid .abtn { height:102px; min-width:0; padding:15px 2px 5px; gap:1px; }
+#ab-grid .abtn-emoji { font-size:1.45rem; line-height:1.15; }
+#ab-grid .abtn-name { max-width:100%; overflow:hidden; font-size:.64rem; line-height:1.05; white-space:normal; overflow-wrap:break-word; letter-spacing:-.02em;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; } /* whole names on two lines, not "Cripl…" */
+#ab-grid .potion-btn .abtn-name, #ab-grid .flee-btn .abtn-name { max-width:none; overflow:visible; display:block; white-space:nowrap; font-size:.78rem; }
 #ab-grid .abtn.potion-btn, #ab-grid .abtn.flee-btn { grid-column:span 2; height:44px; flex-direction:row; gap:8px; padding:4px 8px 4px 56px; }
 #ab-grid .potion-btn .abtn-emoji, #ab-grid .flee-btn .abtn-emoji { font-size:1.3rem; }
 #ab-grid .potion-btn .abtn-type, #ab-grid .flee-btn .abtn-type { top:0; bottom:0; right:auto; width:50px; display:flex; align-items:center; justify-content:center; padding:0; }
@@ -1755,6 +1756,8 @@ body:not(.net-on) .net-only { display:none !important; }
   width:min(360px,calc(100vw - 32px)); background:linear-gradient(160deg,#241018,#120a14); border:1px solid #7a2020; border-top:2px solid var(--gold);
   box-shadow:0 0 30px rgba(140,0,0,0.45); padding:10px 14px; text-align:center; opacity:0; transition:transform .35s cubic-bezier(.2,1.3,.4,1), opacity .25s; }
 #toast.show { transform:translate(-50%,0); opacity:1; }
+#toast.low { top:auto; bottom:calc(18px + var(--sab)); transform:translate(-50%,140%); } /* a menu is open: don't cover its title */
+#toast.low.show { transform:translate(-50%,0); }
 .toast-title { font-family:'Metal Mania',cursive; font-size:1.1rem; color:var(--gold); letter-spacing:.12em; }
 .toast-body { font-size:.95rem; color:var(--pale); margin-top:2px; }
 
@@ -2762,7 +2765,7 @@ const NPCS = [
     name: 'Marcus Webb',
     title: "Night Security · Boyd's Department Store",
     lat: 39.9499, lng: -75.1672,
-    portrait: 'marcus-webb.png',
+    portrait: 'boyds-elegant.jpg', // stand-in until his own portrait exists
     color: '#cc8844',
     world: 'philadelphia',
     dialogues: {
@@ -3049,7 +3052,7 @@ const MOB_TYPES = [
   {name:'Drowned Sailor',  emoji:'⚓', zone:1, hp:145, atk:30, def:7,  xp:460,  gold:[90,200],  portrait:'water-wraith.jpg',   questOnly:true},
   {name:'Iron Officer',    emoji:'🗡', zone:0, hp:390, atk:98, def:26, xp:1250, gold:[220,480], portrait:'iron-officer.jpg',     questOnly:true, isMini:true},
   {name:'Living Mannequin',  emoji:'🪆', zone:2, hp:95,  atk:22, def:5,  xp:300,  gold:[55,130],  portrait:'mannequin-horror.jpg', questOnly:true},
-  {name:'The Tailor',        emoji:'🧵', zone:1, hp:850, atk:145,def:35, xp:1500, gold:[300,650], portrait:'the-tailor.png',        questOnly:true, isMini:true},
+  {name:'The Tailor',        emoji:'🧵', zone:1, hp:850, atk:145,def:35, xp:1500, gold:[300,650], portrait:'boyds-mannequin.jpg', questOnly:true, isMini:true},
   {name:'Cursed Accountant',          emoji:'📒', zone:0, hp:220, atk:55, def:12, xp:600,  gold:[100,240], portrait:'lichservant.jpeg',  questOnly:true},
   {name:'The Ledger Wraith',          emoji:'📖', zone:0, hp:920, atk:165,def:40, xp:2000, gold:[400,800], portrait:'ledger-wraith.jpg', questOnly:true, isMini:true},
   {name:'The Customer Who Never Left',emoji:'🎩', zone:3, hp:280, atk:45, def:8,  xp:750,  gold:[120,280], portrait:'the-hollow.jpg',   questOnly:true, isMini:true},
@@ -5236,6 +5239,8 @@ function nextGoal(){
   return { text:'⚔ Hunt — every kill counts toward tomorrow', act:() => openHunt('bounties') };
 }
 function goalTick(){
+  const tst = document.getElementById('toast');
+  if(tst && tst.classList.contains('show')) tst.classList.toggle('low', !!document.querySelector('#hunt-modal.active, #shop-modal.active, #inv-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #acct-modal.active') || document.getElementById('quest-modal').style.display === 'flex');
   const el = document.getElementById('goal-hud'); if(!el || !Player) return;
   arNudgeSync();
   if(tutStep()){ el.style.display = 'none'; return; }
@@ -6287,7 +6292,7 @@ function delveDescend(){
   if(delveLocked(dv)){ showToast('🚪 THE DOOR IS SHUT', 'It opens again at midnight'); return; }
   if(gpsFirstLock && distMiles(Player.lat, Player.lng, dv.lat, dv.lng) > ENGAGE_MILES){ showToast('🚪 TOO FAR', `Go to ${dv.door} to descend`); return; }
   delveRun.state = 'between'; delveRun.room = 0;
-  sndRaidRise();
+  stinger('descend');
   addLog(`🚪 You descend into ${dv.name}.`, 'lb');
   delveFight();
 }
@@ -7126,6 +7131,7 @@ function showToast(title, body){
 }
 function _toastShow(el, title, body){
   el.innerHTML = `<div class="toast-title">${title}</div><div class="toast-body">${body}</div>`;
+  el.classList.toggle('low', !!document.querySelector('#hunt-modal.active, #shop-modal.active, #inv-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #acct-modal.active') || document.getElementById('quest-modal').style.display === 'flex');
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   _toastShownAt = Date.now();
   clearTimeout(_toastTimer);
@@ -8950,7 +8956,7 @@ function addLog(msg,cls='ls'){
   if(p.children.length>100)p.removeChild(p.children[0]);
 }
 
-function showLoot(xp, gold, drops){ sndLoot();
+function showLoot(xp, gold, drops){ sndLoot(); if(drops && drops.length) setTimeout(() => stinger('loot'), 700); // an item: a bright lick
   const pop=document.getElementById('loot-popup');
 
   // XP + gold line
@@ -10690,6 +10696,7 @@ function sndEnemyCrit(){           // bone-crack and a heavy blow
 }
 
 function sndRiposte(){             // parry: bright inharmonic steel clang
+  stinger('riposte');
   [1780, 2630, 3910].forEach((f,i) => voice({ type:'triangle', freq:f, gain:0.07-i*0.015, attack:0.001, decay:0.08, sustain:0.25,
     release:0.6, wet:0.55, pan:(i-1)*0.3 }));
   noise({ gain:0.12, attack:0.001, release:0.05, filter:'highpass', filterFreq:4000, wet:0.3 });
@@ -10707,7 +10714,52 @@ function sndHeartbeat(fast){       // low HP: lub-dub
   if(fast) buzz('tap');
 }
 
+// ── STINGERS — short hits cut from the band's songs, layered over the synth ──
+// Small files (music/sting/), decoded once and kept. A new stinger cuts the last
+// one short, and the music dips under it for a moment.
+const STINGS = {
+  victory: { file:'music/sting/victory.mp3', gain:0.75 }, // Ramshackle
+  levelup: { file:'music/sting/levelup.mp3', gain:0.8 },  // Dream Eater
+  loot:    { file:'music/sting/loot.mp3',    gain:0.7 },  // Christopher Columbo
+  riposte: { file:'music/sting/riposte.mp3', gain:0.7 },  // A Challenger Appears
+  boss:    { file:'music/sting/boss.mp3',    gain:0.8 },  // System Failure
+  raid:    { file:'music/sting/raid.mp3',    gain:0.8 },  // A Challenger Appears
+  quest:   { file:'music/sting/quest.mp3',   gain:0.7 },  // Septa Token
+  descend: { file:'music/sting/descend.mp3', gain:0.8 },  // basement closet
+};
+const _stingBuf = {}, _stingLoading = {};
+let _stingCur = null, _stingLast = {};
+function stingLoad(name){
+  const st = STINGS[name]; if(!st || _stingBuf[name] || _stingLoading[name] || !_audioCtx) return _stingLoading[name];
+  return _stingLoading[name] = fetch(st.file).then(r => r.ok ? r.arrayBuffer() : Promise.reject())
+    .then(b => new Promise((res, rej) => _audioCtx.decodeAudioData(b, res, rej)))
+    .then(buf => { _stingBuf[name] = buf; }).catch(() => { _stingLoading[name] = null; });
+}
+function stinger(name){
+  if(!soundEnabled || !STINGS[name]) return;
+  const now = Date.now(); if(now - (_stingLast[name] || 0) < 1200) return; _stingLast[name] = now;
+  let ctx; try { ctx = getAudioCtx(); } catch(e){ return; }
+  const go = () => {
+    const buf = _stingBuf[name]; if(!buf) return;
+    const t = ctx.currentTime;
+    if(_stingCur){ try { _stingCur.g.gain.setTargetAtTime(0.0001, t, 0.05); _stingCur.src.stop(t + 0.3); } catch(e){} }
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const g = ctx.createGain(); g.gain.value = STINGS[name].gain;
+    src.connect(g); g.connect(_bus.master); src.start(t);
+    _stingCur = { src, g };
+    src.onended = () => { if(_stingCur && _stingCur.src === src) _stingCur = null; };
+    // dip the music under it
+    const m = _mus.cur;
+    if(m){ try { m.g.gain.cancelScheduledValues(t); m.g.gain.setValueAtTime(m.g.gain.value, t); m.g.gain.setTargetAtTime(MUSIC_VOL * 0.3, t, 0.06);
+      m.g.gain.setTargetAtTime(MUSIC_VOL, t + Math.min(buf.duration, 2.5), 0.4); } catch(e){} }
+  };
+  if(_stingBuf[name]) go(); else { const p = stingLoad(name); if(p) p.then(() => { if(Date.now() - now < 600) go(); }); }
+}
+// Warm them up after the first tap, so the first hit isn't late
+document.addEventListener('pointerdown', () => setTimeout(() => Object.keys(STINGS).forEach(stingLoad), 1500), { once:true });
+
 function sndVictory(){             // grim triumph: a toll and a minor chord settling
+  stinger('victory');
   bell(196, { gain:0.09, length:2.5, wet:0.6 });
   [220, 261.6, 329.6].forEach((f,i) => voice({ type:'triangle', freq:f, gain:0.07, attack:0.04+i*0.06, decay:0.3, sustain:0.5, release:1.2,
     filter:'lowpass', filterFreq:2200, wet:0.6, at:0.12 }));
@@ -10723,6 +10775,7 @@ function sndDeath(){               // knell, a falling choir, a heart that stops
 }
 
 function sndLevelUp(){             // rising bells with a shimmer
+  stinger('levelup');
   [392, 523.3, 659.3, 784].forEach((f,i) => bell(f*2, { gain:0.05, length:1.6, wet:0.6, at:i*0.11, pan:(i-1.5)*0.3 }));
   noise({ gain:0.05, attack:0.3, release:0.8, filter:'highpass', filterFreq:6000, wet:0.8, at:0.2 });
   buzz('level');
@@ -10733,7 +10786,7 @@ function sndCombatStart(){         // string-stab sting; bosses add their roar
     detune:(i-1)*10, filter:'lowpass', filterFreq:2400, filterFreq2:300, wet:0.4 }));
   noise({ gain:0.12, attack:0.002, release:0.2, filter:'lowpass', filterFreq:600, brown:true, wet:0.3 });
   setTimeout(() => creatureCry(curEnemy, isBoss), 180);
-  if(isBoss) bell(65.4, { gain:0.12, length:4, wet:0.8, at:0.1 });
+  if(isBoss){ bell(65.4, { gain:0.12, length:4, wet:0.8, at:0.1 }); stinger('boss'); }
   buzz(isBoss ? 'heavy' : 'medium');
 }
 
@@ -10765,12 +10818,14 @@ function sndDistrictBell(){        // claiming a district: a distant church bell
 }
 
 function sndBounty(){              // a low horn call: root then fifth
+  stinger('quest');
   [[146.8,0],[220,0.28]].forEach(([f,at]) => voice({ type:'sawtooth', freq:f, gain:0.07, attack:0.06, decay:0.2, sustain:0.6,
     release:0.6, filter:'lowpass', filterFreq:900, wet:0.5, at }));
   buzz('win');
 }
 
 function sndRaidRise(){            // war horn + drums: something huge has woken
+  stinger('raid');
   voice({ type:'sawtooth', freq:73.4, freq2:69.3, glide:2, gain:0.12, attack:0.3, decay:0.8, sustain:0.7, release:1.5, filter:'lowpass', filterFreq:700, wet:0.6 });
   voice({ type:'sawtooth', freq:110, freq2:103.8, glide:2, gain:0.07, attack:0.35, decay:0.8, sustain:0.7, release:1.5, filter:'lowpass', filterFreq:900, wet:0.6 });
   [0, 0.45, 0.9, 1.2].forEach(at => voice({ type:'sine', freq:70, freq2:38, gain:0.3, attack:0.002, decay:0.15, release:0.2, at, wet:0.4 }));
