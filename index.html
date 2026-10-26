@@ -6419,6 +6419,7 @@ function delveAt(cx, cy){
 //  is learned once per phone (motionCalibrate), because hands and browsers differ.
 //  Taps keep working; 🤚 in the fight turns motion off.
 // ══════════════════════════════════════════════════════
+const MOTION_ENABLED = false; // switched off for now (didn't feel right in play); flip to true to bring it back
 const MOTION_PREF_KEY = 'darkworld_motion_v1';
 const MOTION_TH = 110;        // deg/s at sensitivity 1 — a quick little flick, not a swing
 const MOTION_REARM = 45;      // the phone counts as settled below this
@@ -6535,7 +6536,7 @@ function motionLean(dir){
 }
 // Arrow badges on the four ability buttons + the motion row under them
 function motionDecorate(){
-  const grid = document.getElementById('ab-grid'); if(!grid || !Player) return;
+  const grid = document.getElementById('ab-grid'); if(!grid || !Player || !MOTION_ENABLED) return;
   Player.cls.abilities.forEach((a, i) => {
     const b = document.getElementById(`abtn-${a.name.replace(/\s/g,'')}`); if(!b) return;
     let tag = b.querySelector('.abtn-mo');
@@ -6569,6 +6570,7 @@ function motionToggle(){
   motionPref.on = !motionPref.on; motionSave(); motionDecorate(); buzz('tap');
 }
 function motionOnCombatStart(){
+  if(!MOTION_ENABLED) return;
   motionRequestPermission();
   _mo.armed = false; _mo.quietSince = 0; _mo.lean = null;
   _mo.tilt.n = null; _mo.tilt.armed = false; // the center is wherever you hold the phone now
@@ -6623,8 +6625,10 @@ function motionCalibEnd(ok){
   const after = _mo.after; _mo.after = null;
   if(after) setTimeout(after, 250); // e.g. the tutorial picks up where it left off
 }
-window.addEventListener('devicemotion', motionHandler);
-window.addEventListener('deviceorientation', motionTiltHandler);
+if(MOTION_ENABLED){
+  window.addEventListener('devicemotion', motionHandler);
+  window.addEventListener('deviceorientation', motionTiltHandler);
+}
 
 // ══════════════════════════════════════════════════════
 //  AR TUTORIAL — four coach cards the first time a hunter opens AR
@@ -6815,7 +6819,7 @@ function tutOnCombatStart(ent){
   if(tutStep() !== 'fight' || !ent || !ent.tutorialMob) return;
   ent.nextAttackAt = Date.now() + 6000; // a breather before it strikes
   // On a phone, the first fight teaches motion: tune it, then attack with a lean
-  setTimeout(() => { if(_mo.touch && motionPref.on && !motionPref.map) tutMotionIntro(); else tutFightCoach(); }, 300);
+  setTimeout(() => { if(MOTION_ENABLED && _mo.touch && motionPref.on && !motionPref.map) tutMotionIntro(); else tutFightCoach(); }, 300);
 }
 function tutMotionIntro(){
   if(tutStep() !== 'fight' || !inCombat) return;
@@ -6826,7 +6830,7 @@ function tutMotionIntro(){
 function tutFightCoach(){
   if(tutStep() !== 'fight' || !inCombat) return;
   if(curEnemy && curEnemy.tutorialMob) curEnemy.nextAttackAt = Math.max(curEnemy.nextAttackAt, Date.now() + 6000);
-  const a = Player.cls.abilities[0], moving = motionPref.on && motionPref.map && _mo.seen;
+  const a = Player.cls.abilities[0], moving = MOTION_ENABLED && motionPref.on && motionPref.map && _mo.seen;
   coach(moving
     ? `<b>Lean your phone left</b> (or tap <b>${a.emoji} ${a.name.toUpperCase()}</b>) — your basic attack. Each one builds your combo. Back to center between moves.`
     : `Tap <b>${a.emoji} ${a.name.toUpperCase()}</b> — your basic attack. Each one builds your combo.`);
@@ -6839,7 +6843,7 @@ function tutOnPlayerAct(riposted){
   if(step === 'fight'){
     Player.tutorial = 'riposte';
     coachGlow('#turn-ind');
-    coach(`Watch the <b>red bar</b> under you. Strike just as it <b>fills red</b> to <b>RIPOSTE</b> — parry its blow and hit harder.${motionPref.on && motionPref.map && _mo.seen ? ' A lean or a tap both count.' : ''}`);
+    coach(`Watch the <b>red bar</b> under you. Strike just as it <b>fills red</b> to <b>RIPOSTE</b> — parry its blow and hit harder.${MOTION_ENABLED && motionPref.on && motionPref.map && _mo.seen ? ' A lean or a tap both count.' : ''}`);
     curEnemy.nextAttackAt = Math.max(curEnemy.nextAttackAt, Date.now() + 2600);
     curEnemy.hp = Math.max(curEnemy.hp, Math.ceil(curEnemy.maxHp * 0.5)); // stay alive long enough to try it
   } else if(step === 'riposte' && riposted){
