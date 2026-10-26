@@ -2007,13 +2007,20 @@ body:not(.net-on) .net-only { display:none !important; }
 
 /* ══ FIRST HUNT coach ══ */
 #coach { position:fixed; left:50%; top:calc(118px + var(--sat)); transform:translate(-50%,-12px); z-index:140; opacity:0; pointer-events:none;
-  width:min(380px,calc(100vw - 24px)); background:linear-gradient(160deg,#1e1608,#110c06); border:1px solid #8a6a20; border-left:3px solid var(--gold);
-  box-shadow:0 6px 30px rgba(0,0,0,.7), 0 0 24px rgba(212,160,32,.18); padding:10px 12px 8px; transition:opacity .3s, transform .3s; }
+  width:min(340px,calc(100vw - 32px)); background:linear-gradient(160deg,rgba(30,22,8,.94),rgba(17,12,6,.94)); border:1px solid #8a6a20; border-left:3px solid var(--gold);
+  box-shadow:0 6px 24px rgba(0,0,0,.6), 0 0 18px rgba(212,160,32,.15); padding:8px 10px 6px; transition:opacity .3s, transform .3s; }
+/* in a fight the tip sits over the combat log, never over the monster */
+#coach.in-fight { top:auto; bottom:calc(330px + var(--sab)); }
+/* tap the tip to tuck it away; tap the tab to bring it back */
+#coach.min { width:auto; left:auto; right:12px; transform:none; padding:6px 10px; cursor:pointer; }
+#coach.min .coach-text, #coach.min .coach-row { display:none; }
+#coach .coach-tab { display:none; font-family:'Share Tech Mono',monospace; font-size:.75rem; letter-spacing:.12em; color:var(--gold); }
+#coach.min .coach-tab { display:block; }
 #coach.show { opacity:1; transform:translate(-50%,0); pointer-events:auto; }
-.coach-text { font-size:1.02rem; line-height:1.45; color:var(--bone); }
+.coach-text { font-size:.9rem; line-height:1.38; color:var(--bone); cursor:pointer; }
 .coach-text b { color:var(--gold); font-weight:normal; }
-.coach-row { display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:8px; }
-.coach-btn { background:rgba(100,10,10,.6); border:1px solid #cc2222; color:#f0d0d0; font-family:'Metal Mania',cursive; letter-spacing:.1em; font-size:.95rem; padding:8px 14px; cursor:pointer; }
+.coach-row { display:flex; justify-content:space-between; align-items:center; margin-top:6px; gap:8px; }
+.coach-btn { background:rgba(100,10,10,.6); border:1px solid #cc2222; color:#f0d0d0; font-family:'Metal Mania',cursive; letter-spacing:.1em; font-size:.85rem; padding:6px 12px; cursor:pointer; }
 .coach-skip { background:none; border:none; color:#7a6a50; font-family:'Share Tech Mono',monospace; font-size:.72rem; letter-spacing:.12em; text-decoration:underline; cursor:pointer; }
 .coach-glow { box-shadow:0 0 0 2px var(--gold), 0 0 22px rgba(232,184,64,.75) !important; animation:coachPulse 1.1s ease-in-out infinite !important; }
 @keyframes coachPulse { 0%,100% { box-shadow:0 0 0 2px var(--gold), 0 0 12px rgba(232,184,64,.5); } 50% { box-shadow:0 0 0 3px var(--gold), 0 0 28px rgba(232,184,64,.95); } }
@@ -6808,13 +6815,21 @@ function tutStep(){ return Player && Player.tutorial && Player.tutorial !== 'don
 
 function coach(html, { button=null, onButton=null, skip='tutSkip()', skipLabel='skip tutorial' } = {}){
   const el = document.getElementById('coach');
-  el.innerHTML = `<div class="coach-text">${html}</div>
+  el.innerHTML = `<div class="coach-tab">💡 TIP</div><div class="coach-text">${html}</div>
     <div class="coach-row">${button ? `<button class="coach-btn" id="coach-btn">${button}</button>` : '<span></span>'}
     <button class="coach-skip" onclick="${skip}">${skipLabel}</button></div>`;
-  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  el.classList.remove('show', 'min'); coachPlace(); void el.offsetWidth; el.classList.add('show');
+  el.querySelector('.coach-text').onclick = () => el.classList.add('min');   // tuck it away
+  el.querySelector('.coach-tab').onclick = () => el.classList.remove('min'); // bring it back
   if(button) document.getElementById('coach-btn').onclick = onButton;
 }
 function coachHide(){ document.getElementById('coach').classList.remove('show'); }
+// In a fight the tip moves down over the combat log so the monster stays in view
+function coachPlace(){
+  const el = document.getElementById('coach'); if(!el) return;
+  el.classList.toggle('in-fight', document.getElementById('combat-modal').classList.contains('active'));
+}
+setInterval(coachPlace, 400);
 function coachGlow(sel){
   document.querySelectorAll('.coach-glow').forEach(e => e.classList.remove('coach-glow'));
   if(sel){ const e = document.querySelector(sel); if(e) e.classList.add('coach-glow'); }
