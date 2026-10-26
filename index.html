@@ -6582,7 +6582,7 @@ function motionCalibrate(){
   if(curEnemy){ _mo.savedAttack = curEnemy.nextAttackAt; curEnemy.nextAttackAt = Date.now() + 600000; } // the monster waits
   _mo.calib = { step:'l' };
   _mo.tilt.n = null;
-  coach('🤚 <b>Fight with motion.</b> A slight lean or a quick little flick is enough.<br>Lean or flick your phone to the <b>LEFT</b>, then back to center.',
+  coach('🤚 <b>Fight with motion.</b> A slight lean or a quick little flick is enough.<br>Lean or flick your phone to the <b>LEFT</b>, then back to center.<br><small>Nothing happening? Tap "use taps" — you can turn motion on later with 🤚.</small>',
     { skip:'motionCalibEnd(false)', skipLabel:'use taps' });
 }
 function motionCalibStep(d, th){
@@ -6620,6 +6620,8 @@ function motionCalibEnd(ok){
   _mo.calib = null; coachHide();
   if(inCombat && curEnemy) curEnemy.nextAttackAt = Date.now() + 2500;
   motionDecorate();
+  const after = _mo.after; _mo.after = null;
+  if(after) setTimeout(after, 250); // e.g. the tutorial picks up where it left off
 }
 window.addEventListener('devicemotion', motionHandler);
 window.addEventListener('deviceorientation', motionTiltHandler);
@@ -6812,10 +6814,23 @@ function startTutorial(){
 function tutOnCombatStart(ent){
   if(tutStep() !== 'fight' || !ent || !ent.tutorialMob) return;
   ent.nextAttackAt = Date.now() + 6000; // a breather before it strikes
-  setTimeout(() => {
-    coach(`Tap <b>${Player.cls.abilities[0].emoji} ${Player.cls.abilities[0].name.toUpperCase()}</b> — your basic attack. Each one builds your combo.`);
-    coachGlow('#ab-grid .abtn');
-  }, 300);
+  // On a phone, the first fight teaches motion: tune it, then attack with a lean
+  setTimeout(() => { if(_mo.touch && motionPref.on && !motionPref.map) tutMotionIntro(); else tutFightCoach(); }, 300);
+}
+function tutMotionIntro(){
+  if(tutStep() !== 'fight' || !inCombat) return;
+  coach('In Darkworld you fight with your phone. <b>Lean it or flick it</b> to attack — a slight move is enough. First, let\'s tune it to your hand.',
+    { button:'TRY IT', onButton:() => { motionRequestPermission(true); _mo.after = tutFightCoach; motionCalibrate(); },
+      skip:'tutFightCoach()', skipLabel:'use taps' });
+}
+function tutFightCoach(){
+  if(tutStep() !== 'fight' || !inCombat) return;
+  if(curEnemy && curEnemy.tutorialMob) curEnemy.nextAttackAt = Math.max(curEnemy.nextAttackAt, Date.now() + 6000);
+  const a = Player.cls.abilities[0], moving = motionPref.on && motionPref.map && _mo.seen;
+  coach(moving
+    ? `<b>Lean your phone left</b> (or tap <b>${a.emoji} ${a.name.toUpperCase()}</b>) — your basic attack. Each one builds your combo. Back to center between moves.`
+    : `Tap <b>${a.emoji} ${a.name.toUpperCase()}</b> — your basic attack. Each one builds your combo.`);
+  coachGlow('#ab-grid .abtn');
 }
 
 function tutOnPlayerAct(riposted){
@@ -6824,7 +6839,7 @@ function tutOnPlayerAct(riposted){
   if(step === 'fight'){
     Player.tutorial = 'riposte';
     coachGlow('#turn-ind');
-    coach('Watch the <b>red bar</b> under you. Strike just as it <b>fills red</b> to <b>RIPOSTE</b> — parry its blow and hit harder.');
+    coach(`Watch the <b>red bar</b> under you. Strike just as it <b>fills red</b> to <b>RIPOSTE</b> — parry its blow and hit harder.${motionPref.on && motionPref.map && _mo.seen ? ' A lean or a tap both count.' : ''}`);
     curEnemy.nextAttackAt = Math.max(curEnemy.nextAttackAt, Date.now() + 2600);
     curEnemy.hp = Math.max(curEnemy.hp, Math.ceil(curEnemy.maxHp * 0.5)); // stay alive long enough to try it
   } else if(step === 'riposte' && riposted){
