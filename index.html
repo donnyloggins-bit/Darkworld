@@ -2012,10 +2012,11 @@ body:not(.net-on) .net-only { display:none !important; }
 /* in a fight the tip sits over the combat log, never over the monster */
 #coach.in-fight { top:auto; bottom:calc(330px + var(--sab)); }
 /* tap the tip to tuck it away; tap the tab to bring it back */
-#coach.min { width:auto; left:auto; right:12px; transform:none; padding:6px 10px; cursor:pointer; }
+#coach.min { width:auto; left:auto; right:8px; top:calc(50px + var(--sat)); bottom:auto; transform:none; padding:4px 8px; cursor:pointer; }
 #coach.min .coach-text, #coach.min .coach-row { display:none; }
 #coach .coach-tab { display:none; font-family:'Share Tech Mono',monospace; font-size:.75rem; letter-spacing:.12em; color:var(--gold); }
 #coach.min .coach-tab { display:block; }
+#coach.min.show { animation:coachPulse 1.1s ease-in-out 3; }
 #coach.show { opacity:1; transform:translate(-50%,0); pointer-events:auto; }
 .coach-text { font-size:.9rem; line-height:1.38; color:var(--bone); cursor:pointer; }
 .coach-text b { color:var(--gold); font-weight:normal; }
@@ -5146,8 +5147,9 @@ function seasonMaybeFinaleScene(){
 }
 
 // ── Combat hooks ───────────────────────────────────────
+// Bosses are fought where they stand: no GPS fix, no boss (the finale is city-wide)
 function bossTooFar(b){
-  if(!gpsFirstLock) return false;
+  if(!gpsFirstLock) return !b.isFinale;
   const d = distMiles(Player.lat, Player.lng, b.lat, b.lng);
   return b.isFinale ? d > SEASON_CITY_MI : d > BOSS_ENGAGE_MILES;
 }
@@ -6813,6 +6815,8 @@ const DARK_NAMES = ['Ash Mercer','Vesper Kane','Silas Thorne','Mara Holloway','G
 
 function tutStep(){ return Player && Player.tutorial && Player.tutorial !== 'done' ? Player.tutorial : null; }
 
+let _coachTuck = null;
+const COACH_TUCK_MS = 6000;
 function coach(html, { button=null, onButton=null, skip='tutSkip()', skipLabel='skip tutorial' } = {}){
   const el = document.getElementById('coach');
   el.innerHTML = `<div class="coach-tab">💡 TIP</div><div class="coach-text">${html}</div>
@@ -6822,6 +6826,9 @@ function coach(html, { button=null, onButton=null, skip='tutSkip()', skipLabel='
   el.querySelector('.coach-text').onclick = () => el.classList.add('min');   // tuck it away
   el.querySelector('.coach-tab').onclick = () => el.classList.remove('min'); // bring it back
   if(button) document.getElementById('coach-btn').onclick = onButton;
+  // On the map a tip with nothing to press tucks itself away so it never hides monsters
+  clearTimeout(_coachTuck);
+  if(!button) _coachTuck = setTimeout(() => { if(!document.getElementById('combat-modal').classList.contains('active')) el.classList.add('min'); }, COACH_TUCK_MS);
 }
 function coachHide(){ document.getElementById('coach').classList.remove('show'); }
 // In a fight the tip moves down over the combat log so the monster stays in view
@@ -7429,7 +7436,7 @@ function engageBossFromReveal(){
   const b = _bossRevealTarget;
   if(!b) return;
   if(bossTooFar(b)){
-    addLog(`⚠ Travel to ${b.landmark} to engage ${b.name}.`,'ls');
+    addLog(gpsFirstLock ? `⚠ Travel to ${b.landmark} to engage ${b.name}.` : `⚠ Waiting for GPS. ${b.name} must be faced at ${b.landmark}.`,'ls');
     hideBossReveal();
     return;
   }
@@ -7461,10 +7468,7 @@ function handleClick(cx,cy){
     if(qs&&qs.status==='complete')continue;
     const p=ll2px(q.lat,q.lng);
     if(Math.hypot(cx-p.x,cy-p.y)<Math.max(14,14*zoom)){
-      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,q.lat,q.lng)>ENGAGE_MILES){
-        addLog(`⚠ Move closer to the quest marker.`,'ls'); return;
-      }
-      openQuestMarkerDialogue(q); return;
+      openQuestMarkerDialogue(q); return; // quests are taken from anywhere, done on site
     }
   }
   for(const b of BOSSES){
@@ -7905,7 +7909,7 @@ function renderAR(){
       c.fillRect(bx,by,bw*Math.max(0,e.entity.hp/e.entity.maxHp),bh);
       const btnW=Math.min(cardW,160),btnH=34;
       const btnX=x-btnW/2,btnY=cardY+cardH+6;
-      const tooFar=e.boss&&bossTooFar(e.entity);
+      const tooFar=e.boss?bossTooFar(e.entity):(gpsFirstLock&&e.dist>ENGAGE_MILES);
       if(!arCleanFrame){ // a snapshot leaves the button out
       c.fillStyle=tooFar?'rgba(40,30,60,0.85)':(e.boss?'rgba(200,150,0,0.92)':'rgba(180,30,30,0.92)');
       c.beginPath(); c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,6):c.rect(btnX,btnY,btnW,btnH); c.fill();
@@ -7976,7 +7980,7 @@ function renderAR(){
     c.fillText(`${ft} ft`,targetX,yBase+r+5+Math.max(13,Math.floor(W*0.035)));
     const btnW=Math.min(W*0.38,150),btnH=32;
     const btnX=targetX-btnW/2,btnY=yBase+r+5+Math.max(13,Math.floor(W*0.035))+Math.max(13,Math.floor(W*0.032))+4;
-    const tooFar=gpsFirstLock&&e.dist>ENGAGE_MILES;
+    const tooFar=false; // quests are taken from anywhere
     c.fillStyle=tooFar?'rgba(40,30,10,0.8)':'rgba(180,130,0,0.92)';
     c.beginPath(); c.roundRect?c.roundRect(btnX,btnY,btnW,btnH,6):c.rect(btnX,btnY,btnW,btnH); c.fill();
     c.strokeStyle=tooFar?'rgba(120,90,0,0.5)':'rgba(255,210,60,0.9)'; c.lineWidth=1.5; c.stroke();
@@ -8081,8 +8085,6 @@ function startGPS(){
         Player.lat=lat; Player.lng=lng; // snap exactly on first lock
         updateZone();
         genSpawns();
-        // quest monsters placed before GPS knew where you were: bring them to you
-        QUESTS.forEach(q=>questBringClose(spawns.filter(m=>m.questMob&&m.questId===q.id&&!m.defeated)));
         centerOnPlayer();
         addLog('⬤ GPS locked. Darkness finds you wherever you roam.','lb');
       }
@@ -10168,25 +10170,13 @@ function questTake(id){
   const npc = q.npcId && NPCS.find(n=>n.id===q.npcId);
   if(npc) openNPCDialogue(npc); else openQuestMarkerDialogue(q);
 }
-// Quest monsters normally rise at the quest's landmark. A hunter more than
-// QUEST_NEAR_MI away gets them near where they stand instead.
-const QUEST_NEAR_MI = 0.75;
-function questBringClose(fresh){
-  if(!gpsFirstLock || !Player || !fresh.length) return;
-  const cLat = fresh.reduce((a,m)=>a+m.lat,0)/fresh.length, cLng = fresh.reduce((a,m)=>a+m.lng,0)/fresh.length;
-  if(distMiles(Player.lat, Player.lng, cLat, cLng) <= QUEST_NEAR_MI) return;
-  // keep the shape, but shrink it so every monster is within a short walk (~0.05–0.15 mi)
-  const k = 0.35;
-  fresh.forEach(m=>{ m.lat = Player.lat + (m.lat - cLat) * k + 0.0012; m.lng = Player.lng + (m.lng - cLng) * k; });
-}
 
 // ── Quest mob spawning ────────────────────────────────
+// Quest monsters rise at the quest's landmark: taking the quest works from anywhere, doing it means going there
 function spawnQuestMobs(q){
   const _qFrom = spawns.length;
   spawnQuestMobsAt(q);
-  const fresh = spawns.slice(_qFrom).filter(m=>m.questMob);
-  fresh.forEach(m=>m.questId=q.id);
-  questBringClose(fresh);
+  spawns.slice(_qFrom).filter(m=>m.questMob).forEach(m=>m.questId=q.id);
   markDirty();
 }
 function spawnQuestMobsAt(q){
