@@ -2153,6 +2153,7 @@ body:not(.net-on) .net-only { display:none !important; }
       <button id="crew-btn" class="net-only" onclick="openCrew()">👥 CREW</button>
       <button id="book-btn" onclick="openBook()">📕 BOOK</button>
       <button id="sound-btn" onclick="toggleSound()">🔊 SOUND</button>
+      <button id="music-btn" onclick="toggleMusic()">🎵 MUSIC</button>
       <button id="ar-btn" onclick="startAR()">👁 AR VIEW</button>
       <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER</button>
     </div>
@@ -10603,7 +10604,7 @@ function updateAmbience(){
   const raid = RAID && distMiles(plat, plng, RAID.lat, RAID.lng) < 0.6 ? 1 : 0;
   const danger = Math.min(1, ring*0.7 + bossNear*0.5 + raid*0.4);
   const t = _audioCtx.currentTime, k = 1.5;
-  const duck = inCombat ? 0.25 : 1;
+  const duck = (inCombat ? 0.25 : 1) * (musicPlaying() ? 0.35 : 1); // the drone sits under the music
   const g = _amb.out.gain;
   g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.setTargetAtTime(duck, t, 0.6);
   _amb.wg.gain.setTargetAtTime(0.08 + 0.05*(1-danger), t, k);
@@ -10651,9 +10652,98 @@ function toggleSound(){
   else { soundEnabled = true; hapticsEnabled = true; }
   try { localStorage.setItem(AUDIO_PREF_KEY, JSON.stringify({ sound:soundEnabled, haptics:hapticsEnabled })); } catch(e){}
   document.getElementById('sound-btn').textContent = audioButtonLabel();
-  if(soundEnabled){ getAudioCtx(); updateAmbience(); } else stopAmbience();
+  if(soundEnabled){ getAudioCtx(); updateAmbience(); musicTick(); } else { stopAmbience(); musicStop(); }
   if(hapticsEnabled) buzz('tap');
 }
+
+// ══════════════════════════════════════════════════════
+//  MUSIC — Alabaster Titan, streamed from music/ only when needed
+//  musicTick() picks a state from what's on screen; each state rotates its tracks
+//  and crossfades through a gain into _bus.master (so it obeys the limiter and the
+//  mute). One-track states loop; rotations move on when a track ends.
+// ══════════════════════════════════════════════════════
+const MUSIC_PREF_KEY = 'darkworld_music_v1';
+const MUSIC_TRACKS = {
+  'explore':    { file:'music/explore.mp3',              title:'Who Do I Look Like, Christopher Columbo' },
+  'septa':      { file:'music/septa-token.mp3',          title:'Septa Token' },
+  'safe':       { file:'music/safe.mp3',                 title:'Who Do I Look Like, Christopher Columbo' },
+  'fight':      { file:'music/fight.mp3',                title:'The Bees Knees' },
+  'ramshackle': { file:'music/ramshackle.mp3',           title:'Ramshackle' },
+  'challenger': { file:'music/a-challenger-appears.mp3', title:'A Challenger Appears' },
+  'failure':    { file:'music/system-failure.mp3',       title:'System Failure, Please Reboot' },
+  'basement':   { file:'music/basement-closet.mp3',      title:'basement closet' },
+  'dream':      { file:'music/dream-eater.mp3',          title:'Dream Eater' },
+  'death':      { file:'music/death.mp3',                title:'System Failure, Please Reboot', once:true },
+};
+const MUSIC_STATES = {
+  title:['dream'], explore:['explore','septa'], safe:['safe'], fight:['fight','ramshackle'],
+  boss:['challenger','failure'], season:['dream'], delve:['basement'], death:['death'],
+};
+const MUSIC_VOL = 0.5, MUSIC_FADE = 1.1;
+let musicOn = true;
+try { const m = localStorage.getItem(MUSIC_PREF_KEY); if(m !== null) musicOn = m === '1'; } catch(e){}
+let _mus = { state:null, cur:null, rot:{}, blocked:false };
+
+function musicDesired(){
+  const on = id => { const e = document.getElementById(id); return !!(e && e.classList.contains('active')); };
+  if(on('death-screen')) return 'death';
+  if(!Player || !(on('screen-game') || on('screen-ar'))) return 'title';
+  if(inCombat && curEnemy){
+    if(curEnemy.isFinale || curEnemy.isSeason) return 'season';
+    if(curEnemy.isDelve) return isBoss ? 'boss' : 'delve';
+    return (isBoss || curEnemy.isRaid) ? 'boss' : 'fight';
+  }
+  if(on('delve-modal')) return 'delve';
+  if(on('shop-modal') || on('levelup-modal')) return 'safe';
+  return 'explore';
+}
+function musicStart(state, key){
+  const list = MUSIC_STATES[state] || [];
+  if(!key){ const i = (_mus.rot[state] || 0) % list.length; key = list[i]; _mus.rot[state] = i + 1; }
+  const tr = MUSIC_TRACKS[key]; if(!tr) return;
+  musicFadeOut();
+  _mus.state = state;
+  let ctx; try { ctx = getAudioCtx(); } catch(e){ return; }
+  const el = new Audio(tr.file);
+  el.preload = 'auto'; el.loop = list.length === 1 && !tr.once;
+  const g = ctx.createGain(); g.gain.value = 0.0001;
+  try { ctx.createMediaElementSource(el).connect(g); } catch(e){ return; }
+  g.connect(_bus.master);
+  const t = ctx.currentTime; g.gain.setTargetAtTime(MUSIC_VOL, t, MUSIC_FADE / 3);
+  const cur = { el, g, key, state };
+  el.onended = () => { if(_mus.cur === cur && !tr.once && list.length > 1) musicStart(state); };
+  _mus.cur = cur;
+  el.play().then(() => { _mus.blocked = false; }).catch(() => { _mus.blocked = true; }); // retried on the next tap
+}
+function musicFadeOut(){
+  const c = _mus.cur; _mus.cur = null; if(!c) return;
+  try {
+    const t = _audioCtx.currentTime;
+    c.g.gain.cancelScheduledValues(t); c.g.gain.setValueAtTime(c.g.gain.value, t); c.g.gain.setTargetAtTime(0.0001, t, MUSIC_FADE / 3);
+  } catch(e){}
+  setTimeout(() => { try { c.el.pause(); c.el.removeAttribute('src'); c.el.load(); c.g.disconnect(); } catch(e){} }, MUSIC_FADE * 1000 + 300);
+}
+function musicStop(){ musicFadeOut(); _mus.state = null; }
+function musicTick(){
+  if(!musicOn || !soundEnabled || document.visibilityState === 'hidden'){ if(_mus.state) musicStop(); return; }
+  if(!_audioCtx) return; // waits for the first tap to unlock audio
+  const want = musicDesired();
+  if(want !== _mus.state) musicStart(want);
+}
+function musicPlaying(){ return !!(_mus.cur && !_mus.blocked); }
+function musicButtonLabel(){ return musicOn ? '🎵 MUSIC' : '🎵 OFF'; }
+function toggleMusic(){
+  musicOn = !musicOn;
+  try { localStorage.setItem(MUSIC_PREF_KEY, musicOn ? '1' : '0'); } catch(e){}
+  const b = document.getElementById('music-btn'); if(b) b.textContent = musicButtonLabel();
+  if(!musicOn) musicStop(); else { getAudioCtx(); musicTick(); }
+}
+// Browsers only start media after a tap: retry a blocked track on the next one
+document.addEventListener('pointerdown', () => {
+  if(_mus.blocked && _mus.cur) _mus.cur.el.play().then(() => { _mus.blocked = false; }).catch(() => {});
+  setTimeout(musicTick, 50);
+}, true);
+setInterval(musicTick, 700);
 
 // Pause audio when the app is in the background (battery), resume when back
 document.addEventListener('visibilitychange', () => {
@@ -10681,6 +10771,7 @@ if(screen.orientation && screen.orientation.lock){
 
 // ── INIT ───────────────────────────────────────────────
 document.getElementById('sound-btn').textContent = audioButtonLabel();
+document.getElementById('music-btn').textContent = musicButtonLabel();
 initTitleScreen();
 </script>
 </body>

@@ -1,4 +1,4 @@
-const CACHE = 'darkworld-v4';
+const CACHE = 'darkworld-v5';
 
 const CORE = [
   '/',
@@ -103,6 +103,9 @@ self.addEventListener('fetch', e => {
 
   // Supabase (auth, saves, live raid) — never cache, always live
   if (url.includes('.supabase.co') || e.request.method !== 'GET') return;
+
+  // Music streams with range requests: let the browser handle it directly
+  if (new URL(url).pathname.startsWith('/music/')) return;
 
   // Runtime config — network-first so key changes take effect, cached copy offline
   if (new URL(url).pathname === '/config.js') {
