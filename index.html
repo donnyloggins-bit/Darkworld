@@ -3160,8 +3160,8 @@ const ITEMS = {
   "Demon's Heart":           {emoji:'🫀', type:'accessory', tier:4, atk:313, crit:8,                      cost:0, desc:'Still beating. Fuels a rage that never fades.'},
   'Soul of the Iron Ghost':  {emoji:'⚙',  type:'accessory', tier:4, def:150, hp:375,                      cost:0, desc:'The ghost\'s will made manifest in iron and silence.'},
   // ── SEASON KEEPSAKES (never sold, never dropped) ──
-  'Hollow Lantern':          {emoji:'🎃', type:'accessory', tier:3, atk:60, crit:8, dodge:6, cost:0, season:true, desc:'Lit from a candle in Cherry Hill. Season 0 · The Hollow Night. +60 ATK, +8% crit, +6% dodge.'},
-  'Key of Cherry Hill':      {emoji:'🗝', type:'accessory', tier:4, atk:150, def:60, hp:200, cost:0, season:true, desc:"One key from the Ghost's iron ring. Only those who fought on the Hollow Night carry one."},
+  'Hollow Lantern':          {emoji:'🎃', type:'accessory', tier:3, atk:60, crit:8, dodge:6, cost:0, season:true, desc:'Lit from a candle on Fairmount Avenue. Season 0 · The Hollow Night. +60 ATK, +8% crit, +6% dodge.'},
+  'Key of Eastern State':      {emoji:'🗝', type:'accessory', tier:4, atk:150, def:60, hp:200, cost:0, season:true, desc:"One key from the Ghost's iron ring. Only those who fought on the Hollow Night carry one."},
   'Plague Sigil':            {emoji:'🕸', type:'accessory', tier:4, atk:250, crit:12, dodge:8,            cost:0, desc:'Vexara\'s mark. Death follows where you walk.'},
   "Wraith's Veil":           {emoji:'🌫', type:'accessory', tier:4, dodge:20, hp:250,                     cost:0, desc:'You are half-ghost now. Blades find only air.'},
   "Death's Ledger":          {emoji:'📖', type:'accessory', tier:4, atk:225, crit:10,                     cost:0, desc:'Every soul you claim is recorded. Interest compounds.'},
@@ -4986,7 +4986,7 @@ const SEASONS = [{
   ],
   omen:[
     { img:'philly-dark-skyline.jpg', label:'FAIRMOUNT · 1829', lines:['They built Eastern State to break men with silence.', 'Hooded when they walked. Alone when they slept.', 'The first warden kept every key on one iron ring.'] },
-    { img:'hellgate-arch.jpg', label:'CHERRY HILL · TONIGHT', lines:['The prison closed in 1971.', 'The warden never left.', 'This week his seven keepers walk the city — one each night, after dark.'] },
+    { img:'hellgate-arch.jpg', label:'EASTERN STATE · TONIGHT', lines:['The prison closed in 1971.', 'The warden never left.', 'This week his seven keepers walk the city — one each night, after dark.'] },
     { img:'iron-officer.jpg', label:'THE GHOST OF THE NORTH STAR', lines:['Break his seven locks before Halloween.', 'Then meet him at the gate on Fairmount Avenue —', 'with every hunter in Philadelphia behind you.'] },
   ],
   finaleSlides:[
@@ -4998,7 +4998,7 @@ const SEASON_CITY_MI = 15;     // how far from the site you can still join the s
 const SEASON_LANTERN_SHARDS = 3;
 const FINALE_PHASES = [
   { at:1,    tag:'',                mult:1 },
-  { at:0.66, tag:'THE GATES OPEN',  mult:1.25, line:'Every cell door in Cherry Hill swings open at once.' },
+  { at:0.66, tag:'THE GATES OPEN',  mult:1.25, line:'Every cell door in Eastern State swings open at once.' },
   { at:0.33, tag:'LIGHTS OUT',      mult:1.5,  line:'Every light on Fairmount Avenue goes dark. Only the lanterns are left.' },
 ];
 const _seasonBossCache = {};
@@ -5163,10 +5163,10 @@ function seasonFinaleHit(dmg){
   rec.finaleDmg = (rec.finaleDmg || 0) + dmg;
   if(!rec.rewards.key){
     rec.rewards.key = true;
-    const got = grantItem('Key of Cherry Hill');
+    const got = grantItem('Key of Eastern State');
     grantTitle('Survivor of the Hollow Night');
-    setTimeout(() => showToast('🗝 YOU FOUGHT THE GHOST', `${got ? 'Key of Cherry Hill · ' : ''}title: Survivor of the Hollow Night`), 400);
-    addLog('🗝 You stood against the Ghost. The Key of Cherry Hill is yours, and so is the title Survivor of the Hollow Night.', 'lb');
+    setTimeout(() => showToast('🗝 YOU FOUGHT THE GHOST', `${got ? 'Key of Eastern State · ' : ''}title: Survivor of the Hollow Night`), 400);
+    addLog('🗝 You stood against the Ghost. The Key of Eastern State is yours, and so is the title Survivor of the Hollow Night.', 'lb');
   }
 }
 function seasonFinalePhaseTick(list = BOSSES || []){
@@ -5388,7 +5388,7 @@ function renderSeason(){
     ${rw(rec.shards > 0, `Hollow shards ${rec.shards} / ${s.nights.length}`, 'one per lock you break')}
     ${rw(rec.rewards.lantern, 'The Hollow Lantern', `${SEASON_LANTERN_SHARDS} shards · title Nightwalker`)}
     ${rw(rec.shards >= s.nights.length, 'Keeper of the Seven Keys', 'break all seven locks')}
-    ${rw(rec.rewards.key, 'The Key of Cherry Hill', 'strike the Ghost in the finale')}
+    ${rw(rec.rewards.key, 'The Key of Eastern State', 'strike the Ghost in the finale')}
     ${rw((Player.titles || []).includes('Breaker of the North Star'), 'Breaker of the North Star', 'be there when he falls')}
     <div class="hunt-foot">Season keepsakes can never be bought or earned again. <a href="#" onclick="event.preventDefault();closeSeason();playCutscene(currentSeason().omen)">Replay the omen</a></div>`;
 }
