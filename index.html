@@ -4985,12 +4985,12 @@ const SEASONS = [{
       lore:'He holds the last of the seven keys and has never lost a fight on these steps. Break him and the Ghost walks free tomorrow night.' },
   ],
   omen:[
-    { img:null, label:'FAIRMOUNT · 1829', lines:['They built Eastern State to break men with silence.', 'Hooded when they walked. Alone when they slept.', 'The first warden kept every key on one iron ring.'] },
-    { img:'hellgate-arch.jpg', label:'EASTERN STATE · TONIGHT', lines:['The prison closed in 1971.', 'The warden never left.', 'This week his seven keepers walk the city — one each night, after dark.'] },
+    { img:'eastern-state-yard.jpg', top:true, label:'FAIRMOUNT · 1829', lines:['They built Eastern State to break men with silence.', 'Hooded when they walked. Alone when they slept.', 'The first warden kept every key on one iron ring.'] },
+    { img:'eastern-state-gate.jpg', top:true, label:'EASTERN STATE · TONIGHT', lines:['The prison closed in 1971.', 'The warden never left.', 'This week his seven keepers walk the city — one each night, after dark.'] },
     { img:'iron-officer.jpg', label:'THE GHOST OF THE NORTH STAR', lines:['Break his seven locks before Halloween.', 'Then meet him at the gate on Fairmount Avenue —', 'with every hunter in Philadelphia behind you.'] },
   ],
   finaleSlides:[
-    { img:'spooky-aerial.jpg', label:'HALLOWEEN · 8 PM', lines:['The last lock is broken.', 'The Ghost of the North Star is out.', 'Every hunter in Philadelphia — to Eastern State.'] },
+    { img:'eastern-state-night.jpg', label:'HALLOWEEN · 8 PM', lines:['The last lock is broken.', 'The Ghost of the North Star is out.', 'Every hunter in Philadelphia — to Eastern State.'] },
   ],
 }];
 const SEASON_SIEGE_MI = 0.3;   // full damage at the finale site; half from anywhere else in the city
@@ -10026,7 +10026,15 @@ function _showCutsceneSlide(i){
   _cutsceneIdx=i; _cutsceneLineIdx=0; _cutsceneAnimating=true;
   const bg=document.getElementById('cutscene-bg');
   bg.style.opacity='0';
-  setTimeout(()=>{ bg.style.backgroundImage=s.img?`url('${s.img}')`:'none'; bg.style.opacity='1'; },100);
+  setTimeout(()=>{
+    bg.style.backgroundImage=s.img?`url('${s.img}')`:'none';
+    // top:true pins the picture to the top 62% of the screen, fading out, so the text sits under it instead of over it
+    bg.style.backgroundSize=s.top?'auto 62%':'cover';
+    bg.style.backgroundPosition=s.top?'center top':'';
+    const fade=s.top?'linear-gradient(to bottom,#000 50%,transparent 62%)':'';
+    bg.style.maskImage=fade; bg.style.webkitMaskImage=fade;
+    bg.style.opacity='1';
+  },100);
   const label=document.getElementById('cutscene-label');
   label.textContent=s.label||'';
   label.style.opacity='0';

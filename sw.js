@@ -1,4 +1,4 @@
-const CACHE = 'darkworld-v5';
+const CACHE = 'darkworld-v6';
 
 const CORE = [
   '/',
@@ -36,6 +36,9 @@ const ASSETS = [
   '/delaware-night.jpg',
   '/delaware-tallship.jpg',
   '/drowned-sailor.jpg',
+  '/eastern-state-gate.jpg',
+  '/eastern-state-night.jpg',
+  '/eastern-state-yard.jpg',
   '/edward.jpeg',
   '/forgotten-founder.jpg',
   '/gravewanderer.jpeg',
