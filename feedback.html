@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#030205">
+<meta name="robots" content="noindex">
+<title>DARKWORLD — Tester Feedback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=IM+Fell+English:ital@0;1&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root { --void:#080510; --blood:#8b1a1a; --crimson:#cc2020; --gold:#d4a020; --bone:#ede0c8; --pale:#e0d0b0; --line:#3a2a50; --dim:#8a7aa0; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:#030205; color:var(--pale); }
+  body { font-family:'IM Fell English', Georgia, 'Times New Roman', serif; line-height:1.5; font-size:17px;
+    background:radial-gradient(ellipse at top, #1a0a1e 0%, #030205 60%) fixed;
+    padding:calc(20px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
+  main { max-width:620px; margin:0 auto; }
+  h1 { font-family:'Metal Mania', cursive; color:var(--gold); font-size:2rem; letter-spacing:.06em; margin:4px 0 2px; font-weight:normal;
+    text-shadow:0 0 12px rgba(204,32,32,.45); }
+  .sub { color:var(--dim); font-family:'Share Tech Mono', monospace; font-size:.8rem; letter-spacing:.12em; margin-bottom:14px; }
+  .intro { margin:0 0 18px; }
+  .back { display:inline-block; color:var(--pale); text-decoration:none; border:1px solid var(--line); padding:6px 12px;
+    font-family:'Share Tech Mono', monospace; letter-spacing:.1em; font-size:.85rem; }
+  fieldset { border:1px solid #2a1a30; background:rgba(8,5,16,.75); margin:0 0 14px; padding:12px 14px 14px; border-radius:4px; }
+  legend, .q { color:var(--gold); font-family:'Share Tech Mono', monospace; letter-spacing:.08em; font-size:.85rem; text-transform:uppercase; padding:0 4px; }
+  .q { display:block; padding:0; margin:0 0 6px; }
+  .hint { color:var(--dim); font-size:.85rem; margin:-2px 0 8px; }
+  input[type=text], input[type=email], select, textarea {
+    width:100%; background:#0d0814; color:var(--bone); border:1px solid var(--line); border-radius:3px;
+    padding:10px 11px; font:inherit; font-size:16px; }
+  textarea { min-height:92px; resize:vertical; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--crimson); box-shadow:0 0 0 2px rgba(204,32,32,.25); }
+  .opts { display:flex; flex-wrap:wrap; gap:8px; }
+  .opts label { flex:1 1 auto; min-width:64px; text-align:center; cursor:pointer; }
+  .opts input { position:absolute; opacity:0; pointer-events:none; }
+  .opts span { display:block; padding:10px 8px; border:1px solid var(--line); border-radius:3px; background:#0d0814;
+    font-family:'Share Tech Mono', monospace; letter-spacing:.06em; }
+  .opts input:checked + span { border-color:var(--crimson); background:#2a0b10; color:var(--bone); box-shadow:0 0 8px rgba(204,32,32,.35); }
+  .opts input:focus-visible + span { outline:2px solid var(--gold); }
+  .rating label { flex:1 1 0; min-width:0; }
+  .rating span { font-size:1.15rem; }
+  .row { margin-top:10px; }
+  .optional { color:var(--dim); font-style:italic; text-transform:none; letter-spacing:0; }
+  button[type=submit] { width:100%; margin-top:6px; padding:14px; border:1px solid var(--crimson); background:linear-gradient(#8b1a1a, #4a0c0c);
+    color:var(--bone); font-family:'Metal Mania', cursive; font-size:1.35rem; letter-spacing:.1em; border-radius:3px; cursor:pointer; }
+  button[type=submit]:active { transform:translateY(1px); }
+  .fine { color:var(--dim); font-size:.8rem; margin-top:12px; text-align:center; }
+  .fine a { color:#e06060; }
+  .hp { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+  #city-wrap[hidden] { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/index.html">◀ BACK TO THE GAME</a>
+  <h1>Tester Feedback</h1>
+  <div class="sub">DARKWORLD · PLAYTEST REPORT</div>
+  <p class="intro">Thanks for hunting. Tell us what worked, what didn't, and what broke. Short answers are fine. Every question is optional.</p>
+
+  <form name="tester-feedback" method="POST" action="/feedback-thanks.html" data-netlify="true" netlify-honeypot="bot-field">
+    <input type="hidden" name="form-name" value="tester-feedback">
+    <p class="hp"><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+    <input type="hidden" name="build" id="f-build" value="">
+    <input type="hidden" name="user-agent" id="f-ua" value="">
+    <input type="hidden" name="screen" id="f-screen" value="">
+    <input type="hidden" name="game-context" id="f-ctx" value="">
+
+    <fieldset>
+      <legend>Your device</legend>
+      <label class="q" for="f-device">Phone / device and OS</label>
+      <input type="text" id="f-device" name="device" placeholder="e.g. Pixel 7, Android 15 · iPhone 13, iOS 18" autocomplete="off">
+    </fieldset>
+
+    <fieldset>
+      <legend>Where you played</legend>
+      <div class="opts">
+        <label><input type="radio" name="where" value="Philadelphia"><span>Philadelphia</span></label>
+        <label><input type="radio" name="where" value="Elsewhere"><span>Elsewhere</span></label>
+      </div>
+      <div class="row" id="city-wrap">
+        <label class="q" for="f-city">City / neighborhood</label>
+        <input type="text" id="f-city" name="city" placeholder="e.g. Fishtown, or Pittsburgh PA" autocomplete="off">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>How long you played</legend>
+      <select name="play-time" id="f-time">
+        <option value="">Choose…</option>
+        <option>Under 10 minutes</option>
+        <option>10–30 minutes</option>
+        <option>30–60 minutes</option>
+        <option>1–3 hours</option>
+        <option>More than 3 hours</option>
+      </select>
+    </fieldset>
+
+    <fieldset>
+      <legend>Overall, how fun was it?</legend>
+      <p class="hint">1 = not fun · 5 = couldn't put it down</p>
+      <div class="opts rating">
+        <label><input type="radio" name="fun-rating" value="1"><span>1</span></label>
+        <label><input type="radio" name="fun-rating" value="2"><span>2</span></label>
+        <label><input type="radio" name="fun-rating" value="3"><span>3</span></label>
+        <label><input type="radio" name="fun-rating" value="4"><span>4</span></label>
+        <label><input type="radio" name="fun-rating" value="5"><span>5</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Tell us</legend>
+      <label class="q" for="f-fun">What was fun?</label>
+      <textarea id="f-fun" name="what-was-fun" placeholder="Moments, monsters, places, music…"></textarea>
+      <div class="row">
+        <label class="q" for="f-confusing">What was confusing or frustrating?</label>
+        <textarea id="f-confusing" name="confusing-or-frustrating" placeholder="Where did you get stuck or lose interest?"></textarea>
+      </div>
+      <div class="row">
+        <label class="q" for="f-bugs">Bugs you saw</label>
+        <textarea id="f-bugs" name="bugs" placeholder="What happened, and what were you doing right before?"></textarea>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Would you keep playing?</legend>
+      <div class="opts">
+        <label><input type="radio" name="keep-playing" value="Yes"><span>Yes</span></label>
+        <label><input type="radio" name="keep-playing" value="Maybe"><span>Maybe</span></label>
+        <label><input type="radio" name="keep-playing" value="No"><span>No</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Follow-up <span class="optional">(optional)</span></legend>
+      <label class="q" for="f-contact">Email or handle <span class="optional">— only if you're OK with us asking a follow-up question</span></label>
+      <input type="text" id="f-contact" name="contact" placeholder="Leave blank to stay anonymous" autocomplete="email">
+    </fieldset>
+
+    <button type="submit">SEND REPORT</button>
+    <p class="fine">We also attach the game build, your browser/device info and screen size to help track bugs. No GPS location is sent. <a href="/privacy.html">Privacy policy</a></p>
+  </form>
+</main>
+<script>
+(function(){
+  var p = new URLSearchParams(location.search);
+  function set(id, v){ var el = document.getElementById(id); if(el && v) el.value = String(v).slice(0, 2000); }
+  set('f-build', p.get('build') || 'web');
+  set('f-ua', navigator.userAgent);
+  set('f-screen', (screen.width + '×' + screen.height) + ' · window ' + innerWidth + '×' + innerHeight + ' @' + (devicePixelRatio || 1) + 'x');
+  set('f-ctx', p.get('ctx'));
+  if (p.get('where') === 'elsewhere' || p.get('where') === 'philly') {
+    var r = document.querySelector('input[name=where][value="' + (p.get('where') === 'philly' ? 'Philadelphia' : 'Elsewhere') + '"]');
+    if (r) r.checked = true;
+  }
+  // Best-effort device guess so testers don't have to type it
+  var dev = document.getElementById('f-device');
+  if (dev && !dev.value) {
+    var ua = navigator.userAgent, m;
+    if ((m = ua.match(/Android\s([\d.]+);\s*([^;)]+?)(?:\sBuild|\))/))) dev.value = m[2].trim() + ', Android ' + m[1];
+    else if ((m = ua.match(/(iPhone|iPad).*?OS\s([\d_]+)/))) dev.value = m[1] + ', iOS ' + m[2].replace(/_/g, '.');
+  }
+})();
+</script>
+</body>
+</html>

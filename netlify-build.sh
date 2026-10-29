@@ -3,7 +3,7 @@
 # so Supabase keys never live in the repo.
 #   SUPABASE_URL + SUPABASE_ANON_KEY  → online mode (accounts, crews, raids)
 #   CARTO_KEY                         → CARTO dark map tiles (optional)
-#   FEEDBACK_URL                      → where "✉ SEND FEEDBACK" goes (optional; see config.example.js)
+#   FEEDBACK_URL                      → where "✉ SEND FEEDBACK" goes (optional; unset = built-in feedback.html Netlify Form)
 set -eu
 CARTO="${CARTO_KEY:-}"
 FEEDBACK="${FEEDBACK_URL:-}"
