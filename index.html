@@ -1769,6 +1769,116 @@ body:not(.net-on) .net-only { display:none !important; }
 .acct-close { background:transparent; border:none; color:#8a7aa0; font-family:'Share Tech Mono',monospace; font-size:.85rem; letter-spacing:.2em; padding:6px; cursor:pointer; }
 
 /* ══ THE HUNT ══ */
+/* ══ CORE LOOP prototype ══ */
+#friends-modal { display:none; position:fixed; inset:0; z-index:166; background:rgba(5,3,12,0.97); justify-content:center; overflow-y:auto; padding:16px 12px 32px; top:var(--sat); bottom:var(--sab); }
+#friends-modal.active { display:flex; }
+.fr-sample { font-family:'Share Tech Mono',monospace; font-size:.68rem; letter-spacing:.08em; color:#c8a040; border:1px dashed #6a5020; padding:6px 8px; margin-bottom:10px; }
+.fr-meta { font-family:'Share Tech Mono',monospace; font-size:.74rem; color:#a090b8; margin-bottom:10px; }
+.fr-row { border:1px solid #3a2a50; border-left:2px solid #c86aa8; background:linear-gradient(160deg,#1a1528,#0d0a1c); padding:10px; margin-bottom:8px; }
+.fr-top { display:flex; gap:10px; align-items:center; cursor:pointer; }
+.fr-emo { width:42px; height:42px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; border:1px solid #4a3a60; background:#0d0a18; flex-shrink:0; }
+.fr-main { flex:1; min-width:0; }
+.fr-name { color:var(--bone); font-size:1.02rem; }
+.fr-name span { font-family:'Share Tech Mono',monospace; font-size:.66rem; color:#8a7aa0; margin-left:4px; }
+.fr-lvl { font-family:'Share Tech Mono',monospace; font-size:.7rem; color:#e88ac8; margin:2px 0 4px; }
+.fr-lvl b { color:#ff6aa8; letter-spacing:.1em; }
+.fr-bar { height:5px; background:#1a0f20; border:1px solid #3a2a50; }
+.fr-bar div { height:100%; background:linear-gradient(90deg,#6a1a4a,#ff6aa8); }
+.fr-perk { font-size:.8rem; color:#9a8ab0; font-style:italic; margin-top:3px; }
+.fr-go { font-size:1.2rem; }
+.fr-help { margin-top:8px; font-size:.82rem; color:#f0c060; border-left:2px solid #c8962a; padding-left:6px; }
+.fr-feed { margin-top:6px; font-size:.82rem; color:#b0a0c8; }
+.fr-btns { display:flex; gap:6px; margin-top:8px; }
+.fr-btns button, .fr-add button, .fr-seg button, .fr-back, .fr-presets button { background:rgba(60,20,60,.5); border:1px solid #6a3a6a; color:#f0d8f0; font-family:'Share Tech Mono',monospace; font-size:.72rem; letter-spacing:.06em; padding:8px 6px; cursor:pointer; }
+.fr-btns button { flex:1; }
+.fr-btns button:disabled { opacity:.5; }
+.fr-code-card { text-align:center; border:1px solid #6a3a6a; background:#140c1e; padding:14px; margin-bottom:10px; }
+.fr-code-lbl { font-family:'Share Tech Mono',monospace; font-size:.7rem; color:#a090b8; letter-spacing:.12em; }
+.fr-code { font-family:'Share Tech Mono',monospace; font-size:2.2rem; letter-spacing:.2em; color:var(--gold); margin:6px 0; }
+.fr-code-sub { font-size:.84rem; color:#9a8ab0; }
+.fr-add { display:flex; gap:6px; margin:8px 0; }
+.fr-add input { flex:1; min-width:0; background:#0d0a18; border:1px solid #4a3a60; color:var(--bone); font-family:'Share Tech Mono',monospace; font-size:.9rem; padding:9px; }
+.fr-note { font-size:.8rem; color:#8a7aa0; margin:6px 0; }
+.fr-rules { font-size:.84rem; color:#7ac89a; border:1px solid #2a5a3a; padding:8px; margin-top:10px; }
+.fr-set { border:1px solid #3a2a50; padding:10px; margin-bottom:8px; }
+.fr-set-t { font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#a090b8; letter-spacing:.12em; margin-bottom:6px; }
+.fr-seg { display:flex; gap:6px; }
+.fr-seg button { flex:1; }
+.fr-seg button.on { border-color:var(--gold); color:var(--gold); background:rgba(90,60,10,.4); }
+.fr-back { margin-bottom:8px; }
+.fr-chat-head { color:var(--bone); font-size:1.1rem; margin-bottom:6px; }
+.fr-chat-head span { font-family:'Share Tech Mono',monospace; font-size:.66rem; color:#e88ac8; }
+.fr-chat { max-height:38vh; overflow-y:auto; border:1px solid #3a2a50; background:#0a0712; padding:8px; display:flex; flex-direction:column; gap:6px; }
+.cm { max-width:82%; padding:6px 8px; font-size:.92rem; }
+.cm.them { align-self:flex-start; background:#1f1630; border:1px solid #3a2a50; color:var(--bone); }
+.cm.me { align-self:flex-end; background:#3a1630; border:1px solid #6a3a6a; color:#f8e0f0; }
+.cm-act { display:flex; gap:8px; margin-top:3px; }
+.cm-act button { background:none; border:none; color:#8a6a80; font-family:'Share Tech Mono',monospace; font-size:.62rem; cursor:pointer; padding:0; }
+.fr-presets { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.fr-presets button { padding:6px 7px; }
+
+.lh-buffs { display:flex; gap:4px; }
+.lh-buff { background:rgba(8,20,30,.9); border:1px solid #4a90c0; color:#d0f0ff; font-size:.95rem; padding:2px 5px; }
+.lh-buff span { font-family:'Share Tech Mono',monospace; font-size:.62rem; margin-left:3px; }
+.bl-row { display:flex; gap:8px; align-items:center; border:1px solid #2a3a50; border-left:2px solid #4a90c0; background:linear-gradient(160deg,#111a28,#0a0d1a); padding:8px; margin-bottom:6px; }
+.bl-row.stamped { border-left-color:#7ad0ff; }
+.bl-ic { font-size:1.4rem; width:34px; text-align:center; }
+.bl-main { flex:1; min-width:0; }
+.bl-name { color:var(--bone); font-size:.98rem; }
+.bl-sub { font-family:'Share Tech Mono',monospace; font-size:.66rem; color:#8ab0d0; }
+.bl-flav { font-size:.78rem; color:#7a7a98; font-style:italic; }
+.bl-st { font-family:'Share Tech Mono',monospace; font-size:.66rem; color:#7ad0ff; }
+.bl-set { font-size:.85rem; color:#a0b0c8; border:1px solid #2a3a50; padding:6px 8px; margin-bottom:5px; }
+.bl-set.done { border-color:#7ad0ff; color:#d0f0ff; }
+/* map chip */
+#loop-hud { position:absolute; right:12px; bottom:calc(62px + var(--sab)); z-index:5; display:flex; flex-direction:column; gap:4px; align-items:flex-end; cursor:pointer; }
+.lh-ember { background:rgba(10,6,18,.86); border:1px solid #6a3a1a; padding:4px 7px; text-align:right; }
+.lh-ember i { font-style:normal; font-size:.95rem; filter:grayscale(1) brightness(.4); }
+.lh-ember i.on { filter:none; text-shadow:0 0 8px #ff8c1a; }
+.lh-bar { height:3px; background:#2a1a10; margin-top:2px; } .lh-bar div { height:100%; background:#ff8c1a; }
+.lh-t { font-family:'Share Tech Mono',monospace; font-size:.56rem; color:#c89060; letter-spacing:.08em; margin-top:2px; }
+.lh-chain { background:rgba(40,8,8,.9); border:1px solid #cc3333; color:#ffd0c0; font-family:'Metal Mania',cursive; font-size:1.05rem; padding:2px 8px; }
+.lh-chain span { font-family:'Share Tech Mono',monospace; font-size:.7rem; margin-left:6px; color:#f0a090; }
+.lh-chain.hot { animation:coachPulse 1s ease-in-out infinite; }
+/* fight: heavy blows, ember button */
+#turn-ind.heavy { color:#ffb040 !important; text-shadow:0 0 10px rgba(255,120,0,.7); }
+#enemy-timer-track.timer-heavy { box-shadow:0 0 0 1px #ff8c1a, 0 0 12px rgba(255,120,0,.55); }
+#enemy-timer-track.timer-heavy #enemy-timer-fill { background:linear-gradient(90deg,#8a3a00,#ff8c1a) !important; }
+#ab-grid.loop-grid .abtn.potion-btn, #ab-grid.loop-grid .abtn.flee-btn { grid-column:span 1; padding:4px 2px; }
+#ab-grid.loop-grid .potion-btn .abtn-type, #ab-grid.loop-grid .flee-btn .abtn-type { display:none; }
+#ab-grid.loop-grid .potion-btn .abtn-name, #ab-grid.loop-grid .flee-btn .abtn-name { font-size:.64rem; }
+#ab-grid .abtn.ember-btn { grid-column:span 2; height:44px; flex-direction:row; gap:6px; padding:4px 8px; border-color:#5a3010; }
+#ab-grid .ember-btn .abtn-emoji { font-size:1.3rem; filter:grayscale(1) brightness(.5); }
+#ab-grid .ember-btn .abtn-name { font-size:.78rem; white-space:nowrap; max-width:none; }
+#ab-grid .abtn.ember-btn.lit { border-color:#ff8c1a; box-shadow:0 0 12px rgba(255,140,26,.5); animation:emberGlow 1.6s ease-in-out infinite; }
+@keyframes emberGlow { 0%,100% { box-shadow:0 0 6px rgba(255,140,26,.35); } 50% { box-shadow:0 0 18px rgba(255,140,26,.85); } }
+#ab-grid .ember-btn.lit .abtn-emoji { filter:none; }
+/* loot */
+.loot-mark { font-size:.8rem; color:#e0b0ff; margin:0 0 4px 18px; text-align:left; }
+.loot-q { display:inline-block; font-family:'Share Tech Mono',monospace; font-size:.6rem; color:#b090d0; border:1px solid #6a4a8a; padding:0 4px; margin-left:6px; }
+.loot-equip { display:block; width:100%; margin:4px 0 6px; background:rgba(20,80,30,.6); border:1px solid #3ee26b; color:#d0ffd8; font-family:'Share Tech Mono',monospace; font-size:.74rem; letter-spacing:.08em; padding:8px; cursor:pointer; }
+.loot-equip:disabled { opacity:.6; }
+.bag-item.marked { border-color:#8a5ab8 !important; box-shadow:0 0 8px rgba(160,100,220,.35); }
+.bi-mark { font-size:.62rem; color:#d0a8f0; margin-top:2px; line-height:1.15; }
+/* tap-to-chat */
+#qc-btn { position:absolute; top:8px; right:8px; z-index:30; width:44px; height:44px; border-radius:50%; border:1px solid #c8962a; background:rgba(20,12,30,.9); font-size:1.3rem; cursor:pointer; box-shadow:0 0 10px rgba(212,168,48,.4); }
+#qc-feed { position:absolute; top:58px; right:8px; z-index:29; width:min(250px,64vw); display:flex; flex-direction:column; gap:4px; pointer-events:none; opacity:0; transition:opacity .3s; }
+#qc-feed.show { opacity:1; }
+.qc-msg { background:rgba(12,8,22,.92); border:1px solid #4a3a60; color:var(--bone); font-size:.84rem; padding:4px 8px; }
+.qc-msg b { font-family:'Share Tech Mono',monospace; font-size:.62rem; color:#a090b8; font-weight:normal; margin-right:4px; }
+.qc-msg.me { border-color:#c8962a; }
+#qc-wheel { position:absolute; inset:0; z-index:40; background:rgba(4,2,10,.78); display:none; align-items:center; justify-content:center; }
+#qc-wheel.show { display:flex; }
+#qc-box { width:min(370px,96%); }
+#qc-title { text-align:center; font-family:'Share Tech Mono',monospace; font-size:.7rem; color:#a090b8; letter-spacing:.1em; margin-bottom:6px; }
+#qc-ring { position:relative; width:100%; aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,#1a1228 0 30%,rgba(30,18,44,.92) 31% 70%,transparent 71%); border:1px solid #3a2a50; }
+.qc-item { position:absolute; transform:translate(-50%,-50%); width:31%; min-height:52px; background:#221634; border:1px solid #6a4a8a; color:var(--bone); font-size:.8rem; line-height:1.15; padding:4px; border-radius:10px; cursor:pointer; }
+.qc-item:active { background:#4a2a5a; }
+.qc-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:22%; aspect-ratio:1; border-radius:50%; background:#120a1c; border:1px solid #c8962a; color:var(--gold); font-size:1.2rem; cursor:pointer; }
+#qc-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-top:8px; }
+#qc-tabs button { background:transparent; border:1px solid #3a2a50; color:#a090b8; font-family:'Share Tech Mono',monospace; font-size:.66rem; padding:8px 2px; cursor:pointer; }
+#qc-tabs button.on { border-color:var(--gold); color:var(--gold); }
+
 #hunt-modal { display:none; position:fixed; inset:0; z-index:160; background:rgba(5,3,12,0.97); justify-content:center; overflow-y:auto; padding:16px 12px 32px; }
 #hunt-modal.active { display:flex; }
 .hunt-card { width:min(420px,100%); }
@@ -2220,6 +2330,7 @@ body:not(.net-on) .net-only { display:none !important; }
     <div id="raid-hud" onclick="toggleSidebar()" style="display:none"></div>
     <div id="hunters-hud" style="display:none"></div>
     <div id="goal-hud" style="display:none" onclick="openSeason()"><div id="goal-season"></div><div id="goal-crew"></div><div id="goal-next"></div></div>
+    <div id="loop-hud" style="display:none" onclick="openHunt('bounties')"></div>
     <div id="me-hud" onclick="toggleSidebar()">
       <div class="me-top"><span id="me-emoji">⚔</span><span id="me-lvl">LV 1</span><span id="me-gold">0 G</span></div>
       <div class="me-bar"><div id="me-hp"></div></div>
@@ -2238,6 +2349,7 @@ body:not(.net-on) .net-only { display:none !important; }
         <button id="menu-btn" onclick="toggleMore(false);toggleSidebar()">☰ STATS &amp; LOG</button>
         <button id="quest-btn" onclick="toggleMore(false);openQuestLog()">📜 QUESTS</button>
         <button id="book-btn" onclick="toggleMore(false);openBook()">📕 BOOK</button>
+        <button id="friends-btn" onclick="toggleMore(false);openFriends('list')">🤝 FRIENDS &amp; CHAT</button>
         <button id="crew-btn" class="net-only" onclick="toggleMore(false);openCrew()">👥 CREW</button>
         <button id="sound-btn" onclick="toggleSound()">🔊 SOUND</button>
         <button id="music-btn" onclick="toggleMusic()">🎵 MUSIC</button>
@@ -2290,6 +2402,14 @@ body:not(.net-on) .net-only { display:none !important; }
 <div id="combat-modal">
   <div id="combat-box">
     <div id="dmg-layer"></div>
+    <button id="qc-btn" style="display:none" onclick="qcOpen()" aria-label="Quick chat">💬</button>
+    <div id="qc-feed"></div>
+    <div id="qc-wheel" onclick="if(event.target===this)qcClose()">
+      <div id="qc-box"><div id="qc-title">QUICK CHAT · everyone sees it · no typing</div>
+        <div id="qc-ring"></div>
+        <div id="qc-tabs"><button data-set="tactics" onclick="qcTab('tactics')">⚔ TACTICS</button><button data-set="friendly" onclick="qcTab('friendly')">👋 FRIENDLY</button><button data-set="cheer" onclick="qcTab('cheer')">🎉 CHEER</button><button data-set="meetup" onclick="qcTab('meetup')">📍 MEETUP</button></div>
+      </div>
+    </div>
 
     <!-- ENEMY TOP -->
     <div id="cb-top">
@@ -2525,6 +2645,20 @@ body:not(.net-on) .net-only { display:none !important; }
   </div>
 </div>
 
+<div id="friends-modal">
+  <div class="hunt-card">
+    <div class="hunt-head">
+      <div class="hunt-title">FRIENDS</div>
+      <button class="hunt-close" onclick="closeFriends()">✕ CLOSE</button>
+    </div>
+    <div class="hunt-tabs">
+      <button class="hunt-tab" data-tab="list" onclick="friendTab('list')">🤝 FRIENDS</button>
+      <button class="hunt-tab" data-tab="add" onclick="friendTab('add')">＋ ADD</button>
+      <button class="hunt-tab" data-tab="settings" onclick="friendTab('settings')">☰ SETTINGS</button>
+    </div>
+    <div id="friends-body"></div>
+  </div>
+</div>
 <div id="hunt-modal">
   <div class="hunt-card">
     <div class="hunt-head">
@@ -2533,6 +2667,7 @@ body:not(.net-on) .net-only { display:none !important; }
     </div>
     <div class="hunt-tabs">
       <button class="hunt-tab" data-tab="bounties" onclick="setHuntTab('bounties')">📜 DAILY</button>
+      <button class="hunt-tab" data-tab="bless" onclick="setHuntTab('bless')">🕯 BLESS</button>
       <button class="hunt-tab" data-tab="bestiary" onclick="setHuntTab('bestiary')">📖 BEASTS</button>
       <button class="hunt-tab" data-tab="city" onclick="setHuntTab('city')">🗺 CITY</button>
       <button class="hunt-tab net-only" data-tab="turf" onclick="setHuntTab('turf')">⚑ TURF</button>
@@ -3391,11 +3526,12 @@ function renderInventory(){
     const extra = isLegendary
       ? `<div class="bi-legendary">✦ ${item.relic ? 'RELIC' : 'LEGENDARY'}${item.classReq ? ' · '+item.classReq.toUpperCase() : ''}</div>`
       : (wrongClass ? `<div class="bi-req">REQ: ${item.classReq}</div>` : '');
-    return `<div class="${cls}" onclick="${isPotion?`usePotion('${name}')`:`equipItem('${name}')`}">
+    const markLine = item.mark ? `<div class="bi-mark">${netEsc(item.desc)}</div>` : '';
+    return `<div class="${cls}${item.mark ? ' marked' : ''}" onclick="${isPotion?`usePotion(Player.inventory[${i}])`:`equipItem(Player.inventory[${i}])`}">
       <div class="bi-emoji">${item.emoji}</div>
       <div class="bi-name">${name}</div>
       <div class="bi-stat">${itemStatLine(item)}</div>
-      ${extra}
+      ${markLine}${extra}
     </div>`;
   }).join('');
 }
@@ -3600,7 +3736,7 @@ function ownsItem(name){
 }
 
 function rollLootDrop(enemy, isBoss){
-  const drops = [];
+  let drops = [];
   // the very first kill always drops a blade, so the first fight pays off
   if(enemy.tutorialMob){
     if(!ownsItem('Iron Sword')){ drops.push('Iron Sword'); Player.inventory.push('Iron Sword'); }
@@ -3622,10 +3758,10 @@ function rollLootDrop(enemy, isBoss){
   }
 
   // Regular random loot drop (tier 1-3 only)
-  const dropChance = isBoss ? 0.60 : (enemy.elite || enemy.gilded) ? 1 : 0.25;
+  const dropChance = (isBoss ? 0.60 : (enemy.elite || enemy.gilded) ? 1 : 0.25) + loopDropBonus(); // core-loop: the Hunt Chain raises the odds
   if(Math.random() < dropChance){
     const zone = enemy.zone ?? 2;
-    const maxTier = Math.min(3, ZONE_DROP_TIERS[zone] + (isBoss || enemy.elite ? 1 : 0) + (enemy.gilded ? 1 : 0));
+    const maxTier = Math.min(loopTierCap(), ZONE_DROP_TIERS[zone] + (isBoss || enemy.elite ? 1 : 0) + (enemy.gilded ? 1 : 0));
     const eligible = Object.entries(ITEMS).filter(([n,item])=>
       item.type !== 'potion' && item.tier <= maxTier && item.tier < 4 && !item.season && !drops.includes(n)
     );
@@ -3636,6 +3772,7 @@ function rollLootDrop(enemy, isBoss){
   }
 
   // Add to inventory (respect bag limit)
+  drops = loopForgeDrops(drops, enemy, isBoss); // core-loop: marked items, the chain cache, ember drops
   drops.forEach(name => { if(Player.inventory.length < BAG_SIZE) Player.inventory.push(name); });
   return drops;
 }
@@ -4154,7 +4291,7 @@ function buildLivingMob(id, lat, lng, rng, expiresAt, eliteChance = ELITE_CHANCE
   const v = 1 + varRoll * 0.4;
   const grow = Math.pow(1.1, gap);
   // Every fight should last a few blows (about 4 actions), so the riposte you learned matters
-  const floorHp = Player ? Math.floor((Player.atk || 10) * (6 + varRoll * 2)) : 0;
+  const floorHp = Player ? Math.floor(loopBaseAtk() * (12 + varRoll * 3) + loopGearAtk() * 4) : 0; // core-loop: better gear really shortens a fight (about 6 blows with the starter sword, 3–4 with a big weapon) but never one-shots
   const hp = Math.floor(Math.max(t.hp * v * grow, floorHp) * (elite ? 2.2 : 1) * (blood ? 1.5 : 1) * (gilded ? 1.6 : 1));
   return {...t, lat, lng, id:'L'+id, livingId:id, expiresAt, elite, lvl, zone, bloodMoon:blood, gilded,
     type: `${gilded ? '✦ GILDED · ' : ''}${blood ? '🩸 BLOOD MOON · ' : ''}${elite ? '★ ELITE · ' : ''}LV ${lvl} · ${zi >= 0 ? ZONES[zi].name.toUpperCase() : 'THE WILDS'}`,
@@ -4387,6 +4524,7 @@ function render(){
   drawSeasonSite();
   drawDelveDoors();
   drawShrines();
+  drawBlessings();
   drawBloodRings();
   spawns.forEach(s=>{ if(!s.defeated)drawMob(s); });
   BOSSES.forEach(b=>{ if(!b.defeated)drawBoss(b); });
@@ -5380,7 +5518,7 @@ function seasonSync(){
 }
 
 function seasonModalsOpen(){
-  return !!document.querySelector('#hunt-modal.active, #levelup-modal.active, #acct-modal.active, #inv-modal.active, #shop-modal.active, #quest-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #boss-reveal.active, #combat-modal.active, #screen-ar.active, #sidebar.open, #coach.show')
+  return !!document.querySelector('#friends-modal.active, #hunt-modal.active, #levelup-modal.active, #acct-modal.active, #inv-modal.active, #shop-modal.active, #quest-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #boss-reveal.active, #combat-modal.active, #screen-ar.active, #sidebar.open, #coach.show')
     || document.getElementById('cutscene-overlay').style.display === 'block';
 }
 // The omen plays once per season, the first quiet moment after the tutorial
@@ -5587,7 +5725,7 @@ function nextGoal(){
 }
 function goalTick(){
   const tst = document.getElementById('toast');
-  if(tst && tst.classList.contains('show')) tst.classList.toggle('low', !!document.querySelector('#hunt-modal.active, #shop-modal.active, #inv-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #acct-modal.active') || document.getElementById('quest-modal').style.display === 'flex');
+  if(tst && tst.classList.contains('show')) tst.classList.toggle('low', !!document.querySelector('#friends-modal.active, #hunt-modal.active, #shop-modal.active, #inv-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #acct-modal.active') || document.getElementById('quest-modal').style.display === 'flex');
   const el = document.getElementById('goal-hud'); if(!el || !Player) return;
   arNudgeSync(); navBadgeSync();
   if(tutStep()){ el.style.display = 'none'; return; }
@@ -7536,6 +7674,7 @@ function huntOnGPS(lat, lng, accuracy){
   if(hours <= 0 || d / hours > WALK_MAX_MPH) return; // driving / teleport
   Player.walkedMi = (Player.walkedMi || 0) + d;
   huntProgress('walk', d);
+  loopAddWalk(d);
   turfOnWalk(d);
 }
 
@@ -7571,7 +7710,7 @@ function showToast(title, body){
 }
 function _toastShow(el, title, body){
   el.innerHTML = `<div class="toast-title">${title}</div><div class="toast-body">${body}</div>`;
-  el.classList.toggle('low', !!document.querySelector('#hunt-modal.active, #shop-modal.active, #inv-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #acct-modal.active') || document.getElementById('quest-modal').style.display === 'flex');
+  el.classList.toggle('low', !!document.querySelector('#friends-modal.active, #hunt-modal.active, #shop-modal.active, #inv-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #acct-modal.active') || document.getElementById('quest-modal').style.display === 'flex');
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   _toastShownAt = Date.now();
   clearTimeout(_toastTimer);
@@ -7602,6 +7741,7 @@ function renderHunt(){
   const el = document.getElementById('hunt-content');
   if(huntTab === 'board' && NET_ON){ renderBoard(el); return; }
   if(huntTab === 'turf'){ renderTurf(el); return; }
+  if(huntTab === 'bless'){ renderBlessings(el); return; }
   if(huntTab === 'city'){
     const ds = Player.districts || {}, ls = Player.landmarks || {};
     const nd = PHILLY_DISTRICTS.filter(d => ds[d.name]).length, nl = PHILLY_LANDMARKS.filter(l => ls[l.real]).length;
@@ -8660,6 +8800,7 @@ function startGPS(){
         dwCardHide(); gpsExplore = false;
         if(tutStep()) tutKeepClose();
         gpsCheckRemote(lat, lng); updateZone();
+        setTimeout(blessMaybeOsm, 1500);
       }
       setGPSStatus('locked',`LOCKED · ±${Math.round(accuracy)}m`);
   };
@@ -8715,12 +8856,16 @@ function combatTick(){
     track.classList.toggle('timer-danger', pct>85);
   }
   if(ind){
-    const inWindow = pct>(1-RIPOSTE_FRAC)*100 && !eStatuses.find(s=>s.type==='stun');
+    const inWindow = pct>(1-RIPOSTE_FRAC)*100 && !eStatuses.find(s=>s.type==='stun') && !(loopIsHeavy(curEnemy) && curEnemy._offBal===(curEnemy._sw||0));
     if(inWindow && !combatTick._win) sndRiposteWindow();
     combatTick._win = inWindow;
     ind.classList.toggle('riposte', inWindow);
     ind.classList.remove('incoming');
     ind.textContent = inWindow ? '⚔ STRIKE NOW — RIPOSTE ⚔' : 'ATTACK · STRIKE AS THE BAR FILLS TO RIPOSTE';
+    const heavyTxt = loopTurnText(inWindow);
+    if(heavyTxt) ind.textContent = heavyTxt;
+    ind.classList.toggle('heavy', !!heavyTxt);
+    if(track) track.classList.toggle('timer-heavy', !!heavyTxt);
   }
 
   // Enemy attack
@@ -8758,6 +8903,7 @@ function combatTick(){
 function startCombat(ent,boss){
   if(ent && ent.isRaid && !raidCanEngage(ent)) return;
   sndCombatStart();
+  loopRescale(ent);
   inCombat=true; isBoss=boss; curEnemy=ent;
   eStatuses=[]; Player.statuses=[];
   Player.cooldowns={};
@@ -8771,7 +8917,7 @@ function startCombat(ent,boss){
     Player.illusionStacks = (Player.illusionStacks||0) + 2;
   }
   const attackInterval = boss ? 3000 : 2500;
-  curEnemy.nextAttackAt = Date.now() + ((boss || ent.tutorialMob) ? 3500 : 2200); // the player acts first; the first swing comes soon enough to riposte
+  curEnemy.nextAttackAt = Date.now() + ((boss || ent.tutorialMob) ? 3500 : 1900); // core-loop: the opening heavy blow comes early enough to be in every street fight // the player acts first; the first swing comes soon enough to riposte
 
   const portrait = document.getElementById('boss-portrait');
   if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; portrait.style.borderBottomColor=boss?'#b8962a':'#3a2a50'; }
@@ -8833,6 +8979,7 @@ function buildAbilityButtons(){
   flee.innerHTML=`<div class="abtn-type">FLEE</div><div class="abtn-emoji">🏃</div><div class="abtn-name">ESCAPE</div>`;
   flee.onclick=doFlee;
   grid.appendChild(flee);
+  loopAddButtons(grid); qcSyncBtn(); _qcFeed = []; const qf = document.getElementById('qc-feed'); if(qf){ qf.innerHTML = ''; qf.classList.remove('show'); } qcClose();
 }
 
 let _cbElCache = null;
@@ -8978,17 +9125,25 @@ function playerAct(ability){
   const atkInterval = isBoss ? 5000 : 4000;
   const untilHit = curEnemy.nextAttackAt - now;
   let riposted = false;
-  if(ability.dmgMult>0 && untilHit>0 && untilHit<=atkInterval*RIPOSTE_FRAC && !eStatuses.find(s=>s.type==='stun')){
+  // core-loop: swinging wildly into a heavy wind-up leaves you off balance, so you can't turn that one; wait for the flash
+  if(ability.dmgMult>0 && loopIsHeavy(curEnemy) && untilHit>atkInterval*RIPOSTE_FRAC && untilHit<=atkInterval*0.42 && !eStatuses.find(s=>s.type==='stun') && curEnemy._offBal!==(curEnemy._sw||0)){
+    curEnemy._offBal = curEnemy._sw||0;
+    showDamageNum('TOO EARLY','dmg-dodge','left');
+  }
+  const offBal = loopIsHeavy(curEnemy) && curEnemy._offBal===(curEnemy._sw||0);
+  if(ability.dmgMult>0 && !offBal && untilHit>0 && untilHit<=atkInterval*RIPOSTE_FRAC && !eStatuses.find(s=>s.type==='stun')){
     const relicRing = hasRelicEquipped();
     ability = {...ability, dmgMult: ability.dmgMult*(relicRing ? 2.25 : 1.5)};
     if(relicRing){ setTimeout(()=>showDamageNum('THE BELL TOLLS','dmg-crit','right'),140); sndDistrictBell(); }
     curEnemy.nextAttackAt = now + atkInterval;
     Player.ripostes = (Player.ripostes||0) + 1;
     riposted = true;
+    const wasHeavy = loopIsHeavy(curEnemy);
+    if(wasHeavy){ ability = {...ability, dmgMult: ability.dmgMult*1.5}; loopOnBreak(); }
     if(curEnemy.tutorialMob) curEnemy._tutRiposted = true;
     showDamageNum('RIPOSTE!','dmg-riposte','left');
     flashScreen('white'); sndRiposte();
-    setCLog(`⚔ RIPOSTE! You turn ${curEnemy.name}'s blow aside and strike back.`);
+    setCLog(wasHeavy ? `💥 BREAK! You turn ${curEnemy.name}'s heavy blow and it reels.` : `⚔ RIPOSTE! You turn ${curEnemy.name}'s blow aside and strike back.`);
   }
 
   // Resource generation effects
@@ -9033,6 +9188,7 @@ function playerAct(ability){
   // Damage
   if(ability.dmgMult>0){
     let dmg=calcDamage(ability);
+    dmg=loopDmgMod(dmg, ability, riposted);
     // Combo multiplier for Signature
     let comboUsed=0;
     if(ability.type==='Signature' && playerCombo>0){
@@ -9141,7 +9297,7 @@ function calcDamage(ability){
     sndCrit();
   } else {
     // Normal crit chance from Player.crit stat
-    if(Math.random()*100 < Player.crit){
+    if(Math.random()*100 < Player.crit + blessCrit()){
       dmg=Math.floor(dmg*1.75);
       setTimeout(()=>showDamageNum('CRIT!','dmg-crit','right'),90);
       sndCrit();
@@ -9202,6 +9358,7 @@ function getDmgClass(dmg){
 function doEnemyAttack(){
   if(!inCombat) return;
   const e=curEnemy;
+  const heavy = loopOnSwing(e); // core-loop: this swing was the telegraphed heavy blow
 
   // Stun — skip attack
   if(eStatuses.find(s=>s.type==='stun')){
@@ -9237,12 +9394,13 @@ function doEnemyAttack(){
 
   // Damage
   const isCrit = Math.random()<0.04;
-  const special = isBoss && Math.random()<0.15;
+  const special = heavy || (isBoss && Math.random()<0.15);
   let dmg=Math.floor(e.atk*(special?1.5:1.0)*(0.85+Math.random()*0.3));
   dmg=Math.max(1,dmg-Math.floor(Player.def*0.5));
   if(e.isRaid) dmg=Math.max(1,Math.floor(dmg*(1-warbandMitigation()))); // a warband tank soaks the raid's blows
   if(e._practice && e._comp && e._comp.tank) dmg=Math.max(1,Math.floor(dmg*0.8)); // the echo tank draws some of it
   if(isCrit){ dmg=Math.floor(dmg*1.7); }
+  if(heavy){ dmg=loopHeavyDmg(dmg); setTimeout(()=>showDamageNum('HEAVY BLOW','dmg-crit','left'),260); }
 
   if(special){
     // Boss special: charge-up veil → pause → slam
@@ -9317,12 +9475,13 @@ function victory(){
   if(curEnemy && curEnemy.isRaid && !curEnemy._dead){ raidResolveKill(); return; }
   sndVictory();
   killingBlowFx(curEnemy);
+  loopOnKill(curEnemy);
   if(curEnemy && curEnemy.gilded) gildedOnKill(curEnemy);
   playerCombo=0;
   const xpBase = curEnemy.xp||100;
   const home = (curEnemy.isRaid ? 0 : turfBonus()) + crewBonus();
   const moonNow = activeBloodMoon(), moonX = moonNow && curEnemy.name === moonNow.species ? 3 : 1;
-  const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0) + home) * moonX);
+  const xp = Math.floor(xpBase * (1 + (Player.xpBonus||0) + home) * moonX * loopXpMult() * blessXpMult());
   const goldBase = ri(curEnemy.gold[0],curEnemy.gold[1]);
   const gold = Math.floor(goldBase * (1 + (Player.goldBonus||0) + home));
   Player.xp+=xp; Player.gold+=gold;
@@ -9389,6 +9548,8 @@ function levelUp(){
 
 function showNextLevelUp(){
   if(pendingLevelUps.length === 0) return;
+  // core-loop: an upgrade on the spoils card gets its EQUIP tap before the level-up screen covers it
+  if(!tutStep() && document.getElementById('loot-popup').style.display === 'block' && document.querySelector('#loot-popup .loot-equip:not(:disabled)')){ clearTimeout(showNextLevelUp._w); showNextLevelUp._w = setTimeout(showNextLevelUp, 500); return; }
   const lvl = pendingLevelUps.shift();
   // During the First Hunt the points spend themselves: a toast, not homework
   if(tutStep()){
@@ -9627,12 +9788,14 @@ function showLoot(xp, gold, drops){ sndLoot(); if(drops && drops.length) setTime
 
   // Item drops with rarity styling
   let best = null;
-  drops.forEach(n=>{
+  showLoot._drops = drops;
+  drops.forEach((n, di)=>{
     const item=ITEMS[n];
     const tier=item?.tier||1, r=RARITY[tier]||RARITY[1];
     const glow = tier>=3 ? `text-shadow:0 0 10px ${r.color};` : '';
     const badge = tier>=2 ? `<span style="font-size:.6rem;border:1px solid ${r.color};color:${r.color};padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:.1em;">${r.name}</span>` : '';
     html+=`<div style="color:${r.color};${glow}font-size:.88rem;margin-bottom:3px;">${item?.emoji||'📦'} ${n}${badge}</div>`;
+    html+=loopLootLines(n, di);
     if(item && tier>=3 && (!best || tier>best.item.tier)) best={ item, n };
   });
   if(best) setTimeout(() => lootBeam(best.item, best.n), 350);
@@ -9646,7 +9809,7 @@ function showLoot(xp, gold, drops){ sndLoot(); if(drops && drops.length) setTime
   const close=()=>{ clearTimeout(showLoot._t); pop.style.display='none'; pop.onclick=null; };
   pop.onclick=close;
   // It clears itself so it never sits over HUNT/BOOK: a little longer when something dropped
-  clearTimeout(showLoot._t); showLoot._t=setTimeout(close, drops.length ? 4000 : 2500);
+  clearTimeout(showLoot._t); showLoot._t=setTimeout(close, drops.some(n => ITEMS[n] && (ITEMS[n].mark || (loopCompare(n)||{}).better)) ? 7000 : drops.length ? 4000 : 2500);
 }
 
 // ══════════════════════════════════════════════════════
@@ -9723,6 +9886,599 @@ function toggleClipMode(){
 }
 
 // ══════════════════════════════════════════════════════
+//  CORE LOOP (prototype, branch core-loop)
+//  30 s: every street fight has a telegraphed HEAVY BLOW; riposting it BREAKS the monster.
+//  Loot: drops can be MARKED (one rule-changing line + a quality roll) and gear really
+//  shortens fights now (monster HP no longer grows with your gear).
+//  5 min: HUNT CHAIN (kills close together build a chain: better loot, a cache at ×5/×10).
+//  Walking: every ~250 m charges an EMBER; spend it in a fight for an Ember Strike whose
+//  kill always drops a marked item one tier up.
+//  Social: FRIENDS (in-person codes, friendship levels, daily votives, help, an activity
+//  feed with no locations), friends-only filtered text, and the tap-to-chat wheel for
+//  parties, raids and the finale crowd. Offline this all runs on clearly labeled sample data.
+// ══════════════════════════════════════════════════════
+const LOOP_CHAIN_MS = 4 * 60 * 1000;   // the next kill within 4 min keeps the chain
+const LOOP_CHAIN_MAX_BONUS = 6;        // drop odds and XP stop growing after ×6
+const LOOP_EMBER_MI = 0.155;           // ~250 m of walking per ember
+const LOOP_EMBER_MAX = 3;
+const LOOP_HEAVY_PCT = 0.22;           // an unanswered heavy blow takes at least 22% of your HP
+const LOOP_MARK_CHANCE = 0.3;          // a normal drop is marked 3 times in 10
+const LOOP_MARKS = {
+  riposte: { suffix:'of Riposte',     emoji:'⚔', desc:'Ripostes heal 10% of your HP.' },
+  breaking:{ suffix:'of Breaking',    emoji:'💥', desc:'A BREAK stuns for 2 swings and resets your cooldowns.' },
+  chain:   { suffix:'of the Chain',   emoji:'⛓', desc:'+5% damage per link of your Hunt Chain (up to +40%).' },
+  embers:  { suffix:'of Embers',      emoji:'🔥', desc:'Walking charges embers 50% faster; Ember Strike hits 5× instead of 3.5×.' },
+  first:   { suffix:'of First Blood', emoji:'🩸', desc:'Your first hit in every fight deals double damage.' },
+  mending: { suffix:'of Mending',     emoji:'💚', desc:'Every kill heals 8% of your HP.' },
+};
+function loopState(){
+  if(!Player) return null;
+  const L = Player.loop = Player.loop || {};
+  L.chain = L.chain || 0; L.chainAt = L.chainAt || 0; L.bestChain = L.bestChain || 0;
+  if(L.ember === undefined) L.ember = 1; // everyone starts with one ember to try
+  L.emberMi = L.emberMi || 0; L.forged = L.forged || {};
+  L.breaks = L.breaks || 0;
+  return L;
+}
+// Forged items live in ITEMS but are not enumerable, so shops, shrines and drop pools never list them
+function loopRegister(name, def){
+  Object.defineProperty(ITEMS, name, { value:def, enumerable:false, configurable:true, writable:true });
+}
+function loopRestore(){ const L = loopState(); if(!L) return; for(const n in L.forged) loopRegister(n, L.forged[n]); }
+function loopHas(mark){
+  if(!Player || !Player.equipped) return false;
+  return Object.values(Player.equipped).some(n => n && ITEMS[n] && ITEMS[n].mark === mark);
+}
+// Monster HP is set from what your level gives you, not your gear, so a better weapon really shortens fights
+function loopGearAtk(){
+  let g = 0;
+  for(const n of Object.values((Player && Player.equipped) || {})) if(n && ITEMS[n] && ITEMS[n].atk > 0) g += ITEMS[n].atk;
+  return g;
+}
+function loopBaseAtk(){ return Player ? Math.max(5, (Player.atk || 10) - loopGearAtk()) : 10; }
+// A drop never jumps far past your level (a tier-3 blade at level 2 made every fight one blow)
+function loopTierCap(){ const L = (Player && Player.level) || 1; return L < 4 ? 1 : L < 8 ? 2 : 3; }
+// A street monster seen earlier keeps the stats it rose with; on engage, lift its HP to today's floor
+function loopRescale(e){
+  if(!e || !e.livingId || e._loopScaled || e.hp < e.maxHp) return;
+  e._loopScaled = true;
+  const f = Math.floor((loopBaseAtk() * 13.5 + loopGearAtk() * 4) * (e.elite ? 2.2 : 1) * (e.bloodMoon ? 1.5 : 1) * (e.gilded ? 1.6 : 1));
+  if(f > e.maxHp){ e.maxHp = f; e.hp = f; }
+}
+function loopChainLive(){ const L = loopState(); return L && L.chain > 0 && Date.now() - L.chainAt <= LOOP_CHAIN_MS ? L.chain : 0; }
+
+// ── Heavy blows and breaks ──────────────────────────
+function loopHeavyOn(e){ return !!e && !e.tutorialMob && !e.isRaid; }
+function loopIsHeavy(e){
+  if(!loopHeavyOn(e)) return false;
+  const sw = e._sw || 0;
+  return (e.elite || e.gilded || isBoss) ? sw % 2 === 0 : sw % 3 === 0; // the first swing, then every 3rd (every 2nd for elites and bosses)
+}
+function loopOnSwing(e){ const h = loopIsHeavy(e); if(e) e._sw = (e._sw || 0) + 1; return h; }
+function loopHeavyDmg(dmg){ return Math.floor(Math.max(Math.floor(dmg * 2.2), Math.floor(Player.maxHp * LOOP_HEAVY_PCT)) * blessWard()); }
+function loopOnBreak(){
+  const e = curEnemy; if(!e) return;
+  e._sw = (e._sw || 0) + 1; e._broke = (e._broke || 0) + 1;
+  const L = loopState(); L.breaks++;
+  const turns = loopHas('breaking') ? 2 : 1;
+  eStatuses.push({name:'BROKEN', icon:'💥', type:'stun', turns, color:'#ffcc44'});
+  if(loopHas('breaking')) Player.cooldowns = {};
+  setTimeout(() => showDamageNum('BREAK!', 'dmg-crit', 'right'), 220);
+  shakeScreen(); buzz && buzz('heavy');
+}
+function loopTurnText(inWindow){
+  const e = curEnemy;
+  if(!loopIsHeavy(e) || eStatuses.find(s => s.type === 'stun')) return null;
+  if(e._offBal === (e._sw||0)) return '✋ OFF BALANCE · brace, it lands';
+  return inWindow ? '⚠ HEAVY BLOW — STRIKE NOW TO BREAK IT ⚠' : '⚠ HEAVY BLOW COMING · wait… strike on the flash';
+}
+
+// ── Damage mods from marks, the chain and embers ────
+function loopDmgMod(dmg, ability, riposted){
+  const e = curEnemy;
+  if(loopHas('first') && e && !e._hitOnce){ dmg *= 2; setTimeout(() => showDamageNum('FIRST BLOOD', 'dmg-crit', 'right'), 120); }
+  if(e) e._hitOnce = true;
+  const ch = loopChainLive();
+  if(loopHas('chain') && ch) dmg *= 1 + Math.min(0.4, ch * 0.05);
+  dmg *= blessDmgMult();
+  if(riposted && loopHas('riposte')){
+    const h = Math.floor(Player.maxHp * 0.10);
+    Player.hp = Math.min(Player.maxHp, Player.hp + h);
+    setTimeout(() => showDamageNum(`+${fmt(h)}`, 'dmg-heal', 'left'), 160);
+  }
+  return Math.floor(dmg);
+}
+
+// ── Embers (charged by walking) ─────────────────────
+function loopAddWalk(mi){
+  const L = loopState(); if(!L || !(mi > 0)) return;
+  if(L.ember >= LOOP_EMBER_MAX){ L.emberMi = 0; return; }
+  L.emberMi += mi * (loopHas('embers') ? 1.5 : 1) * blessEmberMult();
+  while(L.emberMi >= LOOP_EMBER_MI && L.ember < LOOP_EMBER_MAX){
+    L.emberMi -= LOOP_EMBER_MI; L.ember++;
+    if(!tutStep()) showToast('🔥 EMBER CHARGED', `${L.ember}/${LOOP_EMBER_MAX} · your walk lit it. Spend it in a fight: its kill drops a marked item.`);
+    buzz && buzz('light');
+  }
+  if(L.ember >= LOOP_EMBER_MAX) L.emberMi = 0;
+  loopHudSync();
+}
+function loopEmberStrike(){
+  const L = loopState(); if(!inCombat || !curEnemy || !L || L.ember < 1 || playerActLocked) return;
+  L.ember--;
+  curEnemy._ember = true;
+  flashScreen('white');
+  playerAct({ name:'Ember Strike', emoji:'🔥', type:'Ember', dmgMult: loopHas('embers') ? 5 : 3.5, cost:0, costType:'none', cd:0 });
+  loopEmberBtnSync(); loopHudSync();
+}
+function loopEmberBtnSync(){
+  const b = document.getElementById('ember-btn'); if(!b) return;
+  const L = loopState(), n = L ? L.ember : 0;
+  b.disabled = n < 1;
+  b.querySelector('.abtn-name').textContent = n ? `EMBER ×${n}` : 'WALK TO CHARGE';
+  b.classList.toggle('lit', n > 0);
+}
+function loopAddButtons(grid){
+  if(!grid || !Player) return;
+  grid.classList.add('loop-grid');
+  const em = document.createElement('button');
+  em.className = 'abtn ember-btn'; em.id = 'ember-btn';
+  em.innerHTML = `<div class="abtn-emoji">🔥</div><div class="abtn-name">EMBER</div>`;
+  em.onclick = loopEmberStrike;
+  const pot = document.getElementById('potion-btn');
+  grid.insertBefore(em, pot);
+  loopEmberBtnSync();
+}
+
+// ── Hunt Chain + marked loot ────────────────────────
+function loopOnKill(mob){
+  const L = loopState(); if(!L || !mob || mob.tutorialMob || mob.isRaid) return;
+  const now = Date.now();
+  L.chain = now - L.chainAt <= LOOP_CHAIN_MS ? L.chain + 1 : 1;
+  L.chainAt = now; L.bestChain = Math.max(L.bestChain, L.chain);
+  mob._chainCache = L.chain >= 5 && L.chain % 5 === 0;
+  if(loopHas('mending')){ Player.hp = Math.min(Player.maxHp, Player.hp + Math.floor(Player.maxHp * 0.08)); }
+  if(L.chain >= 2) setTimeout(() => showToast(mob._chainCache ? `⛓ CHAIN ×${L.chain} · CACHE!` : `⛓ HUNT CHAIN ×${L.chain}`,
+    mob._chainCache ? 'A marked item, guaranteed. Keep the chain alive.' : `Loot +${Math.min(L.chain, LOOP_CHAIN_MAX_BONUS) * 6}% · next kill within 4 min`), 1300);
+  loopHudSync();
+}
+function loopXpMult(){ const c = loopChainLive(); return 1 + Math.min(c, LOOP_CHAIN_MAX_BONUS) * 0.05; }
+function loopDropBonus(){ return Math.min(loopChainLive(), LOOP_CHAIN_MAX_BONUS) * 0.06 + blessLuck(); }
+function loopForge(base, opts = {}){
+  const b = ITEMS[base]; if(!b) return base;
+  const ids = Object.keys(LOOP_MARKS);
+  const id = opts.mark || ids[Math.floor(Math.random() * ids.length)];
+  const m = LOOP_MARKS[id];
+  const q = Math.round((0.85 + Math.random() * 0.4 + (opts.boost || 0)) * 100) / 100;
+  const name = `${base} ${m.suffix}`;
+  const def = { ...b, forged:true, base, mark:id, q, cost: Math.floor((b.cost || 200) * q * 1.4), desc:`${m.emoji} ${m.desc}` };
+  for(const k of ['atk','def','hp','crit','dodge','resMax']) if(b[k]) def[k] = Math.max(1, Math.round(b[k] * q));
+  const L = loopState();
+  // the same base + mark keeps one name: the better roll wins the entry only if you don't own it already
+  if(L.forged[name] && ownsItem(name) && L.forged[name].q >= q) return name;
+  L.forged[name] = def; loopRegister(name, def);
+  return name;
+}
+// Called from rollLootDrop before the bag fills: upgrades drops, adds the chain cache / ember drop
+function loopForgeDrops(drops, enemy, isBossFight){
+  if(!enemy || enemy.tutorialMob) return drops;
+  const guaranteed = enemy._ember || enemy._chainCache;
+  if(guaranteed && !drops.some(n => ITEMS[n] && ITEMS[n].type !== 'potion' && ITEMS[n].tier < 4)){
+    const zone = enemy.zone ?? 2;
+    const maxTier = Math.min(loopTierCap(), ZONE_DROP_TIERS[zone] + 1 + (enemy._ember ? 1 : 0));
+    const pool = Object.keys(ITEMS).filter(n => ITEMS[n].type !== 'potion' && ITEMS[n].tier <= maxTier && ITEMS[n].tier < 4 && !ITEMS[n].season && ITEMS[n].cost > 0);
+    if(pool.length) drops.push(pool[Math.floor(Math.random() * pool.length)]);
+  }
+  return drops.map(n => {
+    const it = ITEMS[n];
+    if(!it || it.type === 'potion' || it.tier >= 4 || it.season || it.relic || it.forged) return n;
+    if(guaranteed || enemy.elite || enemy.gilded || Math.random() < LOOP_MARK_CHANCE) return loopForge(n, { boost: enemy._ember ? 0.15 : 0 });
+    return n;
+  });
+}
+function loopScore(it){ return it ? (it.atk||0) + (it.def||0) + (it.hp||0)/2 + (it.crit||0)*8 + (it.dodge||0)*6 + (it.resMax||0)/3 + (it.mark ? 25 : 0) : 0; }
+function loopCompare(name){
+  const it = ITEMS[name]; if(!it || it.type === 'potion') return null;
+  if(it.classReq && it.classReq !== Player.className) return null;
+  const cur = Player.equipped[it.type];
+  const d = loopScore(it) - loopScore(cur ? ITEMS[cur] : null);
+  return { better: d > 0, cur, d:Math.round(d) };
+}
+function loopLootLines(n, i){
+  const it = ITEMS[n]; let h = '';
+  if(it && it.mark){ const m = LOOP_MARKS[it.mark]; h += `<div class="loot-mark">${m.emoji} MARK · ${m.desc}<span class="loot-q">QUALITY ${Math.round(it.q * 100)}%</span></div>`; }
+  const c = Player && loopCompare(n);
+  if(c && c.better && Player.inventory.includes(n)) h += `<button class="loot-equip" onclick="loopEquipFromLoot(event,${i})">▲ UPGRADE${c.cur ? ' over ' + netEsc(c.cur) : ''} · EQUIP</button>`;
+  return h;
+}
+function loopEquipFromLoot(ev, i){
+  ev.stopPropagation();
+  const n = (showLoot._drops || [])[i]; if(!n || !Player.inventory.includes(n)) return;
+  equipItem(n);
+  showToast('⚔ EQUIPPED', `${ITEMS[n].emoji} ${n}${ITEMS[n].mark ? ' · ' + LOOP_MARKS[ITEMS[n].mark].desc : ''}`);
+  const b = ev.target; b.disabled = true; b.textContent = '✓ EQUIPPED';
+  saveGame();
+}
+
+// ── The map chip: embers + chain timer ──────────────
+function loopHudSync(){
+  const el = document.getElementById('loop-hud'); if(!el || !Player) return;
+  const L = loopState();
+  if(tutStep()){ el.style.display = 'none'; return; }
+  el.style.display = '';
+  const dots = Array.from({length:LOOP_EMBER_MAX}, (_, i) => `<i class="${i < L.ember ? 'on' : ''}">🔥</i>`).join('');
+  const pct = L.ember >= LOOP_EMBER_MAX ? 100 : Math.round(100 * L.emberMi / LOOP_EMBER_MI);
+  const ch = loopChainLive();
+  const left = ch ? Math.max(0, LOOP_CHAIN_MS - (Date.now() - L.chainAt)) : 0;
+  const mm = Math.floor(left / 60000), ss = String(Math.floor(left / 1000) % 60).padStart(2, '0');
+  el.innerHTML = `<div class="lh-buffs">${blessHudHtml()}</div><div class="lh-ember">${dots}<div class="lh-bar"><div style="width:${pct}%"></div></div><div class="lh-t">${L.ember >= LOOP_EMBER_MAX ? 'EMBERS FULL' : 'WALK TO CHARGE'}</div></div>`
+    + (ch ? `<div class="lh-chain${left < 60000 ? ' hot' : ''}">⛓ ×${ch}<span>${mm}:${ss}</span></div>` : '');
+}
+setInterval(() => { try { if(document.getElementById('screen-game')?.classList.contains('active')) loopHudSync(); } catch(e){} }, 1000);
+
+// ══ BLESSINGS: little things around the city ══════════
+// Walk past a landmark (~150 ft) and it blesses you for 15 minutes, then rests 4 hours.
+// Philly: the hand-picked list in story.js. Elsewhere: public artwork, memorials and
+// libraries from OpenStreetMap near you (looked up once per ~2 km square, cached).
+const BLESS_RADIUS_MI = 0.03, BLESS_MS = 15 * 60 * 1000, BLESS_REST_MS = 4 * 60 * 60 * 1000;
+const BLESS_BUFFS = {
+  regen: { icon:'💚', name:'Mending',  desc:'Heal 3% HP every 5 s, in fights too' },
+  might: { icon:'💪', name:'Might',    desc:'+15% damage' },
+  luck:  { icon:'🍀', name:'Fortune',  desc:'+15% loot odds' },
+  wisdom:{ icon:'📖', name:'Wisdom',   desc:'+20% XP' },
+  keen:  { icon:'🎯', name:'Keen Eye', desc:'+8% crit' },
+  ember: { icon:'🔥', name:'Kindling', desc:'Walking charges embers twice as fast' },
+  ward:  { icon:'🛡', name:'Ward',     desc:'Heavy blows hit 40% softer' },
+};
+let _blessOsm = [], _blessNudged = new Set();
+function blessState(){ const L = loopState(); if(!L) return null; L.bless = L.bless || { active:{}, rest:{}, stamps:{}, sets:{} }; return L.bless; }
+function blessList(){
+  const S = window.DW_STORY || {};
+  const philly = selectedWorld === 'philadelphia' && !(Player && Player.remote) ? (S.blessings || []).filter(b => b.ok !== false) : [];
+  return philly.concat(_blessOsm);
+}
+function blessActive(type){
+  const B = blessState(); if(!B) return 0;
+  const a = B.active[type]; return a && a > Date.now() ? a - Date.now() : 0;
+}
+function blessSetBonus(type){
+  const B = blessState(), sets = (window.DW_STORY && window.DW_STORY.blessingSets) || {};
+  let v = 0; for(const id in B ? B.sets : {}) if(sets[id] && sets[id].bonus && sets[id].bonus[type]) v += sets[id].bonus[type];
+  return v;
+}
+// Multipliers the rest of the loop reads
+function blessDmgMult(){ return 1 + (blessActive('might') ? 0.15 : 0) + blessSetBonus('might'); }
+function blessXpMult(){ return 1 + (blessActive('wisdom') ? 0.20 : 0) + blessSetBonus('wisdom'); }
+function blessLuck(){ return (blessActive('luck') ? 0.15 : 0) + blessSetBonus('luck'); }
+function blessEmberMult(){ return (blessActive('ember') ? 2 : 1) + blessSetBonus('ember'); }
+function blessCrit(){ return blessActive('keen') ? 8 : 0; }
+function blessWard(){ return blessActive('ward') ? 0.6 : 1; }
+function blessTick(){
+  if(!Player || !gpsFirstLock || tutStep()) return;
+  const B = blessState(), now = Date.now(), sets = (window.DW_STORY && window.DW_STORY.blessingSets) || {};
+  for(const b of blessList()){
+    const d = distMiles(Player.lat, Player.lng, b.lat, b.lng);
+    const resting = (B.rest[b.id] || 0) > now;
+    if(d <= BLESS_RADIUS_MI && !resting){
+      const bf = BLESS_BUFFS[b.buff] || BLESS_BUFFS.regen;
+      B.active[b.buff] = now + BLESS_MS; B.rest[b.id] = now + BLESS_REST_MS;
+      const first = !B.stamps[b.id]; B.stamps[b.id] = (B.stamps[b.id] || 0) + 1;
+      showToast(`${bf.icon} BLESSING · ${b.name.toUpperCase()}`, `${bf.name}: ${bf.desc} · 15 min${first ? ' · a new stamp' : ''}`);
+      bell(1318, { gain:0.05, length:1.2, wet:0.6 }); buzz && buzz('light');
+      if(b.set && sets[b.set] && !B.sets[b.set]){
+        const all = (window.DW_STORY.blessings || []).filter(x => x.set === b.set && x.ok !== false);
+        if(all.length && all.every(x => B.stamps[x.id])){
+          B.sets[b.set] = now;
+          setTimeout(() => showToast(`✦ SET COMPLETE · ${sets[b.set].name.toUpperCase()}`, `Every blessing stamped · ${sets[b.set].perk}`), 2600);
+          grantTitle && grantTitle(`Pilgrim of ${sets[b.set].name}`);
+        }
+      }
+      saveGame();
+    } else if(!resting && d <= 0.25 && !_blessNudged.has(b.id)){
+      // a nudge to plan the walk: one per blessing per session
+      _blessNudged.add(b.id);
+      const bf = BLESS_BUFFS[b.buff] || BLESS_BUFFS.regen;
+      showToast(`${bf.icon} A BLESSING NEARBY`, `${b.name} · ${bf.name} · ${Math.round(d * 5280)} ft ${compassWord(bearing(Player.lat, Player.lng, b.lat, b.lng))}`);
+    }
+  }
+  for(const k in B.active) if(B.active[k] < now) delete B.active[k];
+}
+// Mending also heals on the map and in a fight
+setInterval(() => { try {
+  if(!Player || !blessActive('regen') || Player.hp <= 0 || Player.hp >= Player.maxHp) return;
+  Player.hp = Math.min(Player.maxHp, Player.hp + Math.ceil(Player.maxHp * 0.03));
+  inCombat ? setCBUI() : setPUI();
+} catch(e){} }, 5000);
+setInterval(() => { try { blessTick(); } catch(e){} }, 2000);
+// Outside Philly: public art, memorials and libraries from OpenStreetMap, as generic blessings.
+// Only a ~2 km square (rounded) is sent, never the exact spot; results are cached on the phone.
+async function blessLoadOsm(lat, lng){
+  const k = `${Math.floor(lat / 0.02)}:${Math.floor(lng / 0.02)}`, KEY = 'darkworld_bless_osm_v1';
+  let cache = {}; try { cache = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){}
+  if(cache[k] && Date.now() - cache[k].t < 7 * 864e5){ _blessOsm = cache[k].list; markDirty(); return; }
+  const s = Math.floor(lat / 0.02) * 0.02, w = Math.floor(lng / 0.02) * 0.02, n = s + 0.02, e = w + 0.02;
+  const q = `[out:json][timeout:15];(node["tourism"="artwork"]["name"](${s},${w},${n},${e});node["historic"~"^(memorial|monument)$"]["name"](${s},${w},${n},${e});node["amenity"="library"]["name"](${s},${w},${n},${e}););out 40;`;
+  try {
+    const r = await fetch('https://overpass-api.de/api/interpreter', { method:'POST', body:'data=' + encodeURIComponent(q), headers:{ 'Content-Type':'application/x-www-form-urlencoded' } });
+    if(!r.ok) return;
+    const d = await r.json(), types = Object.keys(BLESS_BUFFS);
+    const bad = /grave|cemetery|tomb|burial|memorial to the victims|crash|murder/i; // keep it to statues, art and libraries
+    const list = (d.elements || []).filter(x => x.tags && x.tags.name && !bad.test(x.tags.name)).slice(0, 30).map(x => ({
+      id:'osm:' + x.id, name:x.tags.name.slice(0, 40), lat:x.lat, lng:x.lon, osm:true,
+      buff: x.tags.amenity === 'library' ? 'wisdom' : types[hashStr(String(x.id)) % types.length],
+      flavor: x.tags.amenity === 'library' ? 'A public library' : x.tags.tourism === 'artwork' ? 'Public art' : 'A monument' }));
+    cache[k] = { t:Date.now(), list }; try { localStorage.setItem(KEY, JSON.stringify(cache)); } catch(e){}
+    _blessOsm = list; markDirty();
+  } catch(e){}
+}
+function blessMaybeOsm(){ if(Player && gpsFirstLock && (Player.remote || selectedWorld !== 'philadelphia')) blessLoadOsm(Player.lat, Player.lng); }
+setInterval(() => { try { blessMaybeOsm(); } catch(e){} }, 60000);
+function drawBlessings(){
+  if(!Player) return;
+  const B = blessState(), now = Date.now(), t = now / 700;
+  for(const b of blessList()){
+    const p = ll2px(b.lat, b.lng);
+    if(p.x < -30 || p.x > mapW + 30 || p.y < -30 || p.y > mapH + 30) continue;
+    const resting = (B.rest[b.id] || 0) > now, r = Math.max(8, 9 * zoom);
+    const bf = BLESS_BUFFS[b.buff] || BLESS_BUFFS.regen;
+    if(!resting){ ctx.globalAlpha = 0.18 + 0.08 * Math.sin(t + p.y); ctx.fillStyle = '#7ad0ff'; ctx.beginPath(); ctx.arc(p.x, p.y, mi2px(BLESS_RADIUS_MI), 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(Math.PI / 4);
+    ctx.fillStyle = resting ? '#0c0a12' : '#0a1a26'; ctx.strokeStyle = resting ? '#3a3a50' : '#7ad0ff'; ctx.lineWidth = 2;
+    ctx.fillRect(-r, -r, r * 2, r * 2); ctx.strokeRect(-r, -r, r * 2, r * 2); ctx.restore();
+    ctx.globalAlpha = resting ? 0.35 : 1;
+    ctx.font = `${Math.floor(Math.max(11, 11 * zoom))}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(bf.icon, p.x, p.y);
+    if(zoom > 0.8){ ctx.font = `bold ${Math.max(8, Math.min(11, 8 * zoom))}px "Share Tech Mono"`; ctx.fillStyle = resting ? 'rgba(120,120,150,.7)' : 'rgba(140,210,255,.95)'; ctx.textBaseline = 'top'; ctx.fillText(b.name, p.x, p.y + r * 1.5 + 2); }
+    ctx.globalAlpha = 1;
+  }
+}
+function blessHudHtml(){
+  const B = blessState(); if(!B) return '';
+  return Object.keys(B.active).filter(k => blessActive(k)).map(k => {
+    const left = blessActive(k), bf = BLESS_BUFFS[k];
+    return `<div class="lh-buff" title="${bf.name}">${bf.icon}<span>${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}</span></div>`;
+  }).join('');
+}
+function renderBlessings(el){
+  const B = blessState(), now = Date.now(), S = window.DW_STORY || {}, sets = S.blessingSets || {};
+  const all = (S.blessings || []).filter(b => b.ok !== false);
+  const near = blessList().map(b => ({ b, d: gpsFirstLock ? distMiles(Player.lat, Player.lng, b.lat, b.lng) : null })).sort((a, b) => (a.d ?? 9e9) - (b.d ?? 9e9)).slice(0, 6);
+  const row = ({b, d}) => { const bf = BLESS_BUFFS[b.buff] || BLESS_BUFFS.regen, rest = (B.rest[b.id] || 0) - now;
+    return `<div class="bl-row${B.stamps[b.id] ? ' stamped' : ''}"><span class="bl-ic">${bf.icon}</span><div class="bl-main"><div class="bl-name">${netEsc(b.name)}</div>
+      <div class="bl-sub">${bf.name} · ${bf.desc}${d != null ? ` · ${d < 0.2 ? Math.round(d * 5280) + ' ft' : d.toFixed(2) + ' mi'}` : ''}</div>
+      <div class="bl-flav">${netEsc(b.flavor || '')}</div></div><span class="bl-st">${rest > 0 ? `RESTS ${Math.ceil(rest / 3600000)}H` : B.stamps[b.id] ? '✓' : '○'}</span></div>`; };
+  const setRows = Object.entries(sets).map(([id, st]) => {
+    const mem = all.filter(b => b.set === id), got = mem.filter(b => B.stamps[b.id]).length;
+    return `<div class="bl-set${B.sets[id] ? ' done' : ''}"><b>${netEsc(st.name)}</b> ${got}/${mem.length || '—'} · ${netEsc(st.perk)}${mem.length ? '' : ' · <i>waiting on owner review</i>'}</div>`;
+  }).join('');
+  el.innerHTML = `<div class="hunt-meta"><span>🕯 ${Object.keys(B.stamps).length} STAMPS</span><span>${Object.keys(B.sets).length} SETS DONE</span></div>
+    <div class="city-sub">Walk past a landmark to be blessed for 15 minutes. Each rests 4 hours. Plan a walk that strings a few together before a hunt.</div>
+    <div class="city-head">NEAREST</div>${near.length ? near.map(row).join('') : '<div class="city-sub">None near you yet.</div>'}
+    <div class="city-head">SETS</div>${setRows}`;
+}
+
+// ══ FRIENDS ═════════════════════════════════════════
+// Friends are added only by swapping a short code in person (both enter the other's).
+// No locations anywhere: the feed says what a friend did, never where.
+const FRIEND_LEVELS = [
+  { name:'Good',  days:0,  perk:'Send and open votives' },
+  { name:'Great', days:7,  perk:'+5% damage when you fight beside them' },
+  { name:'Ultra', days:30, perk:'+10% damage, +1 votive a day' },
+  { name:'Best',  days:90, perk:'+15% damage, a marked item when you clear a boss together' },
+];
+const FRIEND_SAMPLE = [
+  { id:'f1', name:'Ash Wren',   cls:'Cleric',  emoji:'✝', level:7, days:9,  feed:['Broke 4 heavy blows in a row','Opened your votive · +40 gold','Hunt Chain ×7'] },
+  { id:'f2', name:'Iron Mabel', cls:'Fighter', emoji:'⚔', level:5, days:2,  feed:['Found ✧ Bone Cleaver of Riposte','Lit 3 shrines'], help:'THE MOURNER AT THE GATE' },
+  { id:'f3', name:'Quiet Fox',  cls:'Ranger',  emoji:'🏹', level:11, days:41, feed:['Cleared the Reading Terminal door','Hunt Chain ×12 · a new best'] },
+];
+function friendsState(){
+  const L = loopState(); if(!L) return null;
+  if(!L.friends) L.friends = { list: JSON.parse(JSON.stringify(FRIEND_SAMPLE)), sample:true, age:'13+', gifts:{}, chat:{}, blocked:{}, reported:[], sent:[] };
+  return L.friends;
+}
+function friendLevel(f){ let lv = FRIEND_LEVELS[0], i = 0; FRIEND_LEVELS.forEach((l, k) => { if(f.days >= l.days){ lv = l; i = k; } }); const nx = FRIEND_LEVELS[i + 1]; return { lv, i, next:nx, pct: nx ? Math.round(100 * (f.days - lv.days) / (nx.days - lv.days)) : 100 }; }
+// A friend code changes every 10 minutes, so a code seen once can't be used later by someone else
+function friendCode(){
+  const w = Math.floor(Date.now() / 600000);
+  const r = seededRng(hashStr(`code|${Player.name}|${w}`));
+  const A = 'ACDEFGHJKMNPQRTUVWXY34679';
+  let s = ''; for(let i = 0; i < 6; i++) s += A[Math.floor(r() * A.length)];
+  return { code: s.slice(0,3) + '-' + s.slice(3), left: 600000 - (Date.now() % 600000) };
+}
+let _friendView = null, _friendTab = 'list';
+function openFriends(tab){
+  if(!Player) return;
+  friendsState(); if(tab) _friendTab = tab; _friendView = null;
+  renderFriends();
+  document.getElementById('friends-modal').classList.add('active');
+}
+function closeFriends(){ document.getElementById('friends-modal').classList.remove('active'); }
+function friendTab(t){ _friendTab = t; _friendView = null; renderFriends(); }
+function renderFriends(){
+  const F = friendsState(), box = document.getElementById('friends-body'); if(!box) return;
+  document.querySelectorAll('#friends-modal .hunt-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === _friendTab));
+  const today = todayKey();
+  const sample = F.sample ? `<div class="fr-sample">SAMPLE FRIENDS · offline preview. Real friends need the server (see core-loop.md).</div>` : '';
+  if(_friendView){ renderFriendChat(box, F.list.find(f => f.id === _friendView)); return; }
+  if(_friendTab === 'add'){
+    const c = friendCode();
+    box.innerHTML = `${sample}
+      <div class="fr-code-card"><div class="fr-code-lbl">YOUR CODE · show it in person</div><div class="fr-code">${c.code}</div>
+      <div class="fr-code-sub">Changes in ${Math.ceil(c.left / 60000)} min. Both of you enter the other's code, so nobody can add you from a screenshot or a link.</div></div>
+      <div class="fr-add"><input id="fr-code-in" maxlength="7" placeholder="THEIR CODE (e.g. K7Q-4MD)" autocomplete="off" autocapitalize="characters"><button onclick="friendAdd()">ADD</button></div>
+      <div id="fr-add-msg" class="fr-note"></div>
+      <div class="fr-rules">🛡 Friends never see where you are. No dots, no districts, no "near you". Only what you did: fights, chains, finds.</div>`;
+    return;
+  }
+  if(_friendTab === 'settings'){
+    box.innerHTML = `${sample}
+      <div class="fr-set"><div class="fr-set-t">AGE (prototype switch)</div>
+      <div class="fr-seg"><button class="${F.age === '13+' ? 'on' : ''}" onclick="friendAge('13+')">13 OR OLDER</button><button class="${F.age === 'u13' ? 'on' : ''}" onclick="friendAge('u13')">UNDER 13</button></div>
+      <div class="fr-note">Under 13: friends' messages are preset phrases only, unless a parent turns typed messages on. The real game asks once at sign-up and needs a parent's OK (COPPA).</div></div>
+      <div class="fr-set"><div class="fr-set-t">PARENT SWITCH (prototype)</div>
+      <div class="fr-seg"><button class="${F.parentText ? 'on' : ''}" onclick="friendParent(true)">TYPED MESSAGES ON</button><button class="${!F.parentText ? 'on' : ''}" onclick="friendParent(false)">PRESETS ONLY</button></div></div>
+      <div class="fr-set"><div class="fr-set-t">BLOCKED</div><div class="fr-note">${Object.keys(F.blocked).length ? Object.keys(F.blocked).map(id => netEsc((F.list.find(f => f.id === id) || {}).name || id)).join(', ') : 'Nobody.'}</div></div>`;
+    return;
+  }
+  const rows = F.list.filter(f => !F.blocked[f.id]).map(f => {
+    const L = friendLevel(f), gift = F.gifts[f.id] === today;
+    const hearts = FRIEND_LEVELS.map((l, k) => k <= L.i ? '♥' : '♡').join('');
+    return `<div class="fr-row">
+      <div class="fr-top" data-fid="${f.id}" onclick="friendOpen(this.dataset.fid)"><span class="fr-emo">${f.emoji}</span>
+        <div class="fr-main"><div class="fr-name">${netEsc(f.name)} <span>LV ${f.level} ${f.cls.toUpperCase()}</span></div>
+        <div class="fr-lvl"><b>${hearts}</b> ${L.lv.name.toUpperCase()} FRIEND${L.next ? ` · ${L.next.days - f.days} days to ${L.next.name}` : ''}</div>
+        <div class="fr-bar"><div style="width:${L.pct}%"></div></div>
+        <div class="fr-perk">${L.lv.perk}</div></div><span class="fr-go">💬</span></div>
+      ${f.help ? `<div class="fr-help">⚔ Looking for help on <b>${netEsc(f.help)}</b> · meet at its landmark in group hours</div>` : ''}
+      <div class="fr-feed">${f.feed.slice(0, 2).map(x => `<div>· ${netEsc(x)}</div>`).join('')}</div>
+      <div class="fr-btns"><button data-fid="${f.id}" onclick="friendGift(this.dataset.fid)" ${gift ? 'disabled' : ''}>${gift ? '✓ VOTIVE SENT' : '🕯 SEND VOTIVE'}</button>
+      <button data-fid="${f.id}" onclick="friendOpen(this.dataset.fid)">💬 MESSAGE</button></div></div>`;
+  }).join('');
+  box.innerHTML = `${sample}<div class="fr-meta">${F.list.length} friends · votives reset at midnight · fighting beside a friend raises friendship</div>${rows}
+    <button class="hunt-cache" onclick="friendTab('add')">＋ ADD A FRIEND IN PERSON</button>`;
+}
+function friendAge(a){ friendsState().age = a; saveGame(); renderFriends(); }
+function friendParent(on){ friendsState().parentText = !!on; saveGame(); renderFriends(); }
+function friendCanType(){ const F = friendsState(); return F.age === '13+' || !!F.parentText; }
+function friendGift(id){
+  const F = friendsState(); F.gifts[id] = todayKey();
+  const f = F.list.find(x => x.id === id); if(f){ f.days += 1; f.feed.unshift('Got your votive'); }
+  showToast('🕯 VOTIVE SENT', `${f ? f.name : 'Your friend'} can open it for gold, a potion or an ember. One a day per friend.`);
+  saveGame(); renderFriends();
+}
+function friendAdd(){
+  const v = (document.getElementById('fr-code-in').value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const msg = document.getElementById('fr-add-msg');
+  if(v.length !== 6){ msg.textContent = 'A code is 6 letters and numbers.'; return; }
+  if(v === friendCode().code.replace('-', '')){ msg.textContent = "That's your own code."; return; }
+  msg.textContent = '⏳ Sent. Waiting for them to enter YOUR code on their phone…';
+  setTimeout(() => {
+    const F = friendsState(), r = seededRng(hashStr(v));
+    const A = ['Ash','Iron','Quiet','Pale','Brass','Lantern','Ember','Gray','Rook','Sable'], B = ['Wren','Mabel','Fox','Hart','Moth','Finch','Reed','Vale','Crow','Lark'];
+    const names = Object.keys(CLASSES), cls = names[Math.floor(r() * names.length)];
+    const f = { id:'f' + v, name:`${A[Math.floor(r()*A.length)]} ${B[Math.floor(r()*B.length)]}`, cls, emoji:CLASSES[cls].emoji || '⚔', level:1 + Math.floor(r()*8), days:0, feed:['Became your friend today'] };
+    if(!F.list.some(x => x.id === f.id)) F.list.push(f);
+    saveGame();
+    if(document.getElementById('fr-add-msg')){ document.getElementById('fr-add-msg').textContent = `✓ ${f.name} confirmed. You're friends (sample).`; }
+    showToast('👥 NEW FRIEND', `${f.name} · Good friends. Fight together to level up.`);
+  }, 1200);
+}
+function friendOpen(id){ _friendView = id; _friendTab = 'list'; renderFriends(); }
+
+// ── Chat ────────────────────────────────────────────
+// Typed text is friends-only, filtered on the phone (and again on the server when it exists):
+// no phone numbers, emails, @handles, links, street addresses, app names or "where do you live".
+const CHAT_BANNED = ['fuck','shit','bitch','cunt','dick','pussy','fag','nigg','retard','whore','slut','kys','kill yourself'];
+const CHAT_PII = [
+  [/https?:|www\.|\b[a-z0-9-]+\.(com|net|org|io|gg|me|co|ly|app|tv|xyz)\b/i, 'links'],
+  [/[\w.+-]+@[\w-]+\.\w+/, 'email addresses'],
+  [/(^|\s)@\w{2,}/, 'social handles'],
+  [/(\d[\s().-]*){7,}/, 'phone numbers'],
+  [/\b\d{1,5}\s+\w+(\s\w+)?\s+(st|street|ave|avenue|rd|road|blvd|ln|lane|dr|drive|ct|court|way|pl|place|terrace)\b/i, 'addresses'],
+  [/\b(snap(chat)?|insta(gram)?|tiktok|discord|whatsapp|kik|telegram|facebook|fb|twitter|x\.com|venmo|cashapp|roblox)\b/i, 'other apps'],
+  [/\b(where (do )?(you|u) live|my (house|address|school)|what school|come over|meet (me )?alone|send (a )?(pic|photo))\b/i, 'personal meetups'],
+];
+function chatFilter(text){
+  const t = String(text || '').trim().slice(0, 120);
+  if(!t) return { ok:false, why:'Type something first.' };
+  for(const [re, what] of CHAT_PII) if(re.test(t)) return { ok:false, why:`Blocked: no ${what} in Darkworld messages. Keep it to the hunt.` };
+  let clean = t; const low = t.toLowerCase();
+  for(const w of CHAT_BANNED) if(low.includes(w)) clean = clean.replace(new RegExp(w.replace(/\s/g, '\\s'), 'ig'), m => '✱'.repeat(m.length));
+  return { ok:true, text:clean };
+}
+let _chatSent = [];
+function chatRate(){
+  const now = Date.now(); _chatSent = _chatSent.filter(t => now - t < 60000);
+  if(_chatSent.length && now - _chatSent[_chatSent.length - 1] < 2500) return 'One message every few seconds.';
+  if(_chatSent.length >= 8) return 'Slow down: 8 messages a minute.';
+  _chatSent.push(now); return null;
+}
+const FRIEND_PRESETS = ['👋 Hey!', '⚔ Want to hunt?', '🎉 Nice find!', '🙏 Thanks for the help!', '⛓ Chain going, join?', '🌙 Done for today, gg'];
+function renderFriendChat(box, f){
+  if(!f){ _friendView = null; renderFriends(); return; }
+  const F = friendsState(), log = F.chat[f.id] = F.chat[f.id] || [{ from:'them', text:f.id === 'f1' ? 'gg on the lock echo earlier!' : '👋 Hey!', t:Date.now() - 3600000 }];
+  const canType = friendCanType();
+  box.innerHTML = `<button class="fr-back" onclick="_friendView=null;renderFriends()">‹ FRIENDS</button>
+    <div class="fr-chat-head">${f.emoji} ${netEsc(f.name)} <span>${friendLevel(f).lv.name.toUpperCase()} FRIEND</span></div>
+    <div class="fr-chat" id="fr-chat">${log.map((m, i) => `<div class="cm ${m.from}">${m.from === 'them' ? `<div class="cm-txt">${netEsc(m.text)}</div><div class="cm-act"><button data-i="${i}" data-fid="${f.id}" onclick="chatReport(this.dataset.fid,+this.dataset.i)">${m.reported ? '✓ REPORTED' : '⚑ REPORT'}</button><button data-fid="${f.id}" onclick="chatBlock(this.dataset.fid)">⛔ BLOCK</button></div>` : `<div class="cm-txt">${netEsc(m.text)}</div>`}</div>`).join('')}</div>
+    <div class="fr-presets">${FRIEND_PRESETS.map((p, i) => `<button data-fid="${f.id}" data-i="${i}" onclick="chatSendFriend(this.dataset.fid, FRIEND_PRESETS[+this.dataset.i], true)">${p}</button>`).join('')}</div>
+    ${canType ? `<div class="fr-add"><input id="fr-chat-in" maxlength="120" placeholder="Message ${netEsc(f.name)} (friends only)" autocomplete="off"><button data-fid="${f.id}" onclick="chatSendFriend(this.dataset.fid, document.getElementById('fr-chat-in').value)">SEND</button></div>`
+      : `<div class="fr-note">Preset phrases only. A parent can turn on typed messages (☰ SETTINGS tab).</div>`}
+    <div id="fr-chat-msg" class="fr-note">🛡 Filtered: no numbers, links, handles, addresses or other apps. Messages are kept 30 days for safety reports.</div>`;
+  const c = document.getElementById('fr-chat'); if(c) c.scrollTop = c.scrollHeight;
+}
+function chatSendFriend(id, text, preset){
+  const F = friendsState(), f = F.list.find(x => x.id === id), msg = () => document.getElementById('fr-chat-msg');
+  if(!f || F.blocked[id]) return;
+  const r = preset ? { ok:true, text } : chatFilter(text);
+  if(!r.ok){ if(msg()) msg().textContent = '🛡 ' + r.why; buzz && buzz('light'); return; }
+  const rl = chatRate(); if(rl){ if(msg()) msg().textContent = '⏳ ' + rl; return; }
+  (F.chat[id] = F.chat[id] || []).push({ from:'me', text:r.text, t:Date.now() });
+  if(F.chat[id].length > 40) F.chat[id].splice(0, F.chat[id].length - 40);
+  saveGame(); renderFriends();
+  setTimeout(() => { if(!F.blocked[id]){ F.chat[id].push({ from:'them', text:FRIEND_PRESETS[Math.floor(Math.random() * FRIEND_PRESETS.length)], t:Date.now() }); if(_friendView === id) renderFriends(); } }, 1400);
+}
+function chatReport(id, i){
+  const F = friendsState(), m = (F.chat[id] || [])[i]; if(!m) return;
+  m.reported = true; F.reported.push({ id, text:m.text, t:Date.now() });
+  showToast('⚑ REPORTED', 'Thanks. A moderator reviews it. You can also block them.');
+  saveGame(); renderFriends();
+}
+function chatBlock(id){
+  const F = friendsState(); F.blocked[id] = Date.now(); _friendView = null;
+  showToast('⛔ BLOCKED', "They can't message you or see your activity. Undo it in SETTINGS.");
+  saveGame(); renderFriends();
+}
+
+// ── Tap-to-chat wheel (the group chat: everyone, kids too) ──
+// Preset phrases only, shown with a class icon and never a name or a place on a map.
+const QC_SETS = {
+  tactics: { label:'⚔ TACTICS', items:['🛡 I\'ll tank','💚 Heal me!','💥 Break its heavy!','🔥 Saving my ember','⏳ Wait for the heavy','📣 Pull now!','🏃 Back off!','👍 Ready'] },
+  friendly:{ label:'👋 FRIENDLY', items:['👋 Hey!','🙏 Thanks!','⚔ Good fight!','👏 Nice save!','😄 First raid?','🤝 Welcome!','💪 You got this','✌ See you next time'] },
+  cheer:   { label:'🎉 CHEER', items:['🎉 We did it!','🏆 GG!','📸 Group photo?','✨ Legendary drop!','⛓ Chain ×10!','🎸 Turn it up!','🔥 Let\'s go!','🙌 What a fight'] },
+  meetup:  { label:'📍 MEETUP', items:['🚪 By the main entrance','🪜 At the steps','🕰 Under the clock','ℹ By the info desk','🚶 On my way','⏰ 5 more minutes','👨‍👩‍👧 Here with my family','👋 Heading home, thanks all'] },
+};
+let _qcSet = 'tactics', _qcFeed = [];
+function qcGroupFight(){ return !!(inCombat && curEnemy && (curEnemy._practice || curEnemy.isRaid || curEnemy.isFinale || (isBoss && curEnemy.tier))); }
+function qcSyncBtn(){
+  const b = document.getElementById('qc-btn'); if(!b) return;
+  b.style.display = qcGroupFight() ? '' : 'none';
+}
+function qcOpen(){
+  const w = document.getElementById('qc-wheel'); if(!w) return;
+  qcRender(); w.classList.add('show');
+}
+function qcClose(){ const w = document.getElementById('qc-wheel'); if(w) w.classList.remove('show'); }
+function qcRender(){
+  const w = document.getElementById('qc-ring'); if(!w) return;
+  const set = QC_SETS[_qcSet], n = set.items.length;
+  w.innerHTML = set.items.map((p, i) => {
+    const a = (i / n) * Math.PI * 2 - Math.PI / 2, x = 50 + Math.cos(a) * 37, y = 50 + Math.sin(a) * 37;
+    return `<button class="qc-item" style="left:${x}%;top:${y}%" data-i="${i}" onclick="qcSend(+this.dataset.i)">${p}</button>`;
+  }).join('') + `<button class="qc-center" onclick="qcClose()">✕</button>`;
+  document.querySelectorAll('#qc-tabs button').forEach(b => b.classList.toggle('on', b.dataset.set === _qcSet));
+}
+function qcTab(s){ _qcSet = s; qcRender(); }
+function qcSend(i){
+  const p = QC_SETS[_qcSet].items[i]; if(!p) return;
+  const rl = chatRate(); if(rl){ showToast('⏳ QUICK CHAT', rl); return; }
+  qcPush(Player.emoji, 'YOU', p, true);
+  qcClose(); buzz && buzz('tap');
+  // Practice / offline: the echo allies answer with presets, so the wheel can be felt solo
+  const e = curEnemy;
+  if(e && e._practice){
+    const replies = { tactics:['👍 Ready','🛡 I\'ll tank','💚 Healing you'], friendly:['👋 Hey!','🙏 Thanks!','🤝 Welcome!'], cheer:['🎉 We did it!','🏆 GG!','📸 Group photo?'], meetup:['🚶 On my way','👍 Ready','ℹ By the info desk'] }[_qcSet];
+    const who = [['🛡','TANK ECHO'], ['✝','HEALER ECHO'], ['🗡','DAMAGE ECHO']][Math.floor(Math.random() * 3)];
+    setTimeout(() => qcPush(who[0], who[1], replies[Math.floor(Math.random() * replies.length)]), 900);
+  }
+}
+function qcPush(icon, who, text, mine){
+  _qcFeed.push({ icon, who, text, mine, t:Date.now() }); if(_qcFeed.length > 4) _qcFeed.shift();
+  const f = document.getElementById('qc-feed'); if(!f) return;
+  f.innerHTML = _qcFeed.map(m => `<div class="qc-msg${m.mine ? ' me' : ''}"><b>${m.icon} ${netEsc(m.who)}</b> ${netEsc(m.text)}</div>`).join('');
+  f.classList.add('show'); clearTimeout(qcPush._t); qcPush._t = setTimeout(() => f.classList.remove('show'), 6000);
+}
+
+// ══════════════════════════════════════════════════════
 //  SAVE SYSTEM
 // ══════════════════════════════════════════════════════
 const SAVE_KEY = 'darkworld_save_v1';
@@ -9787,6 +10543,7 @@ function saveGame(){
       firstKill: Player.firstKill || null,
       bloodMoons: Player.bloodMoons || {},
       titles: Player.titles || [],
+      loop: Player.loop || null,
       factionSince: Player.factionSince || 0,
       factionPrompted: Player.factionPrompted || false,
     },
@@ -11057,6 +11814,7 @@ function continueGame(){
     xpNext: sp.xpNext || xpForLevel(sp.level||1),
   };
   migrateSpeciesNames(Player);
+  loopRestore();
   selectedClass = save.player.className;
   // Restore world and boss states
   selectWorld(save.world || 'philadelphia');

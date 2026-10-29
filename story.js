@@ -113,6 +113,38 @@ window.DW_STORY = {
       reason:'Busy neighborhood park with farmers market and families.', notes:'Daytime. Owner: confirm.' },
   ],
 
+  // ── Blessings: little things around the city ─────────────────────
+  // Walk past one (about 150 ft) and it gives a short buff: 15 minutes, then it
+  // rests for 4 hours. Each is a stamp in the Blessings book; finish a set for a
+  // small permanent bonus. Hand-picked only, like the meetup spots: public, busy,
+  // daylight places. ok:false keeps one out of the game until you approve it.
+  // buff: regen (heal over time) · might (+damage) · luck (+loot) · wisdom (+XP)
+  //       keen (+crit) · ember (walking charges embers twice as fast) · ward (heavy blows hit softer)
+  // flavor: [PLACEHOLDER] lines are yours to write. Coordinates are approximate: please check.
+  blessingSets: {
+    'center-city': { name:'Center City', perk:'+5% XP for good', bonus:{ wisdom:0.05 } },
+    'old-city':    { name:'Old City',    perk:'+5% loot odds for good', bonus:{ luck:0.05 } },
+    'parkway':     { name:'The Parkway & Fairmount', perk:'+3% damage for good', bonus:{ might:0.03 } },
+    'kensington':  { name:'Kensington',  perk:'Embers charge 10% faster for good', bonus:{ ember:0.10 } },
+  },
+  blessings: [
+    { id:'love-statue',   set:'center-city', name:'The LOVE statue',          lat:39.9542, lng:-75.1655, buff:'regen',  ok:true,  flavor:'[PLACEHOLDER] A heal-over-time blessing at LOVE Park.' },
+    { id:'clothespin',    set:'center-city', name:'The Clothespin',           lat:39.9525, lng:-75.1657, buff:'keen',   ok:true,  flavor:'[PLACEHOLDER] Centre Square plaza, 15th & Market.' },
+    { id:'william-penn',  set:'center-city', name:'William Penn atop City Hall', lat:39.9524, lng:-75.1636, buff:'ward', ok:true,  flavor:'[PLACEHOLDER] Look up from the City Hall courtyard.' },
+    { id:'dilworth',      set:'center-city', name:'Dilworth Park fountains',  lat:39.9527, lng:-75.1648, buff:'regen',  ok:true,  flavor:'[PLACEHOLDER] The plaza fountains west of City Hall.' },
+    { id:'reading-term',  set:'center-city', name:'Reading Terminal Market',  lat:39.9533, lng:-75.1590, buff:'luck',   ok:true,  flavor:'[PLACEHOLDER] 12th & Arch, during market hours.' },
+    { id:'liberty-bell',  set:'old-city',    name:'The Liberty Bell',         lat:39.9496, lng:-75.1503, buff:'might',  ok:true,  flavor:'[PLACEHOLDER] Outside the Liberty Bell Center.' },
+    { id:'elfreths',      set:'old-city',    name:"Elfreth's Alley",          lat:39.9526, lng:-75.1424, buff:'wisdom', ok:true,  flavor:'[PLACEHOLDER] The oldest street. Walk it in daylight.' },
+    { id:'rocky',         set:'parkway',     name:'The Rocky statue',         lat:39.9649, lng:-75.1797, buff:'might',  ok:true,  flavor:'[PLACEHOLDER] Bottom of the Art Museum steps.' },
+    { id:'joan-of-arc',   set:'parkway',     name:'Joan of Arc',              lat:39.9644, lng:-75.1783, buff:'ward',   ok:true,  flavor:'[PLACEHOLDER] The gold statue by the Art Museum. Stay on the sidewalk, off Kelly Drive.' },
+    { id:'swann',         set:'parkway',     name:'Swann Fountain (from Sister Cities Park)', lat:39.9568, lng:-75.1689, buff:'regen', ok:true, flavor:'[PLACEHOLDER] Counted from Sister Cities Park, never the traffic circle.' },
+    { id:'boathouse-row', set:'parkway',     name:'Boathouse Row',            lat:39.9690, lng:-75.1855, buff:'ember',  ok:true,  flavor:'[PLACEHOLDER] Daytime, on the path side. It is a river edge: owner, confirm or veto.' },
+    { id:'eastern-state', set:'parkway',     name:'Eastern State (from Fairmount Ave)', lat:39.9682, lng:-75.1727, buff:'keen', ok:true, flavor:'[PLACEHOLDER] From the Fairmount Avenue sidewalk. Never inside or over the walls.' },
+    { id:'mcpherson-lib', set:'kensington',  name:'McPherson Square Library', lat:39.9963, lng:-75.1209, buff:'wisdom', ok:false, flavor:'[PLACEHOLDER] OWNER REVIEW: the library itself is a good public place, but the square has had heavy drug activity. Off until you approve it (library hours only).' },
+    { id:'el-somerset',   set:'kensington',  name:'The El at Somerset',       lat:39.9906, lng:-75.1302, buff:'ember',  ok:false, flavor:'[PLACEHOLDER] OWNER REVIEW: El stops on Kensington Ave are in the middle of the open-air drug market today. A buff here would pull kids there. Off until you decide.' },
+    { id:'el-allegheny',  set:'kensington',  name:'The El at K&A',            lat:39.9966, lng:-75.1134, buff:'might',  ok:false, flavor:'[PLACEHOLDER] OWNER REVIEW: same as Somerset. Off until you decide.' },
+  ],
+
   // ── Encounter tiers (WoW-style) ───────────────────────────────────
   // party: named bosses, a 5-hunter team · raid: big bosses, 25 · city: the
   // season finale, everyone. Until online play is switched on, solo hunters
