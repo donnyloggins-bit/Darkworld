@@ -2026,6 +2026,11 @@ body:not(.net-on) .net-only { display:none !important; }
 .coach-btn { background:rgba(100,10,10,.6); border:1px solid #cc2222; color:#f0d0d0; font-family:'Metal Mania',cursive; letter-spacing:.1em; font-size:.85rem; padding:6px 12px; cursor:pointer; }
 .coach-skip { background:none; border:none; color:#7a6a50; font-family:'Share Tech Mono',monospace; font-size:.72rem; letter-spacing:.12em; text-decoration:underline; cursor:pointer; }
 .coach-glow { box-shadow:0 0 0 2px var(--gold), 0 0 22px rgba(232,184,64,.75) !important; animation:coachPulse 1.1s ease-in-out infinite !important; }
+#dw-card { position:fixed; left:50%; bottom:calc(64px + var(--sab)); transform:translate(-50%,12px); z-index:150; opacity:0; pointer-events:none;
+  width:min(340px,calc(100vw - 32px)); background:linear-gradient(160deg,rgba(30,22,8,.96),rgba(17,12,6,.96)); border:1px solid #8a6a20; border-left:3px solid var(--gold);
+  box-shadow:0 6px 24px rgba(0,0,0,.6), 0 0 18px rgba(212,160,32,.15); padding:8px 10px 6px; transition:opacity .3s, transform .3s; }
+#dw-card.show { opacity:1; transform:translate(-50%,0); pointer-events:auto; }
+#goal-hud.goal-pulse { animation:coachPulse 1.2s ease-in-out 3; }
 @keyframes coachPulse { 0%,100% { box-shadow:0 0 0 2px var(--gold), 0 0 12px rgba(232,184,64,.5); } 50% { box-shadow:0 0 0 3px var(--gold), 0 0 28px rgba(232,184,64,.95); } }
 .class-card { position:relative; }
 .class-easy { position:absolute; top:4px; left:0; right:0; text-align:center; font-family:'Share Tech Mono',monospace; font-size:.55rem; letter-spacing:.08em; color:var(--gold); }
@@ -2436,6 +2441,7 @@ body:not(.net-on) .net-only { display:none !important; }
     <div class="lu-points-counter" id="lu-points-counter">0 / 2 points spent</div>
     <div id="lu-stat-grid"></div>
     <button class="lu-confirm" id="lu-confirm-btn" onclick="confirmStats()" disabled>CONFIRM</button>
+    <button class="coach-skip" id="lu-auto-btn" onclick="luAuto()" style="display:block;margin:8px auto 0">AUTO · spend on my class's best stats</button>
     <div class="lu-skill-note" id="lu-skill-note"></div>
   </div>
 </div>
@@ -2501,6 +2507,7 @@ body:not(.net-on) .net-only { display:none !important; }
 </div>
 <div id="toast"></div>
 <div id="coach"></div>
+<div id="dw-card"></div>
 
 <!-- ══ ACCOUNT MODAL ══ -->
 <div id="acct-modal">
@@ -4316,7 +4323,13 @@ function render(){
   ctx.fillRect(0,0,mapW,mapH);
   drawTiles();
 
-  drawGrid(); drawZones(); drawPaths();
+  drawGrid(); drawZones();
+  if(tutFocus()){
+    // First Hunt: only its monster and shrine; the rest of the city rises once it's done
+    const all = shrines; shrines = shrines.filter(s => s.tutorial); drawShrines(); shrines = all;
+    if(TUT_MOB && !TUT_MOB.defeated) drawMob(TUT_MOB);
+  } else {
+  drawPaths();
   drawSeasonOverlay();
   drawBloodMoonOverlay();
   drawTurfBanners();
@@ -4330,6 +4343,7 @@ function render(){
   drawNPCs();
   drawDungeons();
   drawCrewSpots();
+  }
   drawPlayer();
   drawTutorialMarker();
   if(Player && (Player.incenseUntil||0) > Date.now()){
@@ -5155,14 +5169,23 @@ function seasonModalsOpen(){
     || document.getElementById('cutscene-overlay').style.display === 'block';
 }
 // The omen plays once per season, the first quiet moment after the tutorial
+// Right after the First Hunt it waits for the first real kill or ~2 min on the map,
+// so the walk card, AR card and toasts don't pile up on a brand-new hunter
+let _omenHoldUntil = 0;
 function seasonMaybeOmen(){
   const s = currentSeason();
   if(!s || !Player || tutStep() || inCombat || seasonModalsOpen() || selectedWorld !== 'philadelphia') return;
+  if(Date.now() < _omenHoldUntil || document.getElementById('loot-popup').style.display === 'block') return;
   const rec = seasonRec(s);
   if(rec.omenSeen) return;
   rec.omenSeen = true; saveGame();
   sndRaidRise();
-  playCutscene(s.omen, () => openSeason());
+  playCutscene(s.omen, () => goalPulse()); // back to the map; the goal bar opens the season
+}
+function goalPulse(){
+  const el = document.getElementById('goal-hud'); if(!el) return;
+  el.classList.remove('goal-pulse'); void el.offsetWidth; el.classList.add('goal-pulse');
+  setTimeout(() => el.classList.remove('goal-pulse'), 3600);
 }
 function seasonMaybeFinaleScene(){
   const s = currentSeason();
@@ -5280,7 +5303,7 @@ function drawSeasonSite(){
 function seasonLine(){
   const s = currentSeason(); if(!s || selectedWorld !== 'philadelphia') return null;
   const ph = seasonPhase(s), now = seasonNow();
-  const far = (lat, lng) => gpsFirstLock ? ` · ${distMiles(Player.lat, Player.lng, lat, lng).toFixed(1)} mi` : '';
+  const far = (lat, lng) => gpsFirstLock && !Player.remote ? ` · ${distMiles(Player.lat, Player.lng, lat, lng).toFixed(1)} mi` : '';
   if(ph === 'omen') return `${s.sigil} ${s.short} BEGINS IN ${fmtCountdown(seasonT(s.startAt) - now).toUpperCase()}${effortLine()}`;
   if(ph === 'finale') return `🗝 THE GHOST IS OUT · ${s.site.short}${far(s.site.lat, s.site.lng)}`;
   if(ph === 'after') return `${s.sigil} ${s.short} IS OVER · SEE HOW THE CITY DID`;
@@ -5301,10 +5324,10 @@ function nextGoal(){
   const rg = relicGoal(); if(rg) return rg;
   if(selectedWorld === 'philadelphia'){
     const dv = DELVES.filter(d => (Player.level || 1) >= d.minLvl && !delveLocked(d)).pop();
-    if(dv) return { text:`🚪 ${dv.name} is open today${gpsFirstLock ? ` · ${distMiles(Player.lat, Player.lng, dv.lat, dv.lng).toFixed(1)} mi` : ''}`, act:() => openDelve(dv.id) };
+    if(dv) return { text:`🚪 ${dv.name} is open today${gpsFirstLock && !Player.remote ? ` · ${distMiles(Player.lat, Player.lng, dv.lat, dv.lng).toFixed(1)} mi` : ''}`, act:() => openDelve(dv.id) };
   }
   if(NET_ON && (Player.level || 1) >= 3 && !Player.faction) return { text:'⚑ Choose your order — the districts are at stake', act:() => openHunt('turf') };
-  if(selectedWorld === 'philadelphia' && gpsFirstLock){
+  if(selectedWorld === 'philadelphia' && gpsFirstLock && !Player.remote){
     const ds = Player.districts || {};
     let best = null, bd = Infinity;
     for(const x of PHILLY_DISTRICTS){ if(ds[x.name]) continue; const dd = distMiles(Player.lat, Player.lng, x.lat, x.lng); if(dd < bd){ bd = dd; best = x; } }
@@ -6020,6 +6043,8 @@ let _codexNew = false;
 function codexAll(){ const out = []; for(const c of codexChapters()) for(const e of c.entries) out.push({ ...e, loud: !!c.loud, chapter:c.title }); return out; }
 function codexTick(){
   if(!Player || tutStep()) return;
+  // Hold new-page toasts while a tip or a cutscene has the stage; they land on a later tick
+  if(document.getElementById('coach').classList.contains('show') || document.getElementById('cutscene-overlay').style.display === 'block') return;
   const first = !Player.codex;
   Player.codex = Player.codex || {};
   const fresh = codexAll().filter(e => e.open && !Player.codex[e.id]);
@@ -6842,6 +6867,8 @@ const DARK_NAMES = ['Ash Mercer','Vesper Kane','Silas Thorne','Mara Holloway','G
   'Lena Graves','Cole Ravenscroft','Iris Vale','Dante Moreau','Nell Ashby','Victor Shade','Sable Quinn','Jonah Crowe','Wren Hallow'];
 
 function tutStep(){ return Player && Player.tutorial && Player.tutorial !== 'done' ? Player.tutorial : null; }
+// The fight and shrine lessons: the map shows only the tutorial's targets
+function tutFocus(){ const st = tutStep(); return st === 'fight' || st === 'riposte' || st === 'shrine'; }
 
 let _coachTuck = null;
 const COACH_TUCK_MS = 6000;
@@ -6872,8 +6899,38 @@ function coachGlow(sel){
 
 // Keep the tutorial's monster and shrine a few steps from the hunter (GPS can lock anywhere)
 function tutPlace(obj, dLatFt, dLngFt){
+  // Try the preferred spot first, then turn around the hunter until it's clear of other markers
+  const base = Math.atan2(dLatFt, dLngFt), r0 = Math.hypot(dLatFt, dLngFt);
+  for(let k = 0; k < 16; k++){
+    const a = base + (k % 8) * Math.PI / 4, r = r0 * (k < 8 ? 1 : 1.35);
+    obj.lat = Player.lat + r * Math.sin(a) / 5280 / 69.11;
+    obj.lng = Player.lng + r * Math.cos(a) / 5280 / (69.11 * Math.cos(Player.lat * Math.PI / 180));
+    if(tutSpotClear(obj)) return;
+  }
   obj.lat = Player.lat + dLatFt / 5280 / 69.11;
   obj.lng = Player.lng + dLngFt / 5280 / (69.11 * Math.cos(Player.lat * Math.PI / 180));
+}
+// ≥120 ft from any NPC, quest marker, boss or shrine (and from the other tutorial target)
+function tutSpotClear(obj){
+  const MIN = 120 / 5280, near = (lat, lng) => lat && lng && distMiles(obj.lat, obj.lng, lat, lng) < MIN;
+  if(NPCS.some(n => n.world === selectedWorld && near(n.lat, n.lng))) return false;
+  if(QUESTS.some(q => q.world === selectedWorld && !q.npcId && near(q.lat, q.lng))) return false;
+  if(BOSSES.some(b => !b.defeated && near(b.lat, b.lng))) return false;
+  if(shrines.some(s => s !== obj && !s.tutorial && near(s.lat, s.lng))) return false;
+  const other = obj === TUT_MOB ? TUT_SHRINE : TUT_MOB;
+  if(other && other !== obj && near(other.lat, other.lng)) return false;
+  return true;
+}
+// The First Hunt's monster can't fall before the riposte lesson lands (or 3 of its swings pass)
+function tutHpFloor(e){
+  if(!e || !e.tutorialMob || e._tutRiposted || (e._tutSwings || 0) >= 3) return 0;
+  const st = tutStep();
+  return (st === 'fight' || st === 'riposte') ? Math.ceil(e.maxHp * 0.25) : 0;
+}
+function tutOnEnemySwing(e){
+  if(!e || !e.tutorialMob || e._tutRiposted || tutStep() !== 'riposte') return;
+  e._tutSwings = (e._tutSwings || 0) + 1;
+  if(e._tutSwings === 3){ coachGlow(null); coach('Close enough — <b>finish it</b>. Strike as the bar fills red to riposte any time.'); }
 }
 function tutKeepClose(){
   if(!tutStep()){ clearInterval(_tutTimer); _tutTimer = null; return; }
@@ -7008,6 +7065,7 @@ function tutShowAR(){
 
 function tutFinish(){
   Player.tutorial = 'done';
+  _omenHoldUntil = Date.now() + 120000;
   coachGlow(null); coachHide();
   clearInterval(_tutTimer); _tutTimer = null;
   const gift = [];
@@ -7479,6 +7537,14 @@ function handleClick(cx,cy){
   const now = Date.now();
   if(now - _lastTap.t < 400 && Math.hypot(cx - _lastTap.x, cy - _lastTap.y) < 12) return;
   _lastTap = { t:now, x:cx, y:cy };
+  // First Hunt: its targets win every tap (generous radius); nothing else is shown yet
+  if(tutFocus()){
+    const hit = o => { if(!o) return false; const p=ll2px(o.lat,o.lng); return Math.hypot(cx-p.x,cy-p.y) < Math.max(28,14*zoom); };
+    if(TUT_MOB && !TUT_MOB.defeated && hit(TUT_MOB)){ startCombat(TUT_MOB,false); return; }
+    const ts = shrines.find(s => s.tutorial);
+    if(ts && hit(ts)){ spinShrine(ts); return; }
+    return;
+  }
   // NPCs
   for(const npc of NPCS){
     if(npc.world!==selectedWorld)continue;
@@ -8056,6 +8122,7 @@ function updateZone(){
   const d=districtAt(Player.lat,Player.lng);
   document.getElementById('coord-txt').textContent = d
     ? `${d.name.toUpperCase()} · ${z.name.toUpperCase()}`
+    : Player && Player.remote ? 'OUTSIDE PHILADELPHIA'
     : `${z.name.toUpperCase()} — ${mi.toFixed(2)}mi FROM CENTER`;
   if(d){ document.getElementById('z-name').textContent=`⬡ ${d.name.toUpperCase()}`; document.getElementById('z-desc').textContent=`${d.epithet}. ${ZONE_DESCS[i]}`; }
   checkDistrict();
@@ -8084,19 +8151,72 @@ function centerOnPlayer(){
   markDirty();
 }
 
+// A small card over the map (GPS help, "outside Philadelphia"); buttons: [[label, fn], …]
+function dwCard(html, buttons){
+  const el = document.getElementById('dw-card');
+  el.innerHTML = `<div class="coach-text">${html}</div><div class="coach-row" style="justify-content:flex-end">${
+    buttons.map((b, i) => `<button class="${i ? 'coach-skip' : 'coach-btn'}" data-i="${i}">${b[0]}</button>`).join('')}</div>`;
+  el.querySelectorAll('button').forEach(btn => btn.onclick = () => buttons[+btn.dataset.i][1]());
+  el.classList.add('show');
+}
+function dwCardHide(){ const el = document.getElementById('dw-card'); if(el) el.classList.remove('show'); }
+
+let gpsStartAt = 0, _gpsHelpTimer = null, _gpsLooseTimer = null, _gpsPoor = null, gpsExplore = false;
+const GPS_HELP_MS = 20000;   // no fix by then: say why, offer a way in
+const GPS_LOOSE_MS = 8000;   // no good fix by then: take a rougher first one
+const GPS_FIRST_ACCURACY = 150;
+function gpsHelp(kind){
+  if(gpsFirstLock || gpsExplore || !Player) return;
+  const why = kind === 'denied'
+    ? 'Darkworld can\'t see your location. Turn it on for this site or app (phone <b>Settings → Location</b>, or the 🔒 in the address bar), then retry.'
+    : 'Still looking for you — the GPS signal is weak here. Step outside or near a window, then retry.';
+  dwCard(`📡 ${why}<br>Or explore without GPS: you start in <b>Old City</b> and can fight anything on the map. Bosses still need a real location.`,
+    [['RETRY', gpsRetry], ['play without GPS', gpsExploreMode]]);
+}
+function gpsRetry(){
+  dwCardHide();
+  if(gpsWatchId != null && navigator.geolocation) navigator.geolocation.clearWatch(gpsWatchId);
+  gpsWatchId = null;
+  startGPS();
+}
+function gpsExploreMode(){
+  dwCardHide();
+  gpsExplore = true;
+  const oc = selectedWorld === 'philadelphia' && PHILLY_DISTRICTS.find(d => d.name === 'Old City');
+  Player.lat = oc ? oc.lat : CENTER.lat; Player.lng = oc ? oc.lng : CENTER.lng;
+  updateZone(); genSpawns(); refreshLiving(); centerOnPlayer();
+  if(tutStep()) tutKeepClose();
+  setGPSStatus('searching', 'EXPLORING · NO GPS');
+  showToast('🕯 EXPLORE MODE', 'You walk Old City without GPS. A real fix takes over the moment it comes.');
+}
+// Outside Philadelphia (once per device): monsters and shrines rise anywhere, the story lives in Philly
+function gpsCheckRemote(lat, lng){
+  const ph = WORLDS.philadelphia && WORLDS.philadelphia.center;
+  Player.remote = !!ph && distMiles(lat, lng, ph.lat, ph.lng) > 25;
+  if(!Player.remote || localStorage.getItem('darkworld_remote_seen_v1')) return;
+  localStorage.setItem('darkworld_remote_seen_v1', '1');
+  dwCard('🗺 <b>You\'re outside Philadelphia.</b> Monsters, shrines and bounties rise wherever you are. Bosses, landmarks and the season finale live in Philly.',
+    [['GOT IT', dwCardHide]]);
+}
+
 function startGPS(){
   if(!navigator.geolocation){
     setGPSStatus('denied','GPS UNAVAILABLE');
     addLog('⚠ GPS not supported on this device.','ls');
+    gpsHelp('denied');
     return;
   }
   setGPSStatus('searching','SEARCHING...');
   const GPS_SMOOTH = 0.2; // 0=no update, 1=raw — lower = smoother
-  const GPS_MAX_ACCURACY = 50; // ignore readings worse than 50m
-  gpsWatchId=navigator.geolocation.watchPosition(
-    pos=>{
+  const GPS_MAX_ACCURACY = 50; // ignore readings worse than 50m (after the first lock)
+  gpsStartAt = Date.now(); _gpsPoor = null;
+  clearTimeout(_gpsHelpTimer); _gpsHelpTimer = setTimeout(() => gpsHelp('weak'), GPS_HELP_MS);
+  clearTimeout(_gpsLooseTimer); _gpsLooseTimer = setTimeout(() => { if(!gpsFirstLock && _gpsPoor) onPos(_gpsPoor); }, GPS_LOOSE_MS);
+  const onPos = pos=>{
       const {latitude:lat,longitude:lng,accuracy}=pos.coords;
-      if(accuracy > GPS_MAX_ACCURACY) return; // too noisy, skip
+      // Indoors a first fix is often 60–150 m: after a few seconds take it rather than search forever
+      const limit = !gpsFirstLock && Date.now() - gpsStartAt >= GPS_LOOSE_MS ? GPS_FIRST_ACCURACY : GPS_MAX_ACCURACY;
+      if(accuracy > limit){ if(!gpsFirstLock && accuracy <= GPS_FIRST_ACCURACY) _gpsPoor = pos; return; } // too noisy, skip
       huntOnGPS(lat, lng, accuracy);
       if(Player.lat && Player.lng){
         // Low-pass smooth: blend toward new reading
@@ -8115,13 +8235,20 @@ function startGPS(){
         genSpawns();
         centerOnPlayer();
         addLog('⬤ GPS locked. Darkness finds you wherever you roam.','lb');
+        clearTimeout(_gpsHelpTimer); clearTimeout(_gpsLooseTimer);
+        dwCardHide(); gpsExplore = false;
+        if(tutStep()) tutKeepClose();
+        gpsCheckRemote(lat, lng); updateZone();
       }
       setGPSStatus('locked',`LOCKED · ±${Math.round(accuracy)}m`);
-    },
+  };
+  gpsWatchId=navigator.geolocation.watchPosition(
+    onPos,
     err=>{
       const msgs={1:'GPS DENIED',2:'GPS UNAVAILABLE',3:'GPS TIMEOUT'};
-      setGPSStatus('denied',msgs[err.code]||'GPS ERROR');
+      if(!gpsExplore) setGPSStatus('denied',msgs[err.code]||'GPS ERROR');
       addLog(`⚠ GPS: ${err.message}`,'ls');
+      if(err.code === 1) gpsHelp('denied');
     },
     {enableHighAccuracy:true,maximumAge:3000,timeout:15000}
   );
@@ -8177,6 +8304,7 @@ function combatTick(){
   // Enemy attack
   if(now >= curEnemy.nextAttackAt){
     curEnemy.nextAttackAt = now + attackInterval;
+    tutOnEnemySwing(curEnemy);
     doEnemyAttack();
     return; // setCBUI called inside
   }
@@ -8394,7 +8522,7 @@ function tickStatuses(who){
         target.hp=Math.min(target.maxHp,target.hp+healAmt);
         addLog(`Rejuvenation: +${fmt(healAmt)} HP`,'ll');
       } else {
-        target.hp=Math.max(0,target.hp-amt);
+        target.hp=Math.max(who==='enemy' ? tutHpFloor(target) : 0,target.hp-amt);
         showDamageNum(fmt(amt),'dmg-orange',who==='enemy'?'right':'left');
       }
     }
@@ -8435,6 +8563,7 @@ function playerAct(ability){
     curEnemy.nextAttackAt = now + atkInterval;
     Player.ripostes = (Player.ripostes||0) + 1;
     riposted = true;
+    if(curEnemy.tutorialMob) curEnemy._tutRiposted = true;
     showDamageNum('RIPOSTE!','dmg-riposte','left');
     flashScreen('white'); sndRiposte();
     setCLog(`⚔ RIPOSTE! You turn ${curEnemy.name}'s blow aside and strike back.`);
@@ -8489,7 +8618,7 @@ function playerAct(ability){
       dmg=Math.floor(dmg*(1+comboUsed*0.4));
     }
     const overkill=curEnemy.hp>0&&dmg>curEnemy.hp*1.5;
-    curEnemy.hp=Math.max(0,curEnemy.hp-dmg);
+    curEnemy.hp=Math.max(tutHpFloor(curEnemy),curEnemy.hp-dmg);
     if(curEnemy.isFinale) seasonFinaleHit(dmg);
     showDamageNum(fmt(dmg),getDmgClass(dmg),'right');
     if(overkill) setTimeout(()=>showDamageNum('OVERKILL','dmg-overkill','right'),180);
@@ -8660,7 +8789,7 @@ function doEnemyAttack(){
   // Confuse — attack self
   if(eStatuses.find(s=>s.type==='confuse')){
     const selfDmg=Math.floor(e.atk*1.2);
-    e.hp=Math.max(0,e.hp-selfDmg);
+    e.hp=Math.max(tutHpFloor(e),e.hp-selfDmg);
     setCLog(`${e.name} is confused! It attacks itself for ${fmt(selfDmg)} damage!`);
     showDamageNum(fmt(selfDmg),'dmg-orange','right');
     anim('e-spr','hit-anim'); setCBUI();
@@ -8782,6 +8911,7 @@ function victory(){
   curEnemy.poisonStacks=0;
   markLivingKilled(curEnemy);
   huntOnKill(curEnemy);
+  if(!curEnemy.tutorialMob && _omenHoldUntil) _omenHoldUntil = Math.min(_omenHoldUntil, Date.now() + 3000); // first real kill: the omen may come
   tutOnVictory(curEnemy);
   seasonOnVictory(curEnemy);
   bloodMoonOnKill(curEnemy);
@@ -8835,7 +8965,30 @@ function levelUp(){
 function showNextLevelUp(){
   if(pendingLevelUps.length === 0) return;
   const lvl = pendingLevelUps.shift();
+  // During the First Hunt the points spend themselves: a toast, not homework
+  if(tutStep()){
+    luOnClose = null; luSpent = 0; luTempStats = {STR:0, DEX:0, INT:0, CON:0, WIS:0, CHA:0};
+    const picked = luAutoPick();
+    confirmStats();
+    showToast(`⬆ LEVEL ${lvl}`, `${picked} · auto-assigned for your ${Player.className}`);
+    showNextLevelUp();
+    return;
+  }
   openLevelUpModal(lvl, ()=>{ showNextLevelUp(); });
+}
+// Spend the 2 points on the class's two strongest stats (its statMods)
+function luAutoPick(){
+  const mods = (Player.cls && Player.cls.statMods) || {STR:1, CON:1};
+  const top = Object.keys(luTempStats).sort((a,b) => (mods[b]||0) - (mods[a]||0)).slice(0, 2);
+  Object.keys(luTempStats).forEach(s => luTempStats[s] = 0);
+  top.forEach(s => luTempStats[s] = 1);
+  luSpent = 2;
+  return top.map(s => `+1 ${s}`).join(' · ');
+}
+function luAuto(){
+  luAutoPick();
+  renderLUStatGrid(); updateLUCounter();
+  confirmStats();
 }
 
 // Temp stat allocation vars
@@ -9065,7 +9218,10 @@ function showLoot(xp, gold, drops){ sndLoot(); if(drops && drops.length) setTime
 
   document.getElementById('loot-txt').innerHTML=html;
   pop.style.display='block';
-  pop.onclick=()=>{ pop.style.display='none'; pop.onclick=null; };
+  const close=()=>{ clearTimeout(showLoot._t); pop.style.display='none'; pop.onclick=null; };
+  pop.onclick=close;
+  // It clears itself so it never sits over HUNT/BOOK: a little longer when something dropped
+  clearTimeout(showLoot._t); showLoot._t=setTimeout(close, drops.length ? 4000 : 2500);
 }
 
 // ══════════════════════════════════════════════════════
@@ -10007,19 +10163,13 @@ function showNextIntroLine(slideIdx){
   }
   lines[introLineShown].classList.add('show');
   introLineShown++;
-  const delay = introLineShown === 1 ? 800 : 650;
+  const delay = introLineShown === 1 ? 500 : 380; // quicker rise now that a tap moves straight on
   setTimeout(()=>{ if(introSlide===slideIdx) showNextIntroLine(slideIdx); }, delay);
 }
 
 function introAdvance(){
-  if(introAnimating){
-    // skip to showing all lines in current slide
-    const lines = document.querySelectorAll(`#intro-slide-${introSlide} .intro-line`);
-    lines.forEach(l => l.classList.add('show'));
-    introAnimating = false;
-    document.getElementById('intro-tap-hint').style.opacity = '1';
-    return;
-  }
+  // One tap = next slide, even while the lines are still rising (was: reveal, then a 2nd tap)
+  introAnimating = false;
   if(introSlide < 3){
     introSlide++;
     document.getElementById('intro-tap-hint').style.opacity = '0';
@@ -10548,13 +10698,16 @@ function pickWorld(key){
 }
 
 function goCreate(){
-  deleteSave();
+  // Starting over never erases a hunter by accident: ask first, and only delete once the new one is made
+  const save = loadSave();
+  if(save && save.player && !confirm(`Start over? Lv ${save.player.level} ${save.player.name} will be lost when your new hunter enters the world.`)) return;
   document.getElementById('screen-title').classList.remove('active');
   pickWorld('philadelphia'); // Philadelphia is home; other cities are a link on the next screen
 }
 
 function enterWorld(){
   if(!selectedClass||!rolledStats)return;
+  deleteSave(); // the old hunter (if any) goes only now, when the new one is created
   buildPlayer();
   playerQuests = {};
   initQuestState();
