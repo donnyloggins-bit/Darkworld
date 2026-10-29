@@ -1,4 +1,4 @@
-const CACHE = 'darkworld-v6';
+const CACHE = 'darkworld-v7'; // v7: flush the old keyless CARTO "API KEY REQUIRED" tiles
 
 const CORE = [
   '/',
@@ -134,6 +134,10 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
+
+  // OpenStreetMap tiles (keyless fallback): leave them to the browser's HTTP cache,
+  // which honours OSM's caching headers as their tile policy asks
+  if (url.includes('tile.openstreetmap.org')) return;
 
   // Map tiles — cache-first, silently update in background
   if (url.includes('basemaps.cartocdn.com')) {

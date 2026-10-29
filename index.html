@@ -606,6 +606,8 @@ body::before {
 /* MAP */
 #map-wrap { flex:1; position:relative; overflow:hidden; background:#030205; }
 #map-canvas { position:absolute; top:0; left:0; cursor:crosshair; }
+#map-credit { position:absolute; left:4px; bottom:calc(2px + var(--sab)); z-index:6; font:9px 'Share Tech Mono',monospace; color:rgba(200,190,220,.75); background:rgba(5,3,8,.55); padding:1px 5px; border-radius:2px; pointer-events:auto; }
+#map-credit a { color:inherit; }
 
 /* Boss portrait tooltip */
 .boss-tooltip {
@@ -2175,6 +2177,7 @@ body:not(.net-on) .net-only { display:none !important; }
 <div id="screen-game" class="screen">
   <div id="map-wrap">
     <canvas id="map-canvas"></canvas>
+    <div id="map-credit"></div>
     <div id="boss-tooltip" class="boss-tooltip" style="display:none">
       <img id="boss-tooltip-img" src="" alt="">
       <div id="boss-tooltip-name"></div>
@@ -3941,15 +3944,40 @@ function _tileNW(tx,ty,z){
   const lat=180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n)));
   return {lat,lng};
 }
+// Street tiles. CARTO's dark raster tiles need a (free) key since Sep 2026: put it in
+// config.js as DW_CONFIG.cartoKey (see config.example.js). Without a key the map uses
+// OpenStreetMap's standard tiles (keyless; light use only, attribution shown on the map)
+// and darkens them once per tile so the city keeps its night look.
+const CARTO_KEY = (window.DW_CONFIG && window.DW_CONFIG.cartoKey) || '';
+const TILE_SRC = CARTO_KEY
+  ? { url:(z,x,y)=>`https://basemaps.cartocdn.com/rastertiles/dark_all/${z}/${x}/${y}.png?key=${encodeURIComponent(CARTO_KEY)}`, dark:true,
+      credit:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>' }
+  : { url:(z,x,y)=>`https://tile.openstreetmap.org/${z}/${x}/${y}.png`, dark:false,
+      credit:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors' };
+{ const mc=document.getElementById('map-credit'); if(mc) mc.innerHTML=TILE_SRC.credit; }
+// Light OSM tile → night tile: invert lightness, keep hue (white roads go dark, dark labels go light)
+function _nightTile(img){
+  try {
+    const c=document.createElement('canvas'); c.width=img.naturalWidth; c.height=img.naturalHeight;
+    const g=c.getContext('2d'); g.drawImage(img,0,0);
+    const d=g.getImageData(0,0,c.width,c.height), p=d.data;
+    for(let i=0;i<p.length;i+=4){
+      const r=p[i],gg=p[i+1],b=p[i+2], k=255-Math.max(r,gg,b)-Math.min(r,gg,b);
+      p[i]=Math.max(0,(r+k)*0.8); p[i+1]=Math.max(0,(gg+k)*0.75); p[i+2]=Math.max(0,(b+k)*0.9);
+    }
+    g.putImageData(d,0,0);
+    return c;
+  } catch(e){ return img; }
+}
 function _getTile(tx,ty,tz){
   const key=`${tz}/${tx}/${ty}`;
   if(tileCache.has(key)) return tileCache.get(key);
+  const t={ src:null };
   const img=new Image(); img.crossOrigin='anonymous';
-  const sub=['a','b','c'][Math.abs(tx+ty)%3];
-  img.src=`https://${sub}.basemaps.cartocdn.com/dark_all/${tz}/${tx}/${ty}.png`;
-  img.onload=()=>{ if(Player) markDirty(); };
-  tileCache.set(key,img);
-  return img;
+  img.onload=()=>{ t.src = TILE_SRC.dark ? img : _nightTile(img); if(Player) markDirty(); };
+  img.src=TILE_SRC.url(tz,tx,ty);
+  tileCache.set(key,t);
+  return t;
 }
 function drawTiles(){
   const tz=_tileZoom();
@@ -3964,11 +3992,11 @@ function drawTiles(){
   const tyMax=_latToTY(pyToLat(mapH+256),tz);
   for(let ty=tyMin;ty<=tyMax;ty++){
     for(let tx=txMin;tx<=txMax;tx++){
-      const img=_getTile(tx,ty,tz);
-      if(!img.complete||!img.naturalWidth) continue;
+      const tile=_getTile(tx,ty,tz);
+      if(!tile.src) continue;
       const nw=_tileNW(tx,ty,tz), se=_tileNW(tx+1,ty+1,tz);
       const p1=ll2px(nw.lat,nw.lng), p2=ll2px(se.lat,se.lng);
-      ctx.drawImage(img,p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+      ctx.drawImage(tile.src,p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
     }
   }
   // Dark tint to preserve the game atmosphere
