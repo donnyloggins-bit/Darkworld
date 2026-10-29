@@ -1,8 +1,10 @@
-const CACHE = 'darkworld-v7'; // v7: flush the old keyless CARTO "API KEY REQUIRED" tiles
+const CACHE = 'darkworld-v8'; // v8: story.js (seasons, meetup spots)
+// v7: flush the old keyless CARTO "API KEY REQUIRED" tiles
 
 const CORE = [
   '/',
   '/index.html',
+  '/story.js',
   '/manifest.json',
   '/icon.svg',
   '/icons/icon-72.png',
@@ -109,7 +111,8 @@ self.addEventListener('fetch', e => {
   if (new URL(url).pathname.startsWith('/music/')) return;
 
   // Runtime config — network-first so key changes take effect, cached copy offline
-  if (new URL(url).pathname === '/config.js') {
+  // (story.js too: it changes with every story update and must match index.html)
+  if (new URL(url).pathname === '/config.js' || new URL(url).pathname === '/story.js') {
     e.respondWith(
       fetch(e.request)
         .then(res => {

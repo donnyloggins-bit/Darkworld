@@ -2592,6 +2592,7 @@ body:not(.net-on) .net-only { display:none !important; }
 </div>
 
 <script src="/config.js"></script>
+<script src="/story.js"></script>
 <script>
 'use strict';
 // ══════════════════════════════════════════════════════
@@ -5041,51 +5042,28 @@ function renderTurf(el){
 }
 
 // ══════════════════════════════════════════════════════
-//  SEASONS — each season builds, night by night, to one giant fight somewhere in the city
-//  omen → nights (one lieutenant per night) → finale (a city-wide raid) → aftermath.
-//  All times are Eastern. A season is either on the calendar (omenAt … endAt, the same
-//  week for everyone) or evergreen: its week runs from each hunter's own first day in
-//  the city (seasonRec(s).start), one lock a day, and every lock waits until you break
-//  it. Season 0, The Hollow Night, is evergreen, so testers in any month get the loop.
+//  SEASONS — four a year, one per quarter, each building to one huge daytime
+//  party-fight at a public Philadelphia landmark.
+//  build-up ('nights': Act I omens → Act II the locks → Act III the gathering)
+//  → finale (a Saturday afternoon about a week before the season ends)
+//  → aftermath (recap, and an echo of the finale boss for anyone who missed it)
+//  → the next season starts the same moment. All times are Eastern.
+//  The words live in story.js (window.DW_STORY); this is only the clock.
+//  Seven locks open across the build-up; every open lock waits until you break
+//  it, so someone joining mid-season always has something to chase.
+//  Preview for testers: ?season=act1|act2|act3|finale|after|off (sticks for the tab).
 // ══════════════════════════════════════════════════════
-const SEASONS = [{
-  id:'hollow-night', evergreen:true, num:0, name:'The Hollow Night', short:'THE HOLLOW NIGHT', color:'#e8862e', sigil:'🎃',
-  villain:'THE GHOST OF THE NORTH STAR', villainPortrait:'iron-officer.jpg', villainEmoji:'🗝',
-  vanguard:'Vanguard of the Hollow Night',
-  villainLore:'The first warden of Eastern State kept every key on one iron ring. The prison closed in 1971. He never handed the ring back. Now he is the Ghost of the North Star.',
-  // evergreen: no calendar dates. Lock N opens on your day N; the finale opens on day 8,
-  // or as soon as you break all seven, and stays open until he falls.
-  tz:'-04:00', finaleLabel:'opens after the seventh lock (or on your eighth day)',
-  site:{ name:'Eastern State Penitentiary', short:'EASTERN STATE', lat:39.9679, lng:-75.1727,
-         note:'Gather on the Fairmount Avenue sidewalk. Never go inside or over the walls.' },
-  nights:[
-    { date:'L1', day:1, name:'THE MOURNER AT THE GATE', place:'the gates of Laurel Hill Cemetery', lat:40.0035, lng:-75.1880, portrait:'wailing-ghost.jpg', emoji:'🕯', color:'#8fb0d8',
-      lore:'She keeps the vigil for seventy thousand graves. Tonight she keeps it for him. Fight her from Ridge Avenue — the cemetery is closed after dark.' },
-    { date:'L2', day:2, name:'THE COLLECTOR', place:'the Mütter Museum, 22nd Street', lat:39.9532, lng:-75.1765, portrait:'ledger-wraith.jpg', emoji:'🫙', color:'#c8c0a8',
-      lore:'He catalogued every specimen in the building. Now he wants the jars back — and one more for you.' },
-    { date:'L3', day:3, name:'THE UNBURIED', place:'Washington Square', lat:39.9471, lng:-75.1525, portrait:'colonial-shade.jpeg', emoji:'🪖', color:'#9aa8b8',
-      lore:'Two thousand soldiers lie under the lawn of Washington Square. One of them stood up and asked for his orders.' },
-    { date:'L4', day:4, name:'THE RAVEN OF SPRING GARDEN', place:'the Poe House, 7th Street', lat:39.9619, lng:-75.1501, portrait:'voidshade.jpeg', emoji:'🐦‍⬛', color:'#7a6ab8',
-      lore:'Poe wrote The Black Cat in this house. The thing on the roof says only one word, and you already know it.' },
-    { date:'L5', day:5, name:'THE DROWNED GARRISON', place:"Penn's Landing, Spruce Street Harbor", lat:39.9447, lng:-75.1422, portrait:'drowned-sailor.jpg', emoji:'⚓', color:'#2fa8a0',
-      lore:'The Delaware gave back every sailor it ever took. They came ashore in formation, and they are waiting for the tide.' },
-    { date:'L6', day:6, name:'THE SEXTON', place:'Christ Church Burial Ground, Arch Street', lat:39.9522, lng:-75.1470, portrait:'gravewanderer.jpeg', emoji:'⚰', color:'#b89a60',
-      lore:'He digs one grave a night beside Franklin. Tonight the hole is exactly your size. Fight him from the Arch Street fence.' },
-    { date:'L7', day:7, name:'THE TURNKEY', place:'the Art Museum steps', lat:39.9653, lng:-75.1797, portrait:'hollowknight.jpeg', emoji:'🗝', color:'#d0302a',
-      lore:'He holds the last of the seven keys and has never lost a fight on these steps. Break him and the Ghost walks free tomorrow night.' },
-  ],
-  omen:[
-    { img:'eastern-state-yard.jpg', top:true, label:'FAIRMOUNT · 1829', lines:['They built Eastern State to break men with silence.', 'Hooded when they walked. Alone when they slept.', 'The first warden kept every key on one iron ring.'] },
-    { img:'eastern-state-gate.jpg', top:true, label:'EASTERN STATE · TONIGHT', lines:['The prison closed in 1971.', 'The warden never left.', 'Now his seven keepers walk the city — a new one every day.'] },
-    { img:'iron-officer.jpg', label:'THE GHOST OF THE NORTH STAR', lines:['Break his seven locks, one by one.', 'Then meet him at the gate on Fairmount Avenue —', 'with every hunter in Philadelphia behind you.'] },
-  ],
-  finaleSlides:[
-    { img:'eastern-state-night.jpg', label:'THE LAST LOCK', lines:['The last lock is broken.', 'The Ghost of the North Star is out.', 'Every hunter in Philadelphia — to Eastern State.'] },
-  ],
-}];
+const DW_STORY_DATA = window.DW_STORY || { calendar:[], seasons:{}, tiers:{} };
+const SEASON_ZERO_START = { y:2026, q:2 };   // Season 0 = autumn 2026
+const SEASON_QUARTER_STARTS = [[3,20],[6,21],[9,22],[12,21]]; // spring, summer, autumn, winter
+const SEASON_QUARTER_NAMES = ['SPRING','SUMMER','AUTUMN','WINTER'];
+const SEASON_FINALE_HOUR = 13, SEASON_FINALE_HOURS = 4; // Saturday 1–5 PM: daylight, for every age
+const SEASON_FINALE_LEAD_DAYS = 7;          // the finale is the last Saturday at least a week before the end
+const SEASON_LOCK_LAST_DAYS = 14;           // the seventh lock opens two weeks before the finale
 const SEASON_SIEGE_MI = 0.3;   // full damage at the finale site; half from anywhere else in the city
 const SEASON_CITY_MI = 15;     // how far from the site you can still join the siege
 const SEASON_LANTERN_SHARDS = 3;
+const SEASON_ECHO_FAR_MI = 0.6; // a lock farther than this also casts an echo within a short walk of you
 const FINALE_PHASES = [
   { at:1,    tag:'',                mult:1 },
   { at:0.66, tag:'THE GATES OPEN',  mult:1.25, line:'Every cell door in Eastern State swings open at once.' },
@@ -5094,71 +5072,120 @@ const FINALE_PHASES = [
 const _seasonBossCache = {};
 let _seasonLastKeys = '', _seasonPhaseSeen = null;
 
-function seasonNow(){ return Date.now() + (window.__dwTimeShift || 0); } // tests shift the clock here
+// Tester preview: jump the season clock to a phase (only the season reads this clock)
+(function seasonPreviewInit(){
+  try {
+    const q = new URLSearchParams(location.search).get('season');
+    if(q === 'off') sessionStorage.removeItem('dw_season_preview');
+    else if(q) sessionStorage.setItem('dw_season_preview', q);
+  } catch(e){}
+})();
+function seasonPreview(){ try { return sessionStorage.getItem('dw_season_preview') || ''; } catch(e){ return ''; } }
+
+function seasonNow(){ return Date.now() + (window.__dwTimeShift || 0); } // tests and previews shift the clock here
 function seasonT(t){ return typeof t === 'number' ? t : Date.parse(t); }
 const DAY_MS = 864e5;
+// Eastern wall-clock time → epoch ms (handles daylight saving)
+function etTime(y, mo, d, h = 0, mi = 0){
+  const guess = Date.UTC(y, mo - 1, d, h + 5, mi);
+  const p = {}; new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', hour:'numeric', hourCycle:'h23', year:'numeric', month:'numeric', day:'numeric', minute:'numeric' })
+    .formatToParts(new Date(guess)).forEach(x => p[x.type] = Number(x.value));
+  const shown = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute);
+  return guess + (Date.UTC(y, mo - 1, d, h, mi) - shown);
+}
 // 5 AM Eastern on the hunting day that holds t (a hunting day runs dawn to dawn)
 function huntDayStart(t){
   const p = {}; new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', hour:'numeric', minute:'numeric', second:'numeric', hourCycle:'h23' })
     .formatToParts(new Date(t)).forEach(x => p[x.type] = Number(x.value));
   return t - ((p.hour - 5 + 24) % 24) * 3600e3 - p.minute * 60e3 - p.second * 1e3 - (t % 1000);
 }
-// An evergreen season, dated for this hunter: the week starts on their first hunting day
-function seasonDated(base){
-  if(!base.evergreen) return base;
-  const now = seasonNow();
-  let start = huntDayStart(now), rec = null;
-  if(Player){
-    rec = seasonRec(base);
-    if(!rec.start){
-      rec.start = start;
-      const old = Player.season && Player.season['hollow-2026']; // the Halloween 2026 calendar run: don't replay its omen
-      if(old && old.omenSeen && base.id === 'hollow-night') rec.omenSeen = true;
-    }
-    start = rec.start;
-  }
-  const finaleAt = Math.min(start + 7 * DAY_MS, (rec && rec.allAt) || Infinity);
-  return { ...base, omenAt:start, startAt:start, finaleAt, finaleEnd:(rec && rec.finaleDoneAt) || Infinity, endAt:Infinity };
+function quarterStart(y, q){ const [mo, d] = SEASON_QUARTER_STARTS[q]; return etTime(y, mo, d, 5); }
+function seasonNumAt(t){
+  let y = SEASON_ZERO_START.y, q = SEASON_ZERO_START.q, n = 0;
+  if(t < quarterStart(y, q)) return 0; // before Season 0: Season 0's build-up
+  for(;;){ const ny = q === 3 ? y + 1 : y, nq = (q + 1) % 4; if(t < quarterStart(ny, nq)) return n; y = ny; q = nq; n++; }
 }
-function currentSeason(){
-  const now = seasonNow();
-  const cal = SEASONS.find(s => !s.evergreen && now >= seasonT(s.omenAt) && now < seasonT(s.endAt));
-  if(cal) return cal;
-  const eg = SEASONS.find(s => s.evergreen);
-  return eg ? seasonDated(eg) : null;
+function seasonYQ(num){ let y = SEASON_ZERO_START.y, q = SEASON_ZERO_START.q; for(let i = 0; i < num; i++){ if(q === 3) y++; q = (q + 1) % 4; } return { y, q }; }
+// The calendar for season `num` (dates only)
+function seasonDates(num){
+  const { y, q } = seasonYQ(num);
+  const start = quarterStart(y, q), end = quarterStart(q === 3 ? y + 1 : y, (q + 1) % 4);
+  const d = new Date(end - SEASON_FINALE_LEAD_DAYS * DAY_MS - 12 * 3600e3);
+  const ymd = new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York' }).format(d).split('-').map(Number);
+  const wd = new Date(Date.UTC(ymd[0], ymd[1] - 1, ymd[2])).getUTCDay();
+  const sat = new Date(Date.UTC(ymd[0], ymd[1] - 1, ymd[2] - ((wd - 6 + 7) % 7)));
+  const finaleAt = etTime(sat.getUTCFullYear(), sat.getUTCMonth() + 1, sat.getUTCDate(), SEASON_FINALE_HOUR);
+  return { start, end, finaleAt, finaleEnd: finaleAt + SEASON_FINALE_HOURS * 3600e3, year:y, quarter:q };
 }
+// The season for a number: dates + the story written for it (or a labeled rerun)
+const _seasonObjs = {};
+function seasonFor(num){
+  if(_seasonObjs[num]) return _seasonObjs[num];
+  const cal = DW_STORY_DATA.calendar || [];
+  const entry = cal.find(c => c.num === num) || cal.filter(c => c.num < num).pop() || cal[0] || { story:Object.keys(DW_STORY_DATA.seasons || {})[0] };
+  const story = (DW_STORY_DATA.seasons || {})[entry.story];
+  if(!story) return null;
+  const written = cal.some(c => c.num === num);
+  const dt = seasonDates(num);
+  const nights = story.nights.map((n, i) => ({ ...n, day:i + 1 }));
+  const lockSpan = Math.max(DAY_MS, dt.finaleAt - SEASON_LOCK_LAST_DAYS * DAY_MS - dt.start);
+  nights.forEach((n, i) => n.opensAt = i ? huntDayStart(dt.start + Math.round(i * lockSpan / Math.max(1, nights.length - 1))) : dt.start); // at dawn
+  const finaleDay = new Date(dt.finaleAt).toLocaleDateString('en-US', { timeZone:'America/New_York', weekday:'short', month:'short', day:'numeric' });
+  // Season 0 keeps its old id so saves carry over; reruns get their own record
+  const id = num === 0 ? entry.story : `${entry.story}-s${num}`;
+  return _seasonObjs[num] = { ...story, id, num, nights, written, story:entry.story,
+    quarterName:SEASON_QUARTER_NAMES[dt.quarter], tz:'-05:00',
+    omenAt:dt.start, startAt:dt.start, finaleAt:dt.finaleAt, finaleEnd:dt.finaleEnd, endAt:dt.end,
+    finaleLabel:`${finaleDay} · 1–5 PM`, rerunNote: written ? '' : `[PLACEHOLDER] Season ${num} isn't written yet, so ${story.name} runs again.` };
+}
+function seasonPreviewShift(){
+  const p = seasonPreview(); if(!p) return 0;
+  const s = seasonFor(seasonNumAt(Date.now())); if(!s) return 0;
+  const span = s.finaleAt - s.startAt, at = {
+    act1: s.startAt + span * 0.15, act2: s.startAt + span * 0.5, act3: s.finaleAt - 5 * DAY_MS,
+    finale: s.finaleAt + 3600e3, after: s.finaleEnd + DAY_MS }[p];
+  return at ? at - Date.now() : 0;
+}
+if(seasonPreview()) window.__dwTimeShift = seasonPreviewShift();
+function currentSeason(){ return seasonFor(seasonNumAt(seasonNow())); }
 function seasonPhase(s = currentSeason()){
   if(!s) return null;
   const now = seasonNow();
-  if(now < seasonT(s.startAt)) return 'omen';
-  if(now < seasonT(s.finaleAt)) return 'nights';
-  if(now < seasonT(s.finaleEnd)) return 'finale';
+  if(now < s.startAt) return 'nights';
+  if(now < s.finaleAt) return 'nights';
+  if(now < s.finaleEnd) return 'finale';
   return 'after';
 }
-function nightWindow(s, n){
-  if(s.evergreen) return [s.startAt + (n.day - 1) * DAY_MS, Infinity]; // opens on your day N, waits for you
-  const a = seasonT(`${n.date}T18:00:00${s.tz}`); return [a, a + 11*3600e3]; // 6 PM → 5 AM
+// Act I omens · Act II the locks · Act III the gathering (the last two weeks)
+function seasonAct(s = currentSeason()){
+  if(!s) return 0;
+  const now = seasonNow();
+  if(now >= s.finaleAt) return 4;
+  if(now >= s.finaleAt - SEASON_LOCK_LAST_DAYS * DAY_MS) return 3;
+  return now < s.startAt + (s.finaleAt - s.startAt) * 0.3 ? 1 : 2;
 }
+// A lock opens on its day and waits until the season ends
+function nightWindow(s, n){ return [n.opensAt, s.endAt]; }
 function seasonMine(s){ return Player ? seasonRec(s).nights : {}; }
+// The lowest open lock you haven't broken (every open lock waits for you)
 function tonightsLieutenant(s = currentSeason()){
   if(!s) return null;
-  const now = seasonNow();
-  if(s.evergreen){ const mine = seasonMine(s); return s.nights.find(n => nightWindow(s, n)[0] <= now && !mine[n.date]) || null; }
-  return s.nights.find(n => { const [a, b] = nightWindow(s, n); return now >= a && now < b; }) || null;
+  const now = seasonNow(), mine = seasonMine(s);
+  return s.nights.find(n => n.opensAt <= now && now < s.endAt && !mine[n.date]) || null;
 }
-function nextLieutenant(s){ const now = seasonNow(); return s.nights.find(n => nightWindow(s, n)[0] > now) || null; }
-function locksBroken(s){
-  if(s.evergreen) return Object.keys(seasonMine(s)).length;
-  const now = seasonNow(); return s.nights.filter(n => nightWindow(s, n)[1] <= now).length;
-}
+function nextLieutenant(s){ const now = seasonNow(); return s.nights.find(n => n.opensAt > now) || null; }
+function locksBroken(s){ return Object.keys(seasonMine(s)).length; }
+function locksOpen(s){ const now = seasonNow(); return s.nights.filter(n => n.opensAt <= now).length; }
 function isDarkHours(){
   const h = Number(new Date(seasonNow()).toLocaleString('en-US', { timeZone:'America/New_York', hour:'numeric', hourCycle:'h23' }));
   return h >= 18 || h < 5;
 }
-// After dark during a season, the city wakes up: more monsters in every block
+// Late afternoon during a season, the city stirs: more monsters in every block.
+// (Daylight on purpose: kids play this. Nothing rewards being out after dark.)
 function seasonNightSurge(){
   const p = seasonPhase();
-  return (p === 'nights' || p === 'finale') && isDarkHours() && selectedWorld === 'philadelphia';
+  const h = Number(new Date(seasonNow()).toLocaleString('en-US', { timeZone:'America/New_York', hour:'numeric', hourCycle:'h23' }));
+  return (p === 'nights' || p === 'finale') && h >= 15 && h < 18 && selectedWorld === 'philadelphia';
 }
 function seasonRec(s){
   Player.season = Player.season || {};
@@ -5169,10 +5196,9 @@ function fmtCountdown(ms){
   const m = Math.floor(ms / 60000), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
   return d ? `${d}d ${h}h` : h ? `${h}h ${mm}m` : `${mm}m`;
 }
-function nightLabel(n){ // "SAT 24" (or "DAY 3" in an evergreen season)
-  if(n.day) return `DAY ${n.day}`;
-  const d = new Date(`${n.date}T12:00:00Z`);
-  return `${['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getUTCDay()]} ${d.getUTCDate()}`;
+function nightLabel(n){ // "OCT 3": the day a lock opens
+  if(n.opensAt) return new Date(n.opensAt).toLocaleDateString('en-US', { timeZone:'America/New_York', month:'short', day:'numeric' }).toUpperCase();
+  return n.day ? `DAY ${n.day}` : '';
 }
 function grantTitle(t){
   Player.titles = Player.titles || [];
@@ -5185,20 +5211,64 @@ function grantItem(n){
   Player.inventory.push(n); return true;
 }
 
-// ── Bosses: tonight's lieutenant, and the finale when there is no server ──
+// ── Meetup spots (the safety allowlist in story.js) ──
+function meetupSpot(id){ const s = (DW_STORY_DATA.meetupSpots || []).find(x => x.id === id); return s && s.ok !== false ? s : null; }
+function nearestMeetupSpot(lat, lng, maxMi = 0.8){
+  let best = null, bd = maxMi;
+  for(const s of DW_STORY_DATA.meetupSpots || []){ if(s.ok === false) continue; const d = distMiles(lat, lng, s.lat, s.lng); if(d < bd){ bd = d; best = s; } }
+  return best;
+}
+// Group fights only in daylight / early evening, Eastern
+function groupHoursNow(){
+  const now = new Date(seasonNow());
+  const mo = Number(now.toLocaleString('en-US', { timeZone:'America/New_York', month:'numeric' }));
+  const h = Number(now.toLocaleString('en-US', { timeZone:'America/New_York', hour:'numeric', hourCycle:'h23' }));
+  const gh = DW_STORY_DATA.groupHours || { warm:[10, 19], cold:[10, 17] };
+  const [a, b] = mo >= 4 && mo <= 9 ? gh.warm : gh.cold;
+  return { open: h >= a && h < b, a, b };
+}
+function hourLabel(h){ return `${h % 12 || 12} ${h < 12 ? 'AM' : 'PM'}`; }
+
+// ── Bosses: the open lock (at its meetup spot, plus an echo near you), and the finale ──
 function seasonLieutenant(s, n){
   const key = `${s.id}:${n.date}`;
   if(_seasonBossCache[key]) return _seasonBossCache[key];
   const i = s.nights.indexOf(n), L = Player.level || 1;
   const hp = Math.max(700, Math.floor(Player.atk * 26 * (1 + i * 0.06)));
+  const spot = meetupSpot(n.meet);
   return _seasonBossCache[key] = {
-    name:n.name, landmark:n.place, lore:n.lore, emoji:n.emoji, portrait:n.portrait, color:n.color,
-    lat:n.lat, lng:n.lng, zone:1, isSeason:true, seasonKey:key, seasonNight:n.date,
+    name:n.name, landmark: spot ? spot.name : n.place, lore:n.lore, emoji:n.emoji, portrait:n.portrait, color:n.color,
+    lat: spot ? spot.lat : n.lat, lng: spot ? spot.lng : n.lng, zone:1, isSeason:true, seasonKey:key, seasonNight:n.date,
+    tier:'party', meet: spot ? spot.id : null,
     type:`${s.short} · LOCK ${i + 1} OF ${s.nights.length}`,
     hp, maxHp:hp, atk:Math.floor(Player.maxHp * 0.1 + Player.def * 0.5), def:Math.floor(Player.atk * 0.12),
     xp:Math.floor(xpForLevel(L) * 0.3) + 200, gold:[150 + L * 25, 300 + L * 45],
     defeated:false, statuses:[], poisonStacks:0,
   };
+}
+// A short walk from you, so a lock is never out of reach (it still breaks the lock;
+// the landmark itself adds the "stood there" keepsake). Placed once, re-placed if you move far.
+function seasonEchoSpot(s, tag){
+  const rec = seasonRec(s); rec.echoes = rec.echoes || {};
+  let e = rec.echoes[tag];
+  if(!e || distMiles(Player.lat, Player.lng, e.lat, e.lng) > 1.5){
+    const h = hashStr(`${s.id}|${tag}|${Math.round(Player.lat * 100)}|${Math.round(Player.lng * 100)}`);
+    const ang = (h % 360) * Math.PI / 180, mi = 0.12 + ((h >> 9) % 100) / 1000; // 0.12–0.22 mi
+    e = rec.echoes[tag] = { lat: Player.lat + Math.cos(ang) * mi / 69.0, lng: Player.lng + Math.sin(ang) * mi / (69.0 * Math.cos(Player.lat * Math.PI / 180)) };
+  }
+  return e;
+}
+function seasonEcho(s, n){
+  const key = `${s.id}:${n.date}:echo`, pos = seasonEchoSpot(s, n.date);
+  let b = _seasonBossCache[key];
+  if(!b){
+    const base = seasonLieutenant(s, n), hp = Math.floor(base.maxHp * 0.7);
+    b = _seasonBossCache[key] = { ...base, name:`ECHO · ${n.name}`, isEcho:true, tier:null, meet:null, seasonKey:key,
+      landmark:'a short walk from you', type:`${base.type} · ECHO (SOLO)`, hp, maxHp:hp,
+      xp:Math.floor(base.xp * 0.7), gold:base.gold.map(g => Math.floor(g * 0.7)), statuses:[], poisonStacks:0 };
+  }
+  b.lat = pos.lat; b.lng = pos.lng;
+  return b;
 }
 function seasonLocalFinale(s){
   const key = `${s.id}:finale`;
@@ -5207,28 +5277,56 @@ function seasonLocalFinale(s){
   const atk = Math.floor(Player.maxHp * 0.11 + Player.def * 0.5);
   return _seasonBossCache[key] = {
     name:s.villain, landmark:s.site.name, lore:s.villainLore, emoji:s.villainEmoji, portrait:s.villainPortrait, color:s.color,
-    lat:s.site.lat, lng:s.site.lng, zone:0, isWorld:true, isSeason:true, isFinale:true, seasonKey:key,
+    lat:s.site.lat, lng:s.site.lng, zone:0, isWorld:true, isSeason:true, isFinale:true, seasonKey:key, tier:'city',
     type:`${s.short} · FINALE`, hp, maxHp:hp, atk, _baseAtk:atk, def:Math.floor(Player.atk * 0.15),
     xp:Math.floor(xpForLevel(Player.level || 1) * 0.8) + 1000, gold:[800, 1600],
     defeated:false, statuses:[], poisonStacks:0,
   };
 }
+// Missed the party (or you're outside Philly)? The finale's echo waits near you until the season ends.
+function seasonFinaleEcho(s){
+  const key = `${s.id}:finale:echo`, pos = seasonEchoSpot(s, 'finale');
+  let b = _seasonBossCache[key];
+  if(!b){
+    const base = seasonLocalFinale(s), hp = Math.floor(base.maxHp * 0.5);
+    b = _seasonBossCache[key] = { ...base, name:`ECHO · ${s.villain}`, isFinale:false, isFinaleEcho:true, isWorld:false, tier:null, isEcho:true,
+      seasonKey:key, landmark:'a short walk from you', type:`${s.short} · FINALE ECHO (SOLO)`, hp, maxHp:hp,
+      xp:Math.floor(base.xp * 0.5), gold:base.gold.map(g => Math.floor(g * 0.5)), statuses:[], poisonStacks:0 };
+  }
+  b.lat = pos.lat; b.lng = pos.lng;
+  return b;
+}
 function seasonIsFinaleRow(row){
   const s = currentSeason();
   return !!(s && row && (row.season === s.id || row.name === s.villain));
+}
+function seasonAtParty(s = currentSeason()){
+  return !!(s && Player && gpsFirstLock && !Player.remote && seasonPhase(s) === 'finale' && distMiles(Player.lat, Player.lng, s.site.lat, s.site.lng) <= SEASON_SIEGE_MI);
 }
 
 function seasonSync(){
   if(!Player || !BOSSES) return;
   const s = currentSeason(), ph = seasonPhase(s);
   const want = [];
-  // (not during the First Hunt, not before we know where you are, and not for hunters outside Philadelphia)
-  if(s && selectedWorld === 'philadelphia' && !tutStep() && (gpsFirstLock || gpsExplore) && !Player.remote){
+  // (not during the First Hunt, and not before we know where you are)
+  if(s && selectedWorld === 'philadelphia' && !tutStep() && (gpsFirstLock || gpsExplore)){
+    const rec = seasonRec(s);
     const n = tonightsLieutenant(s);
-    if(n && !seasonRec(s).nights[n.date]) want.push(seasonLieutenant(s, n));
-    // online, the finale is the server's raid (supabase/season-0.sql); offline you face a solo Ghost
-    // (an evergreen season is personal, so its finale is always the solo Ghost)
-    if(ph === 'finale' && (s.evergreen || !NET_ON)){ const f = seasonLocalFinale(s); if(!f.defeated) want.push(f); }
+    if(n && !rec.nights[n.date]){
+      const lt = seasonLieutenant(s, n);
+      if(!Player.remote) want.push(lt);
+      if(Player.remote || distMiles(Player.lat, Player.lng, lt.lat, lt.lng) > SEASON_ECHO_FAR_MI) want.push(seasonEcho(s, n));
+    }
+    // The finale: the solo Ghost offline (online it's the server's raid, supabase/season-0.sql)
+    if(ph === 'finale' && !Player.remote && !NET_ON){ const f = seasonLocalFinale(s); if(!f.defeated) want.push(f); }
+    // Outside Philly during the party, or anyone after it who didn't see him fall: his echo, near you
+    if((ph === 'finale' && Player.remote) || (ph === 'after' && !rec.finaleDoneAt)){ const fe = seasonFinaleEcho(s); if(!fe.defeated) want.push(fe); }
+    // Everyone who shows up to the party gets the vanguard title (checked on the phone; nobody else sees where you are)
+    if(seasonAtParty(s) && s.vanguard && grantTitle(s.vanguard)){
+      rec.atParty = true; saveGame();
+      showToast('🎉 YOU MADE IT TO THE PARTY', `title: ${s.vanguard}`);
+      addLog(`🎉 You stood with the city at ${s.site.name}. Title: ${s.vanguard}.`, 'lb');
+    }
   }
   const keys = new Set(want.map(b => b.seasonKey));
   const before = BOSSES.length;
@@ -5238,12 +5336,14 @@ function seasonSync(){
   if(fresh.length || BOSSES.length !== before) markDirty();
   const sig = [...keys].sort().join('|');
   if(sig !== _seasonLastKeys){
-    if(_seasonLastKeys !== '' || fresh.length) fresh.forEach(b => {
-      if(b.isFinale) return;
-      addLog(`🎃 ${b.type}: ${b.name} rises at ${b.landmark}. ${s && s.evergreen ? 'It waits there until you break it.' : 'It is gone at dawn.'}`, 'lb');
-      showToast(`🔒 ${b.type.split('·')[1].trim()}`, `${b.name} · ${b.landmark}`);
-      sndRaidRise(); buzz('heavy');
-    });
+    if(_seasonLastKeys !== '' || fresh.length){
+      const lt = fresh.find(b => b.seasonNight && !b.isEcho) || fresh.find(b => b.seasonNight);
+      if(lt){
+        addLog(`🎃 ${lt.type}: ${lt.name.replace('ECHO · ', '')} has taken ${lt.isEcho ? 'the streets near you' : lt.landmark}. It waits until you break it.`, 'lb');
+        showToast(`🔒 ${lt.type.split('·')[1].trim()}`, `${lt.name}${lt.isEcho ? ' · a short walk away' : ' · ' + lt.landmark}`);
+        sndRaidRise(); buzz('heavy');
+      }
+    }
     _seasonLastKeys = sig;
   }
   // phase changes while playing: the finale gets its own cutscene
@@ -5334,6 +5434,7 @@ function seasonOnVictory(mob){
   const s = currentSeason();
   if(!s || !mob || !mob.isSeason) return;
   const rec = seasonRec(s);
+  if(mob.seasonNight && !mob.isEcho){ rec.atSite = rec.atSite || {}; rec.atSite[mob.seasonNight] = Date.now(); }
   if(mob.seasonNight && !rec.nights[mob.seasonNight]){
     rec.nights[mob.seasonNight] = Date.now();
     rec.shards = Object.keys(rec.nights).length;
@@ -5345,15 +5446,29 @@ function seasonOnVictory(mob){
       grantTitle('Nightwalker');
       setTimeout(() => showToast('🎃 THE HOLLOW LANTERN', 'Season keepsake · title: Nightwalker'), 3600);
     }
-    if(rec.shards >= s.nights.length && !rec.allAt) rec.allAt = seasonNow(); // evergreen: the finale opens now
     if(rec.shards >= s.nights.length && grantTitle('Keeper of the Seven Keys'))
       setTimeout(() => showToast('🗝 ALL SEVEN LOCKS', 'title: Keeper of the Seven Keys'), 6800);
   }
+  if(rec.atSite && Object.keys(rec.atSite).length >= s.nights.length && grantTitle('Walked the Seven Landmarks'))
+    setTimeout(() => showToast('📍 ALL SEVEN LANDMARKS', 'title: Walked the Seven Landmarks'), 8000);
   if(mob.isFinale && !mob.isRaid){
     rec.rewards.warden = true; grantTitle('Breaker of the North Star');
-    if(s.evergreen && !rec.finaleDoneAt){ rec.finaleDoneAt = seasonNow(); setTimeout(() => showToast('🗝 THE GHOST HAS FALLEN', 'The Hollow Night is yours · title: Breaker of the North Star'), 1200); }
+    if(!rec.finaleDoneAt){ rec.finaleDoneAt = seasonNow(); setTimeout(() => seasonAfterparty(s), 1400); }
+  }
+  if(mob.isFinaleEcho && !rec.finaleDoneAt){
+    rec.finaleDoneAt = seasonNow(); rec.echoFinale = true;
+    setTimeout(() => showToast('🗝 THE ECHO FADES', `You missed the party, but ${s.villain} still fell to you. Next season: be at the gate.`), 1200);
   }
   saveGame();
+}
+// The afterparty: a recap card and the band, everyone who fought shares it
+function seasonAfterparty(s){
+  if(!s) return;
+  const rec = seasonRec(s);
+  stinger('victory'); buzz('slam');
+  const recap = [`${locksBroken(s)} of ${s.nights.length} locks broken`, rec.atParty ? `You were at ${s.site.short}` : 'You fought from across the city',
+    `${fmt(Math.floor(rec.finaleDmg || 0))} damage dealt`];
+  playCutscene([{ img:'eastern-state-night.jpg', label:'🎉 THE AFTERPARTY', lines:[s.afterparty || 'Philadelphia held.', recap.join(' · '), 'Thank you for showing up. See you next season.'] }], () => openSeason());
 }
 // The raid ended — everyone who fought shares the outcome
 function seasonOnRaidEnd(r, row){
@@ -5362,6 +5477,7 @@ function seasonOnRaidEnd(r, row){
   const rec = seasonRec(s);
   rec.result = row && row.defeated_at ? 'won' : 'lost';
   if(rec.result === 'won' && rec.finaleDmg > 0) grantTitle('Breaker of the North Star');
+  if(rec.result === 'won' && !rec.finaleDoneAt){ rec.finaleDoneAt = seasonNow(); setTimeout(() => seasonAfterparty(s), 1400); }
   saveGame();
 }
 
@@ -5395,18 +5511,30 @@ function drawSeasonSite(){
 
 // ── HUD: the season line and the next thing to do ──────
 function seasonLine(){
-  const s = currentSeason(); if(!s || selectedWorld !== 'philadelphia' || (Player && Player.remote)) return null;
-  const ph = seasonPhase(s), now = seasonNow();
-  if(s.evergreen && ph === 'after') return null; // you finished it: the goal line takes over
-  const far = (lat, lng) => gpsFirstLock && !Player.remote ? ` · ${distMiles(Player.lat, Player.lng, lat, lng).toFixed(1)} mi` : '';
-  if(ph === 'omen') return `${s.sigil} ${s.short} BEGINS IN ${fmtCountdown(seasonT(s.startAt) - now).toUpperCase()}${effortLine()}`;
-  if(ph === 'finale') return `🗝 THE GHOST IS OUT · ${s.site.short}${far(s.site.lat, s.site.lng)}`;
-  if(ph === 'after') return `${s.sigil} ${s.short} IS OVER · SEE HOW THE CITY DID`;
-  const n = tonightsLieutenant(s), rec = seasonRec(s);
-  if(n && !rec.nights[n.date]) return `🔒 ${s.evergreen ? `LOCK ${s.nights.indexOf(n) + 1}` : 'TONIGHT'}: ${n.name}${far(n.lat, n.lng)}`;
+  const s = currentSeason(); if(!s || selectedWorld !== 'philadelphia') return null;
+  const ph = seasonPhase(s), now = seasonNow(), rec = seasonRec(s);
+  const pv = seasonPreview() ? '[PREVIEW] ' : '';
+  const here = gpsFirstLock || gpsExplore;
+  const far = (lat, lng) => here ? ` · ${distMiles(Player.lat, Player.lng, lat, lng).toFixed(1)} mi` : '';
+  const dirTo = b => here ? ` · ${distMiles(Player.lat, Player.lng, b.lat, b.lng).toFixed(2)} mi ${compassWord(bearing(Player.lat, Player.lng, b.lat, b.lng))}` : '';
+  if(ph === 'finale'){
+    if(Player.remote) return `${pv}🎉 THE FINALE PARTY IS ON IN PHILLY · HIS ECHO IS NEAR YOU`;
+    return `${pv}🎉 FINALE PARTY · ${s.site.short} UNTIL ${hourLabel(SEASON_FINALE_HOUR + SEASON_FINALE_HOURS)}${far(s.site.lat, s.site.lng)}`;
+  }
+  const n = tonightsLieutenant(s);
+  if(n && !rec.nights[n.date]){
+    const echo = BOSSES && BOSSES.find(b => b.isEcho && b.seasonNight === n.date && !b.defeated);
+    if(echo) return `${pv}🔒 LOCK ${s.nights.indexOf(n) + 1}: ${n.name} · ECHO${dirTo(echo)}`;
+    const lt = BOSSES && BOSSES.find(b => !b.isEcho && b.seasonNight === n.date);
+    return `${pv}🔒 LOCK ${s.nights.indexOf(n) + 1}: ${n.name}${lt ? far(lt.lat, lt.lng) : ''}`;
+  }
+  if(ph === 'after'){
+    if(!rec.finaleDoneAt) return `${pv}🗝 YOU MISSED THE PARTY · HIS ECHO WAITS NEAR YOU`;
+    return `${pv}${s.sigil} ${s.short} IS OVER · NEXT SEASON IN ${fmtCountdown(s.endAt - now).toUpperCase()}`;
+  }
   const nx = nextLieutenant(s);
-  if(nx) return `🔒 LOCK ${s.nights.indexOf(nx) + 1} OPENS IN ${fmtCountdown(nightWindow(s, nx)[0] - now).toUpperCase()}`;
-  return `🗝 THE GHOST · ${fmtCountdown(seasonT(s.finaleAt) - now).toUpperCase()}`;
+  if(nx) return `${pv}🔒 LOCK ${s.nights.indexOf(nx) + 1} OPENS IN ${fmtCountdown(nx.opensAt - now).toUpperCase()} · FINALE ${s.finaleLabel.toUpperCase()}`;
+  return `${pv}🎉 FINALE PARTY IN ${fmtCountdown(s.finaleAt - now).toUpperCase()} · ${s.site.short}`;
 }
 function nextGoal(){
   if(!Player) return null;
@@ -5418,7 +5546,8 @@ function nextGoal(){
   if(b) return { text:`📜 ${b.label} · ${b.type === 'walk' ? b.progress.toFixed(2) : Math.floor(b.progress)}/${b.goal}`, act:() => openHunt('bounties') };
   const rg = relicGoal(); if(rg) return rg;
   if(selectedWorld === 'philadelphia'){
-    const dv = DELVES.filter(d => (Player.level || 1) >= d.minLvl && !delveLocked(d)).pop();
+    const near = d => !(gpsFirstLock && !Player.remote) || distMiles(Player.lat, Player.lng, d.lat, d.lng) <= 1.2; // goals stay a short walk away
+    const dv = DELVES.filter(d => (Player.level || 1) >= d.minLvl && !delveLocked(d) && near(d)).pop();
     if(dv) return { text:`🚪 ${dv.name} is open today${gpsFirstLock && !Player.remote ? ` · ${distMiles(Player.lat, Player.lng, dv.lat, dv.lng).toFixed(1)} mi` : ''}`, act:() => openDelve(dv.id) };
   }
   if(NET_ON && (Player.level || 1) >= 3 && !Player.faction) return { text:'⚑ Choose your order — the districts are at stake', act:() => openHunt('turf') };
@@ -5463,31 +5592,15 @@ function renderTitleSeason(){
     el.innerHTML = moon ? `<div class="ts-head">🩸 THE BLOOD MOON</div>${moon}` : '';
     return;
   }
-  const ph = seasonPhase(s), now = seasonNow(), n = tonightsLieutenant(s);
-  if(s.evergreen){
-    const done = ph === 'after';
-    const head = done ? `${s.sigil} ${s.short} · COMPLETE` : ph === 'finale' ? '🗝 THE GHOST IS OUT'
-      : Player ? `${s.sigil} ${s.short} · LOCK ${Math.min(s.nights.length, locksBroken(s) + 1)} OF ${s.nights.length}` : `${s.sigil} SEASON ${s.num} · ${s.short}`;
-    const body = done ? 'You broke the Ghost. The Blood Moon still rises every month.'
-      : ph === 'finale' ? `${s.villain} waits at ${s.site.name}.`
-      : Player && n ? `Open now: ${n.name} at ${n.place}.`
-      : `Seven locks, a new one each day from your first night in the city. Then the Ghost at ${s.site.name}.`;
-    el.style.display = 'block';
-    el.innerHTML = `<div class="ts-head">${head}</div><div class="ts-body">${body}</div>${moon}`;
-    return;
-  }
-  const head = ph === 'omen' ? `${s.sigil} SEASON ${s.num} · ${s.short}`
-    : ph === 'finale' ? '🗝 LIVE NOW · THE FINAL FIGHT'
+  const ph = seasonPhase(s), now = seasonNow(), act = seasonAct(s);
+  const head = ph === 'finale' ? '🎉 THE FINALE PARTY IS ON'
     : ph === 'after' ? `${s.sigil} ${s.short} · THE AFTERMATH`
-    : `${s.sigil} ${s.short} · NIGHT ${Math.min(s.nights.length, locksBroken(s) + 1)} OF ${s.nights.length}`;
-  const body = ph === 'omen' ? `Seven nights. Seven locks. One fight at ${s.site.name} on Halloween.`
-    : ph === 'finale' ? `${s.villain} is out at ${s.site.name}. Every hunter in the city.`
-    : ph === 'after' ? 'See how Philadelphia did — and what you carried home.'
-    : n ? `Tonight: ${n.name} at ${n.place}.` : `Next: ${(nextLieutenant(s) || {}).name || s.villain}.`;
-  const clock = ph === 'omen' ? fmtCountdown(seasonT(s.startAt) - now)
-    : ph === 'nights' ? `finale in ${fmtCountdown(seasonT(s.finaleAt) - now)}` : '';
+    : `${s.sigil} SEASON ${s.num} · ${s.short} · ${((s.acts || [])[act - 1] || {}).name || ''}`;
+  const body = ph === 'finale' ? `${s.villain} is out at ${s.site.name}. Every hunter in the city, until ${hourLabel(SEASON_FINALE_HOUR + SEASON_FINALE_HOURS)}.`
+    : ph === 'after' ? `Next season starts in ${fmtCountdown(s.endAt - now)}.`
+    : `${locksOpen(s)} of ${s.nights.length} locks open. The finale party: ${s.finaleLabel} at ${s.site.name}.`;
   el.style.display = 'block';
-  el.innerHTML = `<div class="ts-head">${head}</div><div class="ts-body">${body}</div>${clock ? `<div class="ts-clock">${clock}</div>` : ''}${moon}`;
+  el.innerHTML = `<div class="ts-head">${seasonPreview() ? '[PREVIEW] ' : ''}${head}</div><div class="ts-body">${body}</div>${ph === 'nights' ? `<div class="ts-clock">finale in ${fmtCountdown(s.finaleAt - now)}</div>` : ''}${moon}`;
 }
 
 // ── The season panel ───────────────────────────────────
@@ -5507,48 +5620,52 @@ function seasonGoTo(lat, lng){
 function renderSeason(){
   const s = currentSeason(), el = document.getElementById('season-content');
   if(!s || !el) return;
-  const ph = seasonPhase(s), now = seasonNow(), rec = seasonRec(s);
-  const status = ph === 'omen' ? `Begins in <b>${fmtCountdown(seasonT(s.startAt) - now)}</b>`
-    : ph === 'nights' && s.evergreen ? `${locksBroken(s)} of ${s.nights.length} locks broken · the Ghost comes out in <b>${fmtCountdown(seasonT(s.finaleAt) - now)}</b>, or as soon as you break all seven`
-    : ph === 'nights' ? `${locksBroken(s)} of ${s.nights.length} locks broken · the finale is in <b>${fmtCountdown(seasonT(s.finaleAt) - now)}</b>`
-    : ph === 'finale' && s.evergreen ? '<b style="color:var(--crimson)">THE GHOST IS OUT</b> — go to the gate'
-    : ph === 'finale' ? '<b style="color:var(--crimson)">LIVE NOW</b> — every hunter in the city'
-    : rec.result === 'won' || (s.evergreen && rec.finaleDoneAt) ? 'The Ghost fell. Philadelphia held.' : 'The night is over.';
+  const ph = seasonPhase(s), now = seasonNow(), rec = seasonRec(s), act = seasonAct(s);
+  const status = ph === 'nights' ? `${locksBroken(s)} of ${locksOpen(s)} open locks broken · the finale party is <b>${s.finaleLabel}</b> (in ${fmtCountdown(s.finaleAt - now)})`
+    : ph === 'finale' ? `<b style="color:var(--crimson)">THE FINALE PARTY IS ON</b> — ${s.site.name}, until ${hourLabel(SEASON_FINALE_HOUR + SEASON_FINALE_HOURS)}`
+    : rec.result === 'won' || rec.finaleDoneAt ? `The Ghost fell. Philadelphia held. Next season in ${fmtCountdown(s.endAt - now)}.` : `The party is over. His echo waits near you until the season ends (${fmtCountdown(s.endAt - now)}).`;
+  const acts = (s.acts || []).map((a, i) => `<div class="srw${act > i ? ' got' : ''}"><span>${act === i + 1 ? '▶' : act > i ? '✦' : '◇'} ${a.name}</span><span>${a.line}</span></div>`).join('');
   const locks = s.nights.map((n, i) => {
-    const [a, b] = nightWindow(s, n);
-    const mine = !!rec.nights[n.date], live = now >= a && now < b, past = now >= b;
-    const state = mine ? 'got' : live ? 'live' : past ? 'missed' : 'soon';
-    const tag = s.evergreen ? (mine ? '🔓 YOU BROKE IT' : live ? '🔥 OPEN NOW · IT WAITS FOR YOU' : `OPENS IN ${fmtCountdown(a - now).toUpperCase()}`)
-      : mine ? '🔓 YOU BROKE IT' : live ? '🔥 TONIGHT · UNTIL 5 AM' : past ? 'BROKEN BY THE CITY' : `${nightLabel(n)} · 6 PM`;
-    return `<div class="lock ${state}" onclick="seasonGoTo(${n.lat},${n.lng})">
+    const mine = !!rec.nights[n.date], open = now >= n.opensAt;
+    const state = mine ? 'got' : open ? 'live' : 'soon';
+    const spot = meetupSpot(n.meet);
+    const tag = mine ? `🔓 YOU BROKE IT${rec.atSite && rec.atSite[n.date] ? ' · 📍 AT THE LANDMARK' : ''}` : open ? '🔥 OPEN · IT WAITS FOR YOU (AN ECHO RISES NEAR YOU TOO)' : `OPENS ${nightLabel(n)} · IN ${fmtCountdown(n.opensAt - now).toUpperCase()}`;
+    const lat = spot ? spot.lat : n.lat, lng = spot ? spot.lng : n.lng;
+    return `<div class="lock ${state}" onclick="seasonGoTo(${lat},${lng})">
       <img src="${n.portrait}" alt=""><div class="lock-main">
-      <div class="lock-num">LOCK ${i + 1} · ${nightLabel(n)}</div>
+      <div class="lock-num">LOCK ${i + 1} · ${nightLabel(n)} · 👥 PARTY BOSS</div>
       <div class="lock-name">${n.emoji} ${n.name}</div>
-      <div class="lock-place">📍 ${n.place}</div>
+      <div class="lock-place">📍 ${n.place}${spot && spot.name !== n.place ? ` · meet at ${spot.name}` : ''}</div>
       <div class="lock-tag">${tag}</div></div></div>`;
   }).join('');
   const rw = (got, label, desc) => `<div class="srw${got ? ' got' : ''}"><span>${got ? '✦' : '◇'} ${label}</span><span>${desc}</span></div>`;
   el.innerHTML = `
     <div class="season-hero" style="background-image:url('${s.villainPortrait}')">
-      <div class="season-num">SEASON ${s.num}</div>
+      <div class="season-num">${seasonPreview() ? '[PREVIEW] ' : ''}SEASON ${s.num} · ${s.quarterName}</div>
       <div class="season-name">${s.name}</div>
       <div class="season-status">${status}</div>
     </div>
+    ${s.rerunNote ? `<div class="city-sub">${s.rerunNote}</div>` : ''}
     <div class="city-sub">${s.villainLore}</div>
+    <div class="city-head">THE BUILD-UP</div>
+    ${acts}
     <div class="city-head">THE SEVEN LOCKS</div>
-    <div class="city-sub">${s.evergreen ? "From your first day in the city, one of the Ghost's keepers rises each day at a landmark and waits there. Go there and break the lock." : "Each night one of the Ghost's keepers rises somewhere in the city, from 6 PM until dawn. Go there and break the lock."}</div>
+    <div class="city-sub">A new lock opens every week and a half. Each one waits until you break it, at its landmark or as an echo a short walk from you. Breaking it at the landmark adds a keepsake.</div>
     ${locks}
     ${effortHtml(s)}
-    <div class="city-head">THE FINAL FIGHT</div>
+    <div class="city-head">THE FINALE PARTY</div>
     <div class="finale-box" onclick="seasonGoTo(${s.site.lat},${s.site.lng})">
-      <div class="lock-name">${s.villainEmoji} ${s.villain}</div>
+      <div class="lock-name">🏙 ${s.villainEmoji} ${s.villain} · CITY FINALE · EVERYONE</div>
       <div class="lock-place">📍 ${s.site.name} · ${s.finaleLabel}</div>
-      <div class="city-sub" style="margin:6px 0 0">${s.evergreen ? 'Full damage within a few blocks of the gate; half damage from anywhere else in Philadelphia.' : 'One health bar for the whole city. Full damage within a few blocks of the gate; half damage from anywhere else in Philadelphia.'} ${s.site.note}</div>
+      <div class="city-sub" style="margin:6px 0 0">A daytime party: the band, the whole city, one fight. Everyone who shows up earns <b>${s.vanguard}</b>. Full damage within a few blocks of the gate; half from anywhere else in Philadelphia. ${s.site.note}</div>
+      <div class="city-sub" style="margin:6px 0 0">🛡 Go with a friend or a parent, stay with the crowd in public, and head home when it ends.</div>
     </div>
     <div class="city-head">YOUR SEASON</div>
     ${rw(rec.shards > 0, `Hollow shards ${rec.shards} / ${s.nights.length}`, 'one per lock you break')}
     ${rw(rec.rewards.lantern, 'The Hollow Lantern', `${SEASON_LANTERN_SHARDS} shards · title Nightwalker`)}
     ${rw(rec.shards >= s.nights.length, 'Keeper of the Seven Keys', 'break all seven locks')}
+    ${rw((Player.titles || []).includes('Walked the Seven Landmarks'), 'Walked the Seven Landmarks', 'break each lock at its landmark')}
+    ${rw((Player.titles || []).includes(s.vanguard), s.vanguard, 'show up to the finale party')}
     ${rw(rec.rewards.key, 'The Key of Eastern State', 'strike the Ghost in the finale')}
     ${rw((Player.titles || []).includes('Breaker of the North Star'), 'Breaker of the North Star', 'be there when he falls')}
     <div class="hunt-foot">Season keepsakes can never be bought or earned again. <a href="#" onclick="event.preventDefault();closeSeason();playCutscene(currentSeason().omen)">Replay the omen</a></div>`;
@@ -6114,7 +6231,7 @@ const ORDER_LORE_LVL = 3;
 
 function codexChapters(){
   const P = Player, lvl = P.level || 1;
-  const s = SEASONS[0];
+  const s = currentSeason();
   const srec = P.season && s ? P.season[s.id] : null;
   const bossNames = (WORLDS.philadelphia.bosses || []).map(b => b.name);
   return [
@@ -6132,7 +6249,7 @@ function codexChapters(){
       entries: Object.entries(FACTIONS).map(([k, f]) => ({ id:'order:' + k, title:f.name, text:`“${f.motto}” ${f.lore}`, open: lvl >= ORDER_LORE_LVL || P.faction === k, hint:`Reach level ${ORDER_LORE_LVL}` })) },
     ...(s ? [{ id:'season', title:`VII · ${s.short}`, loud:true,
       entries: [{ id:'season:villain', title:s.villain, text:s.villainLore, open: !!(srec && srec.omenSeen), hint:'Witness the omen' }]
-        .concat(s.nights.map((n, i) => ({ id:'season:' + n.date, title:`Lock ${i + 1} · ${n.name}`, text:n.lore, open: !!(srec && srec.nights[n.date]), hint: s.evergreen ? `Break it · opens on your ${nightLabel(n).toLowerCase()}` : `Break it on ${nightLabel(n)} after dark` }))) }] : []),
+        .concat(s.nights.map((n, i) => ({ id:'season:' + n.date, title:`Lock ${i + 1} · ${n.name}`, text:n.lore, open: !!(srec && srec.nights[n.date]), hint:`Break it · opens ${nightLabel(n)}` }))) }] : []),
     { id:'moons', title:'VIII · THE BLOOD MOONS', loud:true,
       entries: BLOOD_MOONS.map(b => ({ id:'moon:' + b.date, title:`${b.title} · ${b.species}`, text:b.lore, open: !!(P.bloodMoons && P.bloodMoons[b.date] && P.bloodMoons[b.date].kills), hint:`Hunt under the Blood Moon · ${bloodMoonLabel(b)}` })) },
     { id:'relic', title:'IX · THE TONGUE OF THE BELL', loud:true,
@@ -8672,7 +8789,7 @@ function tickStatuses(who){
 
 // ── PLAYER ACTION ─────────────────────────────────────
 function playerAct(ability){
-  if(!inCombat) return;
+  if(!inCombat || !curEnemy || curEnemy.hp <= 0) return; // a fast second tap must not win the fight twice
   if(playerActLocked){ return; }
   const now=Date.now();
   if((Player.cooldowns[ability.name]||0) > now) return;
@@ -9029,6 +9146,7 @@ function triggerEnemyHit(e, dmg, special, isCrit){
 
 // ── VICTORY ───────────────────────────────────────────
 function victory(){
+  if(!curEnemy || !inCombat) return; // already won (a queued second victory)
   if(curEnemy && curEnemy.isRaid && !curEnemy._dead){ raidResolveKill(); return; }
   sndVictory();
   killingBlowFx(curEnemy);
@@ -11546,6 +11664,7 @@ function musicDesired(){
   }
   if(on('delve-modal')) return 'delve';
   if(on('shop-modal') || on('levelup-modal')) return 'safe';
+  if(seasonAtParty()) return 'season'; // the finale party: the band plays at the gate
   return 'explore';
 }
 function musicStart(state, key){
