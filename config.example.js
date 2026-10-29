@@ -15,10 +15,12 @@ window.DW_CONFIG = {
   // standard tiles (fine for testing; their policy allows light use only).
   cartoKey: '',
   // In-game "✉ SEND FEEDBACK" (under ☰ MORE). Where tester reports go:
+  //   ''  (the default)                 → the built-in tester form, feedback.html (a Netlify Form;
+  //                                       read answers in Netlify under Forms → tester-feedback).
+  //                                       The Android/iOS app opens it on the live site in the browser.
   //   'mailto:you@yourdomain'           → opens an email to you with the report filled in
   //   'https://forms.gle/…' or any URL  → opens that page; {body} and {subject} in the URL
   //                                       are replaced with the report text
-  // Left as 'mailto:' (the default) it opens a blank email with the report filled in, and the
-  // tester types the address. On Netlify set the FEEDBACK_URL environment variable instead.
-  feedbackUrl: 'mailto:',
+  // On Netlify set the FEEDBACK_URL environment variable instead.
+  feedbackUrl: '',
 };

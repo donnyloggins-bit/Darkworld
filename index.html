@@ -10816,11 +10816,15 @@ function navBadgeSync(){
   more.classList.toggle('has-new', !!((q && q.classList.contains('has-active')) || (bk && bk.classList.contains('has-new')) || (Player.statPoints > 0)));
 }
 
-// ✉ SEND FEEDBACK — testers report from inside the game. The destination is DW_CONFIG.feedbackUrl
-// (config.example.js): a mailto: address or a form URL. Unset, it opens a blank email with the
-// report filled in. No GPS coordinates are included, only the district.
-const FEEDBACK_URL = (window.DW_CONFIG && window.DW_CONFIG.feedbackUrl) || 'mailto:';
-const DW_BUILD = 'polish-2';
+// ✉ SEND FEEDBACK — testers report from inside the game. By default it opens the built-in
+// tester form (feedback.html, a Netlify Form on the live site), with the build and game context
+// filled in. DW_CONFIG.feedbackUrl / the FEEDBACK_URL build env overrides it (config.example.js):
+// a mailto: address or any form URL. No GPS coordinates are included, only the district.
+const FEEDBACK_URL = (window.DW_CONFIG && window.DW_CONFIG.feedbackUrl) || '';
+const DW_BUILD = 'feedback-1';
+// Where the built-in form lives. The web build uses its own site (works on deploy previews too);
+// the Android/iOS app has no Netlify behind it, so it opens the live site in the phone's browser.
+const DW_LIVE_SITE = 'https://stalwart-mermaid-b3cfaf.netlify.app';
 function feedbackContext(){
   const P = Player || {};
   const where = (document.getElementById('coord-txt') || {}).textContent || '';
@@ -10833,16 +10837,28 @@ function feedbackContext(){
     `Device: ${navigator.userAgent} · ${innerWidth}×${innerHeight}`,
   ].join('\n');
 }
+function builtInFeedbackUrl(){
+  const native = typeof IS_NATIVE_APP !== 'undefined' && IS_NATIVE_APP;
+  const onWeb = /^https?:$/.test(location.protocol) && !native;
+  const base = (onWeb ? location.origin : DW_LIVE_SITE) + '/feedback.html';
+  const P = Player || {};
+  const ctx = feedbackContext().split('\n').slice(3, -1).join(' | ');
+  const q = new URLSearchParams({ build: `${DW_BUILD}${native ? ' (app)' : ' (web)'}`, where: P.remote ? 'elsewhere' : 'philly', ctx });
+  return `${base}?${q.toString()}`;
+}
 function openFeedback(){
   const subject = 'Darkworld tester feedback';
-  const body = feedbackContext();
   let url = FEEDBACK_URL;
-  if(/^mailto:/i.test(url)) url += (url.includes('?') ? '&' : '?') + `subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  else url = url.replace('{body}', encodeURIComponent(body)).replace('{subject}', encodeURIComponent(subject));
+  if(!url) url = builtInFeedbackUrl();
+  else if(/^mailto:/i.test(url)) url += (url.includes('?') ? '&' : '?') + `subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(feedbackContext())}`;
+  else url = url.replace('{body}', encodeURIComponent(feedbackContext())).replace('{subject}', encodeURIComponent(subject));
   try {
     if(/^mailto:/i.test(url)) location.href = url;
-    else window.open(url, '_blank', 'noopener');
-    showToast('✉ THANK YOU', 'Your report opens in a new window. Screenshots help a lot.');
+    else {
+      // In the Capacitor app window.open hands the URL to the phone's browser; on the web it's a new tab.
+      window.open(url, '_blank', 'noopener');
+    }
+    showToast('✉ THANK YOU', 'The feedback form opens in a new window. Your game is saved here.');
   } catch(e){ showToast('✉ FEEDBACK', 'Could not open the feedback form on this device.'); }
 }
 
