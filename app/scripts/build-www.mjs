@@ -22,14 +22,14 @@ for (const f of readdirSync(root)) {
   if (/\.(png|jpe?g|webp|gif)$/i.test(f)) { copyFileSync(join(root, f), join(www, f)); images++; }
 }
 
-const { SUPABASE_URL, SUPABASE_ANON_KEY, CARTO_KEY } = process.env;
+const { SUPABASE_URL, SUPABASE_ANON_KEY, CARTO_KEY, FEEDBACK_URL } = process.env;
 if (SUPABASE_URL && SUPABASE_ANON_KEY) {
   writeFileSync(join(www, 'config.js'),
-    `window.DW_CONFIG = ${JSON.stringify({ supabaseUrl: SUPABASE_URL, supabaseAnonKey: SUPABASE_ANON_KEY, raidRequireGps: true, cartoKey: CARTO_KEY || '' })};\n`);
+    `window.DW_CONFIG = ${JSON.stringify({ supabaseUrl: SUPABASE_URL, supabaseAnonKey: SUPABASE_ANON_KEY, raidRequireGps: true, cartoKey: CARTO_KEY || '', feedbackUrl: FEEDBACK_URL || '' })};\n`);
   console.log('config.js: online mode (from environment)');
-} else if (CARTO_KEY) {
-  writeFileSync(join(www, 'config.js'), `window.DW_CONFIG = ${JSON.stringify({ cartoKey: CARTO_KEY })};\n`);
-  console.log('config.js: offline mode with CARTO map key (from environment)');
+} else if (CARTO_KEY || FEEDBACK_URL) {
+  writeFileSync(join(www, 'config.js'), `window.DW_CONFIG = ${JSON.stringify({ cartoKey: CARTO_KEY || '', feedbackUrl: FEEDBACK_URL || '' })};\n`);
+  console.log('config.js: offline mode with map key / feedback link (from environment)');
 } else if (existsSync(join(root, 'config.js'))) {
   copyFileSync(join(root, 'config.js'), join(www, 'config.js'));
   console.log('config.js: copied from ../config.js');
