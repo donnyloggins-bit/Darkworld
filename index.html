@@ -1594,6 +1594,14 @@ body.ar-clip #toast, body.ar-clip #coach, body.ar-clip #loot-beam { display:none
   color:var(--gold); letter-spacing:.14em; opacity:0.85;
 }
 #boss-reveal-btns { display:flex; gap:10px; margin-top:10px; }
+#boss-reveal-enc:empty { display:none; }
+.enc-box { margin:8px 0 2px; padding:8px 10px; border:1px solid rgba(184,150,42,0.45); background:rgba(10,6,16,0.72); font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--pale); text-align:left; }
+.enc-tier { color:var(--gold); font-size:12px; letter-spacing:.06em; margin-bottom:4px; }
+.enc-line { margin:3px 0; line-height:1.35; }
+.enc-lfg { margin-left:6px; font:inherit; font-size:10px; padding:2px 6px; background:transparent; color:var(--gold); border:1px solid var(--gold); }
+.enc-lfg.on { background:rgba(184,150,42,0.25); }
+.enc-practice { margin-top:5px; color:#8fd0ff; }
+.enc-safe { margin-top:5px; color:#9fdc9f; }
 #boss-reveal-engage {
   flex:2; background:linear-gradient(180deg,rgba(110,8,8,0.8),rgba(50,0,0,0.9));
   border:2px solid var(--crimson); color:var(--ghost);
@@ -2342,6 +2350,7 @@ body:not(.net-on) .net-only { display:none !important; }
     <div id="boss-reveal-name"></div>
     <div id="boss-reveal-lore"></div>
     <div id="boss-reveal-drop"></div>
+    <div id="boss-reveal-enc"></div>
     <div id="boss-reveal-btns">
       <button id="boss-reveal-engage" onclick="engageBossFromReveal()">⚔ ENGAGE</button>
       <button id="boss-reveal-retreat" onclick="hideBossReveal()">✕ RETREAT</button>
@@ -3637,7 +3646,7 @@ function selectWorld(key){
   CENTER = w.center;
   ZONES = w.zones;
   ZONE_DESCS = w.zoneDescs;
-  BOSSES = w.bosses.map(b=>({...b, defeated:false, maxHp:b.hp, statuses:[], poisonStacks:0}));
+  BOSSES = w.bosses.map(b=>bossTierize({...b, defeated:false, maxHp:b.hp, statuses:[], poisonStacks:0}, key));
   setTimeout(preloadPortraits, 100);
 }
 selectWorld('philadelphia');
@@ -4518,6 +4527,13 @@ function drawBoss(b){
     ctx.font=`bold ${fs}px "Share Tech Mono",monospace`;
     ctx.fillStyle=b.color||'#ff3300'; ctx.textBaseline='top'; ctx.textAlign='center';
     ctx.fillText(b.name,p.x,p.y+r+5);
+    const tt = b.tier && (window.DW_STORY && window.DW_STORY.tiers || {})[b.tier];
+    if(tt && !b.isEcho){ // the group size, right on the map
+      ctx.font=`bold ${Math.max(7,7*zoom)}px "Share Tech Mono",monospace`;
+      ctx.fillStyle='#d4a020'; ctx.textBaseline='bottom';
+      ctx.fillText(`${tt.icon}\uFE0F ${b.tier === 'city' ? 'EVERYONE' : tt.size + ' HUNTERS'}`, p.x, p.y-r*1.32);
+      ctx.textBaseline='top';
+    }
     if(b.landmark&&zoom>0.8){
       ctx.font=`${Math.max(5,5*zoom)}px "Share Tech Mono"`;
       ctx.fillStyle='rgba(200,80,40,0.45)';
@@ -5949,7 +5965,7 @@ function renderCrew(){
   const c = crewState.crew;
   const members = crewState.members.map(m => {
     const dot = m.me ? 'me' : m.near ? 'near' : m.online ? 'on' : 'off';
-    const where = m.me ? 'you' : m.near ? 'hunting with you' : m.online ? (m.district ? `in ${netEsc(m.district)}` : 'online') : `seen ${crewAgo(m.seen)}`;
+    const where = m.me ? 'you' : m.near ? 'hunting with you' : m.online ? 'online' /* never where: kids play this */ : `seen ${crewAgo(m.seen)}`;
     const gift = m.me || !m.mid ? '' : m.gifted ? '<span class="crew-gift sent" title="Votive sent today">🕯</span>'
       : `<button class="crew-gift" data-mid="${netEsc(m.mid)}" onclick="crewSendGift(this.dataset.mid)" title="Send a votive" ${crewBusy ? 'disabled' : ''}>🕯</button>`;
     return `<div class="crew-mem"><span class="crew-dot ${dot}"></span><span class="crew-mn">${netEsc(m.name)}</span>
@@ -7732,6 +7748,106 @@ const BOSS_LORE = {
   'THE BOROUGH BEAST':             'Every small borough keeps its monster — the thing at the edge of the known world, held back by streetlights and locked doors. In Lansdowne, all the streetlights burned out on the same night.',
 };
 
+// ══════════════════════════════════════════════════════
+//  ENCOUNTER TIERS (WoW-style) · party 5 · raid 25 · city finale: everyone
+//  A group fight happens only at a meetup spot from the safety allowlist
+//  (story.js), only during group hours, and only with a real group standing
+//  there together. Until online play is on, everyone can try party and raid
+//  bosses in PRACTICE: the boss is sized for you and echo companions fill the
+//  roles (tank, healer, damage). Practice never drops the boss's unique item.
+//  Social signals are aggregate only: how many hunters are around (bucketed,
+//  never under 2, never a name or a dot) and how many are looking for this
+//  fight. Offline those numbers are SAMPLE data and say so.
+// ══════════════════════════════════════════════════════
+const ENC_TIERS = () => (window.DW_STORY && window.DW_STORY.tiers) || {};
+function bossTierize(b, world){
+  if(b.tier !== undefined) return b;
+  b.tier = b.isWorld ? 'raid' : 'party';
+  const spots = world === 'philadelphia' && window.DW_STORY ? window.DW_STORY.meetupSpots || [] : [];
+  let best = null, bd = 0.8;
+  for(const s of spots){ if(s.ok === false) continue; const d = distMiles(b.lat, b.lng, s.lat, s.lng); if(d < bd){ bd = d; best = s; } }
+  if(best){ b.meet = best.id; b.bossAt = b.landmark; b.landmark = best.name; b.lat = best.lat; b.lng = best.lng; }
+  else b.meet = null; // no vetted spot nearby: practice only
+  return b;
+}
+const ENC_BUCKETS = [[0, 'none yet'], [2, 'a few'], [5, '5+'], [10, '10+'], [25, '25+']];
+function encBucket(n){ let lbl = ENC_BUCKETS[0][1]; for(const [at, l] of ENC_BUCKETS) if(n >= at) lbl = l; return lbl; }
+// Offline sample numbers: deterministic per area and 15-minute window, clearly labeled
+function encSample(tag, max){
+  const w = Math.floor(Date.now() / (15 * 60e3));
+  return hashStr(`${tag}|${w}`) % (max + 1);
+}
+function areaHuntersLabel(){
+  if(!Player) return '';
+  const cell = `${Math.floor(Player.lat / 0.01)}:${Math.floor(Player.lng / 0.01)}`; // ~0.7 mi squares: coarse on purpose
+  if(NET_ON && typeof areaPresence === 'number') return encBucket(areaPresence);
+  return `${encBucket(encSample('area|' + cell, 14))} (sample)`;
+}
+let _lfg = {}; // bosses you flagged "looking for group" (on this phone; online it's an anonymous count)
+function lfgLabel(b){
+  const mine = _lfg[b.name] ? 1 : 0;
+  const n = encSample('lfg|' + b.name, b.tier === 'raid' ? 30 : 6) + mine;
+  return `${n < 2 ? (mine ? 'just you so far' : 'nobody yet') : encBucket(n) + ' hunters'} looking${NET_ON ? '' : ' (sample)'}`;
+}
+function lfgToggle(){
+  const b = _bossRevealTarget; if(!b) return;
+  _lfg[b.name] = !_lfg[b.name];
+  showBossReveal(b);
+}
+function encGroupSize(){ return 1 + (NET_ON ? (crewNear || 0) : 0); }
+// What kind of fight this would be right now
+function encounterMode(b){
+  const t = ENC_TIERS()[b.tier];
+  if(!t || b.tier === 'city' || b.isEcho) return { mode:'normal' };
+  const spot = b.meet ? meetupSpot(b.meet) : null, gh = groupHoursNow(), n = encGroupSize();
+  const why = !NET_ON ? 'online play is off' : !spot ? 'no vetted meetup spot here' : !gh.open ? `group hours are ${hourLabel(gh.a)}–${hourLabel(gh.b)}`
+    : n < t.min ? `${n} of ${t.min}+ hunters here` : '';
+  return { mode: why ? 'practice' : 'group', why, t, spot, gh, n };
+}
+function encounterHtml(b){
+  const em = encounterMode(b); if(em.mode === 'normal' || !em.t) return '';
+  const t = em.t;
+  return `<div class="enc-box">
+    <div class="enc-tier">${t.icon} ${t.name} · ${t.size} HUNTERS${t.min ? ` (${t.min} MIN)` : ''}</div>
+    <div class="enc-line">📍 ${em.spot ? `Meet at ${em.spot.name}` : 'No vetted meetup spot — practice only'}${b.bossAt && em.spot && b.bossAt !== em.spot.name ? ` · ${b.bossAt}` : ''}</div>
+    <div class="enc-line">🕐 Group hours ${hourLabel(em.gh.a)}–${hourLabel(em.gh.b)} · ${em.gh.open ? 'open now' : 'closed now'}</div>
+    <div class="enc-line">👥 Hunters around here: ${areaHuntersLabel()}</div>
+    <div class="enc-line">🔎 ${lfgLabel(b)} <button class="enc-lfg${_lfg[b.name] ? ' on' : ''}" onclick="lfgToggle()">${_lfg[b.name] ? '✓ LOOKING' : 'I\'M LOOKING'}</button></div>
+    ${em.mode === 'practice' ? `<div class="enc-practice">PRACTICE MODE · ${em.why} · you fight with echo companions; no unique drop</div>` : ''}
+    <div class="enc-safe">🛡 Group fights happen only at this public spot, in daylight. Go with a friend or a parent.</div>
+  </div>`;
+}
+// Echo companions for a practice fight
+function encCompanions(tier){ return tier === 'raid' ? { tank:1, healer:2, dps:5 } : { tank:1, healer:1, dps:2 }; }
+function encPracticeBoss(b){
+  const t = b.tier, L = Player.level || 1;
+  const hp = Math.floor(b.isSeason ? b.maxHp * 1.5 : Math.max(600, Player.atk * (t === 'raid' ? 80 : 34)));
+  const c = encCompanions(t);
+  return { ...b, _src:b, _practice:true, _comp:c, hp, maxHp:hp,
+    atk: Math.floor(Player.maxHp * (t === 'raid' ? 0.16 : 0.12) + Player.def * 0.5), def: Math.floor(Player.atk * 0.12),
+    xp: Math.floor((b.isSeason ? b.xp : xpForLevel(L) * (t === 'raid' ? 0.5 : 0.3) + 200) * 0.8),
+    gold: b.isSeason ? b.gold : [100 + L * 20, 220 + L * 40],
+    uniqueDrop: null,
+    type: `PRACTICE ${t === 'raid' ? 'RAID' : 'PARTY'} · ${c.tank + c.healer + c.dps} ECHO ALLIES · TANK, ${c.healer} HEAL, ${c.dps} DMG`,
+    statuses:[], poisonStacks:0, defeated:false };
+}
+let _encTickAt = 0;
+function encCombatTick(now){
+  const e = curEnemy; if(!e || !e._practice || e.hp <= 0 || now - _encTickAt < 2000) return;
+  _encTickAt = now;
+  const c = e._comp;
+  const dmg = Math.max(1, Math.floor(Player.atk * 0.45 * c.dps * (0.85 + Math.random() * 0.3)) - Math.floor(e.def * 0.3));
+  e.hp = Math.max(0, e.hp - dmg);
+  showDamageNum(`⚔ ${fmt(dmg)}`, 'dmg-normal', 'right');
+  if(c.healer && Player.hp < Player.maxHp){
+    const h = Math.max(1, Math.floor(Player.maxHp * 0.02 * c.healer));
+    Player.hp = Math.min(Player.maxHp, Player.hp + h);
+    showDamageNum('✚ ' + fmt(h), 'dmg-heal', 'left');
+  }
+  setCBUI();
+  if(e.hp <= 0){ anim('e-spr', 'death-anim'); showDamageNum('SLAIN!', 'dmg-overkill', 'right'); setTimeout(() => victory(), 900); }
+}
+
 let _bossRevealTarget = null;
 
 function showBossReveal(boss){
@@ -7744,7 +7860,10 @@ function showBossReveal(boss){
   document.getElementById('boss-reveal-lore').textContent = BOSS_LORE[boss.name] || boss.lore || '';
   document.getElementById('boss-reveal-drop').textContent = boss.isRaid
     ? `⚔ SHARED HP ${fmt(Math.floor(boss.hp))} / ${fmt(boss.maxHp)} · EVERY HUNTER IN THE CITY`
-    : boss.uniqueDrop ? '✦ UNIQUE DROP: ' + boss.uniqueDrop : '';
+    : boss.uniqueDrop ? '✦ UNIQUE DROP: ' + boss.uniqueDrop + (boss.tier === 'party' || boss.tier === 'raid' ? ' (group clears only)' : '') : '';
+  document.getElementById('boss-reveal-enc').innerHTML = encounterHtml(boss);
+  const em = encounterMode(boss);
+  document.getElementById('boss-reveal-engage').textContent = em.mode === 'practice' ? '⚔ PRACTICE WITH ECHOES' : '⚔ ENGAGE';
   // Reset animation by forcing reflow
   const modal = document.getElementById('boss-reveal');
   modal.classList.remove('active');
@@ -7760,6 +7879,8 @@ function hideBossReveal(){
 function engageBossFromReveal(){
   const b = _bossRevealTarget;
   if(!b) return;
+  // Practice (no group yet): try it from anywhere, sized for you, with echo companions
+  if(encounterMode(b).mode === 'practice'){ hideBossReveal(); startCombat(encPracticeBoss(b), true); return; }
   if(bossTooFar(b)){
     addLog(gpsFirstLock ? `⚠ Travel to ${b.landmark} to engage ${b.name}.` : `⚠ Waiting for GPS. ${b.name} must be faced at ${b.landmark}.`,'ls');
     showToast(gpsFirstLock ? `📍 ${distMiles(Player.lat, Player.lng, b.lat, b.lng).toFixed(1)} MI AWAY` : '📍 WAITING FOR GPS',
@@ -8535,6 +8656,7 @@ function combatTick(){
   if(!inCombat){ stopCombatTimer(); return; }
   const now=Date.now();
   warbandCombatTick(now);
+  encCombatTick(now);
   const attackInterval = isBoss ? 5000 : 4000;
 
   // Enemy attack timer bar
@@ -9075,6 +9197,7 @@ function doEnemyAttack(){
   let dmg=Math.floor(e.atk*(special?1.5:1.0)*(0.85+Math.random()*0.3));
   dmg=Math.max(1,dmg-Math.floor(Player.def*0.5));
   if(e.isRaid) dmg=Math.max(1,Math.floor(dmg*(1-warbandMitigation()))); // a warband tank soaks the raid's blows
+  if(e._practice && e._comp && e._comp.tank) dmg=Math.max(1,Math.floor(dmg*0.8)); // the echo tank draws some of it
   if(isCrit){ dmg=Math.floor(dmg*1.7); }
 
   if(special){
