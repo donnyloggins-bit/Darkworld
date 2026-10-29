@@ -7,4 +7,11 @@ window.DW_CONFIG = {
   supabaseAnonKey: 'your-anon-public-key',
   // Raids require a GPS lock to engage. Set false only for desk testing.
   raidRequireGps: true,
+  // Map streets. CARTO's dark tiles need a free API key (no account needed):
+  // request one at https://carto.com/basemaps/apikey, restrict it to your site
+  // (e.g. stalwart-mermaid-b3cfaf.netlify.app and *--stalwart-mermaid-b3cfaf.netlify.app
+  // for previews; a separate key for localhost), and paste it here. On Netlify set the
+  // CARTO_KEY environment variable instead. Leave it empty to use OpenStreetMap's
+  // standard tiles (fine for testing; their policy allows light use only).
+  cartoKey: '',
 };
