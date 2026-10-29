@@ -48,7 +48,11 @@
   .fine { color:var(--dim); font-size:.8rem; margin-top:12px; text-align:center; }
   .fine a { color:#e06060; }
   .hp { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
-  #city-wrap[hidden] { display:none; }
+  .fail { margin-top:12px; padding:12px; border:1px solid var(--crimson); background:#1a0709; border-radius:3px; }
+  .fail[hidden] { display:none; }
+  .fail .mail { display:block; margin:10px 0 6px; padding:11px; text-align:center; border:1px solid var(--gold); color:var(--bone);
+    text-decoration:none; font-family:'Share Tech Mono', monospace; letter-spacing:.08em; }
+  button[disabled] { opacity:.6; }
 </style>
 </head>
 <body>
@@ -137,7 +141,12 @@
       <input type="text" id="f-contact" name="contact" placeholder="Leave blank to stay anonymous" autocomplete="email">
     </fieldset>
 
-    <button type="submit">SEND REPORT</button>
+    <button type="submit" id="f-submit">SEND REPORT</button>
+    <div id="f-fail" class="fail" hidden>
+      <strong>Your report couldn't be sent right now.</strong> Nothing you typed is lost.
+      <a id="f-mail" class="mail" href="mailto:">✉ EMAIL THIS REPORT INSTEAD</a>
+      <span class="hint">or try SEND REPORT again in a minute.</span>
+    </div>
     <p class="fine">We also attach the game build, your browser/device info and screen size to help track bugs. No GPS location is sent. <a href="/privacy.html">Privacy policy</a></p>
   </form>
 </main>
@@ -160,6 +169,25 @@
     if ((m = ua.match(/Android\s([\d.]+);\s*([^;)]+?)(?:\sBuild|\))/))) dev.value = m[2].trim() + ', Android ' + m[1];
     else if ((m = ua.match(/(iPhone|iPad).*?OS\s([\d_]+)/))) dev.value = m[1] + ', iOS ' + m[2].replace(/_/g, '.');
   }
+
+  // Send in the background so a network hiccup (or the form not being switched on in Netlify yet)
+  // never dumps the tester on an error page with their answers gone. Without JS it posts normally.
+  var form = document.forms['tester-feedback'], btn = document.getElementById('f-submit'), fail = document.getElementById('f-fail');
+  form.addEventListener('submit', function(e){
+    if (!window.fetch || !window.URLSearchParams) return;
+    e.preventDefault();
+    btn.disabled = true; btn.textContent = 'SENDING…'; fail.hidden = true;
+    var data = new URLSearchParams(new FormData(form)).toString();
+    fetch('/', { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' }, body:data })
+      .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); location.href = form.getAttribute('action'); })
+      .catch(function(){
+        var lines = [];
+        new FormData(form).forEach(function(v, k){ if (v && k !== 'form-name' && k !== 'bot-field') lines.push(k + ': ' + v); });
+        document.getElementById('f-mail').href = 'mailto:?subject=' + encodeURIComponent('Darkworld tester feedback') + '&body=' + encodeURIComponent(lines.join('\n'));
+        fail.hidden = false; btn.disabled = false; btn.textContent = 'SEND REPORT';
+        fail.scrollIntoView({ behavior:'smooth', block:'center' });
+      });
+  });
 })();
 </script>
 </body>
