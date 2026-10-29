@@ -606,7 +606,7 @@ body::before {
 /* MAP */
 #map-wrap { flex:1; position:relative; overflow:hidden; background:#030205; }
 #map-canvas { position:absolute; top:0; left:0; cursor:crosshair; }
-#map-credit { position:absolute; left:4px; bottom:calc(2px + var(--sab)); z-index:6; font:9px 'Share Tech Mono',monospace; color:rgba(200,190,220,.75); background:rgba(5,3,8,.55); padding:1px 5px; border-radius:2px; pointer-events:auto; }
+#map-credit { position:absolute; right:4px; bottom:calc(56px + var(--sab)); z-index:6; font:9px 'Share Tech Mono',monospace; color:rgba(200,190,220,.75); background:rgba(5,3,8,.55); padding:1px 5px; border-radius:2px; pointer-events:auto; }
 #map-credit a { color:inherit; }
 
 /* Boss portrait tooltip */
@@ -826,25 +826,38 @@ body.ar-clip #toast, body.ar-clip #coach, body.ar-clip #loot-beam { display:none
 }
 #sidebar-close:hover { color:var(--crimson); }
 /* MAP NAV PANEL — unified right-side buttons */
+/* MAP NAV — a compact bottom bar (5 slots); the rest sits in the MORE sheet */
 #map-nav {
-  position:absolute; bottom:14px; right:14px;
-  display:flex; flex-direction:column;
-  z-index:5; overflow:hidden;
-  background:rgba(13,10,20,0.92);
-  border:1px solid #4a3a60;
-  border-bottom:2px solid var(--blood);
+  position:absolute; left:0; right:0; bottom:0;
+  display:flex; flex-direction:row;
+  z-index:8; /* above the MORE sheet, so MORE closes it again */
+  background:rgba(10,7,16,0.94);
+  border-top:1px solid #4a3a60;
+  padding-bottom:var(--sab);
 }
 #map-nav button {
-  background:transparent; border:none;
-  border-bottom:1px solid #2a1a3a;
+  flex:1 1 0; min-width:0; position:relative;
+  background:transparent; border:none; border-right:1px solid #22172e;
   color:#9a88b8; font-family:'Share Tech Mono',monospace;
-  font-size:.82rem; letter-spacing:.1em;
-  padding:9px 14px; cursor:pointer;
-  text-align:left; white-space:nowrap;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+  padding:6px 2px 7px; cursor:pointer; -webkit-tap-highlight-color:transparent;
   transition:color .15s, background .15s;
 }
-#map-nav button:last-child { border-bottom:none; }
-#map-nav button:hover { color:var(--gold); background:rgba(212,160,32,0.05); }
+#map-nav button:last-child { border-right:none; }
+#map-nav button:active { background:rgba(212,160,32,0.08); }
+#map-nav .nb-i { font-size:1.15rem; line-height:1.2; }
+#map-nav .nb-t { font-size:.66rem; letter-spacing:.12em; }
+#more-btn.has-new::after, #hunt-btn.has-new::after { content:''; position:absolute; top:6px; right:calc(50% - 18px); width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 0 6px var(--gold); }
+#more-btn.open { color:var(--gold); }
+#more-sheet { display:none; position:absolute; inset:0; z-index:7; }
+#more-sheet.open { display:block; }
+.more-panel { position:absolute; right:8px; bottom:calc(58px + var(--sab)); min-width:190px; max-width:calc(100vw - 16px);
+  background:rgba(13,10,20,0.97); border:1px solid #4a3a60; border-bottom:2px solid var(--blood); box-shadow:0 6px 24px rgba(0,0,0,0.7);
+  display:flex; flex-direction:column; }
+.more-panel button { background:transparent; border:none; border-bottom:1px solid #2a1a3a; color:#b8a8d0; font-family:'Share Tech Mono',monospace;
+  font-size:.9rem; letter-spacing:.08em; padding:12px 16px; text-align:left; cursor:pointer; white-space:nowrap; }
+.more-panel button:active { background:rgba(212,160,32,0.08); color:var(--gold); }
+.more-note { font-size:.8rem; color:#8878a8; font-style:italic; padding:9px 14px; line-height:1.35; max-width:240px; }
 #quest-btn.has-active { color:#d4a830 !important; animation:sigPulse 2s ease infinite; }
 
 #sb-title {
@@ -1799,7 +1812,7 @@ body:not(.net-on) .net-only { display:none !important; }
 .raid-clues-head { margin-top:8px; font-family:'Share Tech Mono',monospace; font-size:.78rem; color:var(--gold); letter-spacing:.1em; }
 .raid-clue { margin-top:5px; font-size:.95rem; color:var(--pale); font-style:italic; line-height:1.4; border-left:2px solid #5a1a1a; padding-left:8px; }
 
-#me-hud { position:absolute; bottom:14px; left:12px; z-index:5; width:min(200px,calc(100vw - 170px)); cursor:pointer;
+#me-hud { position:absolute; bottom:62px; left:12px; z-index:5; width:min(200px,calc(100vw - 170px)); cursor:pointer;
   background:rgba(13,10,20,0.92); border:1px solid #3a2a50; border-bottom:2px solid var(--blood); padding:6px 8px 7px; }
 .me-top { display:flex; align-items:center; gap:6px; font-family:'Share Tech Mono',monospace; font-size:.74rem; color:var(--pale); margin-bottom:4px; white-space:nowrap; }
 #me-lvl { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; }
@@ -1885,7 +1898,7 @@ body:not(.net-on) .net-only { display:none !important; }
 .ts-body { color:var(--pale); font-size:1rem; margin-top:4px; }
 .ts-moon { font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#e0303a; margin-top:6px; letter-spacing:.06em; }
 .ts-clock { font-family:'Metal Mania',cursive; font-size:1.5rem; color:var(--gold); margin-top:4px; letter-spacing:.08em; }
-#goal-hud { position:absolute; left:12px; bottom:calc(66px + var(--sab)); z-index:5; width:min(240px,calc(100vw - 168px)); cursor:pointer;
+#goal-hud { position:absolute; left:12px; bottom:calc(114px + var(--sab)); z-index:5; width:min(260px,calc(100vw - 96px)); cursor:pointer;
   background:rgba(13,10,20,0.92); border:1px solid #3a2a50; border-left:2px solid #e8862e; padding:5px 8px;
   font-family:'Share Tech Mono',monospace; font-size:.7rem; line-height:1.35; }
 #goal-season { color:#e8862e; letter-spacing:.04em; }
@@ -1969,7 +1982,7 @@ body:not(.net-on) .net-only { display:none !important; }
 #raid-hud { top:calc(80px + var(--sat)); }
 #hunters-hud { top:calc(var(--hud-row, 80px) + var(--sat)) !important; }
 #toast { top:calc(14px + var(--sat)); }
-#map-nav, #me-hud { bottom:calc(14px + var(--sab)); }
+#me-hud { bottom:calc(62px + var(--sab)); }
 #ar-back, #ar-status { top:calc(20px + var(--sat)); }
 #ar-compass { bottom:calc(28px + var(--sab)); }
 #ar-filter-btn { bottom:calc(60px + var(--sab)); }
@@ -2033,7 +2046,12 @@ body:not(.net-on) .net-only { display:none !important; }
 #goal-hud.goal-pulse { animation:coachPulse 1.2s ease-in-out 3; }
 @keyframes coachPulse { 0%,100% { box-shadow:0 0 0 2px var(--gold), 0 0 12px rgba(232,184,64,.5); } 50% { box-shadow:0 0 0 3px var(--gold), 0 0 28px rgba(232,184,64,.95); } }
 .class-card { position:relative; }
-.class-easy { position:absolute; top:4px; left:0; right:0; text-align:center; font-family:'Share Tech Mono',monospace; font-size:.55rem; letter-spacing:.08em; color:var(--gold); }
+.class-easy { position:absolute; top:3px; right:5px; font-size:.8rem; color:var(--gold); text-shadow:0 0 6px rgba(212,168,48,0.6); }
+.title-quick-btn { margin-top:10px; background:rgba(20,12,30,0.75); border:1px solid #6a5a30; color:var(--gold); font-family:'Share Tech Mono',monospace;
+  font-size:.9rem; letter-spacing:.12em; padding:10px 18px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; }
+.title-quick-btn small { font-size:.68rem; letter-spacing:.06em; color:#9a88b8; font-style:italic; }
+.stat-roll-box.key { border-color:var(--gold) !important; box-shadow:0 0 10px rgba(212,168,48,0.25); }
+.stat-roll-box.key .stat-roll-label::after { content:' ★'; color:var(--gold); }
 .other-cities { margin-top:8px; font-size:.9rem; color:#7a6a90; font-style:italic; text-align:center; }
 .other-cities a { color:#c08080; }
 </style>
@@ -2110,6 +2128,7 @@ body:not(.net-on) .net-only { display:none !important; }
   <div class="skull-divider">☠ ☠ ☠</div>
   <button class="begin-btn" id="continue-btn" onclick="continueGame()" style="display:none;margin-bottom:10px"></button>
   <button class="begin-btn" id="new-game-btn" onclick="goCreate()">ENTER THE DARKNESS</button>
+  <button class="title-quick-btn" id="quick-btn" onclick="quickStart()">⚡ QUICK START <small>a Fighter, straight to the hunt</small></button>
   <button class="title-acct-btn net-only" id="title-acct-btn" onclick="openAccount()">☁ SIGN IN · CLOUD SAVE</button>
 </div>
 
@@ -2126,8 +2145,30 @@ body:not(.net-on) .net-only { display:none !important; }
 <!-- ══ CHARACTER CREATION ══ -->
 <div id="screen-create" class="screen">
 
-  <!-- PAGE 1: ROLL STATS & NAME -->
+  <!-- PAGE 1: CHOOSE YOUR CLASS -->
   <div id="create-page-1" class="create-page active">
+    <div class="create-title">FORGE YOUR SOUL</div>
+    <div class="create-sub">Choose your path · ★ easy start</div>
+
+    <div class="class-grid" id="class-grid"></div>
+
+    <div class="class-info-panel" id="class-info-panel">
+      <div class="cip-name" id="cip-name"></div>
+      <div class="cip-desc" id="cip-desc"></div>
+      <div class="cip-abilities" id="cip-abilities"></div>
+    </div>
+
+    <div class="create-page-nav">
+      <div class="page-dots">
+        <div class="page-dot active" id="pdot-1"></div>
+        <div class="page-dot" id="pdot-2"></div>
+      </div>
+      <button class="page-btn" id="next-page-btn" onclick="goCreatePage(2)" disabled>NEXT &#x2192;</button>
+    </div>
+  </div>
+
+  <!-- PAGE 2: ROLL STATS & NAME -->
+  <div id="create-page-2" class="create-page">
     <div class="create-title">SHAPE YOUR FATE</div>
     <div class="create-sub">Roll your fate · Name your soul</div>
 
@@ -2140,30 +2181,8 @@ body:not(.net-on) .net-only { display:none !important; }
 
     <div class="name-section">
       <div class="roller-title">☠ NAME YOUR SOUL</div>
-      <input type="text" id="char-name-input" class="char-name-input" maxlength="20" placeholder="Enter your name..." oninput="checkNextReady()" onfocus="this.select()" autocomplete="off" spellcheck="false" />
+      <input type="text" id="char-name-input" class="char-name-input" maxlength="20" placeholder="Enter your name..." oninput="checkEnterReady()" onfocus="this.select()" autocomplete="off" spellcheck="false" />
       <div class="other-cities">Hunting outside Philadelphia? <a href="#" onclick="event.preventDefault();document.getElementById('screen-create').classList.remove('active');showWorldSelect()">Other cities ›</a></div>
-    </div>
-
-    <div class="create-page-nav">
-      <div class="page-dots">
-        <div class="page-dot active" id="pdot-1"></div>
-        <div class="page-dot" id="pdot-2"></div>
-      </div>
-      <button class="page-btn" id="next-page-btn" onclick="goCreatePage(2)" disabled>NEXT &#x2192;</button>
-    </div>
-  </div>
-
-  <!-- PAGE 2: CHOOSE YOUR CLASS -->
-  <div id="create-page-2" class="create-page">
-    <div class="create-title">FORGE YOUR SOUL</div>
-    <div class="create-sub">Choose your path</div>
-
-    <div class="class-grid" id="class-grid"></div>
-
-    <div class="class-info-panel" id="class-info-panel">
-      <div class="cip-name" id="cip-name"></div>
-      <div class="cip-desc" id="cip-desc"></div>
-      <div class="cip-abilities" id="cip-abilities"></div>
     </div>
 
     <div class="create-page-nav">
@@ -2198,17 +2217,25 @@ body:not(.net-on) .net-only { display:none !important; }
       <div class="me-bar"><div id="me-hp"></div></div>
       <div class="me-bar xp"><div id="me-xp"></div></div>
     </div>
+    <!-- Bottom bar: the five things you reach for while hunting; the rest live under MORE -->
     <div id="map-nav">
-      <button id="menu-btn" onclick="toggleSidebar()">☰ STATS</button>
-      <button id="inv-btn" onclick="openInventory()">⚔ GEAR</button>
-      <button id="quest-btn" onclick="openQuestLog()">📜 QUESTS</button>
-      <button id="hunt-btn" onclick="openHunt()">📖 HUNT</button>
-      <button id="crew-btn" class="net-only" onclick="openCrew()">👥 CREW</button>
-      <button id="book-btn" onclick="openBook()">📕 BOOK</button>
-      <button id="sound-btn" onclick="toggleSound()">🔊 SOUND</button>
-      <button id="music-btn" onclick="toggleMusic()">🎵 MUSIC</button>
-      <button id="ar-btn" onclick="startAR()">👁 AR VIEW</button>
-      <button id="gps-btn" onclick="centerOnPlayer()">⊕ CENTER</button>
+      <button id="hunt-btn" onclick="openHunt()"><span class="nb-i">📖</span><span class="nb-t">HUNT</span></button>
+      <button id="ar-btn" onclick="startAR()"><span class="nb-i">👁</span><span class="nb-t">AR</span></button>
+      <button id="gps-btn" onclick="centerOnPlayer()"><span class="nb-i">⊕</span><span class="nb-t">CENTER</span></button>
+      <button id="inv-btn" onclick="openInventory()"><span class="nb-i">⚔</span><span class="nb-t">GEAR</span></button>
+      <button id="more-btn" onclick="toggleMore()"><span class="nb-i">☰</span><span class="nb-t">MORE</span></button>
+    </div>
+    <div id="more-sheet" onclick="if(event.target===this)toggleMore(false)">
+      <div class="more-panel">
+        <button id="menu-btn" onclick="toggleMore(false);toggleSidebar()">☰ STATS &amp; LOG</button>
+        <button id="quest-btn" onclick="toggleMore(false);openQuestLog()">📜 QUESTS</button>
+        <button id="book-btn" onclick="toggleMore(false);openBook()">📕 BOOK</button>
+        <button id="crew-btn" class="net-only" onclick="toggleMore(false);openCrew()">👥 CREW</button>
+        <button id="sound-btn" onclick="toggleSound()">🔊 SOUND</button>
+        <button id="music-btn" onclick="toggleMusic()">🎵 MUSIC</button>
+        <button id="feedback-btn" onclick="toggleMore(false);openFeedback()">✉ SEND FEEDBACK</button>
+        <div id="more-offline" class="more-note" style="display:none">☁ Offline test build: crews, raids, leaderboards and turf wars switch on once the game has its server. Everything else works.</div>
+      </div>
     </div>
   </div>
 
@@ -3640,7 +3667,7 @@ function buildClassGrid() {
     const card = document.createElement('div');
     card.className = 'class-card';
     const easy = ['Fighter','Ranger','Cleric'].includes(name);
-    card.innerHTML = `${easy?'<span class="class-easy">★ NEW HUNTER</span>':''}<span class="class-emoji">${cls.emoji}</span><div class="class-card-name">${name}</div><div class="class-card-type">${cls.resource}</div>`;
+    card.innerHTML = `${easy?'<span class="class-easy" title="Easy start">★</span>':''}<span class="class-emoji">${cls.emoji}</span><div class="class-card-name">${name}</div><div class="class-card-type">${cls.resource}</div>`;
     card.onclick = () => selectClass(name);
     grid.appendChild(card);
   });
@@ -3665,13 +3692,23 @@ function selectClass(name) {
       <div class="ab-cost">${a.cost>0?`${a.cost} ${a.costType}`:'Free'} ${a.cd>0?`· ${a.cd}t CD`:''}</div>
     </div>
   `).join('');
-  checkEnterReady();
+  checkNextReady();
+  markKeyStats();
+}
+// The two stats a class leans on most get a ★ on the roll page
+function classKeyStats(name){
+  const m = (CLASSES[name] || {}).statMods || {};
+  return Object.keys(m).sort((a, b) => m[b] - m[a]).slice(0, 2);
+}
+function markKeyStats(){
+  const keys = selectedClass ? classKeyStats(selectedClass) : [];
+  document.querySelectorAll('.stat-roll-box').forEach(b => b.classList.toggle('key', keys.includes(b.dataset.stat)));
 }
 
 function buildStatGrid() {
   const grid = document.getElementById('stat-grid');
   grid.innerHTML = STAT_NAMES.map((s,i)=>`
-    <div class="stat-roll-box">
+    <div class="stat-roll-box" data-stat="${s}">
       <span class="stat-roll-label">${s}</span>
       <span class="stat-roll-val" id="srv-${s}" data-stat="${s}">—</span>
       <div class="dice-row" id="dice-${s}">
@@ -3731,16 +3768,17 @@ function rollStats() {
   document.getElementById('roll-btn').textContent = rerollsLeft>0 ? '🎲 REROLL (1 left)' : '🎲 FATE IS SEALED';
   if(rerollsLeft===0) document.getElementById('roll-btn').style.opacity='0.4';
 
-  setTimeout(checkNextReady, STAT_NAMES.length*120+400);
+  setTimeout(checkEnterReady, STAT_NAMES.length*120+400);
 }
 
 function checkCanEnter(){ checkEnterReady(); }
+// Page 1 is the class, page 2 the roll and the name
 function checkNextReady(){
-  const name = document.getElementById('char-name-input').value.trim();
-  document.getElementById('next-page-btn').disabled = !(rolledStats && name.length > 0);
+  document.getElementById('next-page-btn').disabled = !selectedClass;
 }
 function checkEnterReady(){
-  document.getElementById('enter-btn').disabled = !selectedClass;
+  const name = document.getElementById('char-name-input').value.trim();
+  document.getElementById('enter-btn').disabled = !(selectedClass && rolledStats && name.length > 0);
 }
 
 function goCreatePage(n){
@@ -3750,7 +3788,7 @@ function goCreatePage(n){
   document.getElementById('pdot-2').classList.toggle('active', n===2);
   document.getElementById('pdot-1b').classList.toggle('active', n===1);
   document.getElementById('pdot-2b').classList.toggle('active', n===2);
-  if(n===2){ selectedClass=null; buildClassGrid(); selectClass('Fighter'); }
+  if(n===2){ markKeyStats(); if(!hasRolled) setTimeout(rollStats, 250); } // the bones roll themselves (one reroll left)
 }
 
 // ══════════════════════════════════════════════════════
@@ -4104,7 +4142,9 @@ function buildLivingMob(id, lat, lng, rng, expiresAt, eliteChance = ELITE_CHANCE
   const lvl = ZONE_NOMINAL_LEVEL[zone] + gap;
   const v = 1 + varRoll * 0.4;
   const grow = Math.pow(1.1, gap);
-  const hp = Math.floor(t.hp * v * grow * (elite ? 2.2 : 1) * (blood ? 1.5 : 1) * (gilded ? 1.6 : 1));
+  // Every fight should last a few blows (about 4 actions), so the riposte you learned matters
+  const floorHp = Player ? Math.floor((Player.atk || 10) * (6 + varRoll * 2)) : 0;
+  const hp = Math.floor(Math.max(t.hp * v * grow, floorHp) * (elite ? 2.2 : 1) * (blood ? 1.5 : 1) * (gilded ? 1.6 : 1));
   return {...t, lat, lng, id:'L'+id, livingId:id, expiresAt, elite, lvl, zone, bloodMoon:blood, gilded,
     type: `${gilded ? '✦ GILDED · ' : ''}${blood ? '🩸 BLOOD MOON · ' : ''}${elite ? '★ ELITE · ' : ''}LV ${lvl} · ${zi >= 0 ? ZONES[zi].name.toUpperCase() : 'THE WILDS'}`,
     hp, maxHp:hp,
@@ -4393,8 +4433,8 @@ function drawMob(s){
   const p=ll2px(s.lat,s.lng);
   if(p.x < -40 || p.x > mapW+40 || p.y < -40 || p.y > mapH+40) return;
   const r=Math.max(10,13*zoom);
-  // Outer blood-glow
-  ctx.globalAlpha=0.28;
+  // Outer blood-glow (kept faint so a crowded street stays readable)
+  ctx.globalAlpha=0.16;
   ctx.fillStyle='rgba(200,20,40,1)';
   ctx.beginPath(); ctx.arc(p.x,p.y,r*1.9,0,Math.PI*2); ctx.fill();
   // Mid shadow ring
@@ -4961,6 +5001,11 @@ function renderTurf(el){
     el.innerHTML = `<div class="raid-empty" style="padding:20px 6px">The orders keep their ledgers online. Turf wars switch on once the game is connected to its server — until then, hunt and claim districts for yourself.</div>`;
     return;
   }
+  if(!netReachable){ // configured, but the server isn't answering: say so (and keep trying quietly)
+    turfFetch(true);
+    el.innerHTML = `<div class="raid-empty" style="padding:20px 6px">☁ Can't reach the server right now, so the turf war is paused. Keep hunting — your districts and bounties still count on this phone.</div>`;
+    return;
+  }
   turfFetch();
   const facCards = Object.entries(FACTIONS).map(([k,f]) => `
     <div class="fac-card${Player.faction===k?' mine':''}" style="--fc:${f.color}">
@@ -4998,41 +5043,44 @@ function renderTurf(el){
 // ══════════════════════════════════════════════════════
 //  SEASONS — each season builds, night by night, to one giant fight somewhere in the city
 //  omen → nights (one lieutenant per night) → finale (a city-wide raid) → aftermath.
-//  All times are Eastern. Season 0, The Hollow Night, is a one-week Halloween season.
+//  All times are Eastern. A season is either on the calendar (omenAt … endAt, the same
+//  week for everyone) or evergreen: its week runs from each hunter's own first day in
+//  the city (seasonRec(s).start), one lock a day, and every lock waits until you break
+//  it. Season 0, The Hollow Night, is evergreen, so testers in any month get the loop.
 // ══════════════════════════════════════════════════════
 const SEASONS = [{
-  id:'hollow-2026', num:0, name:'The Hollow Night', short:'THE HOLLOW NIGHT', color:'#e8862e', sigil:'🎃',
+  id:'hollow-night', evergreen:true, num:0, name:'The Hollow Night', short:'THE HOLLOW NIGHT', color:'#e8862e', sigil:'🎃',
   villain:'THE GHOST OF THE NORTH STAR', villainPortrait:'iron-officer.jpg', villainEmoji:'🗝',
   vanguard:'Vanguard of the Hollow Night',
   villainLore:'The first warden of Eastern State kept every key on one iron ring. The prison closed in 1971. He never handed the ring back. Now he is the Ghost of the North Star.',
-  omenAt:'2026-10-13T00:00:00-04:00', startAt:'2026-10-24T00:00:00-04:00',
-  finaleAt:'2026-10-31T20:00:00-04:00', finaleEnd:'2026-11-01T00:00:00-04:00', endAt:'2026-11-08T00:00:00-05:00',
-  tz:'-04:00', finaleLabel:'Halloween night · 8 PM to midnight',
+  // evergreen: no calendar dates. Lock N opens on your day N; the finale opens on day 8,
+  // or as soon as you break all seven, and stays open until he falls.
+  tz:'-04:00', finaleLabel:'opens after the seventh lock (or on your eighth day)',
   site:{ name:'Eastern State Penitentiary', short:'EASTERN STATE', lat:39.9679, lng:-75.1727,
          note:'Gather on the Fairmount Avenue sidewalk. Never go inside or over the walls.' },
   nights:[
-    { date:'2026-10-24', name:'THE MOURNER AT THE GATE', place:'the gates of Laurel Hill Cemetery', lat:40.0035, lng:-75.1880, portrait:'wailing-ghost.jpg', emoji:'🕯', color:'#8fb0d8',
+    { date:'L1', day:1, name:'THE MOURNER AT THE GATE', place:'the gates of Laurel Hill Cemetery', lat:40.0035, lng:-75.1880, portrait:'wailing-ghost.jpg', emoji:'🕯', color:'#8fb0d8',
       lore:'She keeps the vigil for seventy thousand graves. Tonight she keeps it for him. Fight her from Ridge Avenue — the cemetery is closed after dark.' },
-    { date:'2026-10-25', name:'THE COLLECTOR', place:'the Mütter Museum, 22nd Street', lat:39.9532, lng:-75.1765, portrait:'ledger-wraith.jpg', emoji:'🫙', color:'#c8c0a8',
+    { date:'L2', day:2, name:'THE COLLECTOR', place:'the Mütter Museum, 22nd Street', lat:39.9532, lng:-75.1765, portrait:'ledger-wraith.jpg', emoji:'🫙', color:'#c8c0a8',
       lore:'He catalogued every specimen in the building. Now he wants the jars back — and one more for you.' },
-    { date:'2026-10-26', name:'THE UNBURIED', place:'Washington Square', lat:39.9471, lng:-75.1525, portrait:'colonial-shade.jpeg', emoji:'🪖', color:'#9aa8b8',
+    { date:'L3', day:3, name:'THE UNBURIED', place:'Washington Square', lat:39.9471, lng:-75.1525, portrait:'colonial-shade.jpeg', emoji:'🪖', color:'#9aa8b8',
       lore:'Two thousand soldiers lie under the lawn of Washington Square. One of them stood up and asked for his orders.' },
-    { date:'2026-10-27', name:'THE RAVEN OF SPRING GARDEN', place:'the Poe House, 7th Street', lat:39.9619, lng:-75.1501, portrait:'voidshade.jpeg', emoji:'🐦‍⬛', color:'#7a6ab8',
+    { date:'L4', day:4, name:'THE RAVEN OF SPRING GARDEN', place:'the Poe House, 7th Street', lat:39.9619, lng:-75.1501, portrait:'voidshade.jpeg', emoji:'🐦‍⬛', color:'#7a6ab8',
       lore:'Poe wrote The Black Cat in this house. The thing on the roof says only one word, and you already know it.' },
-    { date:'2026-10-28', name:'THE DROWNED GARRISON', place:"Penn's Landing, Spruce Street Harbor", lat:39.9447, lng:-75.1422, portrait:'drowned-sailor.jpg', emoji:'⚓', color:'#2fa8a0',
+    { date:'L5', day:5, name:'THE DROWNED GARRISON', place:"Penn's Landing, Spruce Street Harbor", lat:39.9447, lng:-75.1422, portrait:'drowned-sailor.jpg', emoji:'⚓', color:'#2fa8a0',
       lore:'The Delaware gave back every sailor it ever took. They came ashore in formation, and they are waiting for the tide.' },
-    { date:'2026-10-29', name:'THE SEXTON', place:'Christ Church Burial Ground, Arch Street', lat:39.9522, lng:-75.1470, portrait:'gravewanderer.jpeg', emoji:'⚰', color:'#b89a60',
+    { date:'L6', day:6, name:'THE SEXTON', place:'Christ Church Burial Ground, Arch Street', lat:39.9522, lng:-75.1470, portrait:'gravewanderer.jpeg', emoji:'⚰', color:'#b89a60',
       lore:'He digs one grave a night beside Franklin. Tonight the hole is exactly your size. Fight him from the Arch Street fence.' },
-    { date:'2026-10-30', name:'THE TURNKEY', place:'the Art Museum steps', lat:39.9653, lng:-75.1797, portrait:'hollowknight.jpeg', emoji:'🗝', color:'#d0302a',
+    { date:'L7', day:7, name:'THE TURNKEY', place:'the Art Museum steps', lat:39.9653, lng:-75.1797, portrait:'hollowknight.jpeg', emoji:'🗝', color:'#d0302a',
       lore:'He holds the last of the seven keys and has never lost a fight on these steps. Break him and the Ghost walks free tomorrow night.' },
   ],
   omen:[
     { img:'eastern-state-yard.jpg', top:true, label:'FAIRMOUNT · 1829', lines:['They built Eastern State to break men with silence.', 'Hooded when they walked. Alone when they slept.', 'The first warden kept every key on one iron ring.'] },
-    { img:'eastern-state-gate.jpg', top:true, label:'EASTERN STATE · TONIGHT', lines:['The prison closed in 1971.', 'The warden never left.', 'This week his seven keepers walk the city — one each night, after dark.'] },
-    { img:'iron-officer.jpg', label:'THE GHOST OF THE NORTH STAR', lines:['Break his seven locks before Halloween.', 'Then meet him at the gate on Fairmount Avenue —', 'with every hunter in Philadelphia behind you.'] },
+    { img:'eastern-state-gate.jpg', top:true, label:'EASTERN STATE · TONIGHT', lines:['The prison closed in 1971.', 'The warden never left.', 'Now his seven keepers walk the city — a new one every day.'] },
+    { img:'iron-officer.jpg', label:'THE GHOST OF THE NORTH STAR', lines:['Break his seven locks, one by one.', 'Then meet him at the gate on Fairmount Avenue —', 'with every hunter in Philadelphia behind you.'] },
   ],
   finaleSlides:[
-    { img:'eastern-state-night.jpg', label:'HALLOWEEN · 8 PM', lines:['The last lock is broken.', 'The Ghost of the North Star is out.', 'Every hunter in Philadelphia — to Eastern State.'] },
+    { img:'eastern-state-night.jpg', label:'THE LAST LOCK', lines:['The last lock is broken.', 'The Ghost of the North Star is out.', 'Every hunter in Philadelphia — to Eastern State.'] },
   ],
 }];
 const SEASON_SIEGE_MI = 0.3;   // full damage at the finale site; half from anywhere else in the city
@@ -5047,8 +5095,38 @@ const _seasonBossCache = {};
 let _seasonLastKeys = '', _seasonPhaseSeen = null;
 
 function seasonNow(){ return Date.now() + (window.__dwTimeShift || 0); } // tests shift the clock here
-function seasonT(iso){ return Date.parse(iso); }
-function currentSeason(){ const now = seasonNow(); return SEASONS.find(s => now >= seasonT(s.omenAt) && now < seasonT(s.endAt)) || null; }
+function seasonT(t){ return typeof t === 'number' ? t : Date.parse(t); }
+const DAY_MS = 864e5;
+// 5 AM Eastern on the hunting day that holds t (a hunting day runs dawn to dawn)
+function huntDayStart(t){
+  const p = {}; new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', hour:'numeric', minute:'numeric', second:'numeric', hourCycle:'h23' })
+    .formatToParts(new Date(t)).forEach(x => p[x.type] = Number(x.value));
+  return t - ((p.hour - 5 + 24) % 24) * 3600e3 - p.minute * 60e3 - p.second * 1e3 - (t % 1000);
+}
+// An evergreen season, dated for this hunter: the week starts on their first hunting day
+function seasonDated(base){
+  if(!base.evergreen) return base;
+  const now = seasonNow();
+  let start = huntDayStart(now), rec = null;
+  if(Player){
+    rec = seasonRec(base);
+    if(!rec.start){
+      rec.start = start;
+      const old = Player.season && Player.season['hollow-2026']; // the Halloween 2026 calendar run: don't replay its omen
+      if(old && old.omenSeen && base.id === 'hollow-night') rec.omenSeen = true;
+    }
+    start = rec.start;
+  }
+  const finaleAt = Math.min(start + 7 * DAY_MS, (rec && rec.allAt) || Infinity);
+  return { ...base, omenAt:start, startAt:start, finaleAt, finaleEnd:(rec && rec.finaleDoneAt) || Infinity, endAt:Infinity };
+}
+function currentSeason(){
+  const now = seasonNow();
+  const cal = SEASONS.find(s => !s.evergreen && now >= seasonT(s.omenAt) && now < seasonT(s.endAt));
+  if(cal) return cal;
+  const eg = SEASONS.find(s => s.evergreen);
+  return eg ? seasonDated(eg) : null;
+}
 function seasonPhase(s = currentSeason()){
   if(!s) return null;
   const now = seasonNow();
@@ -5057,14 +5135,22 @@ function seasonPhase(s = currentSeason()){
   if(now < seasonT(s.finaleEnd)) return 'finale';
   return 'after';
 }
-function nightWindow(s, n){ const a = seasonT(`${n.date}T18:00:00${s.tz}`); return [a, a + 11*3600e3]; } // 6 PM → 5 AM
+function nightWindow(s, n){
+  if(s.evergreen) return [s.startAt + (n.day - 1) * DAY_MS, Infinity]; // opens on your day N, waits for you
+  const a = seasonT(`${n.date}T18:00:00${s.tz}`); return [a, a + 11*3600e3]; // 6 PM → 5 AM
+}
+function seasonMine(s){ return Player ? seasonRec(s).nights : {}; }
 function tonightsLieutenant(s = currentSeason()){
   if(!s) return null;
   const now = seasonNow();
+  if(s.evergreen){ const mine = seasonMine(s); return s.nights.find(n => nightWindow(s, n)[0] <= now && !mine[n.date]) || null; }
   return s.nights.find(n => { const [a, b] = nightWindow(s, n); return now >= a && now < b; }) || null;
 }
 function nextLieutenant(s){ const now = seasonNow(); return s.nights.find(n => nightWindow(s, n)[0] > now) || null; }
-function locksBroken(s){ const now = seasonNow(); return s.nights.filter(n => nightWindow(s, n)[1] <= now).length; }
+function locksBroken(s){
+  if(s.evergreen) return Object.keys(seasonMine(s)).length;
+  const now = seasonNow(); return s.nights.filter(n => nightWindow(s, n)[1] <= now).length;
+}
 function isDarkHours(){
   const h = Number(new Date(seasonNow()).toLocaleString('en-US', { timeZone:'America/New_York', hour:'numeric', hourCycle:'h23' }));
   return h >= 18 || h < 5;
@@ -5083,7 +5169,8 @@ function fmtCountdown(ms){
   const m = Math.floor(ms / 60000), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
   return d ? `${d}d ${h}h` : h ? `${h}h ${mm}m` : `${mm}m`;
 }
-function nightLabel(n){ // "SAT 24"
+function nightLabel(n){ // "SAT 24" (or "DAY 3" in an evergreen season)
+  if(n.day) return `DAY ${n.day}`;
   const d = new Date(`${n.date}T12:00:00Z`);
   return `${['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getUTCDay()]} ${d.getUTCDate()}`;
 }
@@ -5135,11 +5222,13 @@ function seasonSync(){
   if(!Player || !BOSSES) return;
   const s = currentSeason(), ph = seasonPhase(s);
   const want = [];
-  if(s && selectedWorld === 'philadelphia'){
+  // (not during the First Hunt, not before we know where you are, and not for hunters outside Philadelphia)
+  if(s && selectedWorld === 'philadelphia' && !tutStep() && (gpsFirstLock || gpsExplore) && !Player.remote){
     const n = tonightsLieutenant(s);
     if(n && !seasonRec(s).nights[n.date]) want.push(seasonLieutenant(s, n));
     // online, the finale is the server's raid (supabase/season-0.sql); offline you face a solo Ghost
-    if(ph === 'finale' && !NET_ON){ const f = seasonLocalFinale(s); if(!f.defeated) want.push(f); }
+    // (an evergreen season is personal, so its finale is always the solo Ghost)
+    if(ph === 'finale' && (s.evergreen || !NET_ON)){ const f = seasonLocalFinale(s); if(!f.defeated) want.push(f); }
   }
   const keys = new Set(want.map(b => b.seasonKey));
   const before = BOSSES.length;
@@ -5151,7 +5240,7 @@ function seasonSync(){
   if(sig !== _seasonLastKeys){
     if(_seasonLastKeys !== '' || fresh.length) fresh.forEach(b => {
       if(b.isFinale) return;
-      addLog(`🎃 ${b.type}: ${b.name} rises at ${b.landmark}. It is gone at dawn.`, 'lb');
+      addLog(`🎃 ${b.type}: ${b.name} rises at ${b.landmark}. ${s && s.evergreen ? 'It waits there until you break it.' : 'It is gone at dawn.'}`, 'lb');
       showToast(`🔒 ${b.type.split('·')[1].trim()}`, `${b.name} · ${b.landmark}`);
       sndRaidRise(); buzz('heavy');
     });
@@ -5174,7 +5263,7 @@ function seasonModalsOpen(){
 let _omenHoldUntil = 0;
 function seasonMaybeOmen(){
   const s = currentSeason();
-  if(!s || !Player || tutStep() || inCombat || seasonModalsOpen() || selectedWorld !== 'philadelphia') return;
+  if(!s || !Player || tutStep() || inCombat || seasonModalsOpen() || selectedWorld !== 'philadelphia' || Player.remote) return;
   if(Date.now() < _omenHoldUntil || document.getElementById('loot-popup').style.display === 'block') return;
   const rec = seasonRec(s);
   if(rec.omenSeen) return;
@@ -5256,10 +5345,15 @@ function seasonOnVictory(mob){
       grantTitle('Nightwalker');
       setTimeout(() => showToast('🎃 THE HOLLOW LANTERN', 'Season keepsake · title: Nightwalker'), 3600);
     }
+    if(rec.shards >= s.nights.length && !rec.allAt) rec.allAt = seasonNow(); // evergreen: the finale opens now
     if(rec.shards >= s.nights.length && grantTitle('Keeper of the Seven Keys'))
       setTimeout(() => showToast('🗝 ALL SEVEN LOCKS', 'title: Keeper of the Seven Keys'), 6800);
   }
-  if(mob.isFinale && !mob.isRaid){ rec.rewards.warden = true; grantTitle('Breaker of the North Star'); }
+  if(mob.isFinale && !mob.isRaid){
+    rec.rewards.warden = true; grantTitle('Breaker of the North Star');
+    if(s.evergreen && !rec.finaleDoneAt){ rec.finaleDoneAt = seasonNow(); setTimeout(() => showToast('🗝 THE GHOST HAS FALLEN', 'The Hollow Night is yours · title: Breaker of the North Star'), 1200); }
+  }
+  saveGame();
 }
 // The raid ended — everyone who fought shares the outcome
 function seasonOnRaidEnd(r, row){
@@ -5301,14 +5395,15 @@ function drawSeasonSite(){
 
 // ── HUD: the season line and the next thing to do ──────
 function seasonLine(){
-  const s = currentSeason(); if(!s || selectedWorld !== 'philadelphia') return null;
+  const s = currentSeason(); if(!s || selectedWorld !== 'philadelphia' || (Player && Player.remote)) return null;
   const ph = seasonPhase(s), now = seasonNow();
+  if(s.evergreen && ph === 'after') return null; // you finished it: the goal line takes over
   const far = (lat, lng) => gpsFirstLock && !Player.remote ? ` · ${distMiles(Player.lat, Player.lng, lat, lng).toFixed(1)} mi` : '';
   if(ph === 'omen') return `${s.sigil} ${s.short} BEGINS IN ${fmtCountdown(seasonT(s.startAt) - now).toUpperCase()}${effortLine()}`;
   if(ph === 'finale') return `🗝 THE GHOST IS OUT · ${s.site.short}${far(s.site.lat, s.site.lng)}`;
   if(ph === 'after') return `${s.sigil} ${s.short} IS OVER · SEE HOW THE CITY DID`;
   const n = tonightsLieutenant(s), rec = seasonRec(s);
-  if(n && !rec.nights[n.date]) return `🔒 TONIGHT: ${n.name}${far(n.lat, n.lng)}`;
+  if(n && !rec.nights[n.date]) return `🔒 ${s.evergreen ? `LOCK ${s.nights.indexOf(n) + 1}` : 'TONIGHT'}: ${n.name}${far(n.lat, n.lng)}`;
   const nx = nextLieutenant(s);
   if(nx) return `🔒 LOCK ${s.nights.indexOf(nx) + 1} OPENS IN ${fmtCountdown(nightWindow(s, nx)[0] - now).toUpperCase()}`;
   return `🗝 THE GHOST · ${fmtCountdown(seasonT(s.finaleAt) - now).toUpperCase()}`;
@@ -5339,7 +5434,7 @@ function goalTick(){
   const tst = document.getElementById('toast');
   if(tst && tst.classList.contains('show')) tst.classList.toggle('low', !!document.querySelector('#hunt-modal.active, #shop-modal.active, #inv-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #acct-modal.active') || document.getElementById('quest-modal').style.display === 'flex');
   const el = document.getElementById('goal-hud'); if(!el || !Player) return;
-  arNudgeSync();
+  arNudgeSync(); navBadgeSync();
   if(tutStep()){ el.style.display = 'none'; return; }
   const sl = bloodMoonLine() || seasonLine(), g = nextGoal();
   el.style.display = (sl || g) ? 'block' : 'none';
@@ -5369,6 +5464,18 @@ function renderTitleSeason(){
     return;
   }
   const ph = seasonPhase(s), now = seasonNow(), n = tonightsLieutenant(s);
+  if(s.evergreen){
+    const done = ph === 'after';
+    const head = done ? `${s.sigil} ${s.short} · COMPLETE` : ph === 'finale' ? '🗝 THE GHOST IS OUT'
+      : Player ? `${s.sigil} ${s.short} · LOCK ${Math.min(s.nights.length, locksBroken(s) + 1)} OF ${s.nights.length}` : `${s.sigil} SEASON ${s.num} · ${s.short}`;
+    const body = done ? 'You broke the Ghost. The Blood Moon still rises every month.'
+      : ph === 'finale' ? `${s.villain} waits at ${s.site.name}.`
+      : Player && n ? `Open now: ${n.name} at ${n.place}.`
+      : `Seven locks, a new one each day from your first night in the city. Then the Ghost at ${s.site.name}.`;
+    el.style.display = 'block';
+    el.innerHTML = `<div class="ts-head">${head}</div><div class="ts-body">${body}</div>${moon}`;
+    return;
+  }
   const head = ph === 'omen' ? `${s.sigil} SEASON ${s.num} · ${s.short}`
     : ph === 'finale' ? '🗝 LIVE NOW · THE FINAL FIGHT'
     : ph === 'after' ? `${s.sigil} ${s.short} · THE AFTERMATH`
@@ -5402,14 +5509,17 @@ function renderSeason(){
   if(!s || !el) return;
   const ph = seasonPhase(s), now = seasonNow(), rec = seasonRec(s);
   const status = ph === 'omen' ? `Begins in <b>${fmtCountdown(seasonT(s.startAt) - now)}</b>`
+    : ph === 'nights' && s.evergreen ? `${locksBroken(s)} of ${s.nights.length} locks broken · the Ghost comes out in <b>${fmtCountdown(seasonT(s.finaleAt) - now)}</b>, or as soon as you break all seven`
     : ph === 'nights' ? `${locksBroken(s)} of ${s.nights.length} locks broken · the finale is in <b>${fmtCountdown(seasonT(s.finaleAt) - now)}</b>`
+    : ph === 'finale' && s.evergreen ? '<b style="color:var(--crimson)">THE GHOST IS OUT</b> — go to the gate'
     : ph === 'finale' ? '<b style="color:var(--crimson)">LIVE NOW</b> — every hunter in the city'
-    : rec.result === 'won' ? 'The Ghost fell. Philadelphia held.' : 'The night is over.';
+    : rec.result === 'won' || (s.evergreen && rec.finaleDoneAt) ? 'The Ghost fell. Philadelphia held.' : 'The night is over.';
   const locks = s.nights.map((n, i) => {
     const [a, b] = nightWindow(s, n);
     const mine = !!rec.nights[n.date], live = now >= a && now < b, past = now >= b;
     const state = mine ? 'got' : live ? 'live' : past ? 'missed' : 'soon';
-    const tag = mine ? '🔓 YOU BROKE IT' : live ? '🔥 TONIGHT · UNTIL 5 AM' : past ? 'BROKEN BY THE CITY' : `${nightLabel(n)} · 6 PM`;
+    const tag = s.evergreen ? (mine ? '🔓 YOU BROKE IT' : live ? '🔥 OPEN NOW · IT WAITS FOR YOU' : `OPENS IN ${fmtCountdown(a - now).toUpperCase()}`)
+      : mine ? '🔓 YOU BROKE IT' : live ? '🔥 TONIGHT · UNTIL 5 AM' : past ? 'BROKEN BY THE CITY' : `${nightLabel(n)} · 6 PM`;
     return `<div class="lock ${state}" onclick="seasonGoTo(${n.lat},${n.lng})">
       <img src="${n.portrait}" alt=""><div class="lock-main">
       <div class="lock-num">LOCK ${i + 1} · ${nightLabel(n)}</div>
@@ -5426,14 +5536,14 @@ function renderSeason(){
     </div>
     <div class="city-sub">${s.villainLore}</div>
     <div class="city-head">THE SEVEN LOCKS</div>
-    <div class="city-sub">Each night one of the Ghost's keepers rises somewhere in the city, from 6 PM until dawn. Go there and break the lock.</div>
+    <div class="city-sub">${s.evergreen ? "From your first day in the city, one of the Ghost's keepers rises each day at a landmark and waits there. Go there and break the lock." : "Each night one of the Ghost's keepers rises somewhere in the city, from 6 PM until dawn. Go there and break the lock."}</div>
     ${locks}
     ${effortHtml(s)}
     <div class="city-head">THE FINAL FIGHT</div>
     <div class="finale-box" onclick="seasonGoTo(${s.site.lat},${s.site.lng})">
       <div class="lock-name">${s.villainEmoji} ${s.villain}</div>
       <div class="lock-place">📍 ${s.site.name} · ${s.finaleLabel}</div>
-      <div class="city-sub" style="margin:6px 0 0">One health bar for the whole city. Full damage within a few blocks of the gate; half damage from anywhere else in Philadelphia. ${s.site.note}</div>
+      <div class="city-sub" style="margin:6px 0 0">${s.evergreen ? 'Full damage within a few blocks of the gate; half damage from anywhere else in Philadelphia.' : 'One health bar for the whole city. Full damage within a few blocks of the gate; half damage from anywhere else in Philadelphia.'} ${s.site.note}</div>
     </div>
     <div class="city-head">YOUR SEASON</div>
     ${rw(rec.shards > 0, `Hollow shards ${rec.shards} / ${s.nights.length}`, 'one per lock you break')}
@@ -6022,7 +6132,7 @@ function codexChapters(){
       entries: Object.entries(FACTIONS).map(([k, f]) => ({ id:'order:' + k, title:f.name, text:`“${f.motto}” ${f.lore}`, open: lvl >= ORDER_LORE_LVL || P.faction === k, hint:`Reach level ${ORDER_LORE_LVL}` })) },
     ...(s ? [{ id:'season', title:`VII · ${s.short}`, loud:true,
       entries: [{ id:'season:villain', title:s.villain, text:s.villainLore, open: !!(srec && srec.omenSeen), hint:'Witness the omen' }]
-        .concat(s.nights.map((n, i) => ({ id:'season:' + n.date, title:`Lock ${i + 1} · ${n.name}`, text:n.lore, open: !!(srec && srec.nights[n.date]), hint:`Break it on ${nightLabel(n)} after dark` }))) }] : []),
+        .concat(s.nights.map((n, i) => ({ id:'season:' + n.date, title:`Lock ${i + 1} · ${n.name}`, text:n.lore, open: !!(srec && srec.nights[n.date]), hint: s.evergreen ? `Break it · opens on your ${nightLabel(n).toLowerCase()}` : `Break it on ${nightLabel(n)} after dark` }))) }] : []),
     { id:'moons', title:'VIII · THE BLOOD MOONS', loud:true,
       entries: BLOOD_MOONS.map(b => ({ id:'moon:' + b.date, title:`${b.title} · ${b.species}`, text:b.lore, open: !!(P.bloodMoons && P.bloodMoons[b.date] && P.bloodMoons[b.date].kills), hint:`Hunt under the Blood Moon · ${bloodMoonLabel(b)}` })) },
     { id:'relic', title:'IX · THE TONGUE OF THE BELL', loud:true,
@@ -7059,7 +7169,7 @@ function tutShowAR(){
   if(tutStep() !== 'walk') return;
   coachGlow('#ar-btn');
   const b = document.getElementById('ar-btn'); if(b && b.scrollIntoView) b.scrollIntoView({ block:'nearest', inline:'center' });
-  coach('One more thing. Tap <b>👁 AR VIEW</b> and hold up your phone: the camera shows the monsters <b>standing on your street</b>, in their real direction.',
+  coach('One more thing. Tap <b>👁 AR</b> below and hold up your phone: the camera shows the monsters <b>standing on your street</b>, in their real direction.',
     { button:'OPEN AR', onButton:() => { tutFinish(); startAR(); }, skip:'tutFinish()', skipLabel:'later' });
 }
 
@@ -7261,10 +7371,21 @@ function huntOnGPS(lat, lng, accuracy){
 const TOAST_MIN_MS = 2200;
 let _toastTimer = null, _toastShownAt = 0, _toastQueue = [], _toastNext = null;
 const _toastLog = []; // every announcement requested, newest last (tests and debugging read it)
+let _toastHold = null;
+function toastHeld(){ return (typeof inCombat !== 'undefined' && inCombat) || !!document.querySelector('#levelup-modal.active'); }
+function toastHoldWait(){
+  if(_toastHold) return;
+  _toastHold = setInterval(() => { if(toastHeld()) return; clearInterval(_toastHold); _toastHold = null; if(!_toastNext) _toastNext = setTimeout(_toastDrain, 350); }, 300);
+}
 function showToast(title, body){
   const el = document.getElementById('toast');
   if(!el) return;
   _toastLog.push(`${title} ${body}`); if(_toastLog.length > 30) _toastLog.shift();
+  if(toastHeld()){ // mid-fight or on the level-up screen: show it right after
+    if(!_toastQueue.some(q => q[0] === title && q[1] === body)) _toastQueue.push([title, body]);
+    if(_toastQueue.length > 6) _toastQueue.shift();
+    toastHoldWait(); return;
+  }
   const wait = TOAST_MIN_MS - (Date.now() - _toastShownAt);
   if(wait > 0 && el.classList.contains('show')){
     if(!_toastQueue.some(q => q[0] === title && q[1] === body)) _toastQueue.push([title, body]);
@@ -7284,6 +7405,7 @@ function _toastShow(el, title, body){
 }
 function _toastDrain(){
   _toastNext = null;
+  if(toastHeld()){ toastHoldWait(); return; }
   const q = _toastQueue.shift(); if(!q) return;
   _toastShow(document.getElementById('toast'), q[0], q[1]);
   if(_toastQueue.length) _toastNext = setTimeout(_toastDrain, TOAST_MIN_MS);
@@ -7523,6 +7645,8 @@ function engageBossFromReveal(){
   if(!b) return;
   if(bossTooFar(b)){
     addLog(gpsFirstLock ? `⚠ Travel to ${b.landmark} to engage ${b.name}.` : `⚠ Waiting for GPS. ${b.name} must be faced at ${b.landmark}.`,'ls');
+    showToast(gpsFirstLock ? `📍 ${distMiles(Player.lat, Player.lng, b.lat, b.lng).toFixed(1)} MI AWAY` : '📍 WAITING FOR GPS',
+      gpsFirstLock ? `Travel to ${b.landmark} to face ${b.name}` : `${b.name} must be faced at ${b.landmark}`);
     hideBossReveal();
     return;
   }
@@ -7573,25 +7697,40 @@ function handleClick(cx,cy){
     }
   }
   const door = delveAt(cx, cy); if(door){ openDelve(door.id); return; }
+  // a monster under the finger wins over a (big) landmark shrine whose center is farther away
+  const monD = (() => { let m = Infinity; const hr = Math.max(18,13*zoom+4);
+    for(const s of spawns){ if(s.defeated) continue; const p=ll2px(s.lat,s.lng), d=Math.hypot(cx-p.x,cy-p.y); if(d<hr && d<m) m=d; } return m; })();
   for(const sh of shrines){
     const p=ll2px(sh.lat,sh.lng);
-    if(Math.hypot(cx-p.x,cy-p.y)<Math.max(11,11*zoom)*(sh.landmark?1.6:1)){
+    const sd=Math.hypot(cx-p.x,cy-p.y);
+    if(sd<Math.max(11,11*zoom)*(sh.landmark?1.6:1) && sd<=monD){
       if(gpsFirstLock&&distMiles(Player.lat,Player.lng,sh.lat,sh.lng)>ENGAGE_MILES){
-        addLog(`⚠ Walk closer to light ${sh.name}.`,'ls'); return;
+        addLog(`⚠ Walk closer to light ${sh.name}.`,'ls'); tooFarToast(sh.name, distMiles(Player.lat,Player.lng,sh.lat,sh.lng), 'light it'); return;
       }
       spinShrine(sh); return;
     }
   }
+  // Monsters: the whole drawn portrait is the target, and the nearest one to the finger wins
+  let best=null, bd=Infinity;
+  const hitR=Math.max(18,13*zoom+4);
   for(const s of spawns){
     if(s.defeated)continue;
-    const p=ll2px(s.lat,s.lng);
-    if(Math.hypot(cx-p.x,cy-p.y)<Math.max(10,10*zoom)){
-      if(gpsFirstLock&&distMiles(Player.lat,Player.lng,s.lat,s.lng)>ENGAGE_MILES){
-        addLog('⚠ Move closer to engage this enemy.','ls'); return;
-      }
-      startCombat(s,false); return;
-    }
+    const p=ll2px(s.lat,s.lng), d=Math.hypot(cx-p.x,cy-p.y);
+    if(d<hitR && d<bd){ bd=d; best=s; }
   }
+  if(best){
+    const mi=distMiles(Player.lat,Player.lng,best.lat,best.lng);
+    if(gpsFirstLock&&mi>ENGAGE_MILES){
+      addLog('⚠ Move closer to engage this enemy.','ls'); tooFarToast(best.name, mi, 'fight it'); return;
+    }
+    startCombat(best,false); return;
+  }
+}
+// A tap on something out of reach says so, with how far to go (not only in the log)
+function tooFarToast(name, mi, verb){
+  const ft = Math.round((mi - ENGAGE_MILES) * 5280);
+  showToast('👣 WALK CLOSER', `${name} is ${mi < 0.2 ? Math.round(mi * 5280) + ' ft' : mi.toFixed(2) + ' mi'} away · about ${ft > 600 ? (ft / 5280).toFixed(2) + ' mi' : ft + ' ft'} more to ${verb}`);
+  buzz && buzz('light');
 }
 
 function distMiles(lat1,lng1,lat2,lng2){
@@ -8349,7 +8488,7 @@ function startCombat(ent,boss){
     Player.illusionStacks = (Player.illusionStacks||0) + 2;
   }
   const attackInterval = boss ? 3000 : 2500;
-  curEnemy.nextAttackAt = Date.now() + 3500; // give player time to act first
+  curEnemy.nextAttackAt = Date.now() + ((boss || ent.tutorialMob) ? 3500 : 2200); // the player acts first; the first swing comes soon enough to riposte
 
   const portrait = document.getElementById('boss-portrait');
   if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; portrait.style.borderBottomColor=boss?'#b8962a':'#3a2a50'; }
@@ -9396,6 +9535,11 @@ const NET_KEY = NET_ON ? NET_CFG.supabaseAnonKey : '';
 const NET_SESSION_KEY = 'darkworld_session_v1';
 const RAID_POLL_MS = 20000;  // raid state / leaderboard refresh (realtime covers HP in between)
 const RAID_SYNC_MS = 1500;   // how often batched raid damage is sent
+const NET_TIMEOUT_MS = 12000;
+const NET_OFFLINE_MSG = "Can't reach the Darkworld server right now. Your hunt is saved on this phone — try again in a bit.";
+let netReachable = true;     // false after a request fails to reach the server at all
+function netMarkOffline(){ if(netReachable){ netReachable = false; addLog('☁ The server is out of reach — online features are paused. Everything else keeps working.', 'ls'); } }
+function netMarkOnline(){ netReachable = true; }
 
 let netSession = null;       // { access_token, refresh_token, expires_at, user:{id,email} }
 let netRefreshing = null;
@@ -9412,11 +9556,21 @@ async function netRequest(path, opts={}){
   // Signed-out requests send only `apikey`, which works with both legacy anon keys and new publishable keys.
   const headers = { apikey:NET_KEY, 'Content-Type':'application/json', ...(opts.headers||{}) };
   if(opts.token) headers.Authorization = 'Bearer ' + opts.token;
-  const res = await fetch(NET_URL + path, {
-    method: opts.method || 'GET', headers, keepalive: !!opts.keepalive,
-    body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
-  });
-  const text = await res.text();
+  // A server that never answers must not hang a panel: give up after NET_TIMEOUT_MS
+  const ac = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timer = ac ? setTimeout(() => ac.abort(), opts.timeout || NET_TIMEOUT_MS) : null;
+  let res, text;
+  try {
+    res = await fetch(NET_URL + path, {
+      method: opts.method || 'GET', headers, keepalive: !!opts.keepalive, signal: ac ? ac.signal : undefined,
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    });
+    text = await res.text();
+  } catch(e){
+    netMarkOffline();
+    const err = new Error(NET_OFFLINE_MSG); err.status = 0; err.offline = true; throw err;
+  } finally { if(timer) clearTimeout(timer); }
+  netMarkOnline();
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch(e){ data = text; }
   if(!res.ok){
@@ -10561,9 +10715,11 @@ function refreshContinueButton(){
     btn.style.display = '';
     btn.textContent = `⚔ CONTINUE — ${timeStr}`;
     document.getElementById('new-game-btn').textContent = '+ NEW GAME';
+    document.getElementById('quick-btn').style.display = 'none'; // returning hunters don't need it
   } else {
     btn.style.display = 'none';
     document.getElementById('new-game-btn').textContent = 'ENTER THE DARKNESS';
+    document.getElementById('quick-btn').style.display = '';
   }
   return save;
 }
@@ -10643,6 +10799,52 @@ function continueGame(){
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
 }
+// ☰ MORE: stats, quests, book, crew, sound, music, feedback
+function toggleMore(force){
+  const sh = document.getElementById('more-sheet'); if(!sh) return;
+  const open = typeof force === 'boolean' ? force : !sh.classList.contains('open');
+  sh.classList.toggle('open', open);
+  document.getElementById('more-btn').classList.toggle('open', open);
+  const off = document.getElementById('more-offline');
+  if(off) off.style.display = NET_ON && netReachable ? 'none' : 'block';
+  if(off && NET_ON && !netReachable) off.textContent = "☁ Can't reach the server right now: crews, raids, leaderboards and turf wars are paused. Everything else works.";
+}
+// A dot on MORE when something inside wants a look (new quest, new Book page, stat points)
+function navBadgeSync(){
+  const more = document.getElementById('more-btn'); if(!more || !Player) return;
+  const q = document.getElementById('quest-btn'), bk = document.getElementById('book-btn');
+  more.classList.toggle('has-new', !!((q && q.classList.contains('has-active')) || (bk && bk.classList.contains('has-new')) || (Player.statPoints > 0)));
+}
+
+// ✉ SEND FEEDBACK — testers report from inside the game. The destination is DW_CONFIG.feedbackUrl
+// (config.example.js): a mailto: address or a form URL. Unset, it opens a blank email with the
+// report filled in. No GPS coordinates are included, only the district.
+const FEEDBACK_URL = (window.DW_CONFIG && window.DW_CONFIG.feedbackUrl) || 'mailto:';
+const DW_BUILD = 'polish-2';
+function feedbackContext(){
+  const P = Player || {};
+  const where = (document.getElementById('coord-txt') || {}).textContent || '';
+  return [
+    '', '', '— please write above this line —',
+    `Build: ${DW_BUILD} · ${location.host || 'local'}`,
+    `Hunter: Lv ${P.level || '?'} ${P.className || ''}${P.tutorial && P.tutorial !== 'done' ? ' (in tutorial: ' + P.tutorial + ')' : ''}`,
+    `Area: ${where}${P.remote ? ' (outside Philadelphia)' : ''} · GPS: ${(document.getElementById('gps-txt') || {}).textContent || ''}`,
+    `Online: ${NET_ON ? (netReachable ? 'yes' : 'server unreachable') : 'offline build'}`,
+    `Device: ${navigator.userAgent} · ${innerWidth}×${innerHeight}`,
+  ].join('\n');
+}
+function openFeedback(){
+  const subject = 'Darkworld tester feedback';
+  const body = feedbackContext();
+  let url = FEEDBACK_URL;
+  if(/^mailto:/i.test(url)) url += (url.includes('?') ? '&' : '?') + `subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  else url = url.replace('{body}', encodeURIComponent(body)).replace('{subject}', encodeURIComponent(subject));
+  try {
+    if(/^mailto:/i.test(url)) location.href = url;
+    else window.open(url, '_blank', 'noopener');
+    showToast('✉ THANK YOU', 'Your report opens in a new window. Screenshots help a lot.');
+  } catch(e){ showToast('✉ FEEDBACK', 'Could not open the feedback form on this device.'); }
+}
 
 function showWorldSelect(){
   document.getElementById('screen-title').classList.remove('active');
@@ -10690,11 +10892,31 @@ function pickWorld(key){
   document.getElementById('next-page-btn').disabled = true;
   document.getElementById('enter-btn').disabled = true;
   buildStatGrid();
+  document.getElementById('roll-btn').textContent = '🎲 ROLL THE BONES';
+  document.getElementById('roll-btn').style.opacity = '';
+  document.getElementById('reroll-info').textContent = '';
+  // Class first (Fighter is ready to go); a name is waiting, yours to change
+  buildClassGrid(); selectClass('Fighter');
   goCreatePage(1);
-  // The bones roll themselves (one reroll left); a name is waiting, yours to change
   const nameIn = document.getElementById('char-name-input');
   if(!nameIn.value.trim()) nameIn.value = DARK_NAMES[Math.floor(Math.random()*DARK_NAMES.length)];
-  setTimeout(rollStats, 350);
+}
+// QUICK START: a Fighter with a fair roll and a dark name, straight into the First Hunt
+function quickStart(){
+  const save = loadSave();
+  if(save && save.player && !confirm(`Start over? Lv ${save.player.level} ${save.player.name} will be lost when your new hunter enters the world.`)) return;
+  document.getElementById('screen-title').classList.remove('active');
+  selectWorld('philadelphia');
+  selectedClass = 'Fighter';
+  // roll 3d6 six times, then give the two best totals to the Fighter's key stats
+  const rolls = STAT_NAMES.map(() => { const dice = [ri(1,6), ri(1,6), ri(1,6)]; return { total:dice.reduce((a,b)=>a+b,0), dice }; })
+    .sort((a, b) => b.total - a.total);
+  const order = classKeyStats('Fighter').concat(STAT_NAMES.filter(s => !classKeyStats('Fighter').includes(s)));
+  rolledStats = {}; order.forEach((s, i) => rolledStats[s] = rolls[i]);
+  hasRolled = true;
+  const nameIn = document.getElementById('char-name-input');
+  if(!nameIn.value.trim()) nameIn.value = DARK_NAMES[Math.floor(Math.random()*DARK_NAMES.length)];
+  enterWorld();
 }
 
 function goCreate(){
@@ -10741,7 +10963,10 @@ function startGameTimers(){
   const freshDay = !Player.daily || Player.daily.date !== todayKey();
   ensureDaily();
   if(freshDay) setTimeout(()=>{ if(!tutStep() && !activeBloodMoon()) showToast("TODAY'S BOUNTIES", 'Three new marks for every hunter. Tap 📖 HUNT.'); }, 1500);
-  setInterval(()=>{ if(!inCombat){ gainRes(Math.floor(Player.maxRes*0.03)); setPUI(); } }, 5000);
+  setInterval(()=>{ if(!inCombat){
+    gainRes(Math.floor(Player.maxRes*0.03));
+    if(Player.hp > 0 && Player.hp < Player.maxHp) Player.hp = Math.min(Player.maxHp, Player.hp + Math.max(1, Math.ceil(Player.maxHp*0.03)));
+    setPUI(); } }, 5000);
   setInterval(()=>refreshLiving(true), 20000);
   setInterval(turfMaybeRecruit, 10000);
   seasonSync(); goalTick();

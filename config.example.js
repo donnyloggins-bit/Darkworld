@@ -14,4 +14,11 @@ window.DW_CONFIG = {
   // CARTO_KEY environment variable instead. Leave it empty to use OpenStreetMap's
   // standard tiles (fine for testing; their policy allows light use only).
   cartoKey: '',
+  // In-game "✉ SEND FEEDBACK" (under ☰ MORE). Where tester reports go:
+  //   'mailto:you@yourdomain'           → opens an email to you with the report filled in
+  //   'https://forms.gle/…' or any URL  → opens that page; {body} and {subject} in the URL
+  //                                       are replaced with the report text
+  // Left as 'mailto:' (the default) it opens a blank email with the report filled in, and the
+  // tester types the address. On Netlify set the FEEDBACK_URL environment variable instead.
+  feedbackUrl: 'mailto:',
 };
