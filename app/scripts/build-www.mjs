@@ -12,7 +12,7 @@ const www = join(app, 'www');
 rmSync(www, { recursive: true, force: true });
 mkdirSync(www, { recursive: true });
 
-const files = ['index.html', 'manifest.json', 'icon.svg', 'privacy.html'];
+const files = ['index.html', 'story.js', 'manifest.json', 'icon.svg', 'privacy.html'];
 for (const f of files) if (existsSync(join(root, f))) copyFileSync(join(root, f), join(www, f));
 cpSync(join(root, 'icons'), join(www, 'icons'), { recursive: true });
 if (existsSync(join(root, 'music'))) cpSync(join(root, 'music'), join(www, 'music'), { recursive: true });

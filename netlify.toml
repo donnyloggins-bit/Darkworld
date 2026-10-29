@@ -18,3 +18,8 @@
   for = "/config.js"
   [headers.values]
     Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/story.js"
+  [headers.values]
+    Cache-Control = "no-cache"
