@@ -3119,7 +3119,7 @@ const MOB_TYPES = [
   {name:'Blood Wraith',    emoji:'👻', zone:1, hp:130, atk:25, def:5,  xp:400,  gold:[80,180],  portrait:'blood-wraith-sword.jpg'},
   {name:'Plague Hound',    emoji:'🐺', zone:1, hp:110, atk:28, def:4,  xp:350,  gold:[60,140],  portrait:'plaguehound.jpeg'},
   {name:'Bone Archer',     emoji:'🏹', zone:1, hp:100, atk:30, def:3,  xp:380,  gold:[70,160],  portrait:'bonearcher.jpeg'},
-  {name:'Hollow Knight',   emoji:'⚔️', zone:2, hp:85,  atk:18, def:3,  xp:250,  gold:[50,120],  portrait:'hollowknight.jpeg'},
+  {name:'Hollow Sentinel',   emoji:'⚔️', zone:2, hp:85,  atk:18, def:3,  xp:250,  gold:[50,120],  portrait:'hollowknight.jpeg'},
   {name:'Wailing Banshee', emoji:'👁', zone:2, hp:70,  atk:20, def:2,  xp:220,  gold:[40,100],  portrait:'wailing-ghost.jpg'},
   {name:'Rot Golem',       emoji:'🗿', zone:2, hp:100, atk:16, def:6,  xp:280,  gold:[50,110],  portrait:'swamp-colossus.jpg'},
   {name:'Grave Stalker',   emoji:'🦇', zone:3, hp:48,  atk:12, def:1,  xp:120,  gold:[20,60],   portrait:'gravewanderer.jpeg'},
@@ -3646,6 +3646,7 @@ function selectWorld(key){
   CENTER = w.center;
   ZONES = w.zones;
   ZONE_DESCS = w.zoneDescs;
+  window._dwSpotUse = {};
   BOSSES = w.bosses.map(b=>bossTierize({...b, defeated:false, maxHp:b.hp, statuses:[], poisonStacks:0}, key));
   setTimeout(preloadPortraits, 100);
 }
@@ -4072,7 +4073,7 @@ const CELL_LAT = 0.0015, CELL_LNG = 0.002;   // ≈ 167m × 170m at Philly's lat
 const SPAWN_WINDOW_MS = 15*60*1000;          // each cell rerolls every 15 min
 const SPAWN_RADIUS_CELLS = 3;                // 7×7 cells ≈ 0.3 mi around the hunter
 const ELITE_CHANCE = 0.04;
-const SHRINE_CHANCE = 0.14;
+const SHRINE_CHANCE = 0.11;
 const SHRINE_COOLDOWN_MS = 5*60*1000;
 const LIVING_KEY = 'darkworld_living_v1';    // { killed:{spawnId:expiresAt}, shrines:{shrineId:readyAt} }
 const ZONE_NOMINAL_LEVEL = [15, 10, 6, 3, 1];// the level each danger ring is "meant" for
@@ -4198,7 +4199,7 @@ function refreshLiving(force){
       const rng = seededRng(hashStr(`${selectedWorld}|${cell}|${win}`));
       const roll = rng();
       const n = moon ? (roll < 0.25 ? 0 : roll < 0.6 ? 1 : roll < 0.9 ? 2 : 3)
-        : surge ? (roll < 0.3 ? 0 : roll < 0.8 ? 1 : 2) : (roll < 0.6 ? 0 : roll < 0.95 ? 1 : 2);
+        : surge ? (roll < 0.4 ? 0 : roll < 0.85 ? 1 : 2) : (roll < 0.68 ? 0 : roll < 0.97 ? 1 : 2);
       for(let i=0; i<n; i++){
         const id = `${cell}:${win}:${i}${moon ? ':bm' : ''}`;
         const lat = (cy + 0.1 + rng()*0.8) * CELL_LAT, lng = (cx + 0.1 + rng()*0.8) * CELL_LNG;
@@ -4443,15 +4444,14 @@ function drawMob(s){
   const p=ll2px(s.lat,s.lng);
   if(p.x < -40 || p.x > mapW+40 || p.y < -40 || p.y > mapH+40) return;
   const r=Math.max(10,13*zoom);
-  // Outer blood-glow (kept faint so a crowded street stays readable)
-  ctx.globalAlpha=0.16;
+  // Far monsters sit back; the ones in reach stand out (keeps a busy street readable)
+  const farA = Player && distMiles(Player.lat,Player.lng,s.lat,s.lng) > ENGAGE_MILES*2.2 && !s.gilded && !s.elite ? 0.55 : 1;
+  ctx.save(); ctx.globalAlpha=farA;
+  // Outer blood-glow (small and faint)
+  ctx.globalAlpha=0.14*farA;
   ctx.fillStyle='rgba(200,20,40,1)';
-  ctx.beginPath(); ctx.arc(p.x,p.y,r*1.9,0,Math.PI*2); ctx.fill();
-  // Mid shadow ring
-  ctx.globalAlpha=0.20;
-  ctx.fillStyle='rgba(60,0,10,1)';
-  ctx.beginPath(); ctx.arc(p.x,p.y,r*1.9,0,Math.PI*2); ctx.fill();
-  ctx.globalAlpha=1;
+  ctx.beginPath(); ctx.arc(p.x,p.y,r*1.45,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha=farA;
   // Circle background — near-black
   ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
   ctx.fillStyle='#180810'; ctx.fill();
@@ -4484,11 +4484,21 @@ function drawMob(s){
       ctx.beginPath(); ctx.arc(p.x+Math.cos(a)*rr,p.y+Math.sin(a)*rr,Math.max(1.5,2*zoom),0,Math.PI*2); ctx.fill(); }
     markDirty();
   }
+  if(s.lvl && zoom>0.9){ // level badge: green = easy for you, gold = even, red = tough
+    const dl = s.lvl - ((Player && Player.level) || 1);
+    const bc = s.elite || dl >= 3 ? '#e04040' : dl >= 0 ? '#d4a020' : '#5fbf6a';
+    const bx = p.x + r*0.78, by = p.y - r*0.78, br = Math.max(6, 6.5*Math.min(zoom,1.6));
+    ctx.beginPath(); ctx.arc(bx,by,br,0,Math.PI*2); ctx.fillStyle='#0c0810'; ctx.fill();
+    ctx.strokeStyle=bc; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.font=`bold ${Math.round(br*1.15)}px "Share Tech Mono"`; ctx.fillStyle=bc; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(String(s.lvl),bx,by+0.5);
+  }
   if(zoom>2.6||s.elite||s.gilded){
     ctx.font=`bold ${Math.max(8,Math.min(13,9*zoom))}px "Share Tech Mono"`;
     ctx.fillStyle=s.gilded?'#ffd34d':s.elite?'rgba(230,180,60,0.95)':'rgba(230,100,110,0.9)'; ctx.textBaseline='top'; ctx.textAlign='center';
-    ctx.fillText(`${s.gilded?'✦ GILDED ':s.elite?'★ ':''}${s.name}${s.lvl?' · '+s.lvl:''}`,p.x,p.y+r+3);
+    ctx.fillText(`${s.gilded?'✦ GILDED ':s.elite?'★ ELITE ':''}${s.name}${s.lvl?' · LV '+s.lvl:''}`,p.x,p.y+r+3);
   }
+  ctx.restore();
 }
 
 function drawBoss(b){
@@ -4713,9 +4723,9 @@ function drawDungeons(){
 // biome → species this district favors (still drawn from the danger ring's pool)
 const DISTRICT_BIOMES = {
   river:      ['Bog Specter','Rot Golem','Wailing Banshee','Blood Wraith'],
-  grave:      ['Grave Stalker','Lich Servant','Bone Archer','Lost Soul','Hollow Knight'],
+  grave:      ['Grave Stalker','Lich Servant','Bone Archer','Lost Soul','Hollow Sentinel'],
   industrial: ['Rot Golem','Cursed Rat','Plague Hound','Void Shade'],
-  colonial:   ['Hollow Knight','Wailing Banshee','Lost Soul','Lich Servant','Bone Archer'],
+  colonial:   ['Hollow Sentinel','Wailing Banshee','Lost Soul','Lich Servant','Bone Archer'],
   streets:    ['Cursed Rat','Shadow Imp','Plague Hound','Blood Wraith','Void Shade'],
 };
 const PHILLY_DISTRICTS = [
@@ -6233,7 +6243,7 @@ const SPECIES_LORE = {
   'Blood Wraith':   "What is left when someone dies angry on a street corner. Drawn to sirens; drawn even more to whoever called them.",
   'Plague Hound':   "They hunt in the alleys behind the rowhomes in threes. The fourth one is always behind you.",
   'Bone Archer':    "Revolutionary dead from the potter's fields. They still keep their ranks and still fire on anyone in red.",
-  'Hollow Knight':  "Armor with nothing inside, walking a patrol route no one living remembers. It salutes before it kills you.",
+  'Hollow Sentinel':  "Armor with nothing inside, walking a patrol route no one living remembers. It salutes before it kills you.",
   'Wailing Banshee':"She screams the name of the next person on the block to die. Hunters learn not to listen for their own.",
   'Rot Golem':      "Built from whatever the river washes up. Every one has a shopping cart somewhere in its chest.",
   'Grave Stalker':  "It walks the cemetery fences at night counting headstones. When the count is wrong, it goes looking for the difference.",
@@ -6470,7 +6480,7 @@ function relicStatusHtml(){
 const BLOOD_MOONS = [
   { date:'2026-11-07', tz:'-05:00', species:'Drowned Sailor',  title:'The Drowning Moon',
     lore:"The first Blood Moon after the Hollow Night rose over the Delaware, and the river gave back its sailors all at once. They came up Market Street in wet wool, in step, looking for the ships they went down with." },
-  { date:'2026-12-05', tz:'-05:00', species:'Hollow Knight',   title:'The Iron Moon',
+  { date:'2026-12-05', tz:'-05:00', species:'Hollow Sentinel',   title:'The Iron Moon',
     lore:"Under the December moon every suit of armor in the city stood up empty and walked the old patrol routes, from the Navy Yard to the Art Museum. They salute before they strike. Salute back; it confuses them." },
   { date:'2027-01-09', tz:'-05:00', species:'Wailing Banshee', title:'The Keening Moon',
     lore:"In January the banshees came out of the rowhome chimneys all at once and sang the names of the whole block. The hunters who went out that night wore earplugs and still heard their own." },
@@ -6575,7 +6585,7 @@ const DELVES = [
   { id:'lost-concourse', name:'The Lost Concourse', door:'30th Street Station', lat:39.9559, lng:-75.1824, minLvl:8, tier:3, emoji:'🚪',
     blurb:'A stairway off the main concourse leads to a second, lower station: lit, clean, and timetabled for trains that left in 1943.',
     rooms:[ { name:'The Lower Platform', pool:['Lost Soul','Wailing Banshee'] },
-            { name:'The Waiting Room',   pool:['Hollow Knight','Lich Servant'] },
+            { name:'The Waiting Room',   pool:['Hollow Sentinel','Lich Servant'] },
             { name:'The Baggage Hall',   pool:['Rot Golem','Bone Archer'] },
             { name:'Track Zero',         pool:['Void Shade','Blood Wraith','Wailing Banshee'] } ],
     boss:{ name:'THE STATIONMASTER', emoji:'🚂', portrait:'blood-wraith-sword.jpg', color:'#7a6ab8',
@@ -6583,10 +6593,10 @@ const DELVES = [
     page:"30th Street has a second concourse under the first. Its departure board still flips through destinations that no longer exist — Reading Terminal, the Pennsylvania Railroad to Pittsburgh, a midnight train simply marked BELOW. The clocks there all read 3:17." },
   { id:'upside-hall', name:'The Upside-Down Hall', door:'City Hall · William Penn', lat:39.9521, lng:-75.1640, minLvl:18, tier:3, emoji:'🚪',
     blurb:'The marble stairway under City Hall. It goes past the subway, past the bedrock, and ends in a second City Hall hanging upside down.',
-    rooms:[ { name:'The Marble Stair',     pool:['Hollow Knight','Lich Servant'] },
+    rooms:[ { name:'The Marble Stair',     pool:['Hollow Sentinel','Lich Servant'] },
             { name:'The Hanging Corridor', pool:['Void Shade','Grave Stalker'] },
             { name:'The Inverted Chamber', pool:['Blood Wraith','Wailing Banshee','Bone Archer'] },
-            { name:'The Clock Room',       pool:['Void Shade','Hollow Knight','Grave Stalker'] } ],
+            { name:'The Clock Room',       pool:['Void Shade','Hollow Sentinel','Grave Stalker'] } ],
     boss:{ name:'THE MAYOR BELOW', emoji:'🏛', portrait:'jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.jpg', color:'#c89838',
       lore:'Whatever governs the city under the city. It has kept its own records since 1682, and every one of them is a name.' },
     page:"At the bottom of the white stair, the second City Hall hangs from the bedrock like a stalactite, its tower pointing down into the dark. Its clock runs. It is the only clock in Philadelphia that does. The hunters who reached the clock room say it is not counting the hours. It is counting down." },
@@ -7382,6 +7392,25 @@ function genBounties(key){
   ].map((b, i) => ({...b, id:`${key}#${i}`, progress:0, done:false}));
 }
 
+// First kill of the day (Pokémon GO's daily catch bonus): a small gift every day,
+// a big one on the 7th day in a row, then the week starts again. Missing a day
+// just starts a new week; nothing is ever taken away.
+function firstKillOfDay(mob){
+  if(!Player || !mob || mob.tutorialMob) return 0;
+  const key = todayKey(), f = Player.firstKill || { date:null, streak:0 };
+  if(f.date === key) return 0;
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  const yKey = `${y.getFullYear()}-${String(y.getMonth()+1).padStart(2,'0')}-${String(y.getDate()).padStart(2,'0')}`;
+  const day = f.date === yKey ? (f.streak % 7) + 1 : 1;
+  Player.firstKill = { date:key, streak:day };
+  const big = day === 7, L = Player.level || 1;
+  const xp = Math.floor((xpForLevel(L) * 0.08 + 30) * (big ? 5 : 1)), gold = Math.floor((40 + L * 8) * (big ? 5 : 1));
+  Player.xp += xp; Player.gold += gold;
+  const dots = Array.from({length:7}, (_, i) => i < day ? '●' : '○').join('');
+  setTimeout(() => showToast(big ? '☀ SEVENTH DAY IN A ROW' : '☀ FIRST HUNT OF THE DAY', `+${fmt(xp)} XP · +${gold} gold · ${dots}`), 900);
+  addLog(`☀ First hunt of the day (${day} of 7): +${fmt(xp)} XP · +${gold} gold`, 'lb');
+  return xp;
+}
 // Rolls the day over; keeps the streak only if yesterday had a finished bounty.
 function ensureDaily(){
   if(!Player) return null;
@@ -7476,6 +7505,18 @@ function huntOnKill(mob){
   if(!mob.isRaid && !mob.tutorialMob) turfEarn(mob.elite ? 'elite' : (mob.isWorld || isBoss) ? 'boss' : 'kill');
 }
 
+// Species renamed after launch: old saves keep their kills, gilded finds and Book pages
+const SPECIES_RENAMES = { 'Hollow Knight':'Hollow Sentinel' }; // (trademark: a name that belongs to another game)
+function migrateSpeciesNames(P){
+  if(!P) return;
+  for(const [from, to] of Object.entries(SPECIES_RENAMES)){
+    for(const k of ['bestiary', 'gilded']){
+      const o = P[k]; if(!o || typeof o !== 'object' || !(from in o)) continue;
+      o[to] = typeof o[from] === 'number' ? (o[to] || 0) + o[from] : (o[to] || o[from]);
+      delete o[from];
+    }
+  }
+}
 function bestiaryBonus(name){
   const k = (Player && Player.bestiary && Player.bestiary[name]) || 0;
   let bonus = 0;
@@ -7766,7 +7807,10 @@ function bossTierize(b, world){
   const spots = world === 'philadelphia' && window.DW_STORY ? window.DW_STORY.meetupSpots || [] : [];
   let best = null, bd = 0.8;
   for(const s of spots){ if(s.ok === false) continue; const d = distMiles(b.lat, b.lng, s.lat, s.lng); if(d < bd){ bd = d; best = s; } }
-  if(best){ b.meet = best.id; b.bossAt = b.landmark; b.landmark = best.name; b.lat = best.lat; b.lng = best.lng; }
+  if(best){
+    const u = window._dwSpotUse = window._dwSpotUse || {}, k = (u[best.id] = (u[best.id] || 0) + 1) - 1; // two bosses, one spot: stand apart
+    b.meet = best.id; b.bossAt = b.landmark; b.landmark = best.name; b.lat = best.lat + k * 0.0004; b.lng = best.lng + k * 0.0005;
+  }
   else b.meet = null; // no vetted spot nearby: practice only
   return b;
 }
@@ -9291,6 +9335,7 @@ function victory(){
   curEnemy.poisonStacks=0;
   markLivingKilled(curEnemy);
   huntOnKill(curEnemy);
+  firstKillOfDay(curEnemy);
   if(!curEnemy.tutorialMob && _omenHoldUntil) _omenHoldUntil = Math.min(_omenHoldUntil, Date.now() + 3000); // first real kill: the omen may come
   tutOnVictory(curEnemy);
   seasonOnVictory(curEnemy);
@@ -9739,6 +9784,7 @@ function saveGame(){
       bloodSigils: Player.bloodSigils || 0,
       delves: Player.delves || {},
       gilded: Player.gilded || {},
+      firstKill: Player.firstKill || null,
       bloodMoons: Player.bloodMoons || {},
       titles: Player.titles || [],
       factionSince: Player.factionSince || 0,
@@ -11010,6 +11056,7 @@ function continueGame(){
     // Ensure xpNext uses formula if it's a new enough save
     xpNext: sp.xpNext || xpForLevel(sp.level||1),
   };
+  migrateSpeciesNames(Player);
   selectedClass = save.player.className;
   // Restore world and boss states
   selectWorld(save.world || 'philadelphia');
@@ -11399,7 +11446,7 @@ function buzz(kind){
 
 // ── CREATURE VOICES ─────────────────────────────────────
 const CREATURE_FAMILY = {
-  'Lich Servant':'undead','Bone Archer':'undead','Hollow Knight':'undead','Grave Stalker':'undead','Lost Soul':'undead',
+  'Lich Servant':'undead','Bone Archer':'undead','Hollow Sentinel':'undead','Grave Stalker':'undead','Lost Soul':'undead',
   'Void Shade':'specter','Blood Wraith':'specter','Wailing Banshee':'specter','Bog Specter':'specter',
   'Plague Hound':'beast','Cursed Rat':'beast','Rot Golem':'construct','Shadow Imp':'demon',
 };
