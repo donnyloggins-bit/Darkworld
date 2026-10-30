@@ -2410,6 +2410,138 @@ body.fx-calm #cb-bg { animation:none; }
 @media (prefers-reduced-motion: reduce){ #cb-bg, #cb-fog::before, #cb-fog::after { animation:none; } }
 #fx-low-btn { width:100%; margin-top:6px; }
 
+/* ═════ CARD COMBAT ═════ */
+#combat-box.kc #cb-acts, #combat-box.kc #tele, #combat-box.kc #cb-combo, #combat-box.kc #combo-wrap, #combat-box.kc #stun-lbl { display:none !important; }
+#combat-box.kc #cb-log { height:auto; min-height:26px; max-height:44px; padding:4px 12px; font-size:.86rem; line-height:1.3; overflow:hidden; }
+#combat-box.kc #cb-bottom { max-height:none; padding-top:6px; }
+#combat-box.kc #cb-player-header { margin-bottom:3px; }
+#combat-box.kc #ab-grid { margin-top:6px; }
+#combat-box.kc #ab-grid .abtn { height:34px !important; }
+#kc-intent { margin:6px auto 0; display:flex; flex-direction:column; align-items:center; gap:4px; pointer-events:none; }
+.kc-ints { display:flex; align-items:center; gap:6px; }
+.kc-plus { color:#ff6a50; font-weight:700; }
+.kc-ints.two .kc-int { padding:2px 8px 3px; max-width:46vw; } .kc-ints.two .kc-int b { font-size:1.15rem; } .kc-ints.two .kc-int span { white-space:normal; text-align:center; font-size:.56rem; }
+.kc-int { display:flex; flex-direction:column; align-items:center; padding:3px 12px 4px; border-radius:10px; background:rgba(10,6,16,.78); border:1.5px solid #c8c0d8; box-shadow:0 3px 12px rgba(0,0,0,.6); }
+.kc-int b { font-family:'Cinzel',serif; font-size:1.45rem; line-height:1.1; color:#fff; text-shadow:0 2px 6px #000; }
+.kc-int span { font-family:'Share Tech Mono',monospace; font-size:.62rem; letter-spacing:.08em; color:#e8dcc8; white-space:nowrap; }
+.kc-int.k-atk { border-color:#ff6a50; } .kc-int.k-atk b { color:#ffd0c4; }
+.kc-int.k-heavy { border-color:#ff8c1a; animation:kcThrob .9s ease-in-out infinite; } .kc-int.k-heavy b { color:#ffb060; }
+.kc-int.k-charge { border-color:#ff8c1a; border-style:dashed; } .kc-int.k-charge b { color:#ffb060; }
+.kc-int.k-unbl { border-color:#b46bff; } .kc-int.k-unbl b { color:#e0c0ff; }
+.kc-int.k-guard { border-color:#5aa8ff; } .kc-int.k-guard b { color:#c8e0ff; }
+.kc-int.k-drain { border-color:#3ee26b; } .kc-int.k-drain b { color:#b0ffc8; }
+.kc-int.k-stun { border-color:#ffd84a; } .kc-int.k-stun b { color:#ffe890; }
+@keyframes kcThrob { 50% { box-shadow:0 0 18px rgba(255,140,26,.8); } }
+.kc-brk { display:flex; align-items:center; gap:3px; padding:2px 8px; border-radius:8px; background:rgba(10,6,16,.6); }
+.kc-brk span { font-family:'Share Tech Mono',monospace; font-size:.58rem; letter-spacing:.1em; color:#c0a880; margin-right:3px; }
+.kc-brk i { width:13px; height:7px; border-radius:2px; background:#3a2a40; border:1px solid #6a5060; }
+.kc-brk i.on { background:#ffb040; border-color:#ffd890; box-shadow:0 0 6px #ff9a1a; }
+.kc-brk.exposed { box-shadow:0 0 0 1.5px #ff8c1a, 0 0 14px rgba(255,140,26,.6); } .kc-brk.exposed span { color:#ffb060; }
+.kc-chips, #kc-pstat { display:flex; flex-wrap:wrap; justify-content:center; gap:4px; }
+.kc-chips em, #kc-pstat em { font-style:normal; font-family:'Share Tech Mono',monospace; font-size:.66rem; padding:1px 6px; border-radius:6px; background:rgba(10,6,16,.75); border:1px solid #5a4a6a; color:#e8dcc8; }
+em.c-blk { border-color:#5aa8ff; color:#c8e0ff; } em.c-bl { border-color:#c03030; color:#ffb0a0; } em.c-mk { border-color:#ffd84a; color:#ffe890; }
+em.c-wk { border-color:#5ac0e8; color:#c0f0ff; } em.c-br { border-color:#ff8c1a; color:#ffc080; } em.c-ev { border-color:#b46bff; color:#e0c0ff; }
+em.c-st { border-color:#ff6a50; color:#ffd0c4; } em.c-th { border-color:#d0a050; color:#ffe0a0; } em.c-al { border-color:#3ee26b; color:#b0ffc8; }
+#kc-ui { margin-top:4px; }
+#kc-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+#kc-energy { width:44px; height:44px; flex-shrink:0; border-radius:50%; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 40% 35%, #ffe890, #e0a020 55%, #7a4a00); box-shadow:0 0 12px rgba(255,200,60,.5); color:#2a1800; }
+#kc-energy b { font-family:'Cinzel',serif; font-size:1.35rem; } #kc-energy i { font-style:normal; font-size:.7rem; font-weight:700; }
+#kc-pstat { flex:1; justify-content:flex-start; }
+#kc-piles { display:flex; flex-direction:column; font-family:'Share Tech Mono',monospace; font-size:.62rem; color:#9080a8; line-height:1.2; }
+#kc-auto { font-family:'Share Tech Mono',monospace; font-size:.6rem; color:#9080a8; display:flex; align-items:center; gap:2px; white-space:nowrap; }
+#kc-auto input { width:14px; height:14px; margin:0; accent-color:#e0a020; }
+#kc-end { flex-shrink:0; height:42px; padding:0 14px; border-radius:10px; border:2px solid #e0a020; background:linear-gradient(180deg,#3a2a10,#1c1408); color:#ffe0a0; font-family:'Cinzel',serif; font-size:.9rem; font-weight:700; letter-spacing:.05em; }
+#kc-end:disabled { opacity:.4; }
+#kc-end.pulse { animation:kcEnd 1.1s ease-in-out infinite; }
+@keyframes kcEnd { 50% { box-shadow:0 0 16px rgba(255,200,60,.8); background:linear-gradient(180deg,#5a4010,#2c2008); } }
+#kc-hand { position:relative; height:150px; display:flex; justify-content:center; align-items:flex-end; touch-action:none; user-select:none; -webkit-user-select:none; }
+.kc-card { position:relative; width:96px; height:136px; flex-shrink:0; border-radius:9px; padding:5px 5px 4px; display:flex; flex-direction:column; align-items:center;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--tc) 30%, #1a1422) 0%, #15101c 42%, #100c16 100%);
+  border:2.5px solid var(--rc); box-shadow:0 4px 10px rgba(0,0,0,.6), inset 0 0 0 1px rgba(0,0,0,.6); color:#f0e6d8; overflow:hidden; }
+.kc-card.r2 { box-shadow:0 4px 10px rgba(0,0,0,.6), 0 0 8px color-mix(in srgb, var(--rc) 60%, transparent); }
+.kc-card.r3, .kc-card.r4 { box-shadow:0 4px 10px rgba(0,0,0,.6), 0 0 14px var(--rc); }
+.kc-card.r4::before { content:''; position:absolute; inset:0; background:linear-gradient(115deg, transparent 30%, rgba(255,230,160,.28) 45%, transparent 60%); background-size:250% 100%; animation:kcFoil 2.6s linear infinite; pointer-events:none; }
+@keyframes kcFoil { from { background-position:150% 0; } to { background-position:-100% 0; } }
+.kc-cost { position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:radial-gradient(circle at 40% 35%, #ffe890, #e0a020 60%, #7a4a00); color:#2a1800; font-family:'Cinzel',serif; font-weight:700; font-size:.92rem; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px #000; z-index:2; }
+.kc-ic { font-size:1.6rem; line-height:1.1; margin-top:2px; filter:drop-shadow(0 2px 3px #000); }
+.kc-nm { font-family:'Cinzel',serif; font-size:.64rem; word-break:break-word; hyphens:auto; font-weight:700; text-align:center; line-height:1.05; margin:2px 0 2px; color:#fff; min-height:1.5em; display:flex; align-items:center; }
+.kc-tx { flex:1; font-family:'Share Tech Mono',monospace; font-size:.58rem; line-height:1.18; text-align:center; color:#d8ccbc; overflow:hidden; }
+.kc-nums { display:flex; flex-wrap:wrap; justify-content:center; gap:0 4px; font-family:'Cinzel',serif; font-weight:700; font-size:.92rem; line-height:1.15; color:#fff; text-shadow:0 1px 3px #000; }
+.kc-nums .n-d { color:#ffd6cc; } .kc-nums .n-b { color:#cfe4ff; } .kc-nums .n-h { color:#b8ffcc; } .kc-nums .n-l { color:#ffb0a0; } .kc-nums .n-k { color:#ffd090; }
+.kc-rule { font-size:.54rem; line-height:1.15; margin-top:1px; color:#e0d4c4; }
+.kc-ft { width:calc(100% + 10px); margin:0 -5px -4px; padding:1px 0 2px; text-align:center; background:color-mix(in srgb, var(--rc) 22%, #0c0910); border-top:1px solid var(--rc); font-family:'Share Tech Mono',monospace; font-size:.52rem; letter-spacing:.12em; }
+.kc-rr { color:var(--rc); font-weight:700; }
+.kc-ty { display:none; }
+.kc-card::after { content:''; position:absolute; left:0; right:0; top:0; height:4px; background:var(--tc); }
+.kc-once { position:absolute; top:4px; right:3px; font-family:'Share Tech Mono',monospace; font-size:.44rem; padding:0 3px; border-radius:3px; background:#3a1010; color:#ffb0a0; border:1px solid #803030; }
+.kc-wait { align-self:center; font-family:'Cinzel',serif; font-size:1rem; color:#c0a880; letter-spacing:.1em; animation:kcThrob 1.2s ease-in-out infinite; }
+.kc-hc { margin:0 -15px; transform:translateY(var(--dy)) rotate(var(--rot)); transform-origin:50% 120%; z-index:var(--z); transition:transform .14s ease-out, filter .14s; cursor:pointer; touch-action:none; }
+#kc-hand[data-n="6"] .kc-hc, #kc-hand[data-n="7"] .kc-hc { margin:0 -24px; }
+#kc-hand[data-n="8"] .kc-hc, #kc-hand[data-n="9"] .kc-hc, #kc-hand[data-n="10"] .kc-hc { margin:0 -32px; }
+@media (min-width:700px){ .kc-hc { margin:0 -14px; } }
+.kc-hc.no { filter:brightness(.55) saturate(.6); }
+.kc-hc.no .kc-cost { background:radial-gradient(circle at 40% 35%, #ffb0a0, #c03030 60%, #500); color:#fff; }
+.kc-hc.sel { transform:translate(var(--sx),-64px) scale(1.42) rotate(0deg); z-index:30; box-shadow:0 0 0 2px #fff, 0 0 22px var(--rc), 0 10px 24px #000; }
+.kc-hc.drag { transition:none; z-index:40; }
+.kc-hc.drag.arm { box-shadow:0 0 0 3px #ffd84a, 0 0 26px #ffd84a; }
+.kc-hc.shake { animation:kcShake .3s; }
+@keyframes kcShake { 25% { margin-left:-15px; } 75% { margin-left:-3px; } }
+.kc-hc.coach-glow { box-shadow:0 0 0 3px var(--gold,#e8b840), 0 0 22px rgba(232,184,64,.9); }
+#kc-end.coach-glow { box-shadow:0 0 0 3px var(--gold,#e8b840), 0 0 22px rgba(232,184,64,.9); }
+.kc-fly { position:fixed; z-index:150; transform:translate(-50%,0); pointer-events:none; animation:kcFly .42s ease-in forwards; }
+@keyframes kcFly { to { transform:translate(-50%, var(--ty)) scale(.4) rotate(8deg); opacity:0; } }
+/* rewards */
+.kc-rw { margin-top:8px; }
+.kc-rw-t { font-family:'Cinzel',serif; color:#ffe0a0; font-size:.85rem; letter-spacing:.1em; margin-bottom:6px; }
+.kc-rw-row { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+.kc-rw-s { font-family:'Share Tech Mono',monospace; font-size:.62rem; color:#9080a8; margin-top:6px; }
+.kc-pull { animation:kcPull .5s cubic-bezier(.2,1.4,.4,1) both; animation-delay:var(--d); cursor:pointer; }
+@keyframes kcPull { from { transform:rotateY(90deg) scale(.6); opacity:0; } }
+.kc-pull.kc-shine { box-shadow:0 0 18px var(--rc), 0 0 0 1px var(--rc); }
+.kc-pull.took { transform:scale(1.1); box-shadow:0 0 0 3px #fff, 0 0 24px var(--rc); }
+.kc-pull.gone { opacity:.25; filter:grayscale(1); }
+.kc-fan { position:fixed; inset:0; z-index:1100; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;
+  background:radial-gradient(circle, color-mix(in srgb, var(--rc) 45%, transparent) 0%, transparent 60%); animation:kcFanBg 2.2s ease-out forwards; }
+.kc-fan-t { font-family:'Cinzel',serif; font-size:1.8rem; font-weight:700; color:var(--rc); text-shadow:0 0 18px var(--rc), 0 2px 4px #000; letter-spacing:.08em; margin-bottom:12px; }
+.kc-fan .kc-big { transform:scale(1.7); animation:kcFanCard 2.2s ease-out forwards; }
+@keyframes kcFanBg { 0% { opacity:0; } 12% { opacity:1; } 80% { opacity:1; } 100% { opacity:0; } }
+@keyframes kcFanCard { 0% { transform:scale(.4) rotateY(180deg); } 25% { transform:scale(1.8) rotateY(0); } 85% { transform:scale(1.7); opacity:1; } 100% { transform:scale(1.5); opacity:0; } }
+/* deck & tree screen */
+#kc-modal { display:none; position:fixed; inset:0; z-index:1000; background:rgba(6,4,10,.96); flex-direction:column; }
+#kc-modal.active { display:flex; }
+#kc-modal-head { display:flex; align-items:center; justify-content:space-between; padding:calc(10px + var(--sat,0px)) 12px 6px; border-bottom:1px solid #3a2a50; }
+#kc-modal-head h2 { margin:0; font-family:'Cinzel',serif; font-size:1.05rem; color:var(--gold,#e8b840); letter-spacing:.08em; }
+#kc-modal-head button { background:none; border:1px solid #5a4a6a; color:#c0a880; border-radius:8px; padding:4px 10px; font-size:1rem; }
+#kc-modal-body { flex:1; overflow-y:auto; padding:8px 10px 24px; }
+#kc-tabs { display:flex; gap:6px; margin-bottom:8px; }
+#kc-tabs button { flex:1; padding:8px 4px; border-radius:8px; border:1px solid #4a3a5a; background:#16101e; color:#a090b8; font-family:'Share Tech Mono',monospace; font-size:.74rem; }
+#kc-tabs button.on { border-color:var(--gold,#e8b840); color:#ffe0a0; background:#2a1e10; }
+.kc-th { display:flex; flex-direction:column; gap:4px; font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#c0b0d0; margin-bottom:8px; }
+.kc-pts b { color:#ffe0a0; font-size:1rem; } .kc-pts button { margin-left:6px; padding:2px 8px; border-radius:6px; border:1px solid #5a4a6a; background:#1c1426; color:#c0a880; font-size:.66rem; }
+.kc-tree { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.kc-br { display:flex; flex-direction:column; align-items:center; }
+.kc-bn { font-family:'Cinzel',serif; font-size:.78rem; font-weight:700; color:var(--bc); text-align:center; margin-bottom:6px; line-height:1.1; }
+.kc-bn span { display:block; font-family:'Share Tech Mono',monospace; font-size:.55rem; font-weight:400; color:#9080a8; }
+.kc-node { width:100%; min-height:60px; border-radius:10px; border:2px solid #3a2e48; background:#120e18; color:#7a6a8a; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4px 2px; gap:1px; }
+.kc-node .ic { font-size:1.3rem; filter:grayscale(.8); } .kc-node .nm { font-family:'Share Tech Mono',monospace; font-size:.6rem; line-height:1.1; text-align:center; }
+.kc-node .cp { font-size:.5rem; color:#c0a880; }
+.kc-node.can { border-color:var(--bc); color:#e8dcc8; box-shadow:0 0 10px color-mix(in srgb, var(--bc) 50%, transparent); } .kc-node.can .ic { filter:none; }
+.kc-node.has { border-color:var(--bc); background:color-mix(in srgb, var(--bc) 28%, #120e18); color:#fff; } .kc-node.has .ic { filter:none; }
+.kc-node.cap { min-height:70px; border-width:3px; }
+.kc-node.sel { outline:2px solid #fff; outline-offset:1px; }
+.kc-ln { width:3px; height:10px; background:#3a2e48; } .kc-ln.on { background:var(--bc); }
+.kc-nd { margin-top:10px; padding:10px 12px; border-radius:10px; border:1.5px solid var(--bc,#4a3a5a); background:#15101c; }
+.kc-nd .t { font-family:'Cinzel',serif; color:#fff; font-size:.92rem; } .kc-nd .d { font-size:.84rem; color:#d0c4b4; margin:4px 0 8px; } .kc-nd .w { font-family:'Share Tech Mono',monospace; font-size:.7rem; color:#9080a8; }
+.kc-nd.hint { font-size:.78rem; color:#9080a8; border-color:#3a2e48; }
+.kc-learn { width:100%; padding:10px; border-radius:8px; border:2px solid var(--bc); background:color-mix(in srgb, var(--bc) 30%, #15101c); color:#fff; font-family:'Cinzel',serif; font-weight:700; }
+.kc-sec { font-family:'Share Tech Mono',monospace; font-size:.68rem; letter-spacing:.1em; color:#c0a880; margin:10px 0 6px; }
+.kc-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(96px, 1fr)); gap:8px; justify-items:center; }
+.kc-mini.out { opacity:.45; filter:saturate(.5); } .kc-mini.indeck { box-shadow:0 0 0 2px #3ee26b, 0 4px 10px #000; }
+.kc-merge button { display:block; width:100%; margin-bottom:5px; padding:8px; border-radius:8px; border:1.5px solid #b46bff; background:#1e1428; color:#e8dcc8; font-family:'Share Tech Mono',monospace; font-size:.72rem; }
+.kc-empty { font-size:.8rem; color:#9080a8; padding:8px; }
+@media (prefers-reduced-motion: reduce){ .kc-card.r4::before, .kc-int.k-heavy, #kc-end.pulse, .kc-pull, .kc-fan .kc-big { animation:none !important; } }
+@media (min-width:700px){ .kc-card { width:108px; height:150px; } #kc-hand { height:166px; } .kc-tx { font-size:.62rem; } }
+
 </style>
 </head>
 <body>
@@ -2616,8 +2748,9 @@ body.fx-calm #cb-bg { animation:none; }
       <div class="sb-btns">
         <button class="sb-btn" onclick="openInventory()">⚔ GEAR</button>
         <button class="sb-btn" onclick="openShop()">🏪 SHOP</button>
-        <button class="sb-btn" onclick="openSkills()">🌟 SKILLS</button>
+        <button class="sb-btn" onclick="openSkills()">🌟 SKILLS &amp; DECK</button>
       </div>
+      <button class="sb-btn" id="kc-mode-btn" onclick="kcSetMode(kcMode()==='cards'?'realtime':'cards')">🃏 COMBAT: CARDS (tap for real-time)</button>
       <button class="sb-btn" id="fx-low-btn" onclick="fxSetLow(!FX.low)">✨ EFFECTS: FULL (tap for low)</button>
     </div>
     <div id="online-panel" class="net-only">
@@ -2733,6 +2866,7 @@ body.fx-calm #cb-bg { animation:none; }
 </div>
 
 <!-- ══ LOOT ══ -->
+<div id="kc-modal"><div id="kc-modal-head"><h2>🃏 DECK &amp; SKILLS</h2><button onclick="kcClose()">✕</button></div><div id="kc-modal-body"></div></div>
 <div id="loot-popup">
   <div class="loot-t">⚰ SPOILS OF BATTLE</div>
   <div class="loot-i" id="loot-txt"></div>
@@ -3838,7 +3972,8 @@ function buyItem(itemName){
 }
 
 // ── SKILLS UI ────────────────────────────────────────
-function openSkills(){
+function openSkills(){ if(kcMode() === 'cards') return kcOpen('tree'); openSkillsLegacy(); }
+function openSkillsLegacy(){
   renderSkills();
   document.getElementById('skills-modal').classList.add('active');
 }
@@ -7311,6 +7446,7 @@ function motionToggle(){
   motionPref.on = !motionPref.on; motionSave(); motionDecorate(); buzz('tap');
 }
 function motionOnCombatStart(){
+  if(KC.on) return;
   if(!MOTION_ENABLED) return;
   motionRequestPermission();
   _mo.armed = false; _mo.quietSince = 0; _mo.lean = null;
@@ -7618,6 +7754,7 @@ function startTutorial(){
 }
 
 function tutOnCombatStart(ent){
+  if(KC.on) return; // the card tutorial runs from kcStartTurn
   if(tutStep() !== 'fight' || !ent || !ent.tutorialMob) return;
   cbHoldEnemy(6000); // a breather before it strikes
   // On a phone, the first fight teaches motion: tune it, then attack with a lean
@@ -9761,8 +9898,914 @@ function fxDie(){
 window.addEventListener('resize', () => { if(FX.on) fxResize(); });
 if(window.matchMedia){ try { matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', fxApplyPrefs); } catch(e){} }
 
+// ════════════════════════════════════════════════════════════════
+//  CARD COMBAT (prototype) — turn-based fights with a hand of cards.
+//  The monster shows its plan (intent) before your turn; you spend energy on cards;
+//  then it acts. The old real-time fight stays available: ?combat=realtime or the menu toggle.
+//  Card names/flavor are plain placeholders (the team writes the local flavor).
+// ════════════════════════════════════════════════════════════════
+const KC_PREF_KEY = 'darkworld_combat';
+(function kcReadUrl(){ try { const q = new URLSearchParams(location.search).get('combat'); if(q === 'realtime' || q === 'cards') localStorage.setItem(KC_PREF_KEY, q); } catch(e){} })();
+function kcMode(){ try { return localStorage.getItem(KC_PREF_KEY) === 'realtime' ? 'realtime' : 'cards'; } catch(e){ return 'cards'; } }
+function kcSetMode(m){ try { localStorage.setItem(KC_PREF_KEY, m); } catch(e){} kcSyncMenu(); if(typeof toast === 'function') toast(m === 'cards' ? '🃏 Card fights on' : '⚔ Real-time fights on'); }
+function kcSyncMenu(){
+  const b = document.getElementById('kc-mode-btn'); if(b) b.textContent = kcMode() === 'cards' ? '🃏 COMBAT: CARDS (tap for real-time)' : '⚔ COMBAT: REAL-TIME (tap for cards)';
+}
+// Shared-HP raids and the season finale still use the real-time fight (their HP is synced live)
+function kcWants(e){ return kcMode() === 'cards' && !!e && !e.isRaid && !e.isFinale; }
+
+// ── rarity ─────────────────────────────────────────
+const KC_RAR = [
+  { n:'COMMON',    c:'#c8c0d8', m:1.00, max:4 },
+  { n:'UNCOMMON',  c:'#3ee26b', m:1.25, max:3 },
+  { n:'RARE',      c:'#3f9bff', m:1.50, max:2 },
+  { n:'EPIC',      c:'#b46bff', m:1.80, max:1 },
+  { n:'LEGENDARY', c:'#ff9a1a', m:2.20, max:1 },
+];
+const KC_LIMIT = { deck:20, epic:3, legendary:1 }; // + skill tree bonuses
+const KC_TYPES = { atk:{ n:'ATTACK', c:'#d0443a' }, blk:{ n:'GUARD', c:'#3f86d8' }, skl:{ n:'SKILL', c:'#9a5ad8' }, fin:{ n:'FINISHER', c:'#e0a020' }, heal:{ n:'HEAL', c:'#2fb862' } };
+
+// ── the cards ──────────────────────────────────────
+// numbers: dmg (×your power), blk (×your HP/100), heal (% max HP), bleed (×power) — all grow with rarity.
+// stag = break points; draw, energy, weak/mark/stun turns, evade, str (+dmg per hit for the fight).
+// combo: {after:'skl'|'atk'|'blk', dmg} adds dmg if you already played that type this turn.
+// per: dmg added per card already played this turn (finishers). epic/leg: extra effects at those rarities.
+const KC_CARDS = {
+  // shared
+  strike:   { n:'Strike',        t:'atk', cost:1, ic:'⚔', dmg:6 },
+  guard:    { n:'Guard',         t:'blk', cost:1, ic:'🛡', blk:5 },
+  jab:      { n:'Quick Jab',     t:'atk', cost:0, ic:'👊', dmg:3, combo:{ after:'skl', dmg:3 } },
+  heavy:    { n:'Heavy Swing',   t:'atk', cost:2, ic:'🔨', dmg:10, stag:2 },
+  focus:    { n:'Focus',         t:'skl', cost:1, ic:'👁', draw:2 },
+  wind:     { n:'Second Wind',   t:'heal',cost:1, ic:'💚', heal:8, exhaust:true },
+  // Fighter (shield vs. rage)
+  cleave:   { n:'Cleave',        t:'atk', cost:2, ic:'🪓', dmg:11, stag:1, cls:'Fighter' },
+  bash:     { n:'Shield Bash',   t:'atk', cost:1, ic:'🛡', dmg:4, blk:4, stag:1, cls:'Fighter' },
+  cry:      { n:'Battle Cry',    t:'skl', cost:1, ic:'📯', str:2, exhaust:true, cls:'Fighter' },
+  wall:     { n:'Iron Wall',     t:'blk', cost:2, ic:'🧱', blk:12, keep:true, cls:'Fighter' },
+  retort:   { n:'Retort',        t:'blk', cost:1, ic:'↩', blk:4, thorns:4, cls:'Fighter' },
+  storm:    { n:'Bladestorm',    t:'fin', cost:2, ic:'💥', dmg:3, per:3, cls:'Fighter' },
+  // Thief (marks and bleeds vs. evasion)
+  backstab: { n:'Backstab',      t:'atk', cost:0, ic:'🗡', dmg:4, vsMark:6, cls:'Thief' },
+  mark:     { n:'Mark Target',   t:'skl', cost:1, ic:'🎯', mark:2, draw:1, cls:'Thief' },
+  lacerate: { n:'Lacerate',      t:'atk', cost:1, ic:'🩸', dmg:3, bleed:4, cls:'Thief' },
+  step:     { n:'Shadowstep',    t:'skl', cost:1, ic:'💨', evade:1, draw:1, cls:'Thief' },
+  smoke:    { n:'Smoke Bomb',    t:'blk', cost:1, ic:'🌫', blk:6, weak:1, cls:'Thief' },
+  evisc:    { n:'Eviscerate',    t:'fin', cost:1, ic:'✂', dmg:2, per:4, cls:'Thief' },
+  // Magic-User (burst vs. control vs. energy)
+  bolt:     { n:'Firebolt',      t:'atk', cost:1, ic:'🔥', dmg:8, cls:'Magic-User' },
+  ward:     { n:'Arcane Ward',   t:'blk', cost:1, ic:'🔷', blk:7, cls:'Magic-User' },
+  channel:  { n:'Channel',       t:'skl', cost:0, ic:'🌀', nextE:1, draw:1, cls:'Magic-User' },
+  lance:    { n:'Frost Lance',   t:'atk', cost:1, ic:'❄', dmg:5, weak:2, cls:'Magic-User' },
+  meteor:   { n:'Meteor',        t:'fin', cost:3, ic:'☄', dmg:24, stag:2, spellDisc:true, cls:'Magic-User' },
+  burn:     { n:'Immolate',      t:'atk', cost:2, ic:'🌋', dmg:6, bleed:6, cls:'Magic-User' },
+  // from gear and marks (rarity comes from the item's tier)
+  g_weapon: { n:'Weapon Art',    t:'atk', cost:1, ic:'⚔', dmg:8, gear:true },
+  g_armor:  { n:'Brace',         t:'blk', cost:1, ic:'🛡', blk:8, gear:true },
+  g_keen:   { n:'Keen Eye',      t:'skl', cost:0, ic:'🎯', mark:1, draw:1, gear:true },
+  g_dodge:  { n:'Sidestep',      t:'skl', cost:1, ic:'💨', evade:1, draw:1, gear:true },
+  g_vigor:  { n:'Vigor',         t:'heal',cost:1, ic:'💚', heal:10, exhaust:true, gear:true },
+  g_surge:  { n:'Surge',         t:'skl', cost:0, ic:'⚡', energy:1, exhaust:true, gear:true },
+  g_power:  { n:'Empower',       t:'skl', cost:1, ic:'💪', str:3, exhaust:true, gear:true },
+  g_wall:   { n:'Bulwark',       t:'blk', cost:2, ic:'🏰', blk:14, gear:true },
+  m_riposte:{ n:'Riposte',       t:'blk', cost:1, ic:'⚔', blk:5, thorns:5, gear:true },
+  m_sunder: { n:'Sunder',        t:'atk', cost:1, ic:'💥', dmg:5, stag:3, gear:true },
+  m_chain:  { n:'Chain Strike',  t:'atk', cost:1, ic:'⛓', dmg:5, chain:2, gear:true },
+  m_ember:  { n:'Ember Spark',   t:'atk', cost:1, ic:'🔥', dmg:5, bleed:3, gear:true },
+  m_first:  { n:'Opening Strike',t:'atk', cost:0, ic:'🩸', dmg:10, innate:true, exhaust:true, gear:true },
+  m_mend:   { n:'Mend',          t:'heal',cost:1, ic:'💚', heal:7, blk:3, gear:true },
+};
+// extra punch at the top rarities (on top of bigger numbers)
+const KC_EPIC = { stag:1 }, KC_LEG = { costDown:1 };
+function kcRar(r){ return KC_RAR[Math.max(0, Math.min(4, r | 0))]; }
+
+// ── class kits (3 prototyped in full; the rest get a generic kit from their abilities) ──
+const KC_STARTERS = {
+  Fighter:      ['strike','strike','strike','strike','guard','guard','guard','bash','cleave','cry','retort','storm'],
+  Thief:        ['strike','strike','strike','guard','guard','guard','backstab','backstab','mark','lacerate','step','evisc'],
+  'Magic-User': ['strike','strike','guard','guard','guard','bolt','bolt','ward','channel','lance','meteor','focus'],
+};
+function kcStarterFor(cls){
+  if(KC_STARTERS[cls]) return KC_STARTERS[cls];
+  return ['strike','strike','strike','strike','guard','guard','guard','guard','jab','heavy','focus','sig'];
+}
+// The signature card for classes without a full kit: their Signature ability as a finisher
+function kcSigCard(){
+  const a = Player.cls.abilities.find(x => x.type === 'Signature') || Player.cls.abilities[Player.cls.abilities.length - 1];
+  return { n:a.name.charAt(0) + a.name.slice(1).toLowerCase(), t:'fin', cost:2, ic:a.emoji, dmg:4, per:3 };
+}
+function kcDef(id){ return id === 'sig' ? kcSigCard() : KC_CARDS[id]; }
+
+// ── skill trees ────────────────────────────────────
+// fx keys: startBlk, startStr, addCard, upCard (+1 rarity to your starter copies), deck (+deck size), hand (+hand size),
+// e1 (+1 energy on turn 1), eEvery (+1 energy every Nth turn), choice (+1 card reward choice), luck (+rarity luck),
+// leg (+1 legendary slot), thornsHit (deal back when hit), keep (block carries over, fraction), bleedUp, markUp, cap:* capstones.
+const KC_TREES = {
+  Fighter: [
+    { id:'bul', n:'BULWARK', d:'Block and outlast', c:'#3f86d8', nodes:[
+      { id:'bul1', n:'Shield Up',     ic:'🛡', d:'Start every fight with 6 block.', fx:{ startBlk:6 } },
+      { id:'bul2', n:'Tempered Guard',ic:'⬆', d:'Your starter Guards become Uncommon.', fx:{ upCard:'guard' } },
+      { id:'bul3', n:'Iron Wall',     ic:'🧱', d:'Add Iron Wall (block that carries over) to your deck.', fx:{ addCard:'wall' } },
+      { id:'bul4', n:'Steady',        ic:'⏳', d:'Half of your unused block carries into your next turn.', fx:{ keep:.5 } },
+      { id:'bulC', n:'UNBREAKABLE',   ic:'🏰', d:'Capstone: when you block a whole attack, strike back for 5.', fx:{ cap:'unbreak' }, cap:true },
+    ]},
+    { id:'wra', n:'WRATH', d:'Hit back and build rage', c:'#d0443a', nodes:[
+      { id:'wra1', n:'Bloodied',      ic:'😡', d:'Start every fight with +1 strength.', fx:{ startStr:1 } },
+      { id:'wra2', n:'Honed Cleave',  ic:'⬆', d:'Your Cleave becomes Rare.', fx:{ upCard:'cleave', up:2 } },
+      { id:'wra3', n:'Retaliate',     ic:'↩', d:'Whenever you are hit, deal 3 back.', fx:{ thornsHit:3 } },
+      { id:'wra4', n:'Second Breath', ic:'⚡', d:'+1 energy every 3rd turn.', fx:{ eEvery:3 } },
+      { id:'wraC', n:'BERSERK',       ic:'💥', d:'Capstone: after 3 attacks in a turn, finishers cost 0.', fx:{ cap:'berserk' }, cap:true },
+    ]},
+    { id:'war', n:'WARLORD', d:'Deck, loot and tempo', c:'#e0a020', nodes:[
+      { id:'war1', n:'Quartermaster', ic:'🎒', d:'+2 deck size.', fx:{ deck:2 } },
+      { id:'war2', n:'Spoils',        ic:'🃏', d:'+1 choice on card rewards.', fx:{ choice:1 } },
+      { id:'war3', n:'Charge',        ic:'⚡', d:'+1 energy on your first turn.', fx:{ e1:1 } },
+      { id:'war4', n:'Fortune',       ic:'🍀', d:'Better odds of rare cards.', fx:{ luck:.08 } },
+      { id:'warC', n:'COMMANDER',     ic:'👑', d:'Capstone: draw 6 cards a turn and hold a 2nd Legendary.', fx:{ hand:1, leg:1 }, cap:true },
+    ]},
+  ],
+  Thief: [
+    { id:'sha', n:'SHADOWS', d:'Evade and slip away', c:'#7a6ad8', nodes:[
+      { id:'sha1', n:'Light Feet',    ic:'💨', d:'Start every fight with Evade (dodge the first hit).', fx:{ startEvade:1 } },
+      { id:'sha2', n:'Smoke',         ic:'🌫', d:'Add Smoke Bomb (block + weaken) to your deck.', fx:{ addCard:'smoke' } },
+      { id:'sha3', n:'Quick Step',    ic:'⬆', d:'Your Shadowstep becomes Rare.', fx:{ upCard:'step', up:2 } },
+      { id:'sha4', n:'Opening',       ic:'⚡', d:'+1 energy on your first turn.', fx:{ e1:1 } },
+      { id:'shaC', n:'PHANTOM',       ic:'👻', d:'Capstone: each Evade you use draws 2 cards and gives 1 energy.', fx:{ cap:'phantom' }, cap:true },
+    ]},
+    { id:'bla', n:'BLADES', d:'Marks, bleeds, finishers', c:'#d0443a', nodes:[
+      { id:'bla1', n:'Serrated',      ic:'🩸', d:'Bleeds you apply are +2 stronger.', fx:{ bleedUp:2 } },
+      { id:'bla2', n:'Exposed',       ic:'🎯', d:'Marked enemies take +20% more (50% total).', fx:{ markUp:.2 } },
+      { id:'bla3', n:'Twin Fangs',    ic:'🗡', d:'Add a 3rd Backstab to your deck.', fx:{ addCard:'backstab' } },
+      { id:'bla4', n:'Keen Finish',   ic:'⬆', d:'Your Eviscerate becomes Epic.', fx:{ upCard:'evisc', up:3 } },
+      { id:'blaC', n:'DEATH MARK',    ic:'☠', d:'Capstone: finishers on a Marked enemy hit twice.', fx:{ cap:'deathmark' }, cap:true },
+    ]},
+    { id:'for', n:'FORTUNE', d:'Luck and loot', c:'#e0a020', nodes:[
+      { id:'for1', n:'Pickpocket',    ic:'🪙', d:'+1 choice on card rewards.', fx:{ choice:1 } },
+      { id:'for2', n:'Lucky',         ic:'🍀', d:'Better odds of rare cards.', fx:{ luck:.1 } },
+      { id:'for3', n:'Deep Pockets',  ic:'🎒', d:'+2 deck size.', fx:{ deck:2 } },
+      { id:'for4', n:'Loaded Dice',   ic:'🎲', d:'More luck again.', fx:{ luck:.1 } },
+      { id:'forC', n:'JACKPOT',       ic:'💎', d:'Capstone: hold a 2nd Legendary; every reward offers one Rare or better.', fx:{ leg:1, cap:'jackpot' }, cap:true },
+    ]},
+  ],
+  'Magic-User': [
+    { id:'fir', n:'FIRE', d:'Burst and burn', c:'#e0602a', nodes:[
+      { id:'fir1', n:'Kindling',      ic:'🔥', d:'Your Firebolts become Uncommon.', fx:{ upCard:'bolt' } },
+      { id:'fir2', n:'Immolate',      ic:'🌋', d:'Add Immolate (hit + burn) to your deck.', fx:{ addCard:'burn' } },
+      { id:'fir3', n:'Wildfire',      ic:'🩸', d:'Burns you apply are +3 stronger.', fx:{ bleedUp:3 } },
+      { id:'fir4', n:'Big Bang',      ic:'⬆', d:'Your Meteor becomes Epic.', fx:{ upCard:'meteor', up:3 } },
+      { id:'firC', n:'PYROMANCER',    ic:'☄', d:'Capstone: your first attack each turn deals double.', fx:{ cap:'pyro' }, cap:true },
+    ]},
+    { id:'fro', n:'FROST', d:'Weaken and wall up', c:'#5ac0e8', nodes:[
+      { id:'fro1', n:'Chill',         ic:'❄', d:'Start every fight with the enemy Weakened (2 turns).', fx:{ startWeak:2 } },
+      { id:'fro2', n:'Ice Ward',      ic:'⬆', d:'Your Arcane Ward becomes Rare.', fx:{ upCard:'ward', up:2 } },
+      { id:'fro3', n:'Frostbite',     ic:'🧊', d:'Weakened enemies also take +15% damage.', fx:{ frostbite:.15 } },
+      { id:'fro4', n:'Glacier',       ic:'🛡', d:'Start every fight with 8 block.', fx:{ startBlk:8 } },
+      { id:'froC', n:'DEEP FREEZE',   ic:'🥶', d:'Capstone: Weaken on a charging enemy also adds 2 break.', fx:{ cap:'freeze' }, cap:true },
+    ]},
+    { id:'arc', n:'ARCANA', d:'Energy and cards', c:'#b46bff', nodes:[
+      { id:'arc1', n:'Attunement',    ic:'⚡', d:'+1 energy on your first turn.', fx:{ e1:1 } },
+      { id:'arc2', n:'Study',         ic:'📖', d:'+2 deck size.', fx:{ deck:2 } },
+      { id:'arc3', n:'Insight',       ic:'🃏', d:'+1 choice on card rewards.', fx:{ choice:1 } },
+      { id:'arc4', n:'Flow',          ic:'🌀', d:'+1 energy every 3rd turn.', fx:{ eEvery:3 } },
+      { id:'arcC', n:'ARCHMAGE',      ic:'🔮', d:'Capstone: 4 energy every turn.', fx:{ maxE:1 }, cap:true },
+    ]},
+  ],
+};
+// classes not yet prototyped share a simple tree (their own trees are sketched in the design notes)
+KC_TREES._generic = [
+  { id:'gbo', n:'BODY', d:'Tough and steady', c:'#3f86d8', nodes:[
+    { id:'gbo1', n:'Tough',     ic:'🛡', d:'Start every fight with 5 block.', fx:{ startBlk:5 } },
+    { id:'gbo2', n:'Drilled',   ic:'⬆', d:'Your starter Guards become Uncommon.', fx:{ upCard:'guard' } },
+    { id:'gbo3', n:'Heavy Hand',ic:'🔨', d:'Add Heavy Swing to your deck.', fx:{ addCard:'heavy' } },
+    { id:'gbo4', n:'Steady',    ic:'⏳', d:'Half of your unused block carries over.', fx:{ keep:.5 } },
+    { id:'gboC', n:'IRONHIDE',  ic:'🏰', d:'Capstone: when you block a whole attack, strike back for 5.', fx:{ cap:'unbreak' }, cap:true },
+  ]},
+  { id:'gmi', n:'MIND', d:'Energy and cards', c:'#b46bff', nodes:[
+    { id:'gmi1', n:'Ready',     ic:'⚡', d:'+1 energy on your first turn.', fx:{ e1:1 } },
+    { id:'gmi2', n:'Study',     ic:'📖', d:'+2 deck size.', fx:{ deck:2 } },
+    { id:'gmi3', n:'Focus',     ic:'👁', d:'Add Focus to your deck.', fx:{ addCard:'focus' } },
+    { id:'gmi4', n:'Flow',      ic:'🌀', d:'+1 energy every 3rd turn.', fx:{ eEvery:3 } },
+    { id:'gmiC', n:'CLARITY',   ic:'🃏', d:'Capstone: draw 6 cards a turn.', fx:{ hand:1 }, cap:true },
+  ]},
+  { id:'gfo', n:'FORTUNE', d:'Luck and loot', c:'#e0a020', nodes:[
+    { id:'gfo1', n:'Spoils',    ic:'🃏', d:'+1 choice on card rewards.', fx:{ choice:1 } },
+    { id:'gfo2', n:'Lucky',     ic:'🍀', d:'Better odds of rare cards.', fx:{ luck:.1 } },
+    { id:'gfo3', n:'Packrat',   ic:'🎒', d:'+2 deck size.', fx:{ deck:2 } },
+    { id:'gfo4', n:'Charmed',   ic:'🎲', d:'More luck again.', fx:{ luck:.1 } },
+    { id:'gfoC', n:'HOARD',     ic:'💎', d:'Capstone: hold a 2nd Legendary card.', fx:{ leg:1 }, cap:true },
+  ]},
+];
+function kcTree(){ return KC_TREES[Player.className] || KC_TREES._generic; }
+function kcTreeNodes(){ const out = []; for(const b of kcTree()) b.nodes.forEach((n, i) => out.push({ ...n, b, i })); return out; }
+
+// ── save data (lazy; old saves just gain it) ───────
+function kcData(){
+  if(!Player) return null;
+  const K = Player.kc = Player.kc || {};
+  if(!K.v){ K.v = 1; K.cards = K.cards || []; K.deck = K.deck || []; K.tree = K.tree || []; K.uid = K.uid || 1; K.autoEnd = K.autoEnd !== false; K.seen = 0; }
+  if(K.cls && K.cls !== Player.className){ K.tree = []; } // a new class: fresh tree
+  K.cls = Player.className;
+  return K;
+}
+function kcPoints(){ return Math.max(0, (Player.level || 1)); } // one point per level (level 1 has one to try)
+function kcSpent(){ const K = kcData(), all = kcTreeNodes(); return K.tree.reduce((s, id) => { const n = all.find(x => x.id === id); return s + (n ? (n.cap ? 2 : 1) : 0); }, 0); }
+function kcFx(){
+  const K = kcData(), all = kcTreeNodes(), f = { startBlk:0, startStr:0, addCard:[], upCard:[], deck:0, hand:0, e1:0, eEvery:0, choice:0, luck:0, leg:0, thornsHit:0, keep:0, bleedUp:0, markUp:0, startEvade:0, startWeak:0, frostbite:0, maxE:0, caps:{} };
+  for(const id of K.tree){ const n = all.find(x => x.id === id); if(!n) continue;
+    for(const [k, v] of Object.entries(n.fx)){
+      if(k === 'addCard') f.addCard.push(v);
+      else if(k === 'upCard') f.upCard.push({ id:v, r:n.fx.up || 1 });
+      else if(k === 'up') continue;
+      else if(k === 'cap') f.caps[v] = true;
+      else f[k] = (f[k] || 0) + v;
+    }
+  }
+  return f;
+}
+function kcCanLearn(n){
+  const K = kcData(); if(K.tree.includes(n.id)) return false;
+  if(n.i > 0 && !K.tree.includes(n.b.nodes[n.i - 1].id)) return false;
+  return kcPoints() - kcSpent() >= (n.cap ? 2 : 1);
+}
+function kcLearn(id){ const n = kcTreeNodes().find(x => x.id === id); if(!n || !kcCanLearn(n)) return; kcData().tree.push(id); sndLoot && sndLoot(); saveGame(); kcRenderScreen(); }
+function kcRespec(){ kcData().tree = []; saveGame(); kcRenderScreen(); if(typeof toast === 'function') toast('Skill tree reset · points refunded'); }
+
+// ── collection, deck limits and merging ────────────
+function kcLimits(){ const f = kcFx(); return { deck:KC_LIMIT.deck + f.deck, epic:KC_LIMIT.epic, legendary:KC_LIMIT.legendary + f.leg }; }
+function kcAddCard(id, r){ const K = kcData(); const c = { u:K.uid++, id, r }; K.cards.push(c); if(kcDeckCanAdd(c)) K.deck.push(c.u); return c; }
+function kcDeckCards(){ const K = kcData(); return K.deck.map(u => K.cards.find(c => c.u === u)).filter(Boolean); }
+function kcDeckCanAdd(c){
+  const K = kcData(), L = kcLimits(), d = kcDeckCards();
+  if(K.deck.includes(c.u)) return false;
+  if(kcBaseDeck().length + d.length >= L.deck) return false;
+  if(d.filter(x => x.id === c.id && x.r === c.r).length + 1 > kcRar(c.r).max) return false; // copies per rarity
+  if(c.r === 3 && d.filter(x => x.r === 3).length >= L.epic) return false;
+  if(c.r === 4 && d.filter(x => x.r === 4).length >= L.legendary) return false;
+  return true;
+}
+function kcDeckWhyNot(c){
+  const L = kcLimits(), d = kcDeckCards();
+  if(kcBaseDeck().length + d.length >= L.deck) return `Deck is full (${L.deck})`;
+  if(d.filter(x => x.id === c.id && x.r === c.r).length + 1 > kcRar(c.r).max) return `Max ${kcRar(c.r).max} of each ${kcRar(c.r).n.toLowerCase()} card`;
+  if(c.r === 3) return `Max ${L.epic} Epic cards`;
+  if(c.r === 4) return `Max ${L.legendary} Legendary`;
+  return '';
+}
+function kcToggleDeck(u){
+  const K = kcData(), i = K.deck.indexOf(u);
+  if(i >= 0) K.deck.splice(i, 1);
+  else { const c = K.cards.find(x => x.u === u); if(c && kcDeckCanAdd(c)) K.deck.push(u); else if(c && typeof toast === 'function') toast(kcDeckWhyNot(c)); }
+  saveGame(); kcRenderScreen();
+}
+// three of the same card and rarity fuse into one of the next rarity
+function kcMergeable(){ const K = kcData(), g = {}; for(const c of K.cards){ if(c.r >= 4) continue; const k = c.id + ':' + c.r; (g[k] = g[k] || []).push(c); } return Object.values(g).filter(a => a.length >= 3); }
+function kcMerge(id, r){
+  const K = kcData(); const same = K.cards.filter(c => c.id === id && c.r === r).slice(0, 3); if(same.length < 3 || r >= 4) return;
+  const wasIn = same.some(c => K.deck.includes(c.u));
+  K.cards = K.cards.filter(c => !same.includes(c)); K.deck = K.deck.filter(u => !same.some(c => c.u === u));
+  const nc = { u:K.uid++, id, r:r + 1 }; K.cards.push(nc); if(wasIn && kcDeckCanAdd(nc)) K.deck.push(nc.u);
+  saveGame(); kcRenderScreen(); kcPullFanfare([nc], 'MERGED!');
+}
+
+// your class starter + gear + tree cards (always in), then the collected cards you picked
+function kcGearRar(tier){ return Math.max(1, Math.min(4, tier || 1)); } // tier 1 → Uncommon … tier 4+ → Legendary
+function kcGearCards(){
+  const out = [], eq = Player.equipped || {};
+  const it = n => n && ITEMS[n];
+  const w = it(eq.weapon), a = it(eq.armor), x = it(eq.accessory);
+  if(w) out.push({ id:'g_weapon', r:kcGearRar(w.tier), from:eq.weapon, ic:w.emoji });
+  if(a) out.push({ id:'g_armor', r:kcGearRar(a.tier), from:eq.armor, ic:a.emoji });
+  if(x){
+    const s = [['crit', 'g_keen', 8], ['dodge', 'g_dodge', 8], ['hp', 'g_vigor', .25], ['resMax', 'g_surge', .4], ['atk', 'g_power', .5], ['def', 'g_wall', .6]]
+      .map(([k, id, w]) => ({ id, v:(x[k] || 0) * w })).sort((p, q) => q.v - p.v)[0];
+    if(s && s.v > 0) out.push({ id:s.id, r:kcGearRar(x.tier), from:eq.accessory, ic:x.emoji });
+  }
+  // forged marks add their own card
+  const MK = { riposte:'m_riposte', breaking:'m_sunder', chain:'m_chain', embers:'m_ember', first:'m_first', mending:'m_mend' };
+  for(const n of Object.values(eq)){ const i = it(n); if(i && i.mark && MK[i.mark]) out.push({ id:MK[i.mark], r:kcGearRar(i.tier), from:n }); }
+  return out;
+}
+function kcBaseDeck(){
+  const f = kcFx(), ups = {};
+  for(const u of f.upCard) ups[u.id] = Math.max(ups[u.id] || 0, u.r);
+  const out = kcStarterFor(Player.className).map(id => ({ id, r:ups[id] || 0, base:true }));
+  for(const id of f.addCard) out.push({ id, r:ups[id] || 0, base:true, tree:true });
+  return out.concat(kcGearCards().map(g => ({ ...g, base:true, gearCard:true })));
+}
+function kcFullDeck(){ return kcBaseDeck().concat(kcDeckCards().map(c => ({ id:c.id, r:c.r, u:c.u }))); }
+
+// ── numbers ────────────────────────────────────────
+function kcPow(){ return Math.max(1, (Player.atk || 10) / 10); }     // damage scale
+function kcHpU(){ return Math.max(1, (Player.maxHp || 100) / 100); } // block/heal scale
+function kcCardVals(c){
+  const d = kcDef(c.id); if(!d) return null;
+  const R = kcRar(c.r), m = R.m, P = kcPow(), H = kcHpU(), f = kcFx();
+  const v = { ...d };
+  if(c.r >= 3) for(const [k, x] of Object.entries(KC_EPIC)) v[k] = (v[k] || 0) + x;
+  let cost = d.cost - (c.r >= 4 ? KC_LEG.costDown : 0);
+  v.cost = Math.max(0, cost);
+  if(d.dmg) v.dmgN = Math.round(d.dmg * m * P);
+  if(d.per) v.perN = Math.round(d.per * m * P);
+  if(d.vsMark) v.vsMarkN = Math.round(d.vsMark * m * P);
+  if(d.combo) v.comboN = Math.round(d.combo.dmg * m * P);
+  if(d.blk) v.blkN = Math.round(d.blk * m * H);
+  if(d.thorns) v.thornsN = Math.round(d.thorns * m * P);
+  if(d.heal) v.healN = Math.round(Player.maxHp * d.heal * m / 100);
+  if(d.bleed) v.bleedN = Math.round((d.bleed + f.bleedUp) * m * P);
+  if(d.chain) v.chainN = Math.round(d.chain * P);
+  if(d.str) v.strN = Math.round(d.str * (c.r >= 2 ? 1.5 : 1) * P);
+  if(c.ic) v.ic = c.ic;
+  return v;
+}
+function kcCardText(v){
+  const n = [], t = [];
+  if(v.dmgN != null) n.push(`<span class="n-d">⚔${v.dmgN}</span>`);
+  if(v.blkN) n.push(`<span class="n-b">🛡${v.blkN}</span>`);
+  if(v.healN) n.push(`<span class="n-h">✚${v.healN}</span>`);
+  if(v.bleedN) n.push(`<span class="n-l">🩸${v.bleedN}</span>`);
+  if(v.stag) n.push(`<span class="n-k">💥${v.stag}</span>`);
+  if(v.perN) t.push(`+${v.perN} per card before it`);
+  if(v.vsMarkN) t.push(`+${v.vsMarkN} if Marked`);
+  if(v.comboN) t.push(`+${v.comboN} after a ${KC_TYPES[v.combo.after].n.toLowerCase()}`);
+  if(v.keep) t.push('block stays');
+  if(v.thornsN) t.push(`hit back ${v.thornsN}`);
+  if(v.weak) t.push(`weaken ${v.weak}`);
+  if(v.mark) t.push(`mark ${v.mark}`);
+  if(v.evade) t.push('evade next hit');
+  if(v.strN) t.push(`+${v.strN} dmg per hit`);
+  if(v.chainN) t.push(`+${v.chainN} per chain link`);
+  if(v.draw) t.push(`draw ${v.draw}`);
+  if(v.energy) t.push(`+${v.energy}⚡`);
+  if(v.nextE) t.push(`+${v.nextE}⚡ next turn`);
+  if(v.spellDisc) t.push('−1⚡ per card before it');
+  if(v.innate) t.push('starts in hand');
+  return (n.length ? `<div class="kc-nums">${n.join('')}</div>` : '') + (t.length ? `<div class="kc-rule">${t.join(' · ')}</div>` : '');
+}
+function kcCardHtml(c, opts = {}){
+  const v = kcCardVals(c); if(!v) return '';
+  const R = kcRar(c.r), T = KC_TYPES[v.t];
+  const cost = opts.cost != null ? opts.cost : v.cost;
+  return `<div class="kc-card r${c.r} t-${v.t}${opts.cls ? ' ' + opts.cls : ''}" style="--rc:${R.c};--tc:${T.c};${opts.style || ''}" ${opts.attr || ''}>
+    <div class="kc-cost">${cost}</div>
+    <div class="kc-ic">${v.ic}</div>
+    <div class="kc-nm">${v.n}</div>
+    <div class="kc-tx">${kcCardText(v)}</div>
+    ${v.exhaust ? '<div class="kc-once">ONCE</div>' : ''}<div class="kc-ty">${T.n}</div>
+    <div class="kc-ft"><span class="kc-rr">${R.n}</span></div>
+  </div>`;
+}
+
+// ── the fight ──────────────────────────────────────
+const KC = { on:false };
+const KC_HAND = 5, KC_ENERGY = 3;
+// what each realtime move becomes as a turn-based intent
+const KC_INTENT = {
+  jab:    { ic:'⚔', k:'atk',   pct:.08,  label:'ATTACK' },
+  flurry: { ic:'✶', k:'atk',   pct:.035, hits:3, label:'FLURRY' },
+  heavy:  { ic:'⚠', k:'charge',pct:.22,  label:'HEAVY' },
+  sweep:  { ic:'🌀', k:'unbl',  pct:.13,  label:'UNBLOCKABLE' },
+  guard:  { ic:'🛡', k:'guard', label:'GUARD' },
+  drain:  { ic:'🩸', k:'drain', pct:.06,  label:'DRAIN' },
+};
+function kcEnemyHpFor(e, boss){
+  const P = kcPow(), kit = CB_SPECIES[e.name];
+  let base = 44; // ~3-5 turns for a street monster
+  if(e.tutorialMob) base = 30;
+  else if(boss) base = e._practice ? 230 : e.tier === 'raid' ? 260 : 170; // bosses: a long fight with phases
+  else if(e.elite || e.gilded) base = 82;
+  if(kit === 'brute' || kit === 'knight') base *= 1.15; else if(kit === 'quick') base *= .88;
+  if(e.bloodMoon) base *= 1.25;
+  return Math.round(base * P);
+}
+function kcStart(ent, boss){
+  kcData();
+  const f = kcFx();
+  // fresh numbers for a turn-based fight, keeping how hurt it already was
+  const frac = ent.maxHp > 0 ? Math.max(.05, ent.hp / ent.maxHp) : 1;
+  ent.maxHp = kcEnemyHpFor(ent, boss); ent.hp = Math.max(1, Math.round(ent.maxHp * frac));
+  const deck = kcFullDeck().map((c, i) => ({ ...c, k:i }));
+  for(let i = deck.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+  deck.sort((a, b) => (kcDef(b.id).innate ? 1 : 0) - (kcDef(a.id).innate ? 1 : 0));
+  Object.assign(KC, { on:true, ent, boss, draw:deck, disc:[], hand:[], exh:[], energy:0, maxE:KC_ENERGY + f.maxE, turn:0, phase:0,
+    blk:f.startBlk ? Math.round(f.startBlk * kcHpU()) : 0, str:f.startStr ? Math.round(f.startStr * kcPow()) : 0, evade:f.startEvade || 0, thorns:0, nextE:0,
+    eBlk:0, bleed:0, weak:f.startWeak || 0, mark:0, stun:0, broken:0, brk:0, brkMax:boss ? 6 : (ent.elite || ent.gilded) ? 5 : 4,
+    intent:null, intent2:null, bag:[], q:[], busy:true, sel:-1, played:[], dealt:0, f, tut:ent.tutorialMob ? 0 : -1, turnsEnded:0, wasOn:true, allyT:0 });
+  KC.kit = cbKitFor(ent);
+  document.getElementById('combat-box').classList.add('kc');
+  kcBuildUi();
+  setCLog(boss ? `${ent.name} fixes its ancient gaze upon you.` : `A ${ent.name} emerges from the darkness.`);
+  KC.intent = kcPickIntent();
+  kcRender();
+  kcAt(650, kcStartTurn);
+}
+function kcEnd(){ KC.on = false; KC.q = []; const b = document.getElementById('combat-box'); if(b) b.classList.remove('kc'); const u = document.getElementById('kc-ui'); if(u) u.innerHTML = ''; const i = document.getElementById('kc-intent'); if(i) i.innerHTML = ''; }
+function kcAt(ms, fn){ KC.q.push({ at:CB.t + ms, fn }); }
+function kcTick(){
+  if(!KC.on) return;
+  if(!inCombat || !curEnemy || curEnemy !== KC.ent){ kcEnd(); return; }
+  const due = KC.q.filter(x => CB.t >= x.at); if(!due.length) return;
+  KC.q = KC.q.filter(x => CB.t < x.at);
+  for(const x of due){ try { x.fn(); } catch(err){ console.error(err); } if(!KC.on) return; }
+}
+
+// the monster's plan
+function kcPickIntent(){
+  const e = KC.ent;
+  if(e.tutorialMob){ const s = ['jab', 'jab', 'heavy', 'jab', 'heavy'][Math.min(4, KC.turn)]; return kcMakeIntent(s); }
+  if(!KC.bag.length){ const b = KC.kit.moves.slice(); for(let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } KC.bag = b; }
+  return kcMakeIntent(KC.bag.shift());
+}
+function kcMakeIntent(id, release){
+  const d = KC_INTENT[id], e = KC.ent, nm = (KC.kit.names && KC.kit.names[id]) || d.label;
+  const it = { id, k:d.k, ic:d.ic, name:nm, hits:d.hits || 1 };
+  if(d.k === 'charge'){
+    if(release){ it.k = 'heavy'; it.dmg = kcEnemyDmg(d.pct); it.name = nm; }
+    else { it.turns = KC.boss ? 2 : 1; it.dmg = kcEnemyDmg(d.pct); }
+  } else if(d.k === 'guard') it.blk = Math.round(kcPow() * (KC.boss ? 14 : 9));
+  else if(d.k === 'drain'){ it.dmg = kcEnemyDmg(d.pct); it.heal = Math.round(e.maxHp * .08); it.need = Math.round(e.maxHp * .12); }
+  else it.dmg = kcEnemyDmg(d.pct);
+  return it;
+}
+function kcEnemyDmg(pct){
+  const e = KC.ent; let m = 1;
+  if(e.tutorialMob) m *= .5;
+  if(e.elite || e.gilded) m *= 1.2;
+  if(KC.boss) m *= 1.3 * (1 + KC.phase * .15);
+  if(e._practice) m *= .9;
+  const mit = 1 - Math.min(.35, (Player.def || 0) / ((Player.def || 0) + 140));
+  return Math.max(1, Math.round(Player.maxHp * pct * m * mit));
+}
+function kcIntentDmg(it){ // what it would hit you for now (weaken shown live)
+  let d = it.dmg || 0; if(KC.weak > 0) d = Math.round(d * .75);
+  if(it.k === 'heavy' || it.k === 'unbl') d = Math.round(d * blessWard());
+  return d;
+}
+
+// your turn
+function kcStartTurn(){
+  if(!KC.on) return;
+  KC.turn++; KC.played = []; KC.dealt = 0; KC.busy = false; KC.sel = -1;
+  const f = KC.f;
+  KC.energy = KC.maxE + KC.nextE + (KC.turn === 1 ? f.e1 : 0) + (f.eEvery && KC.turn % f.eEvery === 0 ? 1 : 0); KC.nextE = 0;
+  kcDraw(KC_HAND + f.hand);
+  if(KC.turn > 1 && KC.ent._practice) kcAllyNote();
+  kcRender(); kcTutOnTurn();
+}
+function kcDraw(n){
+  for(let i = 0; i < n; i++){
+    if(!KC.draw.length){ if(!KC.disc.length) break; KC.draw = KC.disc.splice(0); for(let j = KC.draw.length - 1; j > 0; j--){ const k = Math.floor(Math.random() * (j + 1)); [KC.draw[j], KC.draw[k]] = [KC.draw[k], KC.draw[j]]; } }
+    if(KC.hand.length >= 10) break;
+    KC.hand.push(KC.draw.shift());
+  }
+}
+function kcCostNow(c){
+  const v = kcCardVals(c); let cost = v.cost;
+  if(v.spellDisc) cost -= KC.played.length;
+  if(v.t === 'fin' && KC.f.caps.berserk && KC.played.filter(t => t === 'atk').length >= 3) cost = 0;
+  return Math.max(0, cost);
+}
+function kcPlayable(i){ const c = KC.hand[i]; return !!c && !KC.busy && kcCostNow(c) <= KC.energy; }
+function kcPlay(i){
+  if(!KC.on || KC.busy || !inCombat || curEnemy.hp <= 0) return;
+  const c = KC.hand[i]; if(!c) return;
+  const cost = kcCostNow(c);
+  if(cost > KC.energy){ kcNope(i, 'Not enough ⚡'); return; }
+  const v = kcCardVals(c);
+  KC.energy -= cost; KC.hand.splice(i, 1); KC.sel = -1;
+  (v.exhaust ? KC.exh : KC.disc).push(c);
+  kcFlyCard(c, v);
+  kcResolve(v);
+  KC.played.push(v.t);
+  buzz && buzz('tap');
+  kcTutOnPlay(v);
+  kcRender();
+  if(curEnemy && curEnemy.hp <= 0){ KC.busy = true; cbKill(); return; }
+  kcMaybeAutoEnd();
+}
+function kcResolve(v){
+  const e = KC.ent, before = KC.played.length;
+  if(v.blkN){ KC.blk += v.blkN; if(v.keep) KC.keepAll = true; if(FX.on) fxFp('block'); sndGuard && sndGuard(); showDamageNum(`🛡 +${v.blkN}`, 'dn-guard', 'left'); }
+  if(v.thornsN) KC.thorns += v.thornsN;
+  if(v.evade){ KC.evade += v.evade; fxDodge(Math.random() < .5 ? -1 : 1); }
+  if(v.strN){ KC.str += v.strN; showDamageNum(`+${v.strN} STR`, 'dn-counter', 'left'); fxSkill(); }
+  if(v.healN){ Player.hp = Math.min(Player.maxHp, Player.hp + v.healN); showDamageNum(`+${v.healN}`, 'dmg-heal', 'left'); }
+  if(v.mark){ KC.mark = Math.max(KC.mark, v.mark + 1); showDamageNum('🎯 MARKED', 'dn-counter', 'right'); }
+  if(v.weak){ KC.weak = Math.max(KC.weak, v.weak + 1); showDamageNum('WEAKENED', 'dn-counter', 'right'); if(KC.f.caps.freeze && KC.intent && (KC.intent.k === 'charge' || KC.intent.k === 'heavy')) kcBreak(2); }
+  if(v.dmgN != null){
+    let d = v.dmgN + KC.str;
+    if(v.perN) d += v.perN * before;
+    if(v.vsMarkN && KC.mark > 0) d += v.vsMarkN;
+    if(v.comboN && KC.played.includes(v.combo.after)){ d += v.comboN; setTimeout(() => showDamageNum('COMBO', 'dn-counter', 'right'), 80); }
+    if(v.chainN) d += v.chainN * (loopChainLive() || 0);
+    if(KC.f.caps.pyro && !KC.played.includes('atk') && v.t === 'atk') d *= 2;
+    const twice = v.t === 'fin' && KC.f.caps.deathmark && KC.mark > 0;
+    kcHit(d, { big:v.t === 'fin' || v.cost >= 2, fin:v.t === 'fin' });
+    if(twice && curEnemy.hp > 0) setTimeout(() => { if(KC.on && curEnemy && curEnemy.hp > 0){ kcHit(d, { big:true }); kcRender(); if(curEnemy.hp <= 0){ KC.busy = true; cbKill(); } } }, 260);
+  }
+  if(v.bleedN){ KC.bleed += v.bleedN; showDamageNum(`🩸 ${KC.bleed}`, 'dmg-orange', 'right'); }
+  if(v.stag) kcBreak(v.stag);
+  if(v.draw) kcDraw(v.draw);
+  if(v.energy) KC.energy += v.energy;
+  if(v.nextE) KC.nextE += v.nextE;
+}
+// every hit on the monster: crits, marks, broken, weaken-frostbite, its block, chain/bless mods
+function kcHit(base, o = {}){
+  const e = KC.ent;
+  let d = base, crit = false;
+  if(Math.random() * 100 < (Player.crit || 0) + blessCrit()){ d *= 1.5; crit = true; }
+  if(KC.mark > 0) d *= 1.3 + KC.f.markUp;
+  if(KC.broken > 0) d *= 1.5;
+  if(KC.weak > 0 && KC.f.frostbite) d *= 1 + KC.f.frostbite;
+  d = loopDmgMod(Math.round(d), { type:'Basic' }, false);
+  if(e._practice || e.isRaid) d = Math.round(d * (1 + crewFury() + warbandDmg()));
+  let shown = d;
+  if(KC.eBlk > 0){ const a = Math.min(KC.eBlk, d); KC.eBlk -= a; d -= a; if(a) showDamageNum(`${a} 🛡`, 'dn-guard', 'right'); }
+  e.hp = Math.max(tutHpFloor(e) && KC.turnsEnded < 2 ? Math.ceil(e.maxHp * .3) : 0, e.hp - d);
+  KC.dealt += d;
+  if(d > 0) showDamageNum(fmt(d) + (crit ? '!' : ''), o.fin ? 'dn-big' : crit ? 'dn-crit' : 'dn-hit', 'right');
+  cbBodyHit(o.big || crit, d === 0);
+  if(!fxHit({ kind:o.fin ? 'skill' : d === 0 ? 'guard' : 'hit', crit:crit || o.big })) cbSlash(null, null, o.big);
+  if(o.fin) fxSkill();
+  sndStrike && sndStrike(crit);
+  cbFreeze(o.big ? 90 : 45);
+  kcPhaseCheck();
+  // a drain is stopped by enough damage in one turn
+  if(KC.intent && KC.intent.k === 'drain' && !KC.intent.stopped && KC.dealt >= KC.intent.need){ KC.intent.stopped = true; showDamageNum('INTERRUPTED!', 'dn-parry', 'right'); sndRiposte && sndRiposte(); }
+  return d;
+}
+function kcBreak(n){
+  if(KC.broken > 0) return;
+  const exposed = KC.intent && (KC.intent.k === 'charge' || KC.intent.k === 'heavy'); // the weak spot shows while it winds up
+  KC.brk = Math.min(KC.brkMax, KC.brk + n * (exposed ? 2 : 1));
+  if(KC.brk >= KC.brkMax){
+    KC.brk = 0; KC.broken = 2; KC.stun = 1;
+    showDamageNum('💥 BREAK!', 'dn-parry', 'right');
+    flashScreen && flashScreen('white'); fxParry(true, 'PERFECT'); sndRiposte && sndRiposte();
+    loopOnBreak();
+    setCLog(`💥 BREAK! ${KC.ent.name} reels — it loses its turn and takes +50% damage.`);
+    KC.intent = { k:'stun', ic:'💫', name:'STUNNED', hits:0 };
+  }
+}
+function kcPhaseCheck(){
+  if(!KC.boss || !curEnemy) return;
+  const f = curEnemy.hp / curEnemy.maxHp, ph = f <= .3 ? 2 : f <= .6 ? 1 : 0;
+  if(ph > KC.phase){
+    KC.phase = ph; fxPhase(); shakeScreen(true); sndChargeUp && sndChargeUp();
+    showDamageNum(ph === 2 ? 'FRENZY' : 'ENRAGED', 'dn-phase', 'right');
+    setCLog(`${curEnemy.name} ${ph === 2 ? 'is frenzied — it acts twice a turn now.' : 'is enraged — it hits harder.'}`);
+  }
+}
+function kcMaybeAutoEnd(){
+  if(!KC.on || KC.busy || !kcData().autoEnd || KC.tut >= 0 && KC.tut < 3) return;
+  if(KC.hand.some((c, i) => kcPlayable(i))) return;
+  clearTimeout(KC._ae); KC._ae = setTimeout(() => { if(KC.on && !KC.busy && !KC.hand.some((c, i) => kcPlayable(i))) kcEndTurn(); }, 700);
+}
+function kcEndTurn(){
+  if(!KC.on || KC.busy) return;
+  KC.busy = true; KC.sel = -1; KC.turnsEnded++;
+  KC.disc.push(...KC.hand.splice(0));
+  kcTutOnEnd();
+  kcRender();
+  let t = 250;
+  if(KC.ent._practice){ kcAt(t, kcAllies); t += 650; }
+  kcAt(t, kcEnemyTurn);
+}
+// echo companions (practice mode): a mock of the 5-player party sharing one boss
+function kcAllies(){
+  const e = KC.ent, c = e._comp; if(!c || !KC.on) return;
+  const dmg = Math.round(kcPow() * 4.5 * c.dps * (.85 + Math.random() * .3));
+  kcHit(dmg, {}); showDamageNum(`⚔ allies`, 'dmg-normal', 'right');
+  if(c.healer && Player.hp < Player.maxHp){ const h = Math.round(Player.maxHp * .03 * c.healer); Player.hp = Math.min(Player.maxHp, Player.hp + h); showDamageNum('✚ ' + h, 'dmg-heal', 'left'); }
+  setCBUI(); kcRender();
+  if(curEnemy.hp <= 0){ KC.busy = true; cbKill(); }
+}
+function kcAllyNote(){ const c = KC.ent._comp; if(c) setCLog(`Your ${c.tank + c.healer + c.dps} echo allies fight beside you · the tank draws some of its blows.`); }
+
+// the monster's turn: bleed, then its plan with the lunge, then the next plan
+function kcEnemyTurn(){
+  if(!KC.on) return;
+  const e = KC.ent;
+  if(KC.bleed > 0){
+    const b = KC.bleed; e.hp = Math.max(tutHpFloor(e) && KC.turnsEnded < 2 ? Math.ceil(e.maxHp * .3) : 0, e.hp - b);
+    showDamageNum(`🩸 ${fmt(b)}`, 'dmg-orange', 'right'); cbBodyHit(false, false);
+    KC.bleed = Math.max(0, b - Math.max(1, Math.round(b * .34)));
+    setCBUI(); kcRender();
+    if(e.hp <= 0){ cbKill(); return; }
+  }
+  const acts = [KC.intent]; if(KC.intent2) acts.push(KC.intent2);
+  let t = 0;
+  for(const it of acts){ kcAt(t, () => kcAct(it)); t += it && it.k !== 'stun' ? (KC.boss ? 1250 : 1050) + (it.hits - 1) * 300 : 600; }
+  kcAt(t + 150, kcAfterEnemy);
+}
+function kcAct(it){
+  if(!KC.on || !it) return;
+  const e = KC.ent;
+  if(it.k === 'stun'){ showDamageNum('💫 STUNNED', 'dn-counter', 'right'); setCLog(`${e.name} staggers and can't act.`); return; }
+  if(it.k === 'charge'){ kcLunge('guard', 700); creatureCry && creatureCry(e, false); sndChargeUp && sndChargeUp(); setCLog(`${e.name} gathers itself for a ${it.name.toLowerCase()}…`); return; }
+  if(it.k === 'guard'){ kcLunge('guard', 700); KC.eBlk += it.blk; showDamageNum(`🛡 +${it.blk}`, 'dn-guard', 'right'); setCLog(`${e.name} raises its guard.`); sndGuard && sndGuard(); return; }
+  if(it.k === 'drain' && it.stopped){ setCLog(`You broke its drain.`); return; }
+  // attacks: rear back, surge at you (the boss clip times its lunge to this), then the hits land
+  const tell = KC.boss ? 1100 : 900;
+  kcLunge(it.k === 'heavy' || it.k === 'unbl' ? 'break' : 'parry', tell);
+  for(let h = 0; h < it.hits; h++) kcAt(tell + h * 300, () => kcLand(it, h));
+}
+function kcLunge(kind, tell){
+  const d = { kind, color:'#fff' };
+  CB.move = { id:'kc', d, name:'', t0:CB.t, tell, win:0, impact:CB.t + tell, hits:1, hit:0, offBal:false, dealt:0, flashed:false };
+  kcAt(tell + 120, () => { if(CB.move && CB.move.id === 'kc') CB.move = null; });
+}
+function kcLand(it, h){
+  if(!KC.on || !inCombat) return;
+  const e = KC.ent;
+  let dmg = kcIntentDmg(it);
+  if(e._practice && e._comp && e._comp.tank && Math.random() < .35){ dmg = Math.round(dmg * .5); showDamageNum('TANKED', 'dmg-dodge', 'left'); }
+  if(KC.evade > 0){ KC.evade--; showDamageNum('EVADED', 'dn-pdodge', 'left'); fxDodge(Math.random() < .5 ? -1 : 1); fxPerfectDodge(); sndDodge && sndDodge();
+    if(KC.f.caps.phantom){ KC.nextE += 1; KC.phantomDraw = (KC.phantomDraw || 0) + 2; } return; }
+  let blocked = 0;
+  if(it.k !== 'unbl' && KC.blk > 0){ blocked = Math.min(KC.blk, dmg); KC.blk -= blocked; dmg -= blocked; if(blocked) showDamageNum(`${blocked} 🛡`, 'dn-guard', 'left'); }
+  if(dmg <= 0){
+    fxParry(false, 'GREAT'); sndRiposte && sndRiposte();
+    if(KC.f.caps.unbreak) kcHit(Math.round(kcPow() * 5), {});
+  } else {
+    Player.hp = Math.max(0, Player.hp - dmg);
+    const big = it.k === 'heavy' || it.k === 'unbl';
+    const v = document.getElementById('hurt-vig'); if(v){ v.classList.remove('on', 'big'); void v.offsetWidth; v.classList.add('on'); if(big) v.classList.add('big'); }
+    if(big){ shakeScreen(true); sndEnemySpecial && sndEnemySpecial(); } else { shakeScreen(); sndPlayerHit && sndPlayerHit(); }
+    fxHurt(big); showDamageNum(`-${fmt(dmg)}`, big ? 'dn-hurt dn-hurt-big' : 'dn-hurt', 'left');
+    if(it.k === 'drain'){ e.hp = Math.min(e.maxHp, e.hp + it.heal); showDamageNum(`+${fmt(it.heal)}`, 'dmg-heal', 'right'); }
+  }
+  // retaliate: card thorns this turn + tree
+  const back = (KC.thorns || 0) + (KC.f.thornsHit ? Math.round(KC.f.thornsHit * kcPow()) : 0);
+  if(back && e.hp > 0){ setTimeout(() => { if(KC.on && curEnemy && curEnemy.hp > 0){ kcHit(back, {}); kcRender(); if(curEnemy.hp <= 0){ KC.busy = true; cbKill(); } } }, 160); }
+  setCLog(dmg > 0 ? `${e.name}'s ${it.name.toLowerCase()} hits you for ${fmt(dmg)}.` : `You block ${e.name}'s ${it.name.toLowerCase()}.`);
+  if(Player.hp <= 0 && Player.skills?.t3 === 'titan' && !Player.titanUsed){ Player.hp = Math.floor(Player.maxHp * .2); Player.titanUsed = true; showDamageNum('TITAN REVIVE!', 'dmg-heal', 'left'); }
+  setCBUI(); kcRender();
+  if(Player.hp <= 0){ KC.on = false; stopCombatTimer(); setTimeout(() => { kcEnd(); dead(); }, 400); }
+}
+function kcAfterEnemy(){
+  if(!KC.on) return;
+  const it = KC.intent;
+  // timers
+  if(KC.stun > 0 && it && it.k === 'stun') KC.stun = 0;
+  if(KC.broken > 0) KC.broken--;
+  if(KC.weak > 0) KC.weak--;
+  if(KC.mark > 0) KC.mark--;
+  KC.thorns = 0;
+  KC.eBlk = it && it.k === 'guard' ? KC.eBlk : 0; // its guard lasts through your next turn
+  KC.blk = KC.keepAll ? KC.blk : Math.round(KC.blk * (KC.f.keep || 0)); KC.keepAll = false;
+  // the next plan: a charge counts down to its heavy blow; bosses in frenzy act twice
+  if(it && it.k === 'charge') KC.intent = it.turns > 1 ? { ...it, turns:it.turns - 1 } : kcMakeIntent('heavy', true);
+  else KC.intent = kcPickIntent();
+  KC.intent2 = KC.boss && KC.phase >= 2 && KC.intent.k !== 'charge' && KC.intent.k !== 'heavy' ? kcMakeIntent('jab') : null;
+  if(KC.phantomDraw){ kcDraw(KC.phantomDraw); KC.phantomDraw = 0; }
+  kcStartTurn();
+}
+
+// embers: a free big hit (charged by walking)
+function kcEmber(){
+  const L = loopState(); if(!KC.on || KC.busy || !L || L.ember < 1 || curEnemy.hp <= 0) return;
+  L.ember--; curEnemy._ember = true;
+  flashScreen && flashScreen('white'); sndSignature && sndSignature();
+  showDamageNum('🔥 EMBER STRIKE', 'dn-skillname', 'left');
+  kcHit(Math.round(kcPow() * (loopHas('embers') ? 30 : 22)), { big:true, fin:true }); kcBreak(2);
+  loopEmberBtnSync(); loopHudSync(); kcRender();
+  if(curEnemy.hp <= 0){ KC.busy = true; cbKill(); }
+}
+
+// ── rewards: card pulls on victory ─────────────────
+function kcRollRarity(src){
+  const W = { normal:[70, 22, 6, 2, 0], elite:[40, 35, 18, 6, 1], boss:[6, 30, 40, 18, 6], raid:[0, 20, 40, 28, 12] }[src];
+  const luck = (KC.f ? KC.f.luck : kcFx().luck) + blessLuck() + (FX.sceneKey && FX.sceneKey !== 'street' ? .04 : 0); // landmarks and haunted places pull better
+  const w = W.map((x, i) => i >= 2 ? x * (1 + luck * 6) : x);
+  let r = Math.random() * w.reduce((a, b) => a + b, 0);
+  for(let i = 0; i < 5; i++){ r -= w[i]; if(r <= 0) return i; }
+  return 0;
+}
+function kcRewardFor(e, boss){
+  if(!KC.wasOn || !e || e.tutorialMob) return null;
+  const src = e._practice || (boss && e.tier === 'raid') ? 'raid' : boss ? 'boss' : (e.elite || e.gilded) ? 'elite' : 'normal';
+  if(src === 'normal' && Math.random() > .55) return null; // street monsters: about every other kill
+  const n = { normal:1, elite:2, boss:3, raid:3 }[src] + (KC.f ? KC.f.choice : 0);
+  const pool = Object.keys(KC_CARDS).filter(id => { const d = KC_CARDS[id]; return !d.gear && (!d.cls || d.cls === Player.className); });
+  const opts = [];
+  while(opts.length < n && opts.length < pool.length){ const id = pool[Math.floor(Math.random() * pool.length)]; if(!opts.some(o => o.id === id)) opts.push({ id, r:kcRollRarity(src) }); }
+  if(KC.f && KC.f.caps.jackpot && !opts.some(o => o.r >= 2)) opts[0].r = 2;
+  return { opts, src };
+}
+let _kcReward = null;
+function kcRewardHtml(rw){
+  return `<div class="kc-rw"><div class="kc-rw-t">🃏 CHOOSE A CARD</div><div class="kc-rw-row">${rw.opts.map((c, i) =>
+    kcCardHtml(c, { cls:'kc-mini kc-pull' + (c.r >= 2 ? ' kc-shine' : ''), attr:`onclick="event.stopPropagation();kcTakeReward(${i})"`, style:`--d:${i * 160}ms` })).join('')}</div>
+    <div class="kc-rw-s">tap one · it goes into your collection (deck if there's room)</div></div>`;
+}
+function kcTakeReward(i){
+  const rw = _kcReward; if(!rw || rw.taken) return;
+  rw.taken = true; const c = rw.opts[i];
+  const nc = kcAddCard(c.id, c.r); saveGame();
+  document.querySelectorAll('.kc-rw .kc-pull').forEach((el, j) => el.classList.add(j === i ? 'took' : 'gone'));
+  const s = document.querySelector('.kc-rw-s'); if(s) s.textContent = kcData().deck.includes(nc.u) ? '✓ added to your deck' : `✓ in your collection · ${kcDeckWhyNot(nc) || 'deck'}`;
+  if(c.r >= 2) kcPullFanfare([c]);
+  const pop = document.getElementById('loot-popup'); clearTimeout(showLoot._t); showLoot._t = setTimeout(() => { pop.style.display = 'none'; pop.onclick = null; }, 1800);
+}
+// pop.onclick (closing the spoils) without picking takes the first card so a pull is never lost
+function kcRewardAutoTake(){ if(_kcReward && !_kcReward.taken){ const best = _kcReward.opts.reduce((b, c, i) => c.r > _kcReward.opts[b].r ? i : b, 0); _kcReward.taken = true; kcAddCard(_kcReward.opts[best].id, _kcReward.opts[best].r); saveGame(); } }
+function kcPullFanfare(cards, label){
+  const best = cards.reduce((a, c) => c.r > a.r ? c : a, cards[0]); const R = kcRar(best.r);
+  const el = document.createElement('div'); el.className = 'kc-fan r' + best.r; el.style.setProperty('--rc', R.c);
+  el.innerHTML = `<div class="kc-fan-t">${label || R.n + ' PULL!'}</div>${kcCardHtml(best, { cls:'kc-big' })}`;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 2200);
+  stinger && stinger('loot'); buzz && buzz(best.r >= 3 ? 'heavy' : 'medium');
+}
+
+// ── fight UI ───────────────────────────────────────
+function kcBuildUi(){
+  let ui = document.getElementById('kc-ui');
+  if(!ui){ ui = document.createElement('div'); ui.id = 'kc-ui'; const g = document.getElementById('ab-grid'); g.parentNode.insertBefore(ui, g); }
+  let it = document.getElementById('kc-intent');
+  if(!it){ it = document.createElement('div'); it.id = 'kc-intent'; document.getElementById('cb-hud').appendChild(it); }
+  ui.innerHTML = `<div id="kc-row">
+      <div id="kc-energy" title="energy"><b id="kc-en">3</b><i>/3</i></div>
+      <div id="kc-pstat"></div>
+      <div id="kc-piles"><span id="kc-dr">🂠 0</span><span id="kc-dc">♻ 0</span></div>
+      <label id="kc-auto"><input type="checkbox" id="kc-auto-in"> auto-end</label>
+      <button id="kc-end">END TURN</button>
+    </div>
+    <div id="kc-hand"></div>`;
+  document.getElementById('kc-end').onclick = ev => { ev.preventDefault(); kcEndTurn(); };
+  const a = document.getElementById('kc-auto-in'); a.checked = kcData().autoEnd !== false;
+  a.onchange = () => { kcData().autoEnd = a.checked; saveGame(); kcMaybeAutoEnd(); };
+  kcBindHand();
+}
+function kcRender(){
+  if(!KC.on) return;
+  const e = KC.ent;
+  // intent (above the monster, under its HP)
+  const it = KC.intent, el = document.getElementById('kc-intent');
+  if(el){
+    const one = x => {
+      if(!x) return '';
+      let main = '', sub = '';
+      if(x.k === 'atk'){ main = `${x.ic} ${kcIntentDmg(x)}${x.hits > 1 ? '×' + x.hits : ''}`; sub = x.name; }
+      else if(x.k === 'heavy'){ main = `⚠ ${kcIntentDmg(x)}`; sub = `${x.name} · BREAK IT!`; }
+      else if(x.k === 'unbl'){ main = `🌀 ${kcIntentDmg(x)}`; sub = `${x.name} · block won't help`; }
+      else if(x.k === 'charge'){ main = `⏳ ${kcIntentDmg(x)}`; sub = `CHARGING ${x.name} · ${x.turns} turn${x.turns > 1 ? 's' : ''}`; }
+      else if(x.k === 'guard'){ main = `🛡 +${x.blk}`; sub = x.name; }
+      else if(x.k === 'drain'){ main = x.stopped ? '🩸 ✖' : `🩸 ${kcIntentDmg(x)}`; sub = x.stopped ? 'INTERRUPTED' : `${x.name} · heals ${fmt(x.heal)} · deal ${fmt(Math.max(0, x.need - KC.dealt))} to stop`; }
+      else if(x.k === 'stun'){ main = '💫'; sub = 'STUNNED · free turn'; }
+      return `<div class="kc-int k-${x.k}"><b>${main}</b><span>${sub}</span></div>`;
+    };
+    const pips = Array.from({ length:KC.brkMax }, (_, i) => `<i class="${i < KC.brk ? 'on' : ''}"></i>`).join('');
+    const exposed = it && (it.k === 'charge' || it.k === 'heavy');
+    const ch = [];
+    if(KC.eBlk > 0) ch.push(`<em class="c-blk">🛡 ${fmt(KC.eBlk)}</em>`);
+    if(KC.bleed > 0) ch.push(`<em class="c-bl">🩸 ${fmt(KC.bleed)}</em>`);
+    if(KC.mark > 0) ch.push(`<em class="c-mk">🎯 ${KC.mark}</em>`);
+    if(KC.weak > 0) ch.push(`<em class="c-wk">⬇ WEAK ${KC.weak}</em>`);
+    if(KC.broken > 0) ch.push(`<em class="c-br">💥 BROKEN</em>`);
+    if(e._practice && e._comp){ const c = e._comp; ch.push(`<em class="c-al">👥 ${c.tank + c.healer + c.dps} ALLIES</em>`); }
+    el.innerHTML = `<div class="kc-ints${KC.intent2 ? ' two' : ''}">${one(it)}${KC.intent2 ? `<span class="kc-plus">+</span>${one(KC.intent2)}` : ''}</div>
+      <div class="kc-brk${exposed ? ' exposed' : ''}"><span>${exposed ? '🎯 WEAK SPOT ×2' : 'BREAK'}</span>${pips}</div>
+      <div class="kc-chips">${ch.join('')}</div>`;
+  }
+  const en = document.getElementById('kc-en'); if(en){ en.textContent = KC.energy; en.nextSibling.textContent = '/' + KC.maxE; }
+  const ps = document.getElementById('kc-pstat');
+  if(ps) ps.innerHTML = (KC.blk > 0 ? `<em class="c-blk">🛡 ${KC.blk}</em>` : '') + (KC.evade > 0 ? `<em class="c-ev">💨 EVADE</em>` : '') + (KC.str > 0 ? `<em class="c-st">💪 +${KC.str}</em>` : '') + (KC.thorns > 0 ? `<em class="c-th">↩ ${KC.thorns}</em>` : '');
+  const dr = document.getElementById('kc-dr'); if(dr) dr.textContent = '🂠 ' + KC.draw.length;
+  const dc = document.getElementById('kc-dc'); if(dc) dc.textContent = '♻ ' + KC.disc.length;
+  const eb = document.getElementById('kc-end'); if(eb){ eb.disabled = KC.busy; eb.classList.toggle('pulse', !KC.busy && !KC.hand.some((c, i) => kcPlayable(i))); }
+  kcRenderHand();
+  setCBUI();
+}
+function kcRenderHand(){
+  const h = document.getElementById('kc-hand'); if(!h) return;
+  const n = KC.hand.length;
+  h.innerHTML = KC.hand.map((c, i) => {
+    const mid = (n - 1) / 2, rot = (i - mid) * (n > 5 ? 3 : 4), dy = Math.abs(i - mid) * (n > 5 ? 4 : 5);
+    return kcCardHtml(c, { cost:kcCostNow(c), cls:`kc-hc${kcPlayable(i) ? ' ok' : ' no'}${KC.sel === i ? ' sel' : ''}`,
+      attr:`data-i="${i}"`, style:`--rot:${rot}deg;--dy:${dy}px;--z:${KC.sel === i ? 30 : i + 1};--sx:${((mid - i) * (n > 5 ? 48 : 62)).toFixed(0)}px` });
+  }).join('') + (KC.busy && KC.on && !n ? `<div class="kc-wait">${KC.ent.name.toUpperCase()}'S TURN…</div>` : '');
+  h.dataset.n = n;
+}
+function kcNope(i, why){ const el = document.querySelector(`#kc-hand .kc-hc[data-i="${i}"]`); if(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); } if(why) showDamageNum(why, 'dmg-dodge', 'left'); buzz && buzz('tap'); }
+// one thumb: tap to lift a card, tap again (or tap the monster) to play it; or drag it up onto the monster
+function kcBindHand(){
+  const h = document.getElementById('kc-hand'); if(!h || h._b) return; h._b = true;
+  let drag = null;
+  h.addEventListener('pointerdown', ev => {
+    const el = ev.target.closest('.kc-hc'); if(!el || !KC.on) return;
+    ev.preventDefault();
+    drag = { i:+el.dataset.i, x:ev.clientX, y:ev.clientY, el, moved:false, id:ev.pointerId };
+    try { h.setPointerCapture(ev.pointerId); } catch(e){}
+  });
+  h.addEventListener('pointermove', ev => {
+    if(!drag || ev.pointerId !== drag.id) return;
+    const dx = ev.clientX - drag.x, dy = ev.clientY - drag.y;
+    if(!drag.moved && Math.hypot(dx, dy) > 14){ drag.moved = true; drag.el.classList.add('drag'); KC.sel = -1; }
+    if(drag.moved){ drag.el.style.transform = `translate(${dx}px,${dy}px) scale(1.15)`; drag.el.classList.toggle('arm', ev.clientY < h.getBoundingClientRect().top - 40); }
+  });
+  const up = ev => {
+    if(!drag) return; const d = drag; drag = null;
+    if(d.moved){
+      const play = ev.clientY < h.getBoundingClientRect().top - 40;
+      if(play && kcPlayable(d.i)) kcPlay(d.i); else { if(play) kcNope(d.i, KC.busy ? '' : 'Not enough ⚡'); kcRenderHand(); }
+      return;
+    }
+    if(KC.sel === d.i){ if(kcPlayable(d.i)) kcPlay(d.i); else kcNope(d.i, KC.busy ? '' : 'Not enough ⚡'); }
+    else { KC.sel = d.i; kcRenderHand(); kcTutOnSelect(); }
+  };
+  h.addEventListener('pointerup', up); h.addEventListener('pointercancel', () => { drag = null; kcRenderHand(); });
+  // tapping the monster plays the lifted card
+  const st = document.getElementById('cb-top');
+  st.addEventListener('pointerdown', ev => { if(!KC.on || ev.target.closest('button')) return; if(KC.sel >= 0 && kcPlayable(KC.sel)) kcPlay(KC.sel); });
+  document.addEventListener('keydown', ev => {
+    if(!KC.on || ev.repeat) return;
+    if(/^[1-9]$/.test(ev.key)){ const i = +ev.key - 1; if(i < KC.hand.length){ ev.preventDefault(); kcPlayable(i) ? kcPlay(i) : kcNope(i, 'Not enough ⚡'); } }
+    else if(ev.key === 'e' || ev.key === 'E' || ev.key === 'Enter'){ ev.preventDefault(); kcEndTurn(); }
+  });
+}
+function kcFlyCard(c, v){
+  const h = document.getElementById('kc-hand'), top = document.getElementById('cb-top'); if(!h || !top) return;
+  const el = document.createElement('div'); el.className = 'kc-fly'; el.innerHTML = kcCardHtml(c);
+  const hr = h.getBoundingClientRect(), tr = top.getBoundingClientRect();
+  el.style.left = (hr.left + hr.width / 2) + 'px'; el.style.top = hr.top + 'px';
+  el.style.setProperty('--tx', '0px'); el.style.setProperty('--ty', (tr.top + tr.height * .5 - hr.top) + 'px');
+  document.body.appendChild(el); setTimeout(() => el.remove(), 420);
+}
+
+// ── tutorial (slim hint strip; never over the monster or its plan) ──
+function kcTutOnTurn(){
+  if(KC.tut < 0 || tutStep() == null) return;
+  if(KC.tut === 0){ coach(`Its plan is shown up top: <b>⚔ ${kcIntentDmg(KC.intent)}</b> = it will hit you for ${kcIntentDmg(KC.intent)}. <b>Tap a card</b>, then tap it again to play.`); kcGlowFirst('atk'); }
+  else if(KC.tut === 3 && KC.intent && KC.intent.k === 'charge'){ coach('It\'s <b>charging a heavy</b>. Cards with <b>💥</b> fill its <b>break bar</b> — double while it winds up. Fill it to <b>BREAK</b> it!'); KC.tut = 4; kcGlowFirst('stag'); }
+  else if(KC.tut === 4 && KC.intent && KC.intent.k === 'heavy'){ coach('Here it comes. <b>Block</b> it, or break it now. Then finish it!'); KC.tut = 5; kcGlowFirst('blk'); }
+}
+function kcGlowFirst(kind){
+  requestAnimationFrame(() => {
+    const i = KC.hand.findIndex(c => { const v = kcCardVals(c); return kind === 'stag' ? v.stag : v.t === kind; });
+    coachGlow(i >= 0 ? `#kc-hand .kc-hc[data-i="${i}"]` : '#kc-end');
+  });
+}
+function kcTutOnSelect(){ if(KC.tut === 0){ coachGlow(`#kc-hand .kc-hc[data-i="${KC.sel}"]`); } }
+function kcTutOnPlay(v){
+  if(KC.tut < 0 || tutStep() == null) return;
+  if(KC.tut === 0){ KC.tut = 1; if(Player.tutorial === 'fight') Player.tutorial = 'riposte';
+    coach(`Cards cost <b>⚡ energy</b> (3 a turn). Play a <b>GUARD</b> to block its hit.`); kcGlowFirst('blk'); }
+  else if(KC.tut === 1 && v.t === 'blk'){ KC.tut = 2; coach('Good. Spend what\'s left, then tap <b>END TURN</b>. It acts, then shows its next plan.'); coachGlow('#kc-end'); }
+  else if(KC.tut === 1 && KC.energy === 0){ KC.tut = 2; coach('Out of ⚡. Tap <b>END TURN</b> — it acts, then shows its next plan.'); coachGlow('#kc-end'); }
+}
+function kcTutOnEnd(){ if(KC.tut >= 0 && KC.tut < 3){ KC.tut = 3; coachGlow(null); coachHide(); } }
+
+// ── DECK & SKILL TREE screen ───────────────────────
+let _kcTab = 'tree', _kcNode = null;
+function kcOpen(tab){ if(!Player) return; kcData(); _kcTab = tab || _kcTab; _kcNode = null; kcRenderScreen(); document.getElementById('kc-modal').classList.add('active'); document.getElementById('sidebar')?.classList.remove('open'); }
+function kcClose(){ document.getElementById('kc-modal').classList.remove('active'); }
+function kcRenderScreen(){
+  const m = document.getElementById('kc-modal'); if(!m || !Player) return;
+  const tabs = `<div id="kc-tabs">${[['tree', '🌳 SKILL TREE'], ['deck', '🃏 DECK'], ['perks', '⭐ PERKS']].map(([k, n]) => `<button class="${_kcTab === k ? 'on' : ''}" onclick="${k === 'perks' ? 'kcClose();openSkillsLegacy()' : `_kcTab='${k}';kcRenderScreen()`}">${n}</button>`).join('')}</div>`;
+  const body = _kcTab === 'deck' ? kcDeckHtml() : kcTreeHtml();
+  document.getElementById('kc-modal-body').innerHTML = tabs + body;
+}
+function kcTreeHtml(){
+  const K = kcData(), pts = kcPoints() - kcSpent();
+  const proto = !!KC_TREES[Player.className];
+  let h = `<div class="kc-th"><div><b>${Player.className.toUpperCase()}</b> · ${proto ? 'class tree' : 'starter tree (class tree coming)'}</div>
+    <div class="kc-pts"><b>${pts}</b> point${pts === 1 ? '' : 's'} · 1 per level <button onclick="kcRespec()">RESPEC (free)</button></div></div>`;
+  h += `<div class="kc-tree">`;
+  for(const b of kcTree()){
+    h += `<div class="kc-br" style="--bc:${b.c}"><div class="kc-bn">${b.n}<span>${b.d}</span></div>`;
+    b.nodes.forEach((n, i) => {
+      const nn = { ...n, b, i }, has = K.tree.includes(n.id), can = kcCanLearn(nn);
+      h += `${i ? `<div class="kc-ln${has ? ' on' : ''}"></div>` : ''}<button class="kc-node${has ? ' has' : can ? ' can' : ''}${n.cap ? ' cap' : ''}${_kcNode === n.id ? ' sel' : ''}" onclick="_kcNode='${n.id}';kcRenderScreen()">
+        <span class="ic">${n.ic}</span><span class="nm">${n.n}</span>${n.cap ? '<span class="cp">2 pts</span>' : ''}</button>`;
+    });
+    h += `</div>`;
+  }
+  h += `</div>`;
+  const sel = kcTreeNodes().find(x => x.id === _kcNode);
+  if(sel){
+    const has = K.tree.includes(sel.id), can = kcCanLearn(sel);
+    const why = has ? '✓ learned' : can ? '' : sel.i > 0 && !K.tree.includes(sel.b.nodes[sel.i - 1].id) ? 'Learn the one above it first' : `Needs ${sel.cap ? 2 : 1} point${sel.cap ? 's' : ''}`;
+    h += `<div class="kc-nd" style="--bc:${sel.b.c}"><div class="t">${sel.ic} ${sel.n}${sel.cap ? ' · CAPSTONE' : ''}</div><div class="d">${sel.d}</div>
+      ${can ? `<button class="kc-learn" onclick="kcLearn('${sel.id}')">LEARN (${sel.cap ? 2 : 1})</button>` : `<div class="w">${why}</div>`}</div>`;
+  } else h += `<div class="kc-nd hint">Tap a node to see it. Branches open top to bottom; the last node is a capstone.</div>`;
+  return h;
+}
+function kcDeckHtml(){
+  const K = kcData(), L = kcLimits(), base = kcBaseDeck(), mine = kcDeckCards();
+  const total = base.length + mine.length;
+  let h = `<div class="kc-th"><div><b>DECK ${total}/${L.deck}</b> · max per card: ${KC_RAR.map(r => `<span style="color:${r.c}">${r.max}</span>`).join('/')} · Epic ≤${L.epic} · Legendary ≤${L.legendary}</div></div>`;
+  const merges = kcMergeable();
+  if(merges.length) h += `<div class="kc-merge">${merges.map(a => `<button onclick="kcMerge('${a[0].id}',${a[0].r})">⬆ MERGE 3× ${kcDef(a[0].id).n} → <b style="color:${kcRar(a[0].r + 1).c}">${kcRar(a[0].r + 1).n}</b></button>`).join('')}</div>`;
+  h += `<div class="kc-sec">ALWAYS IN · class, gear & tree</div><div class="kc-grid">${base.map(c => kcCardHtml(c, { cls:'kc-mini' + (c.gearCard ? ' gear' : '') })).join('')}</div>`;
+  h += `<div class="kc-sec">YOUR COLLECTION · tap to add or remove (${K.cards.length})</div>`;
+  if(!K.cards.length) h += `<div class="kc-empty">Win fights to pull cards. Tougher monsters, bosses and haunted landmarks pull rarer ones.</div>`;
+  const sorted = K.cards.slice().sort((a, b) => b.r - a.r || a.id.localeCompare(b.id));
+  h += `<div class="kc-grid">${sorted.map(c => kcCardHtml(c, { cls:'kc-mini' + (K.deck.includes(c.u) ? ' indeck' : ' out'), attr:`onclick="kcToggleDeck(${c.u})"` })).join('')}</div>`;
+  return h;
+}
+
 function cbNow(){ return performance.now(); }
-if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fxApplyPrefs); else fxApplyPrefs();
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { fxApplyPrefs(); kcSyncMenu(); }); else { fxApplyPrefs(); kcSyncMenu(); }
 function cbFreeze(ms){ CB.freezeUntil = Math.max(CB.freezeUntil, cbNow() + ms); }
 // The monster waits (coach cards, tutorial pauses)
 function cbHoldEnemy(ms){ CB.holdUntil = Math.max(CB.holdUntil, CB.t + ms); if(!CB.move) CB.nextAt = Math.max(CB.nextAt, CB.t + ms); }
@@ -9787,6 +10830,7 @@ function combatTick(){
   if(real < CB.freezeUntil) dt = 0;                 // hit-stop: the world holds its breath
   else if(real < (CB.slowUntil || 0)) dt *= (CB.slowScale || .35); // slow-mo on crits, breaks, perfect dodges
   CB.t += dt;
+  if(KC.on){ kcTick(); return; } // card fights run on turns; the clock only drives timing and effects
   const now = Date.now();
   warbandCombatTick(now);
   encCombatTick(now);
@@ -9976,6 +11020,7 @@ function cbStrikeAbility(){
   return { name:a.name, emoji:a.emoji, type:'Basic', dmgMult:CB_STRIKE_MULT, cost:0, costType:'none', cd:0, _quiet:true };
 }
 function cbStrike(x, y){
+  if(KC.on) return;
   if(!inCombat || !curEnemy || curEnemy.hp <= 0 || playerActLocked) return;
   const real = cbNow(), since = real - CB.strikeReal;
   if(since < CB_STRIKE_GAP){ // buffer one tap so fast tapping never feels ignored
@@ -10083,6 +11128,7 @@ function cbKill(){
 
 // ── player: dodge ─────────────────────────────────
 function cbDodge(dir){
+  if(KC.on) return;
   if(!inCombat || !curEnemy || curEnemy.hp <= 0) return;
   const real = cbNow();
   if(real < CB.dodgeCdReal) return;
@@ -10109,6 +11155,7 @@ const CB_SKILLS = {
 };
 function cbGain(n){ CB.meter = Math.min(100, CB.meter + n); }
 function cbSkill(){
+  if(KC.on) return;
   if(!inCombat || !curEnemy || curEnemy.hp <= 0 || playerActLocked) return;
   const btn = document.getElementById('cb-skill');
   if(CB.meter < 100){ if(btn){ btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope'); } buzz('tap'); return; }
@@ -10278,6 +11325,7 @@ function startCombat(ent,boss){
   document.getElementById('combat-modal').classList.add('active');
   toastStepAside();
   fxStart(ent, boss);
+  if(kcWants(ent)) kcStart(ent, boss); else kcEnd();
   startCombatTimer();
   addLog(boss?`⚔ BOSS ENCOUNTER: ${ent.name}!`:`⚔ ${ent.name} appears!`,boss?'lb':'lc');
   tutOnCombatStart(ent);
@@ -10599,7 +11647,9 @@ function victory(){
   const drops = rollLootDrop(curEnemy, isBoss);
   drops.forEach(n => addLog(`Found: ${ITEMS[n].emoji} ${n}${ITEMS[n].tier===4?' ✦ LEGENDARY':''}!`,'lb'));
   addLog(`Victory! +${fmt(xp)} XP · +${gold} Gold`,'ll');
+  _kcReward = KC.on ? kcRewardFor(curEnemy, isBoss) : null;
   showLoot(xp, gold, drops);
+  if(KC.on) kcEnd();
   pendingLevelUps = [];
   if(Player.level < 100){ while(Player.xp>=Player.xpNext && Player.level<100){ levelUp(); } }
   inCombat=false; stopCombatTimer(); clearCBCache();
@@ -10762,18 +11812,21 @@ function confirmStats(){
 }
 
 function doFlee(){
+  if(KC.on && KC.busy) return;
   if(Math.random()<0.6){
+    kcEnd();
     inCombat=false; stopCombatTimer(); clearCBCache();
     document.getElementById('combat-modal').classList.remove('active');
     addLog('You vanish into the shadows...','ls'); markDirty();
     delveOnEnd('fled');
   } else {
     setCLog('You failed to escape!');
+    if(KC.on) kcEndTurn(); // in a card fight a failed escape costs your turn
     addLog('Failed to flee!','lc');
   }
 }
 
-function dead(){ sndDeath();
+function dead(){ sndDeath(); kcEnd();
   delveOnEnd('died');
   inCombat=false; stopCombatTimer(); clearCBCache();
   document.getElementById('combat-modal').classList.remove('active');
@@ -10894,16 +11947,17 @@ function showLoot(xp, gold, drops){ sndLoot(); if(drops && drops.length) setTime
   });
   if(best) setTimeout(() => lootBeam(best.item, best.n), 350);
 
-  if(!drops.length) html+=`<div style="color:#4a3a60;font-size:.8rem;">No items dropped.</div>`;
+  if(!drops.length && !_kcReward) html+=`<div style="color:#4a3a60;font-size:.8rem;">No items dropped.</div>`;
+  if(_kcReward) html+=kcRewardHtml(_kcReward);
 
   html+=`<div style="margin-top:8px;font-size:.68rem;color:#4a3a60;letter-spacing:.1em;">TAP TO CLOSE</div>`;
 
   document.getElementById('loot-txt').innerHTML=html;
   pop.style.display='block';
-  const close=()=>{ clearTimeout(showLoot._t); pop.style.display='none'; pop.onclick=null; };
+  const close=()=>{ clearTimeout(showLoot._t); pop.style.display='none'; pop.onclick=null; kcRewardAutoTake(); };
   pop.onclick=close;
   // It clears itself so it never sits over HUNT/BOOK: a little longer when something dropped
-  clearTimeout(showLoot._t); showLoot._t=setTimeout(close, drops.some(n => ITEMS[n] && (ITEMS[n].mark || (loopCompare(n)||{}).better)) ? 7000 : drops.length ? 4000 : 2500);
+  clearTimeout(showLoot._t); showLoot._t=setTimeout(close, _kcReward ? 12000 : drops.some(n => ITEMS[n] && (ITEMS[n].mark || (loopCompare(n)||{}).better)) ? 7000 : drops.length ? 4000 : 2500);
 }
 
 // ══════════════════════════════════════════════════════
@@ -11096,6 +12150,7 @@ function loopAddWalk(mi){
   loopHudSync();
 }
 function loopEmberStrike(){
+  if(KC.on) return kcEmber();
   const L = loopState(); if(!inCombat || !curEnemy || !L || L.ember < 1 || playerActLocked || curEnemy.hp <= 0) return;
   L.ember--;
   curEnemy._ember = true;
@@ -11637,6 +12692,7 @@ function saveGame(){
       bloodMoons: Player.bloodMoons || {},
       titles: Player.titles || [],
       loop: Player.loop || null,
+      kc: Player.kc || null,
       factionSince: Player.factionSince || 0,
       factionPrompted: Player.factionPrompted || false,
     },
