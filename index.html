@@ -2664,6 +2664,11 @@ em.c-st { border-color:#ff6a50; color:#ffd0c4; } em.c-th { border-color:#d0a050;
 .kt-rc.basic { --rc:#8a7a66; background:#2a2420; }
 .kt-note { font:10.5px 'Share Tech Mono',monospace; color:#9a8fb0; margin-top:6px; line-height:1.4; }
 @media (prefers-reduced-motion: reduce){ #combat-box.mt-raid #cb-top, #combat-box.mt-city #cb-top, #boss-reveal-content.mt-raid, #boss-reveal-content.mt-city, .kt-chip.kt-city, .kt-swatch { animation:none !important; } #kc-chain.hot em, #kc-cash.hot b { animation:none; } }
+/* specs: role chips on tree branches, card preview in node detail */
+.kc-role{display:block;font-style:normal;font-size:9px;letter-spacing:.08em;margin:2px auto 0;padding:1px 6px;border-radius:8px;width:max-content;max-width:100%;background:rgba(0,0,0,.35);border:1px solid var(--bc);color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kc-role.r-tank::before{content:'🛡 '}.kc-role.r-heal::before{content:'✚ '}.kc-role.r-dps::before{content:'⚔ '}.kc-role.r-sup::before{content:'✦ '}
+.kc-nd-card{display:flex;justify-content:center;margin:6px 0 2px}
+.kc-bonus{color:#9fd59f;font-size:.9em}
 
 </style>
 </head>
@@ -10084,9 +10089,18 @@ const KC_IC = { strike:'⚔', guard:'🛡', fi_bash:'🛡', fi_rage:'😡', pa_h
   th_bleed:'🩸', th_finish:'✂', as_poison:'🐍', as_mark:'🎯', mo_quick:'👊', mo_breathe:'🌬', dr_thorn:'🌵', dr_regrow:'🌱',
   cleave:'🪓', wall:'🧱', retort:'↩', storm:'💥', cry:'📯', backstab:'🗡', mark:'🎯', lacerate:'🩸', step:'💨', smoke:'🌫', evisc:'✂', bolt:'🔥', ward:'🔷', channel:'🌀', lance:'❄', meteor:'☄', burn:'🌋' };
 const KC_CARD_SRC = (window.DW_STORY && window.DW_STORY.cards) || { basics:{}, basicDefs:{}, named:{}, perks:{}, items:[] };
+function kcAutoIc(o){
+  if(o.taunt) return '📣'; if(o.cover) return '🏰'; if(o.rally) return '📯'; if(o.regen) return '🌿'; if(o.self) return '🩸'; if(o.exec) return '💀'; if(o.crit) return '🎯';
+  if(o.el && o.t !== 'blk' && o.t !== 'heal') return KC_EL[o.el] ? KC_EL[o.el].ic : '✦';
+  return { atk:'⚔', blk:'🛡', skl:'✦', fin:'✂', heal:'💚' }[o.t] || '✦';
+}
 function kcFromStory(id, d, extra){
   const o = { n:d.name, t:KC_T[d.t] || 'atk', cost:d.cost, ic:d.ic || KC_IC[id] || '✦', ...extra };
-  for(const k of ['dmg','blk','heal','bleed','weak','mark','evade','draw','energy','nextE','str','thorns','stag','per','vsMark','keep','spellDisc','hits','el','infuse','eat','innate','chain']) if(d[k] != null) o[k] = d[k];
+  for(const k of ['dmg','blk','heal','bleed','weak','mark','evade','draw','energy','nextE','str','thorns','stag','per','vsMark','keep','spellDisc','hits','el','infuse','eat','innate','chain',
+    'self','lowHp','blkDmg','exec','crit','taunt','cover','party','regen','rally']) if(d[k] != null) o[k] = d[k];
+  const sp = d.spec || (KC_CARD_SRC.specOf || {})[id]; if(sp) o.spec = sp;
+  if(d.r) o.minR = d.r; // the lowest rarity it drops at (Rare+ = spec signatures)
+  if(!d.ic && !KC_IC[id]) o.ic = kcAutoIc(o);
   if(d.once) o.exhaust = true;
   if(d.combo) o.combo = { after:KC_T[d.combo.after] || d.combo.after, dmg:d.combo.dmg };
   if(/^\[/.test(d.name || '')){ o.ph = true; o.n = d.idea || 'Unnamed'; } // a special card waiting for its real name
@@ -10095,6 +10109,8 @@ function kcFromStory(id, d, extra){
 }
 for(const [id, d] of Object.entries(KC_CARD_SRC.basicDefs || {})) KC_CARDS[id] = kcFromStory(id, d, { basic:true });
 for(const [cls, list] of Object.entries(KC_CARD_SRC.named || {})) for(const d of list) KC_CARDS[d.id] = kcFromStory(d.id, d, { cls, named:true });
+for(const [cls, list] of Object.entries(KC_CARD_SRC.specCards || {})) for(const d of list) KC_CARDS[d.id] = kcFromStory(d.id, d, { cls });
+for(const [cls, b] of Object.entries(KC_CARD_SRC.basics || {})) for(const id of b.cards) if(KC_CARDS[id] && KC_CARDS[id].basic && !/^(strike|guard)$/.test(id)) KC_CARDS[id].cls = cls;
 // extra punch at the top rarities (on top of bigger numbers)
 const KC_EPIC = { stag:1 }, KC_LEG = { costDown:1 };
 function kcRar(r){ return KC_RAR[Math.max(0, Math.min(4, r | 0))]; }
@@ -10108,77 +10124,110 @@ function kcDef(id){ return KC_CARDS[id] || (id === 'sig' ? KC_CARDS.heavy : null
 // fx keys: startBlk, startStr, addCard, upCard (+1 rarity to your starter copies), deck (+deck size), hand (+hand size),
 // e1 (+1 energy on turn 1), eEvery (+1 energy every Nth turn), choice (+1 card reward choice), luck (+rarity luck),
 // leg (+1 legendary slot), thornsHit (deal back when hit), keep (block carries over, fraction), bleedUp, markUp, cap:* capstones.
-const KC_TREES = {
+// ── skill trees: one branch per spec (story.js → cards.specs), capstone = the spec payoff ──
+// fx keys: startBlk, startStr, startEvade, startWeak, addCard (+up: rarity), upCard, deck, hand, e1, eEvery, maxE, choice, luck, leg,
+// thornsHit, keep, bleedUp, markUp, frostbite, atkUp / blkUp / healUp (+%), critUp (+crit %), brkDown (shorter break bar), cap (one or a list).
+const KC_ROLE_C = { tank:'#3f86d8', heal:'#2fb862', dps:'#d0443a', sup:'#b46bff' };
+function kcRoleKey(role){ const r = (role || '').toLowerCase(); return r.startsWith('tank') ? 'tank' : r.startsWith('heal') ? 'heal' : /support|control/.test(r) ? 'sup' : 'dps'; }
+// [spec, passive 1, card 1, passive 2, card 2 (Rare), [capstone name, icon, text, fx]]
+const KC_SPEC_TREE = {
   Fighter: [
-    { id:'bul', n:'BULWARK', d:'Block and outlast', c:'#3f86d8', nodes:[
-      { id:'bul1', n:'Shield Up',     ic:'🛡', d:'Start every fight with 6 block.', fx:{ startBlk:6 } },
-      { id:'bul2', n:'Tempered Guard',ic:'⬆', d:'Your basic Guards become Uncommon.', fx:{ upCard:'guard' } },
-      { id:'bul3', n:'Wall Up',       ic:'🧱', d:'Add [Iron Wall] (block that carries over) to your deck.', fx:{ addCard:'wall' } },
-      { id:'bul4', n:'Steady',        ic:'⏳', d:'Half of your unused block carries into your next turn.', fx:{ keep:.5 } },
-      { id:'bulC', n:'UNBREAKABLE',   ic:'🏰', d:'Capstone: when you block a whole attack, strike back for 5.', fx:{ cap:'unbreak' }, cap:true },
-    ]},
-    { id:'wra', n:'WRATH', d:'Hit back and build rage', c:'#d0443a', nodes:[
-      { id:'wra1', n:'Bloodied',      ic:'😡', d:'Start every fight with +1 strength.', fx:{ startStr:1 } },
-      { id:'wra2', n:'Honed Edge',    ic:'🪓', d:'Add a Rare [Cleave] to your deck.', fx:{ addCard:'cleave', upCard:'cleave', up:2 } },
-      { id:'wra3', n:'Retaliate',     ic:'↩', d:'Whenever you are hit, deal 3 back.', fx:{ thornsHit:3 } },
-      { id:'wra4', n:'Second Breath', ic:'⚡', d:'+1 energy every 3rd turn.', fx:{ eEvery:3 } },
-      { id:'wraC', n:'BERSERK',       ic:'💥', d:'Capstone: after 3 attacks in a turn, finishers cost 0.', fx:{ cap:'berserk' }, cap:true },
-    ]},
-    { id:'war', n:'WARLORD', d:'Deck, loot and tempo', c:'#e0a020', nodes:[
-      { id:'war1', n:'Quartermaster', ic:'🎒', d:'+2 deck size.', fx:{ deck:2 } },
-      { id:'war2', n:'Spoils',        ic:'🃏', d:'+1 choice on card rewards.', fx:{ choice:1 } },
-      { id:'war3', n:'Charge',        ic:'⚡', d:'+1 energy on your first turn.', fx:{ e1:1 } },
-      { id:'war4', n:'Fortune',       ic:'🍀', d:'Better odds of rare cards.', fx:{ luck:.08 } },
-      { id:'warC', n:'COMMANDER',     ic:'👑', d:'Capstone: draw 6 cards a turn and hold a 2nd Legendary.', fx:{ hand:1, leg:1 }, cap:true },
-    ]},
+    ['prot', [{ startBlk:6 }, 'Shield Up', '🛡', 'Start every fight with 6 block.'], 'fi_rally', [{ blkUp:.2 }, 'Tempered Guard', '⬆', 'Block from your cards +20%.'], 'fi_n1',
+      ['BASTION', '🏰', 'Every Guard you play also raises the party shield wall (hits on ALL drop to 35%), and blocking a whole attack strikes back.', { cap:'bastion' }]],
+    ['fury', [{ startStr:1 }, 'Bloodied', '😡', 'Start every fight with +1 strength.'], 'fi_reck', [{ thornsHit:3 }, 'Retaliate', '↩', 'Whenever you are hit, deal 3 back.'], 'fi_n4',
+      ['BLOODRAGE', '💥', 'Under half HP your attacks deal +50%, and after 3 attacks in a turn finishers cost 0.', { cap:['bloodrage', 'berserk'] }]],
+    ['arms', [{ critUp:10 }, 'Keen Edge', '🎯', '+10% crit chance in card fights.'], 'fi_exec', [{ brkDown:1 }, 'Weak Points', '💢', 'The break bar is 1 shorter.'], 'fi_n7',
+      ['PRECISION', '⚔', 'A Broken monster takes double damage (not +50%), and Break lasts one more turn.', { cap:'precision' }]],
   ],
-  Thief: [
-    { id:'sha', n:'SHADOWS', d:'Evade and slip away', c:'#7a6ad8', nodes:[
-      { id:'sha1', n:'Light Feet',    ic:'💨', d:'Start every fight with Evade (dodge the first hit).', fx:{ startEvade:1 } },
-      { id:'sha2', n:'Smoke',         ic:'🌫', d:'Add [Smoke Bomb] (block + weaken) to your deck.', fx:{ addCard:'smoke' } },
-      { id:'sha3', n:'Quick Step',    ic:'💨', d:'Add a Rare [Shadowstep] to your deck.', fx:{ addCard:'step', upCard:'step', up:2 } },
-      { id:'sha4', n:'Opening',       ic:'⚡', d:'+1 energy on your first turn.', fx:{ e1:1 } },
-      { id:'shaC', n:'PHANTOM',       ic:'👻', d:'Capstone: each Evade you use draws 2 cards and gives 1 energy.', fx:{ cap:'phantom' }, cap:true },
-    ]},
-    { id:'bla', n:'BLADES', d:'Marks, bleeds, finishers', c:'#d0443a', nodes:[
-      { id:'bla1', n:'Serrated',      ic:'🩸', d:'Bleeds you apply are +2 stronger.', fx:{ bleedUp:2 } },
-      { id:'bla2', n:'Exposed',       ic:'🎯', d:'Marked enemies take +20% more (50% total).', fx:{ markUp:.2 } },
-      { id:'bla3', n:'Twin Fangs',    ic:'🗡', d:'Add [Backstab] to your deck.', fx:{ addCard:'backstab' } },
-      { id:'bla4', n:'Keen Finish',   ic:'✂', d:'Add an Epic [Eviscerate] to your deck.', fx:{ addCard:'evisc', upCard:'evisc', up:3 } },
-      { id:'blaC', n:'DEATH MARK',    ic:'☠', d:'Capstone: finishers on a Marked enemy hit twice.', fx:{ cap:'deathmark' }, cap:true },
-    ]},
-    { id:'for', n:'FORTUNE', d:'Luck and loot', c:'#e0a020', nodes:[
-      { id:'for1', n:'Pickpocket',    ic:'🪙', d:'+1 choice on card rewards.', fx:{ choice:1 } },
-      { id:'for2', n:'Lucky',         ic:'🍀', d:'Better odds of rare cards.', fx:{ luck:.1 } },
-      { id:'for3', n:'Deep Pockets',  ic:'🎒', d:'+2 deck size.', fx:{ deck:2 } },
-      { id:'for4', n:'Loaded Dice',   ic:'🎲', d:'More luck again.', fx:{ luck:.1 } },
-      { id:'forC', n:'JACKPOT',       ic:'💎', d:'Capstone: hold a 2nd Legendary; every reward offers one Rare or better.', fx:{ leg:1, cap:'jackpot' }, cap:true },
-    ]},
+  Paladin: [
+    ['light', [{ healUp:.2 }, 'Gentle Light', '💛', 'Your heals +20%.'], 'pa_bless', [{ e1:1 }, 'Morning Prayer', '⚡', '+1 point on your first turn.'], 'pa_n3',
+      ['BEACON', '🔆', 'Every heal also heals each ally, and half of it becomes block for you.', { cap:'beacon' }]],
+    ['guard', [{ startBlk:6 }, 'Plated', '🛡', 'Start every fight with 6 block.'], 'pa_vow', [{ thornsHit:3 }, 'Holy Thorns', '✨', 'Whenever you are hit, deal 3 back.'], 'pa_n6',
+      ['SANCTUARY', '🏰', 'Every Guard you play also raises the party shield wall, and blocking a whole attack strikes back.', { cap:'bastion' }]],
+    ['zeal', [{ startStr:1 }, 'Fervent', '🔥', 'Start every fight with +1 strength.'], 'pa_smite', [{ atkUp:.15 }, 'Righteous', '⚔', 'Your attacks +15%.'], 'pa_n9',
+      ['ZEALOT', '☀', 'Your attacks deal +40% while Holy ✨ is up.', { cap:'elHoly' }]],
+  ],
+  Ranger: [
+    ['beast', [{ bleedUp:2 }, 'Sharp Teeth', '🩸', 'Bleeds you apply +2.'], 'ra_maul', [{ startStr:1 }, 'Pack Bond', '🐺', 'Start every fight with +1 strength.'], 'ra_n3',
+      ['PACK', '🐾', 'Cards that hit more than once hit one extra time.', { cap:'pack' }]],
+    ['marks', [{ markUp:.2 }, 'Exposed', '🎯', 'Marked monsters take +20% more.'], 'ra_steady', [{ critUp:10 }, 'Steady Hands', '🏹', '+10% crit chance in card fights.'], 'ra_n6',
+      ['DEADEYE', '👁', 'Your attacks on a Marked monster always crit (+50%).', { cap:'deadeye' }]],
+    ['wild', [{ thornsHit:3 }, 'Barbs', '🌵', 'Whenever you are hit, deal 3 back.'], 'ra_bomb', [{ startWeak:2 }, 'Prepared Ground', '🪤', 'Start every fight with the monster Weakened (2 turns).'], 'ra_n9',
+      ['TRAPPER', '🪤', 'Thorns from your cards are doubled, and every hit back adds 1 break.', { cap:'trapper' }]],
   ],
   'Magic-User': [
-    { id:'fir', n:'FIRE', d:'Burst and burn', c:'#e0602a', nodes:[
-      { id:'fir1', n:'Kindling',      ic:'🔥', d:'Your basic Fire Bolt becomes Uncommon.', fx:{ upCard:'mu_fire' } },
-      { id:'fir2', n:'Kindle More',   ic:'🌋', d:'Add [Immolate] (hit + burn) to your deck.', fx:{ addCard:'burn' } },
-      { id:'fir3', n:'Wildfire',      ic:'🩸', d:'Burns you apply are +3 stronger.', fx:{ bleedUp:3 } },
-      { id:'fir4', n:'Big Bang',      ic:'☄', d:'Add an Epic [Meteor] to your deck.', fx:{ addCard:'meteor', upCard:'meteor', up:3 } },
-      { id:'firC', n:'PYROMANCER',    ic:'☄', d:'Capstone: your first attack each turn deals double.', fx:{ cap:'pyro' }, cap:true },
-    ]},
-    { id:'fro', n:'FROST', d:'Weaken and wall up', c:'#5ac0e8', nodes:[
-      { id:'fro1', n:'Chill',         ic:'❄', d:'Start every fight with the enemy Weakened (2 turns).', fx:{ startWeak:2 } },
-      { id:'fro2', n:'Ice Ward',      ic:'🔷', d:'Add a Rare [Arcane Ward] to your deck.', fx:{ addCard:'ward', upCard:'ward', up:2 } },
-      { id:'fro3', n:'Frostbite',     ic:'🧊', d:'Weakened enemies also take +15% damage.', fx:{ frostbite:.15 } },
-      { id:'fro4', n:'Glacier',       ic:'🛡', d:'Start every fight with 8 block.', fx:{ startBlk:8 } },
-      { id:'froC', n:'DEEP FREEZE',   ic:'🥶', d:'Capstone: Weaken on a charging enemy also adds 2 break.', fx:{ cap:'freeze' }, cap:true },
-    ]},
-    { id:'arc', n:'ARCANA', d:'Energy and cards', c:'#b46bff', nodes:[
-      { id:'arc1', n:'Attunement',    ic:'⚡', d:'+1 energy on your first turn.', fx:{ e1:1 } },
-      { id:'arc2', n:'Study',         ic:'📖', d:'+2 deck size.', fx:{ deck:2 } },
-      { id:'arc3', n:'Insight',       ic:'🃏', d:'+1 choice on card rewards.', fx:{ choice:1 } },
-      { id:'arc4', n:'Flow',          ic:'🌀', d:'+1 energy every 3rd turn.', fx:{ eEvery:3 } },
-      { id:'arcC', n:'ARCHMAGE',      ic:'🔮', d:'Capstone: 4 energy every turn.', fx:{ maxE:1 }, cap:true },
-    ]},
+    ['fire', [{ upCard:'mu_fire' }, 'Kindling', '🔥', 'Your basic Fire Bolt becomes Uncommon.'], 'mu_wave', [{ bleedUp:3 }, 'Wildfire', '🩸', 'Burns you apply +3.'], 'mu_n1',
+      ['PYROMANCER', '☄', 'Your first attack each turn deals double.', { cap:'pyro' }]],
+    ['frost', [{ startWeak:2 }, 'Chill', '❄', 'Start every fight with the monster Weakened (2 turns).'], 'mu_shared', [{ frostbite:.15 }, 'Frostbite', '🧊', 'Weakened monsters take +15%.'], 'mu_n3',
+      ['DEEP FREEZE', '🥶', 'Weaken on a charging monster also adds 2 break.', { cap:'freeze' }]],
+    ['arcane', [{ e1:1 }, 'Attunement', '⚡', '+1 point on your first turn.'], 'mu_blink', [{ eEvery:3 }, 'Flow', '🌀', '+1 point every 3rd turn.'], 'mu_n6',
+      ['ARCHMAGE', '🔮', '4 points every turn.', { maxE:1 }]],
+  ],
+  Illusionist: [
+    ['mirror', [{ startEvade:1 }, 'Light Feet', '💨', 'Start every fight with Evade (dodge the first hit).'], 'il_shimmer', [{ blkUp:.2 }, 'Thick Glamour', '🛡', 'Block from your cards +20%.'], 'il_n3',
+      ['PHANTOM', '👻', 'Each Evade you use draws 2 cards and gives 1 point next turn.', { cap:'phantom' }]],
+    ['mind', [{ startWeak:2 }, 'Suggestion', '🌀', 'Start every fight with the monster Weakened (2 turns).'], 'il_inspire', [{ frostbite:.15 }, 'Doubt', '💭', 'Weakened monsters take +15%.'], 'il_n6',
+      ['PUPPETEER', '🎭', 'Every Weaken you apply also adds 2 break.', { cap:'puppet' }]],
+    ['phant', [{ bleedUp:2 }, 'Lingering Fear', '🩸', 'Bleeds you apply +2.'], 'il_terror', [{ atkUp:.15 }, 'Vivid', '🌑', 'Your attacks +15%.'], 'il_n9',
+      ['NIGHTMARE', '🌑', 'Your attacks deal +40% while Shadow 🌑 is up.', { cap:'elShadow' }]],
+  ],
+  Cleric: [
+    ['life', [{ healUp:.2 }, 'Blessed Hands', '💚', 'Your heals +20%.'], 'cl_mercy', [{ e1:1 }, 'Vigil', '⚡', '+1 point on your first turn.'], 'cl_n3',
+      ['OVERFLOW', '⛲', 'Every heal also heals each ally, and healing past full HP becomes block.', { cap:'overheal' }]],
+    ['ward', [{ blkUp:.2 }, 'Warding', '🔷', 'Block from your cards +20%.'], 'cl_sacred', [{ keep:.5 }, 'Lasting Ward', '⏳', 'Half of your unused block carries over.'], 'cl_n6',
+      ['AEGIS', '🏰', 'Every Guard you play also raises the party shield wall, and blocking a whole attack strikes back.', { cap:'bastion' }]],
+    ['storm', [{ startStr:1 }, 'Charged', '⚡', 'Start every fight with +1 strength.'], 'cl_wrath', [{ critUp:10 }, 'Lightning Eye', '🎯', '+10% crit chance in card fights.'], 'cl_n9',
+      ['TEMPEST', '🌩', 'Your attacks deal +40% while Storm ⚡ is up.', { cap:'elStorm' }]],
+  ],
+  Thief: [
+    ['shadow', [{ startEvade:1 }, 'Light Feet', '💨', 'Start every fight with Evade (dodge the first hit).'], 'th_vanish', [{ e1:1 }, 'Opening', '⚡', '+1 point on your first turn.'], 'th_n1',
+      ['PHANTOM', '👻', 'Each Evade you use draws 2 cards and gives 1 point next turn.', { cap:'phantom' }]],
+    ['duel', [{ bleedUp:2 }, 'Serrated', '🩸', 'Bleeds you apply +2.'], 'th_pistol', [{ markUp:.2 }, 'Exposed', '🎯', 'Marked monsters take +20% more.'], 'th_n4',
+      ['DEATH MARK', '☠', 'Finishers on a Marked monster hit twice.', { cap:'deathmark' }]],
+    ['trick', [{ choice:1 }, 'Pickpocket', '🪙', '+1 choice on card rewards.'], 'th_pilfer', [{ luck:.1 }, 'Loaded Dice', '🎲', 'Better odds of rare cards.'], 'th_n7',
+      ['JACKPOT', '💎', 'Your 0-point cards draw 1 more, and every card reward offers one Rare or better.', { cap:['tricks', 'jackpot'] }]],
+  ],
+  Assassin: [
+    ['venom', [{ bleedUp:3 }, 'Potent', '🐍', 'Poison you apply +3.'], 'as_cloud', [{ bleedUp:2 }, 'Concentrate', '🧪', 'Poison you apply +2 more.'], 'as_n3',
+      ['VIRULENT', '☣', 'Your poison no longer fades each turn.', { cap:'venom' }]],
+    ['ambush', [{ startEvade:1 }, 'Unseen', '💨', 'Start every fight with Evade (dodge the first hit).'], 'as_lowblow', [{ critUp:10 }, 'Vital Spots', '🎯', '+10% crit chance in card fights.'], 'as_n6',
+      ['FIRST BLOOD', '🗡', 'Your first attack each turn deals double.', { cap:'pyro' }]],
+    ['exec', [{ markUp:.2 }, 'Marked Prey', '🎯', 'Marked monsters take +20% more.'], 'as_mercy', [{ e1:1 }, 'Patience', '⚡', '+1 point on your first turn.'], 'as_n9',
+      ['DEATH MARK', '☠', 'Finishers on a Marked monster hit twice.', { cap:'deathmark' }]],
+  ],
+  Monk: [
+    ['stone', [{ startBlk:6 }, 'Rooted', '🛡', 'Start every fight with 6 block.'], 'mo_wall', [{ keep:.5 }, 'Stagger', '⏳', 'Half of your unused block carries over.'], 'mo_n3',
+      ['IMMOVABLE', '⛰', 'Every Guard you play also raises the party shield wall, and blocking a whole attack strikes back.', { cap:'bastion' }]],
+    ['mist', [{ healUp:.2 }, 'Soft Hands', '💚', 'Your heals +20%.'], 'mo_rise', [{ e1:1 }, 'Calm', '⚡', '+1 point on your first turn.'], 'mo_n6',
+      ['MISTWALK', '🌫', 'Every heal also heals each ally, and half of it becomes block for you.', { cap:'beacon' }]],
+    ['wind', [{ startStr:1 }, 'Quick Fists', '👊', 'Start every fight with +1 strength.'], 'mo_chi', [{ eEvery:3 }, 'Second Wind', '🌀', '+1 point every 3rd turn.'], 'mo_n9',
+      ['FLURRY', '🌪', 'Every 3rd card you play in a turn gives 1 point back.', { cap:'flurry' }]],
+  ],
+  Druid: [
+    ['bear', [{ startBlk:6 }, 'Thick Fur', '🛡', 'Start every fight with 6 block.'], 'dr_roar', [{ thornsHit:3 }, 'Bristle', '🌵', 'Whenever you are hit, deal 3 back.'], 'dr_n3',
+      ['ELDER HIDE', '🐻', 'Every Guard you play also raises the party shield wall, and blocking a whole attack strikes back.', { cap:'bastion' }]],
+    ['grove', [{ healUp:.2 }, 'Green Thumb', '🌱', 'Your heals +20%.'], 'dr_grove', [{ e1:1 }, 'Dawn Dew', '⚡', '+1 point on your first turn.'], 'dr_n6',
+      ['EVERGREEN', '🌳', 'Every heal also heals each ally, and healing past full HP becomes block.', { cap:'overheal' }]],
+    ['moon', [{ startStr:1 }, 'Moonlit', '🌙', 'Start every fight with +1 strength.'], 'dr_phase', [{ atkUp:.15 }, 'Starlit', '✨', 'Your attacks +15%.'], 'dr_n9',
+      ['STARFALL', '🌠', 'Your attacks deal +40% while Storm ⚡ is up.', { cap:'elStorm' }]],
   ],
 };
+const KC_TREES = {};
+for(const [cls, specs] of Object.entries(KC_SPEC_TREE)){
+  const meta = (KC_CARD_SRC.specs && KC_CARD_SRC.specs[cls]) || [];
+  KC_TREES[cls] = specs.map(([sid, p1, c1, p2, c2, cap]) => {
+    const m = meta.find(x => x.id === sid) || { n:sid.toUpperCase(), role:'', core:'' }, rk = kcRoleKey(m.role);
+    const nm = id => { const d = KC_CARDS[id]; return d ? (d.ph ? `[${d.n}]` : d.n) : id; };
+    return { id:sid, n:m.n, d:m.core, role:m.role, rk, c:KC_ROLE_C[rk], nodes:[
+      { id:sid + '1', n:p1[1], ic:p1[2], d:p1[3], fx:p1[0] },
+      { id:sid + '2', n:nm(c1), ic:(KC_CARDS[c1] || {}).ic || '🃏', d:`Add an Uncommon ${nm(c1)} to your deck.`, fx:{ addCard:c1, upCard:c1, up:1 }, card:c1 },
+      { id:sid + '3', n:p2[1], ic:p2[2], d:p2[3], fx:p2[0] },
+      { id:sid + '4', n:nm(c2), ic:(KC_CARDS[c2] || {}).ic || '🃏', d:`Add a Rare ${nm(c2)} (spec signature) to your deck.`, fx:{ addCard:c2, upCard:c2, up:2 }, card:c2 },
+      { id:sid + 'C', n:cap[0], ic:cap[1], d:'Capstone: ' + cap[2], fx:cap[3], cap:true },
+    ]};
+  });
+}
+
 // classes not yet prototyped share a simple tree (their own trees are sketched in the design notes)
 KC_TREES._generic = [
   { id:'gbo', n:'BODY', d:'Tough and steady', c:'#3f86d8', nodes:[
@@ -10213,18 +10262,19 @@ function kcData(){
   if(!K.v){ K.v = 1; K.cards = K.cards || []; K.deck = K.deck || []; K.tree = K.tree || []; K.uid = K.uid || 1; K.autoEnd = K.autoEnd !== false; K.seen = 0; }
   if(K.cls && K.cls !== Player.className){ K.tree = []; } // a new class: fresh tree
   K.cls = Player.className;
+  if(K.tree.length){ const ok = new Set(kcTreeNodes().map(n => n.id)); K.tree = K.tree.filter(id => ok.has(id)); }
   return K;
 }
 function kcPoints(){ return Math.max(0, (Player.level || 1)); } // one point per level (level 1 has one to try)
 function kcSpent(){ const K = kcData(), all = kcTreeNodes(); return K.tree.reduce((s, id) => { const n = all.find(x => x.id === id); return s + (n ? (n.cap ? 2 : 1) : 0); }, 0); }
 function kcFx(){
-  const K = kcData(), all = kcTreeNodes(), f = { startBlk:0, startStr:0, addCard:[], upCard:[], deck:0, hand:0, e1:0, eEvery:0, choice:0, luck:0, leg:0, thornsHit:0, keep:0, bleedUp:0, markUp:0, startEvade:0, startWeak:0, frostbite:0, maxE:0, caps:{} };
+  const K = kcData(), all = kcTreeNodes(), f = { startBlk:0, startStr:0, addCard:[], upCard:[], deck:0, hand:0, e1:0, eEvery:0, choice:0, luck:0, leg:0, thornsHit:0, keep:0, bleedUp:0, markUp:0, startEvade:0, startWeak:0, frostbite:0, maxE:0, atkUp:0, blkUp:0, healUp:0, critUp:0, brkDown:0, caps:{} };
   for(const id of K.tree){ const n = all.find(x => x.id === id); if(!n) continue;
     for(const [k, v] of Object.entries(n.fx)){
       if(k === 'addCard') f.addCard.push(v);
       else if(k === 'upCard') f.upCard.push({ id:v, r:n.fx.up || 1 });
       else if(k === 'up') continue;
-      else if(k === 'cap') f.caps[v] = true;
+      else if(k === 'cap') [].concat(v).forEach(c => f.caps[c] = true);
       else f[k] = (f[k] || 0) + v;
     }
   }
@@ -10242,10 +10292,13 @@ function kcRespec(){ kcData().tree = []; saveGame(); kcRenderScreen(); if(typeof
 function kcLimits(){ const f = kcFx(); return { deck:KC_LIMIT.deck + f.deck, epic:KC_LIMIT.epic, legendary:KC_LIMIT.legendary + f.leg }; }
 function kcAddCard(id, r){ const K = kcData(); const c = { u:K.uid++, id, r }; K.cards.push(c); if(kcDeckCanAdd(c)) K.deck.push(c.u); return c; }
 function kcDeckCards(){ const K = kcData(); return K.deck.map(u => K.cards.find(c => c.u === u)).filter(Boolean); }
+function kcDeckFit(){ // never over the limit (a respec can shrink it): the newest picks go back to the collection
+  const K = kcData(), room = kcLimits().deck - kcStarterFor(Player.className).length; if(K.deck.length > room){ K.deck = K.deck.slice(0, Math.max(0, room)); return true; } return false;
+}
 function kcDeckCanAdd(c){
   const K = kcData(), L = kcLimits(), d = kcDeckCards();
   if(K.deck.includes(c.u)) return false;
-  if(kcBaseDeck().length + d.length >= L.deck) return false;
+  if(kcStarterFor(Player.className).length + d.length >= L.deck) return false;
   if(d.filter(x => x.id === c.id && x.r === c.r).length + 1 > kcRar(c.r).max) return false; // copies per rarity
   if(c.r === 3 && d.filter(x => x.r === 3).length >= L.epic) return false;
   if(c.r === 4 && d.filter(x => x.r === 4).length >= L.legendary) return false;
@@ -10253,7 +10306,7 @@ function kcDeckCanAdd(c){
 }
 function kcDeckWhyNot(c){
   const L = kcLimits(), d = kcDeckCards();
-  if(kcBaseDeck().length + d.length >= L.deck) return `Deck is full (${L.deck})`;
+  if(kcStarterFor(Player.className).length + d.length >= L.deck) return `Deck is full (${L.deck})`;
   if(d.filter(x => x.id === c.id && x.r === c.r).length + 1 > kcRar(c.r).max) return `Max ${kcRar(c.r).max} of each ${kcRar(c.r).n.toLowerCase()} card`;
   if(c.r === 3) return `Max ${L.epic} Epic cards`;
   if(c.r === 4) return `Max ${L.legendary} Legendary`;
@@ -10301,7 +10354,7 @@ function kcBaseDeck(){
   for(const id of f.addCard) out.push({ id, r:ups[id] || 0, base:true, tree:true });
   return out.concat(kcGearCards().map(g => ({ ...g, base:true, gearCard:true })));
 }
-function kcFullDeck(){ return kcBaseDeck().concat(kcDeckCards().map(c => ({ id:c.id, r:c.r, u:c.u }))).filter(c => kcDef(c.id)); }
+function kcFullDeck(){ kcDeckFit(); return kcBaseDeck().concat(kcDeckCards().map(c => ({ id:c.id, r:c.r, u:c.u }))).filter(c => kcDef(c.id)); }
 
 // ── numbers ────────────────────────────────────────
 function kcPow(){ return Math.max(1, (Player.atk || 10) / 10); }     // damage scale
@@ -10313,19 +10366,24 @@ function kcCardVals(c){
   if(c.r >= 3){ if(d.t === 'atk' || d.t === 'fin') v.stag = (v.stag || 0) + KC_EPIC.stag; else v.draw = (v.draw || 0) + 1; } // Epic: +1 break on hits, draw 1 on the rest
   let cost = d.cost - (c.r >= 4 ? KC_LEG.costDown : 0);
   v.cost = Math.max(0, cost);
-  if(d.dmg) v.dmgN = Math.round(d.dmg * m * P);
+  const aU = (d.t === 'atk' || d.t === 'fin') ? 1 + (f.atkUp || 0) : 1, hU = 1 + (f.healUp || 0);
+  if(d.dmg) v.dmgN = Math.round(d.dmg * m * P * aU);
+  if(d.lowHp) v.lowHpN = Math.round(d.lowHp * m * P);
+  if(d.exec) v.execN = Math.round(d.exec * m * P);
+  if(d.self) v.selfN = Math.max(1, Math.round(Player.maxHp * d.self / 100));
+  if(d.regen) v.regenN = Math.round(Player.maxHp * d.regen * m * hU / 100);
   if(d.per) v.perN = Math.round(d.per * m * P);
   if(d.vsMark) v.vsMarkN = Math.round(d.vsMark * m * P);
   if(d.combo) v.comboN = Math.round(d.combo.dmg * m * P);
-  if(d.blk) v.blkN = Math.round(d.blk * m * H);
-  if(d.thorns) v.thornsN = Math.round(d.thorns * m * P);
-  if(d.heal) v.healN = Math.round(Player.maxHp * d.heal * m / 100);
+  if(d.blk) v.blkN = Math.round(d.blk * m * H * (1 + (f.blkUp || 0)));
+  if(d.thorns) v.thornsN = Math.round(d.thorns * m * P * (f.caps.trapper ? 2 : 1));
+  if(d.heal) v.healN = Math.round(Player.maxHp * d.heal * m * hU / 100);
   if(d.bleed) v.bleedN = Math.round((d.bleed + f.bleedUp) * m * P);
   if(d.chain) v.chainN = Math.round(d.chain * P);
   if(d.str) v.strN = Math.round(d.str * (c.r >= 2 ? 1.5 : 1) * P);
   if(c.ic) v.ic = c.ic;
   if(c.el) v.el = c.el;
-  v.hits = d.hits || 1;
+  v.hits = (d.hits || 1) + (f.caps.pack && d.hits > 1 ? 1 : 0);
   return v;
 }
 function kcCardText(v){
@@ -10336,6 +10394,16 @@ function kcCardText(v){
   if(v.bleedN) n.push(`<span class="n-l">🩸${v.bleedN}</span>`);
   if(v.stag) n.push(`<span class="n-k">💥${v.stag}</span>`);
   if(v.perN) t.push(`+${v.perN} per card before it`);
+  if(v.selfN) t.push(`lose ${v.selfN} HP`);
+  if(v.lowHpN) t.push(`+${v.lowHpN} under ½ HP`);
+  if(v.blkDmg) t.push(`+${Math.round(v.blkDmg * 100)}% of your block`);
+  if(v.execN) t.push(`+${v.execN} if it's under 35%`);
+  if(v.crit) t.push('always crits');
+  if(v.taunt) t.push('taunt');
+  if(v.cover) t.push('party shield wall');
+  if(v.rally) t.push('rally the party');
+  if(v.regenN) t.push(`✚${v.regenN} a turn ×3`);
+  if(v.party && (v.healN || v.regenN)) t.push('heals the party');
   if(v.vsMarkN) t.push(`+${v.vsMarkN} if Marked`);
   if(v.comboN) t.push(`+${v.comboN} after a ${KC_TYPES[v.combo.after].n.toLowerCase()}`);
   if(v.keep) t.push('block stays');
@@ -10391,6 +10459,7 @@ function kcEnemyHpFor(e, boss){
   else if(e.elite || e.gilded) base = 155;
   if(kit === 'brute' || kit === 'knight') base *= 1.15; else if(kit === 'quick') base *= .88;
   if(e.bloodMoon) base *= 1.25;
+  base *= 1 + .06 * Math.min(10, kcSpent()); // a built-up spec hits much harder: street monsters keep up a little (~3-5 turns)
   return Math.round(base * P);
 }
 function kcStart(ent, boss){
@@ -10405,7 +10474,7 @@ function kcStart(ent, boss){
   KC.perks = kcPerkList(); KC.perkUses = {}; KC.perkBroken = {}; KC.inf = {};
   Object.assign(KC, { on:true, ent, boss, draw:deck, disc:[], hand:[], exh:[], energy:0, maxE:KC_ENERGY + f.maxE, turn:0, phase:0,
     blk:f.startBlk ? Math.round(f.startBlk * kcHpU()) : 0, str:f.startStr ? Math.round(f.startStr * kcPow()) : 0, evade:f.startEvade || 0, thorns:0, nextE:0,
-    eBlk:0, bleed:0, weak:f.startWeak || 0, mark:0, stun:0, broken:0, brk:0, brkMax:boss ? 6 : (ent.elite || ent.gilded) ? 5 : 4,
+    eBlk:0, bleed:0, weak:f.startWeak || 0, mark:0, stun:0, broken:0, brk:0, brkMax:Math.max(3, (boss ? 6 : (ent.elite || ent.gilded) ? 5 : 4) - (f.brkDown || 0)), regen:[], cover:false, rally:false, taunt:0,
     intent:null, intent2:null, bag:[], q:[], busy:true, sel:-1, played:[], dealt:0, f, tut:ent.tutorialMob ? 0 : -1, turnsEnded:0, wasOn:true, allyT:0 });
   KC.kit = cbKitFor(ent);
   KC.grp = kgSetup(ent); if(KC.grp) KC.brkMax = KC.grp.T.pips;
@@ -10466,6 +10535,7 @@ function kcStartTurn(){
   KC.turn++; KC.played = []; KC.dealt = 0; KC.busy = false; KC.sel = -1;
   kcChainReset(); kcInfuseTick();
   const f = KC.f;
+  if(KC.regen && KC.regen.length && KC.turn > 1){ let n = 0, party = false; for(const r of KC.regen){ n += r.n; party = party || r.party; r.t--; } KC.regen = KC.regen.filter(r => r.t > 0); kcHeal(n, party); }
   KC.energy = KC.maxE + KC.nextE + (KC.turn === 1 ? f.e1 : 0) + (f.eEvery && KC.turn % f.eEvery === 0 ? 1 : 0) + (KC.carry || 0); KC.nextE = 0; KC.carry = 0; KC.sparkUsed = false;
   kcDraw(KC_HAND + f.hand);
   if(KC.grp) kgOnTurn();
@@ -10510,15 +10580,29 @@ function kcResolve(v){
   if(v.thornsN) KC.thorns += v.thornsN;
   if(v.evade){ KC.evade += v.evade; fxDodge(Math.random() < .5 ? -1 : 1); }
   if(v.strN){ KC.str += v.strN; showDamageNum(`+${v.strN} STR`, 'dn-counter', 'left'); fxSkill(); }
-  if(v.healN){ Player.hp = Math.min(Player.maxHp, Player.hp + v.healN); showDamageNum(`+${v.healN}`, 'dmg-heal', 'left'); }
+  if(v.healN) kcHeal(v.healN, v.party);
+  if(v.regenN){ KC.regen.push({ n:v.regenN, t:3, party:!!v.party }); showDamageNum(`🌿 +${v.regenN}/turn`, 'dmg-heal', 'left'); }
+  if(v.selfN){ Player.hp = Math.max(1, Player.hp - v.selfN); showDamageNum(`-${v.selfN}`, 'dn-hurt', 'left'); setCBUI && setCBUI(); }
+  if(v.taunt || (v.t === 'blk' && KC.f.caps.bastion && KC.grp)){
+    if(v.taunt){ KC.taunt = 1; showDamageNum('📣 TAUNT', 'dn-counter', 'right'); }
+    if(v.taunt && KC.grp) for(const it of [KC.intent, KC.intent2]) if(it && !it.all && it.tg !== undefined && it.tg !== 'you') it.tg = 'you';
+  }
+  if(v.cover || (v.t === 'blk' && KC.f.caps.bastion)){ if(!KC.cover) showDamageNum('🏰 SHIELD WALL', 'dn-guard', 'left'); KC.cover = true; }
+  if(v.rally){ KC.rally = true; showDamageNum('📯 RALLY', 'dn-counter', 'left'); }
   if(v.mark){ KC.mark = Math.max(KC.mark, v.mark + 1); showDamageNum('🎯 MARKED', 'dn-counter', 'right'); }
-  if(v.weak){ KC.weak = Math.max(KC.weak, v.weak + 1); showDamageNum('WEAKENED', 'dn-counter', 'right'); if(KC.f.caps.freeze && KC.intent && (KC.intent.k === 'charge' || KC.intent.k === 'heavy')) kcBreak(2); }
+  if(v.weak){ KC.weak = Math.max(KC.weak, v.weak + 1); showDamageNum('WEAKENED', 'dn-counter', 'right'); if((KC.f.caps.freeze && KC.intent && (KC.intent.k === 'charge' || KC.intent.k === 'heavy')) || KC.f.caps.puppet) kcBreak(2); }
   if(v.dmgN != null){
     let d = v.dmgN + KC.str;
     if(v.perN) d += v.perN * before;
     if(v.vsMarkN && KC.mark > 0) d += v.vsMarkN;
     if(v.comboN && KC.played.includes(v.combo.after)){ d += v.comboN; setTimeout(() => showDamageNum('COMBO', 'dn-counter', 'right'), 80); }
     if(v.chainN) d += v.chainN * (loopChainLive() || 0);
+    if(v.lowHpN && Player.hp <= Player.maxHp / 2) d += v.lowHpN;
+    if(v.blkDmg) d += Math.round(KC.blk * v.blkDmg);
+    if(v.execN && e.hp <= e.maxHp * .35) d += v.execN;
+    if(v.crit || (KC.f.caps.deadeye && KC.mark > 0 && v.t === 'atk')){ d *= 1.5; setTimeout(() => showDamageNum('CRIT', 'dn-crit', 'right'), 60); }
+    if(KC.f.caps.bloodrage && Player.hp <= Player.maxHp / 2 && (v.t === 'atk' || v.t === 'fin')) d *= 1.5;
+    for(const [c, el] of [['elHoly', 'holy'], ['elShadow', 'shadow'], ['elStorm', 'storm']]) if(KC.f.caps[c] && KC.inf && KC.inf[el] && (v.t === 'atk' || v.t === 'fin')) d *= 1.4;
     if(KC.f.caps.pyro && !KC.played.includes('atk') && v.t === 'atk') d *= 2;
     if(v.t === 'fin' && KC.f.caps.deathmark && KC.mark > 0) d *= 2;
     v._chips = Math.round(d) * (v.hits || 1);
@@ -10528,16 +10612,26 @@ function kcResolve(v){
   if(v.bleedN){ KC.bleed += v.bleedN; showDamageNum(`🩸 ${KC.bleed}`, 'dmg-orange', 'right'); }
   if(v.stag) kcBreak(v.stag);
   if(v.draw) kcDraw(v.draw);
+  if(KC.f.caps.tricks && v.cost === 0) kcDraw(1);
+  if(KC.f.caps.flurry && (before + 1) % 3 === 0){ KC.energy += 1; showDamageNum('🌪 +1⚡', 'dn-counter', 'left'); }
   if(v.energy) KC.energy += v.energy;
   if(v.nextE) KC.nextE += v.nextE;
+}
+// heals: you, and the party when the card (or a healer capstone) says so
+function kcHeal(n, party){
+  const before = Player.hp; Player.hp = Math.min(Player.maxHp, Player.hp + n); showDamageNum(`+${n}`, 'dmg-heal', 'left');
+  const over = n - (Player.hp - before);
+  if(KC.f.caps.beacon) KC.blk += Math.round(n / 2);
+  if(KC.f.caps.overheal && over > 0){ KC.blk += over; showDamageNum(`🛡 +${over}`, 'dn-guard', 'left'); }
+  if(KC.grp && (party || KC.f.caps.beacon || KC.f.caps.overheal)){ const fr = n / Player.maxHp; for(const a of KC.grp.allies) if(a.hp > 0) a.hp = Math.min(a.max, a.hp + Math.round(a.max * fr)); showDamageNum('✚ PARTY', 'dmg-heal', 'left'); }
 }
 // every hit on the monster: crits, marks, broken, weaken-frostbite, its block, chain/bless mods
 function kcHit(base, o = {}){
   const e = KC.ent;
   let d = base, crit = false;
-  if(Math.random() * 100 < (Player.crit || 0) + blessCrit()){ d *= 1.5; crit = true; }
+  if(Math.random() * 100 < (Player.crit || 0) + blessCrit() + (KC.f.critUp || 0)){ d *= 1.5; crit = true; }
   if(KC.mark > 0) d *= 1.3 + KC.f.markUp;
-  if(KC.broken > 0) d *= 1.5;
+  if(KC.broken > 0) d *= KC.f.caps.precision ? 2 : 1.5;
   if(KC.weak > 0 && KC.f.frostbite) d *= 1 + KC.f.frostbite;
   d = loopDmgMod(Math.round(d), { type:'Basic' }, false);
   if(e.isRaid) d = Math.round(d * (1 + crewFury() + warbandDmg()));
@@ -10563,7 +10657,7 @@ function kcBreak(n){
   const exposed = KC.intent && (KC.intent.k === 'charge' || KC.intent.k === 'heavy'); // the weak spot shows while it winds up
   KC.brk = Math.min(KC.brkMax, KC.brk + n * (exposed ? 2 : 1));
   if(KC.brk >= KC.brkMax){
-    KC.brk = 0; KC.broken = 2; KC.stun = 1;
+    KC.brk = 0; KC.broken = KC.f.caps.precision ? 3 : 2; KC.stun = 1;
     showDamageNum('💥 BREAK!', 'dn-parry', 'right');
     flashScreen && flashScreen('white'); fxParry(true, 'PERFECT'); sndRiposte && sndRiposte();
     loopOnBreak();
@@ -10605,7 +10699,7 @@ function kcEnemyTurn(){
     const b = KC.grp ? kgWard(KC.bleed, true) : KC.bleed; if(e.isFinale && b > 0) seasonFinaleHit(b);
     e.hp = Math.max(tutHpFloor(e) && KC.turnsEnded < 2 ? Math.ceil(e.maxHp * .3) : 0, e.hp - b);
     showDamageNum(`🩸 ${fmt(b)}`, 'dmg-orange', 'right'); cbBodyHit(false, false);
-    KC.bleed = Math.max(0, KC.bleed - Math.max(1, Math.round(KC.bleed * .34)));
+    if(!KC.f.caps.venom) KC.bleed = Math.max(0, KC.bleed - Math.max(1, Math.round(KC.bleed * .34)));
     setCBUI(); kcRender();
     if(e.hp <= 0){ cbKill(); return; }
   }
@@ -10638,11 +10732,13 @@ function kcLand(it, h){
   if(KC.grp){ const r = kgLand(it, h, dmg); if(r === null) return; dmg = r; }
   if(KC.evade > 0){ KC.evade--; showDamageNum('EVADED', 'dn-pdodge', 'left'); fxDodge(Math.random() < .5 ? -1 : 1); fxPerfectDodge(); sndDodge && sndDodge();
     if(KC.f.caps.phantom){ KC.nextE += 1; KC.phantomDraw = (KC.phantomDraw || 0) + 2; } return; }
+  if(KC.taunt > 0) dmg = Math.round(dmg * .75); // a taunting stance takes the blow on purpose
+  if(KC.cover && !KC.grp && it.k === 'unbl') dmg = Math.round(dmg * .5);
   let blocked = 0;
   if(it.k !== 'unbl' && KC.blk > 0){ blocked = Math.min(KC.blk, dmg); KC.blk -= blocked; dmg -= blocked; if(blocked) showDamageNum(`${blocked} 🛡`, 'dn-guard', 'left'); }
   if(dmg <= 0){
     fxParry(false, 'GREAT'); sndRiposte && sndRiposte();
-    if(KC.f.caps.unbreak) kcHit(Math.round(kcPow() * 5), {});
+    if(KC.f.caps.unbreak || KC.f.caps.bastion) kcHit(Math.round(kcPow() * 5), {});
   } else {
     Player.hp = Math.max(0, Player.hp - dmg);
     if(dmg >= Player.maxHp * .25) kcPerkBreak('glass');
@@ -10654,7 +10750,7 @@ function kcLand(it, h){
   }
   // retaliate: card thorns this turn + tree
   const back = (KC.thorns || 0) + (KC.f.thornsHit ? Math.round(KC.f.thornsHit * kcPow()) : 0);
-  if(back && e.hp > 0){ setTimeout(() => { if(KC.on && curEnemy && curEnemy.hp > 0){ kcHit(back, {}); kcRender(); if(curEnemy.hp <= 0){ KC.busy = true; cbKill(); } } }, 160); }
+  if(back && e.hp > 0){ setTimeout(() => { if(KC.on && curEnemy && curEnemy.hp > 0){ kcHit(back, {}); if(KC.f.caps.trapper) kcBreak(1); kcRender(); if(curEnemy.hp <= 0){ KC.busy = true; cbKill(); } } }, 160); }
   setCLog(dmg > 0 ? `${e.name}'s ${it.name.toLowerCase()} hits you for ${fmt(dmg)}.` : `You block ${e.name}'s ${it.name.toLowerCase()}.`);
   if(Player.hp <= 0 && Player.skills?.t3 === 'titan' && !Player.titanUsed){ Player.hp = Math.floor(Player.maxHp * .2); Player.titanUsed = true; showDamageNum('TITAN REVIVE!', 'dmg-heal', 'left'); }
   setCBUI(); kcRender();
@@ -10668,7 +10764,7 @@ function kcAfterEnemy(){
   if(KC.broken > 0) KC.broken--;
   if(KC.weak > 0) KC.weak--;
   if(KC.mark > 0) KC.mark--;
-  KC.thorns = 0;
+  KC.thorns = 0; KC.cover = false; KC.rally = false; KC.taunt = 0;
   KC.eBlk = it && it.k === 'guard' ? KC.eBlk : 0; // its guard lasts through your next turn
   KC.blk = KC.keepAll ? KC.blk : Math.round(KC.blk * (KC.f.keep || 0)); KC.keepAll = false;
   // the next plan: a charge counts down to its heavy blow; bosses in frenzy act twice
@@ -10707,12 +10803,21 @@ function kcRewardFor(e, boss){
   const src = gk ? (gk === 'party' ? 'boss' : 'raid') : boss ? 'boss' : (e.elite || e.gilded) ? 'elite' : 'normal';
   if(src === 'normal' && Math.random() > .55) return null; // street monsters: about every other kill
   const n = { normal:1, elite:2, boss:3, raid:3 }[src] + (KC.f ? KC.f.choice : 0);
-  const pool = Object.keys(KC_CARDS).filter(id => { const d = KC_CARDS[id]; return !d.gear && !d.basic && (!d.cls || d.cls === Player.className); });
+  const pool = kcRewardPool(), inv = kcSpecInvest();
   const opts = [];
-  while(opts.length < n && opts.length < pool.length){ const id = pool[Math.floor(Math.random() * pool.length)]; if(!opts.some(o => o.id === id)) opts.push({ id, r:kcRollRarity(src) }); }
+  for(let guard = 0; opts.length < n && guard < 40; guard++){
+    const r = kcRollRarity(src), id = kcPickWeighted(pool.filter(id => (KC_CARDS[id].minR || 0) <= r && !opts.some(o => o.id === id)), inv);
+    if(id) opts.push({ id, r });
+  }
   if(KC.f && KC.f.caps.jackpot && !opts.some(o => o.r >= 2)) opts[0].r = 2;
   return { opts, src };
 }
+function kcRewardPool(){ return Object.keys(KC_CARDS).filter(id => { const d = KC_CARDS[id]; return !d.gear && !d.basic && (!d.cls || d.cls === Player.className); }); }
+// how many tree nodes you have in each spec (branch id = spec id)
+function kcSpecInvest(){ const K = kcData(), out = {}; for(const n of kcTreeNodes()) if(K.tree.includes(n.id)) out[n.b.id] = (out[n.b.id] || 0) + 1; return out; }
+// spec cards weigh 1 + 1.2 per node you own in that spec; neutral cards weigh 1 (leans, never locks)
+function kcSpecWeight(id, inv){ const sp = KC_CARDS[id].spec; return 1 + (sp ? 1.2 * (inv[sp] || 0) : 0); }
+function kcPickWeighted(ids, inv){ if(!ids.length) return null; const w = ids.map(id => kcSpecWeight(id, inv)); let r = Math.random() * w.reduce((a, b) => a + b, 0); for(let i = 0; i < ids.length; i++){ r -= w[i]; if(r <= 0) return ids[i]; } return ids[ids.length - 1]; }
 let _kcReward = null;
 function kcRewardHtml(rw){
   return `<div class="kc-rw"><div class="kc-rw-t">🃏 CHOOSE A CARD</div><div class="kc-rw-row">${rw.opts.map((c, i) =>
@@ -10895,11 +11000,12 @@ function kcRenderScreen(){
 function kcTreeHtml(){
   const K = kcData(), pts = kcPoints() - kcSpent();
   const proto = !!KC_TREES[Player.className];
-  let h = `<div class="kc-th"><div><b>${Player.className.toUpperCase()}</b> · ${proto ? 'class tree' : 'starter tree (class tree coming)'}</div>
+  const inv = kcSpecInvest(), main = kcTree().reduce((a, b) => (inv[b.id] || 0) > (inv[a.id] || 0) ? b : a, kcTree()[0]);
+  let h = `<div class="kc-th"><div><b>${Player.className.toUpperCase()}</b> · ${proto ? `3 specs · ${inv[main.id] ? `leaning <b style="color:${main.c}">${main.n}</b> (card rewards lean this way)` : 'pick a branch: it becomes your spec'}` : 'starter tree'}</div>
     <div class="kc-pts"><b>${pts}</b> point${pts === 1 ? '' : 's'} · 1 per level <button onclick="kcRespec()">RESPEC (free)</button></div></div>`;
   h += `<div class="kc-tree">`;
   for(const b of kcTree()){
-    h += `<div class="kc-br" style="--bc:${b.c}"><div class="kc-bn">${b.n}<span>${b.d}</span></div>`;
+    h += `<div class="kc-br" style="--bc:${b.c}"><div class="kc-bn">${b.n}${b.role ? `<em class="kc-role r-${b.rk}">${b.role}</em>` : ''}<span>${b.d}</span></div>`;
     b.nodes.forEach((n, i) => {
       const nn = { ...n, b, i }, has = K.tree.includes(n.id), can = kcCanLearn(nn);
       h += `${i ? `<div class="kc-ln${has ? ' on' : ''}"></div>` : ''}<button class="kc-node${has ? ' has' : can ? ' can' : ''}${n.cap ? ' cap' : ''}${_kcNode === n.id ? ' sel' : ''}" onclick="_kcNode='${n.id}';kcRenderScreen()">
@@ -10912,15 +11018,16 @@ function kcTreeHtml(){
   if(sel){
     const has = K.tree.includes(sel.id), can = kcCanLearn(sel);
     const why = has ? '✓ learned' : can ? '' : sel.i > 0 && !K.tree.includes(sel.b.nodes[sel.i - 1].id) ? 'Learn the one above it first' : `Needs ${sel.cap ? 2 : 1} point${sel.cap ? 's' : ''}`;
-    h += `<div class="kc-nd" style="--bc:${sel.b.c}"><div class="t">${sel.ic} ${sel.n}${sel.cap ? ' · CAPSTONE' : ''}</div><div class="d">${sel.d}</div>
+    h += `<div class="kc-nd" style="--bc:${sel.b.c}"><div class="t">${sel.ic} ${sel.n}${sel.cap ? ' · CAPSTONE' : ''}</div><div class="d">${sel.d}</div>${sel.card ? `<div class="kc-nd-card">${kcCardHtml({ id:sel.card, r:sel.fx.up || 1 }, { cls:'kc-mini' })}</div>` : ''}
       ${can ? `<button class="kc-learn" onclick="kcLearn('${sel.id}')">LEARN (${sel.cap ? 2 : 1})</button>` : `<div class="w">${why}</div>`}</div>`;
   } else h += `<div class="kc-nd hint">Tap a node to see it. Branches open top to bottom; the last node is a capstone.</div>`;
   return h;
 }
 function kcDeckHtml(){
+  kcDeckFit();
   const K = kcData(), L = kcLimits(), base = kcBaseDeck(), mine = kcDeckCards();
-  const total = base.length + mine.length;
-  let h = `<div class="kc-th"><div><b>DECK ${total}/${L.deck}</b> · max per card: ${KC_RAR.map(r => `<span style="color:${r.c}">${r.max}</span>`).join('/')} · Epic ≤${L.epic} · Legendary ≤${L.legendary}</div></div>`;
+  const total = kcStarterFor(Player.className).length + mine.length, bonus = base.filter(c => c.tree || c.gearCard).length;
+  let h = `<div class="kc-th"><div><b>DECK ${total}/${L.deck}</b>${bonus ? ` <span class="kc-bonus">+${bonus} from tree & gear</span>` : ''} · max per card: ${KC_RAR.map(r => `<span style="color:${r.c}">${r.max}</span>`).join('/')} · Epic ≤${L.epic} · Legendary ≤${L.legendary}</div></div>`;
   const merges = kcMergeable();
   if(merges.length) h += `<div class="kc-merge">${merges.map(a => `<button onclick="kcMerge('${a[0].id}',${a[0].r})">⬆ MERGE 3× ${kcDef(a[0].id).n} → <b style="color:${kcRar(a[0].r + 1).c}">${kcRar(a[0].r + 1).n}</b></button>`).join('')}</div>`;
   const perks = kcPerkList();
@@ -11091,7 +11198,7 @@ function kgWard(d, quiet){
 function kgAllies(){
   const g = KC.grp, e = KC.ent; if(!g || !KC.on || !curEnemy || curEnemy.hp <= 0) return;
   const P = kcPow(), it = KC.intent, live = g.allies.filter(a => a.hp > 0);
-  let dmg = 0, brk = 0, heals = 0; g.shield = false;
+  let dmg = 0, brk = 0, heals = 0; g.shield = !!KC.cover; // your shield wall (a tank card) covers the party too
   for(const a of live){
     if(a.r === 'dps'){ dmg += Math.min(g.cap, Math.round(P * (13 + Math.random() * 7))); brk += 1; }
     else if(a.r === 'tank'){ dmg += Math.min(g.cap, Math.round(P * 6)); brk += 1; if(it && it.all && !it.wipe) g.shield = true; }
@@ -11102,9 +11209,10 @@ function kgAllies(){
   if(fuel.length && dmg){ dmg = Math.round(dmg * (1 + .25 * fuel.length)); fuel.forEach(x => delete KC.inf[x]); setTimeout(() => showDamageNum(`👥 FUEL ${fuel.map(x => KC_EL[x].ic).join('')}`, 'dn-counter', 'right'), 200); }
   if(live.some(a => a.r === 'heal') && Math.random() < .6) kcInfuse('holy', 'ally');
   else if(live.some(a => a.r === 'dps')) kcInfuse(['fire', 'frost', 'storm', 'shadow'][Math.floor(Math.random() * 4)], 'ally');
+  if(KC.rally && dmg){ dmg = Math.round(dmg * 1.3); setTimeout(() => showDamageNum('📯 RALLIED +30%', 'dn-counter', 'right'), 120); }
   if(brk) kcBreak(Math.ceil(brk * (g.k === 'party' ? 1 : .8)));
   if(dmg){ const d = kcHit(dmg, { ally:true, big:true }); showDamageNum(`👥 ${fmt(d)}`, 'dmg-normal', 'right'); }
-  if(g.shield){ showDamageNum('🛡 SHIELD WALL', 'dn-guard', 'left'); setCLog('Your tank raises a shield wall for the whole party.'); }
+  if(g.shield){ showDamageNum('🛡 SHIELD WALL', 'dn-guard', 'left'); setCLog(KC.cover ? 'You raise a shield wall for the whole party.' : 'Your tank raises a shield wall for the whole party.'); }
   // healers: the lowest first
   for(let i = 0; i < Math.min(heals, 6); i++){
     const pool = [{ me:true, hp:Player.hp, max:Player.maxHp }, ...g.allies.filter(a => a.hp > 0)];
