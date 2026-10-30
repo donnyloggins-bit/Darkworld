@@ -2172,6 +2172,157 @@ body:not(.net-on) .net-only { display:none !important; }
 .stat-roll-box.key .stat-roll-label::after { content:' ★'; color:var(--gold); }
 .other-cities { margin-top:8px; font-size:.9rem; color:#7a6a90; font-style:italic; text-align:center; }
 .other-cities a { color:#c08080; }
+/* ══ COMBAT v2: the monster is the stage; tap it, swipe it ══ */
+#combat-box { background:#07040c; }
+@media (min-width:700px){ #combat-box { max-width:480px; margin:0 auto; border-left:1px solid #2a1a3a; border-right:1px solid #2a1a3a; } }
+#dmg-layer { position:absolute !important; inset:0; pointer-events:none; z-index:300; overflow:hidden; }
+#cb-top { position:relative; flex:1; padding:0 !important; display:block !important; min-height:0; overflow:hidden;
+  background:radial-gradient(ellipse at 50% 35%, #2a0c32 0%, #12061a 60%, #050208 100%);
+  touch-action:none; user-select:none; -webkit-user-select:none; cursor:crosshair; --tc:#f2e8d4; }
+#e-body { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; transform-origin:50% 70%; will-change:transform, filter; }
+#boss-portrait { position:absolute !important; inset:0; width:100% !important; height:100% !important; max-height:none !important;
+  object-fit:cover; object-position:50% 22%; margin:0 !important; border:0 !important; pointer-events:none; -webkit-user-drag:none; }
+#cb-top.has-art #e-spr { display:none; }
+#e-spr { font-size:clamp(6rem,30vw,9rem) !important; margin:0 !important; pointer-events:none; }
+#cb-top::after { content:''; position:absolute; inset:0; pointer-events:none; z-index:2;
+  background:linear-gradient(180deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 62%, rgba(7,4,12,.95) 100%); }
+#cb-top.telling::before { content:''; position:absolute; inset:0; z-index:3; pointer-events:none;
+  box-shadow:inset 0 0 70px 6px var(--tc); opacity:.55; animation:teleGlow .7s ease-in-out infinite alternate; }
+#cb-top.now::before { opacity:1; box-shadow:inset 0 0 90px 16px #ffd34d; animation:none; }
+#cb-top.telling[data-k=dodge]::before { box-shadow:inset 0 0 80px 10px #b46bff; }
+@keyframes teleGlow { from{opacity:.35} to{opacity:.75} }
+#cb-hud { position:absolute; top:0; left:0; right:0; z-index:6; padding:calc(10px + var(--sat)) 14px 6px; text-align:center; pointer-events:none; }
+#cb-hud #cb-name { font-size:clamp(1.05rem,4.6vw,1.45rem); margin:0; text-shadow:0 2px 6px #000; }
+#cb-hud #cb-type { font-size:.68rem; letter-spacing:.22em; margin:0 0 6px; color:#d0a0a0; text-shadow:0 1px 4px #000; }
+#cb-hud #cb-ehp-wrap { max-width:none; margin:0 auto; position:relative; }
+#cb-hud .c-hpbar { height:14px; border:1px solid #6a4a30; background:rgba(10,6,14,.85); position:relative; border-radius:3px; }
+#c-ehp-ghost { position:absolute; left:0; top:0; bottom:0; width:100%; background:#fff3d0; transition:width .35s ease-out; }
+#cb-hud .c-ehp { position:relative; z-index:1; background:linear-gradient(90deg,#7a1000,#e04a10); transition:width .08s linear; }
+#cb-hud #c-ehp-t { position:absolute; inset:0; z-index:2; text-align:center; font-size:.72rem; line-height:14px; color:#fff; text-shadow:0 1px 2px #000; }
+#cb-top.boss #cb-hud .c-hpbar { height:18px; border-color:#b8962a; }
+#cb-top.boss #cb-hud #c-ehp-t { line-height:18px; }
+#cb-hud .status-row { margin-top:4px; }
+#cb-combo { position:absolute; right:12px; top:calc(92px + var(--sat)); z-index:6; text-align:right; pointer-events:none;
+  font-family:'Metal Mania',cursive; color:#ffe066; text-shadow:0 0 12px rgba(255,160,0,.7), 0 2px 4px #000; opacity:0; transition:opacity .2s; }
+#cb-combo.on { opacity:1; }
+#cb-combo b { display:block; font-size:2.2rem; line-height:1; font-weight:normal; }
+#cb-combo span { font-family:'Share Tech Mono',monospace; font-size:.66rem; letter-spacing:.12em; color:#f0d8a0; }
+#cb-combo.bump b { animation:comboBump .16s ease; }
+#cb-combo.hot b { color:#ff8c1a; }
+/* telegraph: a ring closes on the monster; gold = now */
+#tele { position:absolute; left:50%; top:52%; width:0; height:0; z-index:5; pointer-events:none; display:none; }
+#tele.show { display:block; }
+#tele-target, #tele-ring { position:absolute; left:-70px; top:-70px; width:140px; height:140px; border-radius:50%; }
+#tele-target { border:3px solid var(--tc); opacity:.75; box-shadow:0 0 18px var(--tc), inset 0 0 18px var(--tc); }
+#tele-ring { border:5px solid var(--tc); box-shadow:0 0 22px var(--tc); }
+#tele-ico { position:absolute; left:-40px; top:-34px; width:80px; text-align:center; font-size:3rem; line-height:68px; filter:drop-shadow(0 0 10px var(--tc)) drop-shadow(0 2px 4px #000); }
+#tele-txt { position:absolute; left:-160px; width:320px; top:84px; text-align:center; }
+#turn-ind { font-family:'Metal Mania',cursive !important; font-size:1.55rem !important; letter-spacing:.06em !important; margin:0 !important;
+  color:var(--tc) !important; text-shadow:0 0 12px var(--tc), 0 2px 4px #000 !important; animation:none !important; }
+#tele-hint { font-family:'Share Tech Mono',monospace; font-size:.78rem; letter-spacing:.08em; color:#f4ecd8; text-shadow:0 1px 3px #000, 0 0 8px #000; }
+#tele-bar { display:none; height:6px; width:100%; margin:6px auto 0; max-width:180px; background:var(--tc); box-shadow:0 0 10px var(--tc); border-radius:3px; }
+#tele.k-guard #tele-ring, #tele.k-drain #tele-ring { display:none; }
+#tele.k-guard #tele-bar, #tele.k-drain #tele-bar { display:block; }
+#tele.k-drain #tele-target { animation:drainPulse .5s ease-in-out infinite alternate; }
+@keyframes drainPulse { from{transform:scale(.9)} to{transform:scale(1.1)} }
+#tele.now #tele-ring, #tele.now #tele-target { border-color:#ffd34d; box-shadow:0 0 30px #ffd34d, inset 0 0 24px #ffd34d; }
+#tele.now #turn-ind { color:#ffd34d !important; text-shadow:0 0 16px #ffd34d, 0 2px 4px #000 !important; }
+#tele.now #tele-txt::after { content:'NOW!'; display:block; font-family:'Metal Mania',cursive; font-size:2.4rem; color:#fff6d0; text-shadow:0 0 18px #ffd34d, 0 2px 4px #000; animation:nowPop .18s ease-out; }
+#tele.now #tele-hint { display:none; }
+@keyframes nowPop { from{transform:scale(1.8);opacity:.2} to{transform:scale(1);opacity:1} }
+#tele.offbal #tele-ring, #tele.offbal #tele-target { border-color:#888; box-shadow:none; }
+#tele.offbal::after { content:''; }
+#stun-lbl { position:absolute; left:0; right:0; top:58%; z-index:6; text-align:center; pointer-events:none;
+  font-family:'Metal Mania',cursive; font-size:1.5rem; color:#ffd34d; text-shadow:0 0 14px #ff8c1a, 0 2px 4px #000; animation:timerPulse .35s ease infinite; }
+#cb-top.broken #e-body { filter:saturate(.6) brightness(.85); animation:brokenWobble .5s ease-in-out infinite alternate; }
+#cb-top.stunned #e-body { animation:brokenWobble .7s ease-in-out infinite alternate; }
+@keyframes brokenWobble { from{transform:rotate(-1.5deg) translateY(4px)} to{transform:rotate(1.5deg) translateY(-2px)} }
+#cb-top.counter::before { content:''; position:absolute; inset:0; z-index:3; pointer-events:none; box-shadow:inset 0 0 70px 10px #4ae0ff; animation:none; opacity:.9; }
+#cb-top.skilling #e-body { filter:brightness(1.4) saturate(1.3); }
+/* hits on the monster: flash white, knock back, squash */
+#e-body.hit { animation:eHit .16s ease-out; }
+#e-body.hit-big { animation:eHitBig .24s ease-out; }
+#e-body.hit-guard { animation:eHitGuard .16s ease-out; }
+@keyframes eHit { 0%{filter:brightness(2.6) saturate(.3); transform:translateX(var(--kx,8px)) scale(.97)} 100%{filter:none; transform:none} }
+@keyframes eHitBig { 0%{filter:brightness(3.2) saturate(0); transform:translateX(var(--kx,14px)) scale(.92)} 40%{filter:brightness(1.6)} 100%{filter:none; transform:none} }
+@keyframes eHitGuard { 0%{filter:brightness(1.4) hue-rotate(180deg); transform:translateX(calc(var(--kx,8px) * .3))} 100%{filter:none; transform:none} }
+#e-body.lunge-anim { animation:eLungeBig .32s cubic-bezier(.2,0,.8,1); }
+#e-body.special-anim { animation:eSlam .42s ease; }
+#e-body.death-anim { animation:eDie .6s ease forwards; }
+@keyframes eLungeBig { 0%{transform:scale(1)} 35%{transform:scale(1.16) translateY(24px)} 100%{transform:scale(1)} }
+@keyframes eSlam { 0%{transform:scale(1)} 25%{transform:scale(1.1) translateY(-10px)} 55%{transform:scale(1.28) translateY(40px)} 100%{transform:scale(1)} }
+@keyframes eDie { 0%{filter:brightness(3); transform:scale(1)} 30%{filter:brightness(1.6) grayscale(.5); transform:scale(1.06)} 100%{filter:brightness(0) grayscale(1); transform:scale(.9) translateY(30px); opacity:0} }
+/* dodge: the camera sidesteps */
+#cb-top.dodge-l #e-body { animation:dodgeL .36s ease-out; }
+#cb-top.dodge-r #e-body { animation:dodgeR .36s ease-out; }
+@keyframes dodgeL { 0%{transform:none} 35%{transform:translateX(70px) skewX(-4deg); filter:blur(2px)} 100%{transform:none; filter:none} }
+@keyframes dodgeR { 0%{transform:none} 35%{transform:translateX(-70px) skewX(4deg); filter:blur(2px)} 100%{transform:none; filter:none} }
+#cb-fx { position:absolute; inset:0; z-index:7; pointer-events:none; overflow:hidden; }
+#cb-fx .slash { position:absolute; width:110px; height:5px; margin:-2px 0 0 -55px; border-radius:3px;
+  background:linear-gradient(90deg, transparent, #fff 45%, #ffe9a0 55%, transparent); box-shadow:0 0 12px #fff;
+  transform:rotate(var(--rot)) scaleX(.2); animation:slash .2s ease-out forwards; }
+#cb-fx .slash.big { width:200px; height:8px; margin:-4px 0 0 -100px; box-shadow:0 0 20px #ffd34d; }
+@keyframes slash { 0%{transform:rotate(var(--rot)) scaleX(.2); opacity:1} 60%{transform:rotate(var(--rot)) scaleX(1.1); opacity:1} 100%{transform:rotate(var(--rot)) scaleX(1.2); opacity:0} }
+#cb-fx .spark { position:absolute; width:6px; height:6px; margin:-3px; border-radius:50%; background:#ffe9a0; box-shadow:0 0 8px #ffb040; animation:spark .4s ease-out forwards; }
+@keyframes spark { to{ transform:translate(var(--dx),var(--dy)) scale(.3); opacity:0 } }
+#hurt-vig { position:absolute; inset:0; z-index:250; pointer-events:none; opacity:0; box-shadow:inset 0 0 90px 30px rgba(220,0,0,.75); }
+#hurt-vig.on { animation:hurtVig .45s ease-out; }
+#hurt-vig.on.big { animation:hurtVig .7s ease-out; box-shadow:inset 0 0 140px 60px rgba(230,0,0,.9); }
+@keyframes hurtVig { 0%{opacity:1} 100%{opacity:0} }
+/* the one-line ticker under the stage */
+#cb-log { height:auto !important; min-height:0; max-height:calc(2.6em + 12px); overflow:hidden !important; padding:4px 14px !important; font-size:.86rem !important; line-height:1.3 !important; text-align:center; }
+#combo-wrap, #enemy-timer-track { display:none !important; }
+#cb-bottom { padding:8px 10px calc(8px + var(--sab)) !important; max-height:none !important; }
+#cb-player-header { margin-bottom:4px !important; }
+#cb-res-row { display:none !important; }
+.c-php.low { background:linear-gradient(90deg,#aa0000,#ff3030) !important; animation:timerPulse .4s ease infinite; }
+/* three big thumbs: DODGE · STRIKE · SKILL */
+#cb-acts { display:grid; grid-template-columns:1fr 1.35fr 1fr; gap:8px; margin:6px 0; }
+.cbtn { position:relative; overflow:hidden; height:96px; border-radius:14px; border:2px solid #3a2a50; color:#f0e6d0;
+  background:linear-gradient(180deg,#221c36,#120f1e); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  -webkit-tap-highlight-color:transparent; touch-action:none; user-select:none; cursor:pointer; padding:4px; }
+.cbtn:active { transform:scale(.95); }
+.cbtn .ci { font-size:1.9rem; line-height:1; pointer-events:none; position:relative; z-index:1; }
+.cbtn .cl { font-family:'Metal Mania',cursive; font-size:.95rem; letter-spacing:.06em; pointer-events:none; position:relative; z-index:1; text-align:center; line-height:1.05; }
+.cbtn .cs { font-family:'Share Tech Mono',monospace; font-size:.62rem; color:#9a8ab0; letter-spacing:.08em; pointer-events:none; position:relative; z-index:1; }
+#cb-strike { height:108px; margin-top:-6px; border-color:#cc3322; background:linear-gradient(180deg,#4a1210,#200808); box-shadow:0 0 14px rgba(200,40,20,.35); }
+#cb-strike .ci { font-size:2.4rem; }
+#cb-strike .cl { font-size:1.2rem; }
+#cb-dodge { border-color:#3a6aa0; background:linear-gradient(180deg,#14243c,#0a1220); }
+#cb-dodge.cooling { opacity:.55; }
+#cb-skill { border-color:#5a4a20; }
+#cb-meter { position:absolute; inset:0; z-index:0; display:flex; align-items:flex-end; pointer-events:none; }
+#cb-meter-fill { display:block; width:100%; height:0%; background:linear-gradient(0deg, rgba(212,160,32,.55), rgba(212,160,32,.15)); transition:height .15s; }
+#cb-skill.ready { border-color:#ffd34d; box-shadow:0 0 18px rgba(255,200,60,.8); animation:skillReady .8s ease-in-out infinite alternate; }
+#cb-skill.ready .cs { color:#ffd34d; }
+#cb-skill.nope { animation:moMiss .3s ease-out; }
+@keyframes skillReady { from{box-shadow:0 0 8px rgba(255,200,60,.5)} to{box-shadow:0 0 24px rgba(255,200,60,1)} }
+#ab-grid.cb2 { display:grid !important; grid-template-columns:1.6fr 1fr 1fr !important; gap:6px !important; padding:0 !important; }
+#ab-grid.cb2 .abtn { height:42px !important; flex-direction:row !important; gap:6px !important; padding:2px 6px !important; grid-column:auto !important; min-width:0; border-radius:10px; }
+#ab-grid.cb2 .abtn-emoji { font-size:1.15rem !important; }
+#ab-grid.cb2 .abtn-name { font-size:.68rem !important; white-space:nowrap; max-width:none !important; }
+#ab-grid.cb2 .abtn-cost { position:static !important; font-size:.66rem; }
+#ab-grid.cb2 .abtn-type { display:none !important; }
+#ab-grid.cb2 .flee-btn { opacity:.75; }
+/* numbers */
+.dn-hit, .dn-crit, .dn-big, .dn-counter, .dn-guard, .dn-hurt, .dn-parry, .dn-pdodge, .dn-skillname, .dn-phase { font-family:'Metal Mania',cursive; white-space:nowrap; }
+.dn-hit { color:#fff; font-size:1.7rem; text-shadow:0 0 6px rgba(255,200,120,.8), 0 2px 2px #000; animation:dnPop .6s ease-out forwards !important; }
+.dn-crit { color:#ffcc33; font-size:2.6rem; -webkit-text-stroke:1.5px #8a2a00; text-shadow:0 0 14px #ff8c1a, 0 2px 3px #000; animation:dnPopBig .75s ease-out forwards !important; }
+.dn-counter { color:#7fe8ff; font-size:2.1rem; text-shadow:0 0 12px #2ac0ff, 0 2px 3px #000; animation:dnPop .7s ease-out forwards !important; }
+.dn-big { color:#fff6d0; font-size:3.2rem; -webkit-text-stroke:2px #8a5a00; text-shadow:0 0 18px #ffd34d, 0 2px 4px #000; animation:dnPopBig .9s ease-out forwards !important; }
+.dn-guard { color:#8ab8ff; font-size:1.2rem; text-shadow:0 0 6px #2a6aff, 0 2px 2px #000; animation:dnPop .55s ease-out forwards !important; }
+.dn-hurt { color:#ff4a3a; font-size:2rem; text-shadow:0 0 10px #ff0000, 0 2px 3px #000; animation:dnPop .8s ease-out forwards !important; }
+.dn-hurt-big { font-size:3rem; }
+.dn-parry { color:#ffe9a0; font-size:clamp(1.8rem,9vw,2.6rem); -webkit-text-stroke:1.5px #8a5a00; text-shadow:0 0 16px rgba(255,200,60,.95), 0 2px 3px #000; animation:dmgCrit 1s ease forwards !important; }
+.dn-pdodge { color:#a8f0ff; font-size:clamp(1.5rem,7.5vw,2.2rem); text-shadow:0 0 16px #2ac0ff, 0 2px 3px #000; animation:dmgCrit 1s ease forwards !important; }
+.dn-skillname { color:#ffd34d; font-size:clamp(1.4rem,7vw,2rem); text-shadow:0 0 16px #ff8c1a, 0 2px 3px #000; animation:dmgCrit 1.1s ease forwards !important; }
+.dn-phase { color:#ff3030; font-size:2.6rem; text-shadow:0 0 18px #ff0000, 0 2px 4px #000; animation:dmgCrit 1.2s ease forwards !important; }
+@keyframes dnPop { 0%{transform:translate(-50%,0) scale(.5); opacity:1} 15%{transform:translate(-50%,-10px) scale(1.25)} 100%{transform:translate(-50%,-56px) scale(.9); opacity:0} }
+@keyframes dnPopBig { 0%{transform:translate(-50%,0) scale(.4) rotate(-6deg); opacity:1} 14%{transform:translate(-50%,-12px) scale(1.5) rotate(2deg)} 30%{transform:translate(-50%,-18px) scale(1.2)} 100%{transform:translate(-50%,-80px) scale(.95); opacity:0} }
+#cb-skill .cl.long { font-size:.74rem; letter-spacing:0; }
+#coach.in-fight { top:calc(86px + var(--sat)) !important; bottom:auto !important; }
+@media (prefers-reduced-motion: reduce){ #combat-box.shaking, #combat-box.shaking-big { animation:none; } #cb-top.dodge-l #e-body, #cb-top.dodge-r #e-body { animation:none; } }
+
 </style>
 </head>
 <body>
@@ -2411,19 +2562,22 @@ body:not(.net-on) .net-only { display:none !important; }
       </div>
     </div>
 
-    <!-- ENEMY TOP -->
+    <!-- ENEMY: the stage. Tap it to strike, swipe it to dodge -->
+    <div id="hurt-vig"></div>
     <div id="cb-top">
       <div id="boss-charge-veil"></div>
       <div id="enemy-atk-flash"></div>
-      <img id="boss-portrait" src="" alt="" style="display:none;width:100%;max-height:min(220px,24vh);object-fit:cover;object-position:top;border-bottom:2px solid #b8962a;margin-bottom:6px;">
-      <div id="cb-name">ENEMY</div>
-      <div id="cb-type">TYPE</div>
-      <span id="e-spr" class="c-sprite">💀</span>
-      <div class="status-row" id="e-status"></div>
-      <div id="cb-ehp-wrap">
-        <div class="c-hpbar"><div class="c-hpfill c-ehp" id="c-ehp" style="width:100%"></div></div>
-        <div class="c-hptext" id="c-ehp-t">100%</div>
+      <div id="e-body"><img id="boss-portrait" src="" alt="" draggable="false" style="display:none"><span id="e-spr" class="c-sprite">💀</span></div>
+      <div id="cb-hud">
+        <div id="cb-name">ENEMY</div>
+        <div id="cb-type">TYPE</div>
+        <div id="cb-ehp-wrap"><div class="c-hpbar"><div id="c-ehp-ghost"></div><div class="c-hpfill c-ehp" id="c-ehp" style="width:100%"></div><div class="c-hptext" id="c-ehp-t"></div></div></div>
+        <div class="status-row" id="e-status"></div>
       </div>
+      <div id="cb-combo"><b id="cb-combo-n">0</b><span id="cb-combo-t">HITS</span></div>
+      <div id="tele"><div id="tele-target"></div><div id="tele-ring"></div><div id="tele-ico"></div><div id="tele-txt"><div id="turn-ind"></div><div id="tele-hint"></div><div id="tele-bar"></div></div></div>
+      <div id="stun-lbl" style="display:none"></div>
+      <div id="cb-fx"></div>
     </div>
 
     <!-- COMBO COUNTER -->
@@ -2448,13 +2602,7 @@ body:not(.net-on) .net-only { display:none !important; }
         <div class="c-hpbar" style="flex:1"><div class="c-hpfill c-php" id="c-php" style="width:100%"></div></div>
         <span class="c-hptext" id="c-php-t">100%</span>
       </div>
-      <div class="cb-bar-row">
-        <span class="cb-bl" id="res-lbl-cb">MP</span>
-        <div class="c-resbar" style="flex:1"><div class="c-resfill" id="c-res" style="width:100%"></div></div>
-        <span class="c-hptext" id="c-res-t">-</span>
-      </div>
-      <div id="enemy-timer-track"><div id="enemy-timer-fill"></div></div>
-      <div id="turn-ind"></div>
+      <div id="cb-acts"></div>
       <div id="ab-grid"></div>
     </div>
   </div>
@@ -4291,7 +4439,7 @@ function buildLivingMob(id, lat, lng, rng, expiresAt, eliteChance = ELITE_CHANCE
   const v = 1 + varRoll * 0.4;
   const grow = Math.pow(1.1, gap);
   // Every fight should last a few blows (about 4 actions), so the riposte you learned matters
-  const floorHp = Player ? Math.floor(loopBaseAtk() * (12 + varRoll * 3) + loopGearAtk() * 4) : 0; // core-loop: better gear really shortens a fight (about 6 blows with the starter sword, 3–4 with a big weapon) but never one-shots
+  const floorHp = Player ? Math.floor(loopBaseAtk() * (12 + varRoll * 3) + loopGearAtk() * 1.5) : 0; // core-loop: better gear really shortens a fight (about 6 blows with the starter sword, 3–4 with a big weapon) but never one-shots
   const hp = Math.floor(Math.max(t.hp * v * grow, floorHp) * (elite ? 2.2 : 1) * (blood ? 1.5 : 1) * (gilded ? 1.6 : 1));
   return {...t, lat, lng, id:'L'+id, livingId:id, expiresAt, elite, lvl, zone, bloodMoon:blood, gilded,
     type: `${gilded ? '✦ GILDED · ' : ''}${blood ? '🩸 BLOOD MOON · ' : ''}${elite ? '★ ELITE · ' : ''}LV ${lvl} · ${zi >= 0 ? ZONES[zi].name.toUpperCase() : 'THE WILDS'}`,
@@ -7076,7 +7224,7 @@ function motionOnCombatStart(){
 function motionCalibrate(){
   if(!inCombat) return;
   motionRequestPermission();
-  if(curEnemy){ _mo.savedAttack = curEnemy.nextAttackAt; curEnemy.nextAttackAt = Date.now() + 600000; } // the monster waits
+  if(curEnemy) cbHoldEnemy(600000); // the monster waits
   _mo.calib = { step:'l' };
   _mo.tilt.n = null;
   coach('🤚 <b>Fight with motion.</b> A slight lean or a quick little flick is enough.<br>Lean or flick your phone to the <b>LEFT</b>, then back to center.<br><small>Nothing happening? Tap "use taps" — you can turn motion on later with 🤚.</small>',
@@ -7115,7 +7263,7 @@ function motionCalibCapture(axis, sign){
 function motionCalibEnd(ok){
   if(!ok){ motionPref.on = false; motionPref.map = motionPref.map || { l:['gamma', -1], f:['beta', -1] }; motionSave(); }
   _mo.calib = null; coachHide();
-  if(inCombat && curEnemy) curEnemy.nextAttackAt = Date.now() + 2500;
+  if(inCombat && curEnemy){ CB.holdUntil = CB.t; cbHoldEnemy(2500); }
   motionDecorate();
   const after = _mo.after; _mo.after = null;
   if(after) setTimeout(after, 250); // e.g. the tutorial picks up where it left off
@@ -7321,7 +7469,7 @@ function tutHpFloor(e){
 function tutOnEnemySwing(e){
   if(!e || !e.tutorialMob || e._tutRiposted || tutStep() !== 'riposte') return;
   e._tutSwings = (e._tutSwings || 0) + 1;
-  if(e._tutSwings === 3){ coachGlow(null); coach('Close enough — <b>finish it</b>. Strike as the bar fills red to riposte any time.'); }
+  if(e._tutSwings === 3){ coachGlow(null); coach('Close enough — <b>finish it</b>. Strike on the <b>gold flash</b> to parry any time.'); }
 }
 function tutKeepClose(){
   if(!tutStep()){ clearInterval(_tutTimer); _tutTimer = null; return; }
@@ -7357,7 +7505,7 @@ function startTutorial(){
 
 function tutOnCombatStart(ent){
   if(tutStep() !== 'fight' || !ent || !ent.tutorialMob) return;
-  ent.nextAttackAt = Date.now() + 6000; // a breather before it strikes
+  cbHoldEnemy(6000); // a breather before it strikes
   // On a phone, the first fight teaches motion: tune it, then attack with a lean
   setTimeout(() => { if(MOTION_ENABLED && _mo.touch && motionPref.on && !motionPref.map) tutMotionIntro(); else tutFightCoach(); }, 300);
 }
@@ -7369,12 +7517,12 @@ function tutMotionIntro(){
 }
 function tutFightCoach(){
   if(tutStep() !== 'fight' || !inCombat) return;
-  if(curEnemy && curEnemy.tutorialMob) curEnemy.nextAttackAt = Math.max(curEnemy.nextAttackAt, Date.now() + 6000);
+  if(curEnemy && curEnemy.tutorialMob) cbHoldEnemy(6000);
   const a = Player.cls.abilities[0], moving = MOTION_ENABLED && motionPref.on && motionPref.map && _mo.seen;
   coach(moving
     ? `<b>Lean your phone left</b> (or tap <b>${a.emoji} ${a.name.toUpperCase()}</b>) — your basic attack. Each one builds your combo. Back to center between moves.`
-    : `Tap <b>${a.emoji} ${a.name.toUpperCase()}</b> — your basic attack. Each one builds your combo.`);
-  coachGlow('#ab-grid .abtn');
+    : `<b>Tap the monster</b> (or ${a.emoji} <b>STRIKE</b>) to hit it. Tap fast: every hit builds your combo and charges your skill.`);
+  coachGlow('#cb-strike');
 }
 
 function tutOnPlayerAct(riposted){
@@ -7382,13 +7530,13 @@ function tutOnPlayerAct(riposted){
   if(!step || !curEnemy || !curEnemy.tutorialMob || curEnemy.hp <= 0) return;
   if(step === 'fight'){
     Player.tutorial = 'riposte';
-    coachGlow('#turn-ind');
-    coach(`Watch the <b>red bar</b> under you. Strike just as it <b>fills red</b> to <b>RIPOSTE</b> — parry its blow and hit harder.${MOTION_ENABLED && motionPref.on && motionPref.map && _mo.seen ? ' A lean or a tap both count.' : ''}`);
-    curEnemy.nextAttackAt = Math.max(curEnemy.nextAttackAt, Date.now() + 2600);
+    coachGlow(null);
+    coach(`When it attacks, a <b>ring closes in</b>. Strike the moment it <b>flashes gold</b> to <b>PARRY</b>: no damage, and you hit back harder.`);
+    cbHoldEnemy(2600);
     curEnemy.hp = Math.max(curEnemy.hp, Math.ceil(curEnemy.maxHp * 0.5)); // stay alive long enough to try it
   } else if(step === 'riposte' && riposted){
     coachGlow(null);
-    coach('<b>RIPOSTE!</b> That\'s the trick to every fight. Finish it.');
+    coach('<b>PARRY!</b> That\'s the trick. <b>Purple</b> attacks can\'t be parried: <b>swipe</b> the monster or tap 💨 <b>DODGE</b>. Now finish it.');
   }
 }
 
@@ -7685,7 +7833,14 @@ const TOAST_MIN_MS = 2200;
 let _toastTimer = null, _toastShownAt = 0, _toastQueue = [], _toastNext = null;
 const _toastLog = []; // every announcement requested, newest last (tests and debugging read it)
 let _toastHold = null;
-function toastHeld(){ return (typeof inCombat !== 'undefined' && inCombat) || !!document.querySelector('#levelup-modal.active'); }
+function toastHeld(){ return (typeof inCombat !== 'undefined' && inCombat) || !!document.querySelector('#levelup-modal.active, #boss-reveal.active'); }
+// A toast already on screen when a fight or a boss card opens steps aside and comes back after
+function toastStepAside(){
+  const el = document.getElementById('toast'); if(!el || !el.classList.contains('show')) return;
+  el.classList.remove('show'); clearTimeout(_toastTimer);
+  const last = el._last; if(last && !_toastQueue.some(q => q[0] === last[0] && q[1] === last[1])) _toastQueue.unshift(last);
+  toastHoldWait();
+}
 function toastHoldWait(){
   if(_toastHold) return;
   _toastHold = setInterval(() => { if(toastHeld()) return; clearInterval(_toastHold); _toastHold = null; if(!_toastNext) _toastNext = setTimeout(_toastDrain, 350); }, 300);
@@ -7709,7 +7864,7 @@ function showToast(title, body){
   _toastShow(el, title, body);
 }
 function _toastShow(el, title, body){
-  el.innerHTML = `<div class="toast-title">${title}</div><div class="toast-body">${body}</div>`;
+  el.innerHTML = `<div class="toast-title">${title}</div><div class="toast-body">${body}</div>`; el._last = [title, body];
   el.classList.toggle('low', !!document.querySelector('#friends-modal.active, #hunt-modal.active, #shop-modal.active, #inv-modal.active, #season-modal.active, #crew-modal.active, #book-modal.active, #delve-modal.active, #acct-modal.active') || document.getElementById('quest-modal').style.display === 'flex');
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   _toastShownAt = Date.now();
@@ -8053,6 +8208,7 @@ function showBossReveal(boss){
   modal.classList.remove('active');
   void modal.offsetWidth;
   modal.classList.add('active');
+  toastStepAside();
 }
 
 function hideBossReveal(){
@@ -8817,170 +8973,666 @@ function startGPS(){
 }
 
 // ══════════════════════════════════════════════════════
-//  COMBAT SYSTEM — real-time cooldowns
+//  COMBAT — real time, one thumb.
+//  STRIKE: tap the monster (or ⚔). No cooldown; taps faster than CB_STRIKE_GAP are buffered, never lost.
+//  DODGE: swipe the monster (or 💨). A dodge that is still in the air when a blow lands is a PERFECT DODGE
+//         and opens a COUNTER window.
+//  PARRY: strike while the closing ring flashes gold. Graded GOOD / GREAT / PERFECT. A parried heavy
+//         blow BREAKS the monster (stunned, takes extra damage).
+//  SKILL: hits, parries and dodges charge it; your class signature, shatters guards, stops drains.
+//  Monsters fight with a kit of 3-4 telegraphed moves (CB_KITS), so a Shadow Imp and a Rot Golem
+//  ask for different answers: wait and parry (white/orange), dodge (purple), mash (green), skill (blue).
 // ══════════════════════════════════════════════════════
 let inCombat=false, curEnemy=null, isBoss=false;
 let eStatuses=[];
 let combatInterval=null, lastStatusTick=0, lastResRegen=0;
-let playerCombo=0;
-let playerActLocked=false; // global lockout between player actions
-const ACT_LOCKOUT=600; // ms between any player action
-const RIPOSTE_FRAC=0.18; // last 18% of the enemy's attack bar: strike now to parry and counter
-const CD_SCALE=2500; // ms per "cd unit"
+let playerCombo=0;          // hits in a row since you were last hit
+let playerActLocked=false;  // true while a skill plays out
+const RIPOSTE_FRAC=0.18;    // legacy (old saves / notes)
+const CD_SCALE=2500;        // legacy
+
+const CB_STRIKE_GAP = 230;            // ms between strikes; a faster tap waits in the buffer
+const CB_STRIKE_MULT = 0.5;           // a strike is half your ATK (you throw ~3 a second)
+const CB_DODGE_IFRAMES = 450, CB_DODGE_CD = 650;
+const CB_COUNTER_MS = 1300;           // after a perfect dodge: strikes are counters
+const CB_COUNTER_MULT = 1.6;
+const CB_BREAK_MS = 2200, CB_BREAK_MS_MARK = 3600, CB_BROKEN_MULT = 1.5;
+const CB_COMBO_STEP = 0.02, CB_COMBO_MAX = 0.30; // +2% damage per hit in a row, up to +30%
+const CB_HP_MULT = 3.0;               // street monsters: fights of ~10-15 s at a steady tap
+const CB_BOSS_HP_MULT = 2.5;          // named bosses (not raids or the finale, which share HP)
+const CB_METER = { strike:3, parry:14, great:20, perfect:28, brk:30, pdodge:22, hurt:6, interrupt:15 };
+
+const CB_MOVES = {
+  jab:    { kind:'parry', tell:850,  win:340, pct:0.035, atk:0.8,  color:'#f2e8d4', icon:'🗡', label:'STRIKE',      hint:'strike on the gold flash to parry' },
+  heavy:  { kind:'break', tell:1650, win:470, pct:0.18,  atk:2.2,  color:'#ff8c1a', icon:'⚠', label:'HEAVY BLOW',  hint:'wait… strike on the flash to BREAK it' },
+  sweep:  { kind:'dodge', tell:1200, win:0,   pct:0.13,  atk:1.7,  color:'#b46bff', icon:'🌀', label:'UNBLOCKABLE', hint:'can\'t be parried · DODGE!' },
+  flurry: { kind:'parry', tell:950,  win:280, pct:0.03,  atk:0.55, color:'#ffd84a', icon:'✶', label:'FLURRY ×3',   hint:'parry each flash · or dodge', hits:3, gap:440 },
+  guard:  { kind:'guard', tell:2200, color:'#5aa8ff', icon:'🛡', label:'GUARD UP',  hint:'hits glance off · SKILL shatters it' },
+  drain:  { kind:'drain', tell:2400, pct:0.05, color:'#3ee26b', icon:'🩸', label:'DRAINING', hint:'hit it hard to interrupt!' },
+};
+// Kits: the moves a monster family uses, plus its own names for them (plain fantasy names; no local flavor here)
+const CB_KITS = {
+  quick:  { moves:['jab','flurry','jab','heavy'],          names:{ flurry:'CLAW FLURRY' } },
+  spirit: { moves:['jab','sweep','drain','heavy'],         names:{ sweep:'WAIL', drain:'SOUL DRAIN' } },
+  beast:  { moves:['flurry','sweep','jab','heavy'],        names:{ sweep:'POUNCE', flurry:'BITE FLURRY' } },
+  knight: { moves:['guard','heavy','jab','jab'],           names:{ heavy:'OVERHEAD CUT', guard:'SHIELD WALL' } },
+  brute:  { moves:['heavy','guard','sweep','jab'],         names:{ sweep:'GROUND SLAM', guard:'HARDEN' } },
+  archer: { moves:['flurry','sweep','jab','jab'],          names:{ flurry:'VOLLEY', sweep:'PIERCING SHOT' } },
+  caster: { moves:['drain','sweep','guard','jab'],         names:{ sweep:'DARK BOLT', guard:'BONE WARD', drain:'LIFE DRAIN' } },
+};
+const CB_SPECIES = {
+  'Shadow Imp':'quick', 'Cursed Rat':'quick', 'The Tailor':'quick',
+  'Lost Soul':'spirit', 'Bog Specter':'spirit', 'Wailing Banshee':'spirit', 'Blood Wraith':'spirit', 'The Customer Who Never Left':'spirit',
+  'Grave Stalker':'beast', 'Plague Hound':'beast', 'The City Beast':'beast',
+  'Hollow Sentinel':'knight', 'Colonial Shade':'knight', 'Iron Officer':'knight', 'Living Mannequin':'knight', 'The Forgotten Founder':'knight',
+  'Rot Golem':'brute', 'Swamp Giant':'brute', 'Drowned Sailor':'brute',
+  'Bone Archer':'archer',
+  'Lich Servant':'caster', 'Void Shade':'caster', 'Cursed Accountant':'caster', 'The Ledger Wraith':'caster',
+};
+function cbKitFor(e){
+  let k = CB_SPECIES[e.name];
+  if(!k){ const fam = creatureFamily(e); k = { undead:'knight', specter:'spirit', beast:'beast', construct:'brute', demon:'quick' }[fam] || 'quick'; }
+  const kit = CB_KITS[k];
+  let moves = kit.moves.slice();
+  if(isBoss){ // bosses use everything their family has, plus the big two and one of the long ones
+    for(const m of ['heavy','sweep']) if(!moves.includes(m)) moves.push(m);
+    if(!moves.includes('drain') && !moves.includes('guard')) moves.push(e.isFinale || e.isRaid ? 'drain' : 'guard');
+  }
+  return { id:k, moves, names:kit.names };
+}
+
+const CB = { t:0, last:0, freezeUntil:0, raf:0, kit:null, bag:[], move:null, nextAt:0, meter:0,
+  strikeReal:-1e9, queued:0, dodgeUntil:-1, dodgeCdReal:-1e9, invulnUntil:-1, counterUntil:-1,
+  stunUntil:-1, brokenUntil:-1, phase:0, statusAt:0, ptr:null, holdUntil:-1 };
+
+function cbNow(){ return performance.now(); }
+function cbFreeze(ms){ CB.freezeUntil = Math.max(CB.freezeUntil, cbNow() + ms); }
+// The monster waits (coach cards, tutorial pauses)
+function cbHoldEnemy(ms){ CB.holdUntil = Math.max(CB.holdUntil, CB.t + ms); if(!CB.move) CB.nextAt = Math.max(CB.nextAt, CB.t + ms); }
 
 function startCombatTimer(){
-  if(combatInterval) clearInterval(combatInterval);
-  lastStatusTick=Date.now(); lastResRegen=Date.now();
-  combatInterval=setInterval(combatTick,100);
+  stopCombatTimer();
+  CB.last = cbNow(); lastStatusTick = Date.now();
+  const loop = () => { if(!inCombat){ CB.raf = 0; return; } try { combatTick(); } catch(err){ console.error(err); } CB.raf = requestAnimationFrame(loop); };
+  CB.raf = requestAnimationFrame(loop);
+  // a slow backstop so the fight never stalls if animation frames are throttled
+  combatInterval = setInterval(() => { if(inCombat && cbNow() - CB.last > 250) combatTick(); }, 250);
 }
 function stopCombatTimer(){
   if(combatInterval){ clearInterval(combatInterval); combatInterval=null; }
+  if(CB.raf){ cancelAnimationFrame(CB.raf); CB.raf = 0; }
 }
 
 function combatTick(){
-  if(!inCombat){ stopCombatTimer(); return; }
-  const now=Date.now();
+  if(!inCombat || !curEnemy){ stopCombatTimer(); return; }
+  const real = cbNow();
+  let dt = Math.min(120, real - CB.last); CB.last = real;
+  if(real < CB.freezeUntil) dt = 0;                 // hit-stop: the world holds its breath
+  CB.t += dt;
+  const now = Date.now();
   warbandCombatTick(now);
   encCombatTick(now);
-  const attackInterval = isBoss ? 5000 : 4000;
-
-  // Enemy attack timer bar
-  const elapsed = now-(curEnemy.nextAttackAt - attackInterval);
-  const pct = Math.min(100, (elapsed/attackInterval)*100);
-  const fill=document.getElementById('enemy-timer-fill');
-  const track=document.getElementById('enemy-timer-track');
-  const ind=document.getElementById('turn-ind');
-  if(fill) fill.style.width=pct+'%';
-  if(track){
-    track.classList.toggle('timer-warn', pct>60);
-    track.classList.toggle('timer-danger', pct>85);
-  }
-  if(ind){
-    const inWindow = pct>(1-RIPOSTE_FRAC)*100 && !eStatuses.find(s=>s.type==='stun') && !(loopIsHeavy(curEnemy) && curEnemy._offBal===(curEnemy._sw||0));
-    if(inWindow && !combatTick._win) sndRiposteWindow();
-    combatTick._win = inWindow;
-    ind.classList.toggle('riposte', inWindow);
-    ind.classList.remove('incoming');
-    ind.textContent = inWindow ? '⚔ STRIKE NOW — RIPOSTE ⚔' : 'ATTACK · STRIKE AS THE BAR FILLS TO RIPOSTE';
-    const heavyTxt = loopTurnText(inWindow);
-    if(heavyTxt) ind.textContent = heavyTxt;
-    ind.classList.toggle('heavy', !!heavyTxt);
-    if(track) track.classList.toggle('timer-heavy', !!heavyTxt);
-  }
-
-  // Enemy attack
-  if(now >= curEnemy.nextAttackAt){
-    curEnemy.nextAttackAt = now + attackInterval;
-    tutOnEnemySwing(curEnemy);
-    doEnemyAttack();
-    return; // setCBUI called inside
-  }
-
-  // Status ticks every ~3 seconds
+  if(!inCombat || curEnemy.hp <= 0) return;
+  cbPhaseCheck();
+  // the monster
+  const stunned = CB.t < CB.stunUntil;
+  if(!CB.move){
+    if(!stunned && CB.t >= CB.nextAt && CB.t >= CB.holdUntil) cbBeginMove();
+  } else cbUpdateMove();
+  if(!inCombat) return;
+  // bleed / poison / regen still tick every ~3 s
   if(now - lastStatusTick > 3000){
-    lastStatusTick=now;
-    tickStatuses('player');
-    tickStatuses('enemy');
-    eStatuses=eStatuses.filter(s=>s.turns>0);
-    Player.statuses=Player.statuses.filter(s=>s.turns>0);
+    lastStatusTick = now;
+    tickStatuses('player'); tickStatuses('enemy');
+    eStatuses = eStatuses.filter(s => s.turns > 0);
+    Player.statuses = Player.statuses.filter(s => s.turns > 0);
+    if(curEnemy && curEnemy.hp <= 0 && inCombat){ cbKill(); return; }
     if(!inCombat) return;
   }
+  combatHeartbeat();
+  cbRender();
+}
 
-  // Resource regen every 2s (Inner Peace: 3x for Monk with skill)
-  if(now - lastResRegen > 2000){
-    lastResRegen=now;
-    if(Player.cls.resRegen>0){
-      const innerPeace = Player.skills?.classUnique && Player.className==='Monk';
-      gainRes(Player.cls.resRegen * (innerPeace ? 3 : 1));
+// ── the monster's moves ────────────────────────────
+function cbPickMove(){
+  const e = curEnemy;
+  if(e.tutorialMob){
+    if(!e._tutRiposted) return 'jab';
+    return (e._tutDodgeShown ? (Math.random() < 0.5 ? 'jab' : 'sweep') : (e._tutDodgeShown = true, 'sweep'));
+  }
+  if(!CB.bag.length){
+    const b = CB.kit.moves.slice();
+    for(let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; }
+    // never the same long move twice in a row across bags
+    if(b[0] === CB.lastMove && b[0] !== 'jab' && b.length > 1) [b[0], b[1]] = [b[1], b[0]];
+    CB.bag = b;
+  }
+  return CB.bag.shift();
+}
+function cbSpeed(){
+  const e = curEnemy; let s = 1;
+  if(e.elite || e.gilded) s *= 0.9;
+  if(isBoss) s *= 0.95 - CB.phase * 0.07;
+  return s;
+}
+function cbBeginMove(){
+  const e = curEnemy;
+  const id = cbPickMove(); CB.lastMove = id;
+  const d = CB_MOVES[id];
+  let tell = d.tell * cbSpeed(), win = d.win || 0;
+  if(e.tutorialMob && !e._tutRiposted){ tell = 1500; win = 620; } // the first lesson is slow and generous
+  const name = (CB.kit.names && CB.kit.names[id]) || d.label;
+  CB.move = { id, d, name, t0:CB.t, tell, win, impact:CB.t + tell, hits:d.hits || 1, hit:0, offBal:false, dealt:0, flashed:false };
+  if(d.kind === 'guard') CB.guardUntil = CB.move.impact;
+  const tele = document.getElementById('tele');
+  if(tele){
+    tele.className = 'show k-' + d.kind; tele.style.setProperty('--tc', d.color);
+    document.getElementById('tele-ico').textContent = d.icon;
+    document.getElementById('turn-ind').textContent = name;
+    document.getElementById('tele-hint').textContent = d.hint;
+  }
+  const st = document.getElementById('cb-top'); if(st){ st.style.setProperty('--tc', d.color); st.dataset.k = d.kind; st.classList.remove('now'); st.classList.add('telling'); }
+  if(d.kind === 'break' || d.kind === 'dodge') sndChargeUp(); else creatureCry(e, false);
+  if(d.kind === 'break' || d.kind === 'dodge') buzz('light');
+}
+function cbEndMove(gapMs){
+  const e = curEnemy; if(!e) return;
+  CB.move = null; CB.guardUntil = -1;
+  let gap = gapMs != null ? gapMs : (700 + Math.random() * 600) * cbSpeed();
+  if(e.elite || e.gilded) gap *= 0.85;
+  CB.nextAt = Math.max(CB.t + gap, CB.stunUntil + 500);
+  const tele = document.getElementById('tele'); if(tele) tele.className = '';
+  const st = document.getElementById('cb-top'); if(st) st.classList.remove('telling', 'now');
+}
+function cbUpdateMove(){
+  const m = CB.move, e = curEnemy, d = m.d;
+  if(CB.t < CB.stunUntil){ cbEndMove(); return; }
+  const left = m.impact - CB.t;
+  const inWin = m.win > 0 && !m.offBal && left <= m.win && left > 0;
+  if(inWin && !m.flashed){
+    m.flashed = true; sndRiposteWindow();
+    document.getElementById('tele')?.classList.add('now');
+    document.getElementById('cb-top')?.classList.add('now');
+  }
+  if(left > 0) return;
+  // impact
+  if(d.kind === 'guard'){ cbEndMove(500); return; }
+  if(d.kind === 'drain'){
+    const heal = Math.floor(e.maxHp * 0.10);
+    if(!e.isRaid && !e.isFinale) e.hp = Math.min(e.maxHp, e.hp + heal);
+    const pdmg = Math.max(1, Math.floor(Player.maxHp * d.pct));
+    showDamageNum(`+${fmt(heal)}`, 'dmg-heal', 'right');
+    cbHurt(pdmg, m, false);
+    setCLog(`${e.name} drains you and mends itself.`);
+    if(inCombat) cbEndMove();
+    return;
+  }
+  // an attack lands (or doesn't)
+  tutOnEnemySwing(e);
+  if(CB.t <= CB.invulnUntil){ cbNextHit(m); return; }
+  if(CB.t <= CB.dodgeUntil){ cbPerfectDodge(m); return; }
+  cbEnemyHit(m);
+  if(inCombat && curEnemy) cbNextHit(m);
+}
+function cbNextHit(m){
+  m.hit++;
+  if(m.hit < m.hits){
+    m.impact = CB.t + m.d.gap * cbSpeed(); m.tell = m.d.gap * cbSpeed(); m.t0 = CB.t; m.flashed = false; m.offBal = false;
+    document.getElementById('tele')?.classList.remove('now'); document.getElementById('cb-top')?.classList.remove('now');
+    document.getElementById('turn-ind').textContent = `${m.name.replace(/ ×\d$/, '')} ${m.hit + 1}/${m.hits}`;
+  } else cbEndMove();
+}
+
+function cbEnemyDmg(m){
+  const e = curEnemy, d = m.d;
+  let atkPart = Math.floor(e.atk * (d.atk || 1) * (0.85 + Math.random() * 0.3)) - Math.floor(Player.def * 0.5);
+  let floor = Player.maxHp * (d.pct || 0.04) * (isBoss ? 1.25 : 1) * (e.elite ? 1.15 : 1);
+  if(e.tutorialMob) floor *= 0.5;
+  let dmg = Math.max(1, Math.floor(Math.max(atkPart, floor)));
+  if(e.isRaid) dmg = Math.max(1, Math.floor(dmg * (1 - warbandMitigation())));
+  if(e._practice && e._comp && e._comp.tank) dmg = Math.max(1, Math.floor(dmg * 0.8));
+  if(d.kind === 'break' || d.kind === 'dodge') dmg = Math.floor(dmg * blessWard());
+  return dmg;
+}
+function cbEnemyHit(m){
+  const e = curEnemy, d = m.d;
+  // light blows can still be slipped by your DODGE stat or blocked by a Paladin's Holy Shield
+  if(d.kind === 'parry' && Math.random() * 100 < Math.min(40, Player.dodge || 0) * 0.6){
+    showDamageNum('SLIPPED', 'dmg-dodge', 'left'); sndDodge(); cbBodyAnim('lunge-anim'); return;
+  }
+  if(Player.skills?.classUnique && Player.className==='Paladin' && Math.random() < 0.15){
+    showDamageNum('BLOCKED!', 'dmg-dodge', 'left'); sndRiposte(); cbBodyAnim('lunge-anim'); return;
+  }
+  cbHurt(cbEnemyDmg(m), m, true);
+}
+function cbHurt(dmg, m, lunge){
+  const e = curEnemy, big = m && (m.d.kind === 'break' || m.d.kind === 'dodge');
+  Player.hp = Math.max(0, Player.hp - dmg);
+  if(playerCombo >= 5) setTimeout(() => showDamageNum(`COMBO LOST`, 'dmg-dodge', 'left'), 250);
+  playerCombo = 0; updateComboDisplay();
+  cbGain(CB_METER.hurt);
+  if(lunge) cbBodyAnim(big ? 'special-anim' : 'lunge-anim');
+  const v = document.getElementById('hurt-vig'); if(v){ v.classList.remove('on', 'big'); void v.offsetWidth; v.classList.add('on'); if(big) v.classList.add('big'); }
+  if(big){ shakeScreen(true); sndEnemySpecial(); cbFreeze(90); } else { shakeScreen(); sndPlayerHit(); }
+  sndEnemyAttack();
+  showDamageNum(`-${fmt(dmg)}`, big ? 'dn-hurt dn-hurt-big' : 'dn-hurt', 'left');
+  setCLog(big ? `${e.name}'s ${m.name.toLowerCase()} lands for ${fmt(dmg)}.` : `${e.name} hits you for ${fmt(dmg)}.`);
+  addLog(`${e.name}: ${fmt(dmg)} dmg to you`,'lc');
+  if(Player.hp <= 0 && Player.skills?.t3==='titan' && !Player.titanUsed){
+    Player.hp = Math.floor(Player.maxHp*0.20); Player.titanUsed = true;
+    setCLog('TITAN: You rise from the brink at 20% HP!'); showDamageNum('TITAN REVIVE!','dmg-heal','left');
+  }
+  setCBUI();
+  if(Player.hp <= 0){ stopCombatTimer(); setTimeout(() => dead(), 300); }
+}
+function cbPerfectDodge(m){
+  CB.counterUntil = CB.t + CB_COUNTER_MS;
+  cbGain(CB_METER.pdodge);
+  cbFreeze(110);
+  showDamageNum('PERFECT DODGE', 'dn-pdodge', 'left');
+  sndDodge(); buzz('riposte');
+  document.getElementById('cb-top')?.classList.add('counter');
+  setTimeout(() => document.getElementById('cb-top')?.classList.remove('counter'), CB_COUNTER_MS);
+  setCLog(`You slip the ${m.name.toLowerCase()} — <b>COUNTER</b> now!`);
+  Player.perfectDodges = (Player.perfectDodges || 0) + 1;
+  if(m.hits > 1){ cbEndMove(); return; } // you roll clear of the whole flurry
+  cbNextHit(m);
+}
+
+// ── boss phases ───────────────────────────────────
+function cbPhaseCheck(){
+  if(!isBoss || !curEnemy || curEnemy.isFinale) return;
+  const f = curEnemy.hp / curEnemy.maxHp, ph = f <= 0.3 ? 2 : f <= 0.6 ? 1 : 0;
+  if(ph > CB.phase){
+    CB.phase = ph;
+    showDamageNum(ph === 2 ? 'FRENZY' : 'ENRAGED', 'dn-phase', 'right');
+    shakeScreen(true); sndChargeUp(); buzz('slam');
+    setCLog(`${curEnemy.name} ${ph === 2 ? 'is frenzied — faster, and it hits harder.' : 'is enraged — it comes faster now.'}`);
+  }
+}
+
+// ── player: strike ────────────────────────────────
+function cbStrikeAbility(){
+  const a = Player.cls.abilities.find(x => x.type === 'Basic') || Player.cls.abilities[0];
+  return { name:a.name, emoji:a.emoji, type:'Basic', dmgMult:CB_STRIKE_MULT, cost:0, costType:'none', cd:0, _quiet:true };
+}
+function cbStrike(x, y){
+  if(!inCombat || !curEnemy || curEnemy.hp <= 0 || playerActLocked) return;
+  const real = cbNow(), since = real - CB.strikeReal;
+  if(since < CB_STRIKE_GAP){ // buffer one tap so fast tapping never feels ignored
+    if(!CB.queued){ CB.queued = setTimeout(() => { CB.queued = 0; cbStrike(x, y); }, CB_STRIKE_GAP - since + 5); }
+    return;
+  }
+  CB.strikeReal = real;
+  const e = curEnemy, m = CB.move;
+  let ability = cbStrikeAbility();
+  let mult = 1, tag = null, kind = 'hit';
+  // parry
+  if(m && m.win > 0 && !m.offBal){
+    const left = m.impact - CB.t;
+    if(left <= m.win && left > -60){ cbParry(m, left, x, y); return; }
+    if(m.d.kind === 'break' && CB.t - m.t0 > 250){
+      m.offBal = true; tag = 'TOO EARLY'; buzz('tap');
+      document.getElementById('tele')?.classList.add('offbal');
+      document.getElementById('tele-hint').textContent = 'off balance · DODGE!';
     }
   }
-
-  combatHeartbeat();
-  updateCooldownDisplay();
-  setCBUI();
+  if(m && m.d.kind === 'guard'){ mult *= 0.2; kind = 'guard'; }
+  if(CB.t <= CB.counterUntil){ mult *= CB_COUNTER_MULT; tag = tag || 'COUNTER'; kind = kind === 'guard' ? kind : 'counter'; }
+  const r = cbHitEnemy(ability, mult, { x, y, kind });
+  if(tag) setTimeout(() => showDamageNum(tag, tag === 'COUNTER' ? 'dn-counter' : 'dmg-dodge', tag === 'COUNTER' ? 'right' : 'left'), 60);
+  if(kind === 'guard'){ sndGuard(); } else sndStrike(r.crit);
+  cbGain(kind === 'guard' ? 1 : CB_METER.strike);
+  if(m && m.d.kind === 'drain' && inCombat){
+    m.dealt += r.dmg;
+    if(m.dealt >= e.maxHp * 0.07){ cbInterrupt(m); }
+  }
+  tutOnPlayerAct(false);
+  cbAfterHit();
 }
+function cbParry(m, left, x, y){
+  const e = curEnemy, frac = left / m.win;
+  const grade = frac <= 0.35 ? 'PERFECT' : frac <= 0.7 ? 'GREAT' : 'GOOD';
+  let mult = grade === 'PERFECT' ? 2.1 : grade === 'GREAT' ? 1.7 : 1.4;
+  const relicRing = hasRelicEquipped();
+  if(relicRing){ mult *= 1.5; setTimeout(() => showDamageNum('THE BELL TOLLS','dmg-crit','right'), 160); sndDistrictBell(); }
+  Player.ripostes = (Player.ripostes || 0) + 1;
+  if(e.tutorialMob) e._tutRiposted = true;
+  const isBreak = m.d.kind === 'break';
+  if(isBreak) mult *= 1.5;
+  cbGain(isBreak ? CB_METER.brk : grade === 'PERFECT' ? CB_METER.perfect : grade === 'GREAT' ? CB_METER.great : CB_METER.parry);
+  const r = cbHitEnemy(cbStrikeAbility(), mult, { x, y, kind:'parry', riposted:true });
+  cbFreeze(grade === 'PERFECT' ? 150 : 110);
+  showDamageNum(isBreak ? 'BREAK!' : `${grade} PARRY`, 'dn-parry', 'left');
+  flashScreen('white'); sndRiposte(); shakeScreen(isBreak);
+  if(isBreak){
+    const ms = loopOnBreak();
+    CB.stunUntil = CB.brokenUntil = CB.t + ms;
+    setCLog(`💥 BREAK! You turn ${e.name}'s ${m.name.toLowerCase()} and it reels. Hit it!`);
+    document.getElementById('cb-top')?.classList.add('broken');
+    cbEndMove();
+  } else {
+    setCLog(`⚔ ${grade} PARRY — you turn ${e.name}'s blow aside.`);
+    cbNextHit(m);
+  }
+  tutOnPlayerAct(true);
+  cbAfterHit();
+}
+function cbInterrupt(m){
+  const e = curEnemy;
+  CB.stunUntil = CB.t + 1300;
+  cbGain(CB_METER.interrupt);
+  showDamageNum('INTERRUPTED!', 'dn-parry', 'right');
+  shakeScreen(); sndRiposte(); cbFreeze(90);
+  setCLog(`You break ${e.name}'s ${m.name.toLowerCase()}.`);
+  cbEndMove();
+}
+// Every damaging hit goes through here: damage, numbers, flash, knockback, hit-stop
+function cbHitEnemy(ability, mult, o = {}){
+  const e = curEnemy;
+  let dmg = calcDamage(ability);
+  const crit = !!calcDamage._crit;
+  dmg = Math.floor(dmg * mult);
+  if(CB.t < CB.brokenUntil) dmg = Math.floor(dmg * CB_BROKEN_MULT);
+  dmg = Math.floor(dmg * (1 + Math.min(CB_COMBO_MAX, playerCombo * CB_COMBO_STEP)));
+  dmg = loopDmgMod(dmg, ability, !!o.riposted);
+  dmg = Math.max(1, dmg);
+  e.hp = Math.max(tutHpFloor(e), e.hp - dmg);
+  if(e.isFinale) seasonFinaleHit(dmg);
+  if(o.kind !== 'guard'){ playerCombo = Math.min(99, playerCombo + 1); updateComboDisplay(); }
+  const cls = o.kind === 'guard' ? 'dn-guard' : o.kind === 'parry' || o.kind === 'skill' ? 'dn-big' : crit ? 'dn-crit' : o.kind === 'counter' ? 'dn-counter' : 'dn-hit';
+  showDamageNum(o.kind === 'guard' ? `${fmt(dmg)} 🛡` : fmt(dmg) + (crit && o.kind !== 'guard' ? '!' : ''), cls, 'right', o.x, o.y);
+  cbBodyHit(crit || o.kind === 'parry' || o.kind === 'skill', o.kind === 'guard');
+  cbSlash(o.x, o.y, crit || o.kind === 'parry' || o.kind === 'skill');
+  if(o.kind !== 'parry' && o.kind !== 'skill') cbFreeze(o.kind === 'guard' ? 25 : crit ? 75 : 45);
+  if(crit && o.kind !== 'guard') buzz('medium');
+  return { dmg, crit };
+}
+function cbAfterHit(){
+  setCBUI();
+  if(curEnemy && curEnemy.hp <= 0) cbKill();
+}
+function cbKill(){
+  if(CB._dying) return; CB._dying = true;
+  if(curEnemy && curEnemy.isRaid){ setTimeout(() => { CB._dying = false; victory(); }, 300); return; } // the shared raid decides
+  cbBodyAnim('death-anim');
+  const tele = document.getElementById('tele'); if(tele) tele.className = '';
+  stopCombatTimer();
+  setTimeout(() => { CB._dying = false; victory(); }, isBoss ? 900 : 600);
+}
+
+// ── player: dodge ─────────────────────────────────
+function cbDodge(dir){
+  if(!inCombat || !curEnemy || curEnemy.hp <= 0) return;
+  const real = cbNow();
+  if(real < CB.dodgeCdReal) return;
+  CB.dodgeCdReal = real + CB_DODGE_CD;
+  CB.dodgeUntil = CB.t + CB_DODGE_IFRAMES;
+  const st = document.getElementById('cb-top');
+  if(st){ st.classList.remove('dodge-l', 'dodge-r'); void st.offsetWidth; st.classList.add(dir < 0 ? 'dodge-l' : 'dodge-r'); setTimeout(() => st.classList.remove('dodge-l', 'dodge-r'), 380); }
+  sndDodge(); buzz('tap');
+  const b = document.getElementById('cb-dodge'); if(b){ b.classList.remove('cd'); void b.offsetWidth; b.classList.add('cd'); }
+}
+
+// ── player: skill ─────────────────────────────────
+const CB_SKILLS = {
+  Fighter:      { hits:5, each:1.0 },
+  Paladin:      { hits:1, each:4.0, heal:0.20 },
+  Ranger:       { hits:1, each:2.6, crit:true },
+  'Magic-User': { hits:1, each:5.5 },
+  Illusionist:  { hits:1, each:4.0, stun:2200 },
+  Cleric:       { hits:1, each:3.5, heal:0.30 },
+  Thief:        { hits:1, each:2.5, crit:true, vsBroken:2 },
+  Assassin:     { hits:3, each:1.4, poison:true },
+  Monk:         { hits:7, each:0.72 },
+  Druid:        { hits:3, each:1.4, regen:true },
+};
+function cbGain(n){ CB.meter = Math.min(100, CB.meter + n); }
+function cbSkill(){
+  if(!inCombat || !curEnemy || curEnemy.hp <= 0 || playerActLocked) return;
+  const btn = document.getElementById('cb-skill');
+  if(CB.meter < 100){ if(btn){ btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope'); } buzz('tap'); return; }
+  CB.meter = 0;
+  cbBigHit(cbSkillAbility(), { skill:true });
+}
+function cbSkillAbility(){
+  const sig = Player.cls.abilities.find(x => x.type === 'Signature') || Player.cls.abilities[Player.cls.abilities.length - 1];
+  const k = CB_SKILLS[Player.className] || { hits:1, each:4.5 };
+  return { name:sig.name, emoji:sig.emoji, type:'Signature', dmgMult:k.each, forceCrit:!!k.crit, cost:0, costType:'none', cd:0, _quiet:true, _k:k };
+}
+// Skills and Ember Strikes: a short invulnerable flurry that shatters guards and stops drains
+function cbBigHit(ability, o = {}){
+  const e = curEnemy, k = ability._k || { hits:1, each:ability.dmgMult };
+  playerActLocked = true;
+  CB.invulnUntil = CB.t + 700 + k.hits * 90;
+  const m = CB.move;
+  if(m && (m.d.kind === 'guard' || m.d.kind === 'drain')){
+    CB.stunUntil = CB.t + 1500;
+    setTimeout(() => showDamageNum(m.d.kind === 'guard' ? 'SHATTERED!' : 'INTERRUPTED!', 'dn-parry', 'left'), 120);
+    cbEndMove();
+  }
+  sndSignature(); cbFreeze(160); flashScreen('white');
+  document.getElementById('cb-top')?.classList.add('skilling');
+  showDamageNum(`${ability.emoji} ${ability.name}`, 'dn-skillname', 'left');
+  setCLog(`${ability.emoji} <b>${ability.name}</b>!`);
+  let mult = 1;
+  if(k.vsBroken && CB.t < CB.stunUntil) mult *= k.vsBroken;
+  let i = 0;
+  const one = () => {
+    if(!inCombat || !curEnemy || curEnemy.hp <= 0){ done(); return; }
+    cbHitEnemy({ ...ability, dmgMult:k.each }, mult, { kind:'skill' });
+    shakeScreen(i === k.hits - 1); sndStrike(true);
+    setCBUI();
+    if(curEnemy.hp <= 0){ done(); cbKill(); return; }
+    if(++i < k.hits) setTimeout(one, 95); else done();
+  };
+  const done = () => {
+    playerActLocked = false;
+    document.getElementById('cb-top')?.classList.remove('skilling');
+    if(!inCombat || !curEnemy) return;
+    if(k.heal){ let h = Math.floor(Player.maxHp * k.heal * (1 + (Player.healBonus || 0))); if(Player.skills?.classUnique && Player.className==='Cleric') h = Math.floor(h * 1.25);
+      Player.hp = Math.min(Player.maxHp, Player.hp + h); showDamageNum(`+${fmt(h)}`, 'dmg-heal', 'left'); }
+    if(k.stun){ CB.stunUntil = Math.max(CB.stunUntil, CB.t + k.stun); if(CB.move) cbEndMove(); showDamageNum('DAZED', 'dn-counter', 'right'); }
+    if(k.poison){ curEnemy.poisonStacks = (curEnemy.poisonStacks || 0) + 2; eStatuses.push({name:`POISON×${curEnemy.poisonStacks}`,icon:'🐍',type:'poison',turns:3,color:'#66cc44'}); }
+    if(k.regen) Player.statuses.push({name:'REGEN',icon:'🍃',type:'regen',turns:3,color:'#22cc66'});
+    setCBUI();
+  };
+  setTimeout(one, 170);
+}
+
+// Old entry point: Ember Strike and anything else that still calls playerAct
+function playerAct(ability){
+  if(!inCombat || !curEnemy || curEnemy.hp <= 0 || !ability) return;
+  if(ability.type === 'Basic') return cbStrike();
+  if(ability.type === 'Signature') return cbSkill();
+  cbBigHit({ ...ability, _quiet:true, _k:{ hits:1, each:ability.dmgMult } });
+}
+
+// ── feel: monster body, slashes, hit-stop ─────────
+function cbBody(){ return document.getElementById('e-body'); }
+function cbBodyAnim(cls){ const b = cbBody(); if(!b) return; b.classList.remove(cls); void b.offsetWidth; b.classList.add(cls); if(cls !== 'death-anim') setTimeout(() => b.classList.remove(cls), 420); }
+function cbBodyHit(big, guard){
+  const b = cbBody(); if(!b) return;
+  b.classList.remove('hit', 'hit-big', 'hit-guard'); void b.offsetWidth;
+  b.classList.add(guard ? 'hit-guard' : big ? 'hit-big' : 'hit');
+  b.style.setProperty('--kx', `${(Math.random() < 0.5 ? -1 : 1) * (big ? 14 : 7)}px`);
+  clearTimeout(cbBodyHit._t); cbBodyHit._t = setTimeout(() => b.classList.remove('hit', 'hit-big', 'hit-guard'), 220);
+}
+function cbSlash(x, y, big){
+  const layer = document.getElementById('cb-fx'); const top = document.getElementById('cb-top'); if(!layer || !top) return;
+  const r = top.getBoundingClientRect();
+  const px = x != null ? x - r.left : r.width * (0.35 + Math.random() * 0.3);
+  const py = y != null ? y - r.top : r.height * (0.35 + Math.random() * 0.25);
+  const s = document.createElement('i'); s.className = big ? 'slash big' : 'slash';
+  s.style.left = px + 'px'; s.style.top = py + 'px'; s.style.setProperty('--rot', `${-60 + Math.random() * 120}deg`);
+  layer.appendChild(s); setTimeout(() => s.remove(), 300);
+  for(let i = 0; i < (big ? 7 : 3); i++){
+    const sp = document.createElement('b'); sp.className = 'spark';
+    sp.style.left = px + 'px'; sp.style.top = py + 'px';
+    const a = Math.random() * Math.PI * 2, d = (big ? 50 : 26) + Math.random() * 30;
+    sp.style.setProperty('--dx', `${Math.cos(a) * d}px`); sp.style.setProperty('--dy', `${Math.sin(a) * d}px`);
+    layer.appendChild(sp); setTimeout(() => sp.remove(), 420);
+  }
+}
+
+// ── drawing (every frame) ─────────────────────────
+function cbRender(){
+  const m = CB.move;
+  const ring = document.getElementById('tele-ring');
+  if(m && ring){
+    if(m.d.kind === 'guard' || m.d.kind === 'drain'){
+      const f = Math.max(0, (m.impact - CB.t) / m.tell);
+      ring.style.transform = 'scale(1)';
+      const bar = document.getElementById('tele-bar'); if(bar) bar.style.width = (f * 100) + '%';
+    } else {
+      const f = Math.max(0, Math.min(1, (m.impact - CB.t) / m.tell));
+      ring.style.transform = `scale(${1 + f * 1.4})`;
+      ring.style.opacity = String(0.35 + (1 - f) * 0.65);
+    }
+  }
+  const top = document.getElementById('cb-top');
+  if(top){
+    const broken = CB.t < CB.brokenUntil, stunned = CB.t < CB.stunUntil;
+    top.classList.toggle('broken', broken);
+    top.classList.toggle('stunned', stunned && !broken);
+    const sl = document.getElementById('stun-lbl');
+    if(sl){ sl.style.display = stunned ? '' : 'none'; if(stunned) sl.textContent = `${broken ? '💥 BROKEN' : '💫 STUNNED'} · ${((CB.stunUntil - CB.t)/1000).toFixed(1)}s · HIT IT!`; }
+  }
+  cbSyncButtons();
+}
+function cbSyncButtons(){
+  const sk = document.getElementById('cb-skill');
+  if(sk){
+    const full = CB.meter >= 100;
+    sk.classList.toggle('ready', full);
+    const f = document.getElementById('cb-meter-fill'); if(f) f.style.height = CB.meter + '%';
+    const p = document.getElementById('cb-skill-pct'); if(p) p.textContent = full ? 'READY!' : Math.floor(CB.meter) + '%';
+  }
+  const dg = document.getElementById('cb-dodge');
+  if(dg) dg.classList.toggle('cooling', cbNow() < CB.dodgeCdReal);
+}
+function updateCooldownDisplay(){ cbSyncButtons(); }
 
 function startCombat(ent,boss){
   if(ent && ent.isRaid && !raidCanEngage(ent)) return;
   sndCombatStart();
   loopRescale(ent);
   inCombat=true; isBoss=boss; curEnemy=ent;
+  cbBossScale(ent, boss);
   eStatuses=[]; Player.statuses=[];
   Player.cooldowns={};
-  // Battle-ready: classes that build resource in combat start with enough for one Core ability
-  if(Player.cls.resStart < Player.cls.resMax*0.5) Player.res = Math.max(Player.res, Math.ceil(Player.maxRes*0.35));
   Player.titanUsed = false;
   Player.shadowStrikeUsed = false;
   Player.surgeCount = Player.surgeCount || 0;
-  // Phantom Step: start combat with 2 illusion stacks
-  if(Player.skills?.classUnique && Player.className==='Illusionist'){
-    Player.illusionStacks = (Player.illusionStacks||0) + 2;
-  }
-  const attackInterval = boss ? 3000 : 2500;
-  curEnemy.nextAttackAt = Date.now() + ((boss || ent.tutorialMob) ? 3500 : 1900); // core-loop: the opening heavy blow comes early enough to be in every street fight // the player acts first; the first swing comes soon enough to riposte
+  if(Player.skills?.classUnique && Player.className==='Illusionist') Player.illusionStacks = (Player.illusionStacks||0) + 2;
+  // fresh fight state
+  clearTimeout(CB.queued);
+  Object.assign(CB, { t:0, last:cbNow(), freezeUntil:0, bag:[], move:null, meter:cbStartMeter(), strikeReal:-1e9, queued:0,
+    dodgeUntil:-1, dodgeCdReal:-1e9, invulnUntil:-1, counterUntil:-1, stunUntil:-1, brokenUntil:-1, guardUntil:-1, phase:0,
+    holdUntil:-1, lastMove:null, _dying:false });
+  CB.kit = cbKitFor(ent);
+  CB.nextAt = (boss ? 2200 : ent.tutorialMob ? 3000 : 1500); // a beat to land a few hits before the first move
+  ent._sw = 0;
 
   const portrait = document.getElementById('boss-portrait');
-  if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; portrait.style.borderBottomColor=boss?'#b8962a':'#3a2a50'; }
-  else { portrait.src=''; portrait.style.display='none'; }
+  const top = document.getElementById('cb-top');
+  if(ent.portrait){ portrait.src=ent.portrait; portrait.style.display='block'; top.classList.add('has-art'); }
+  else { portrait.src=''; portrait.style.display='none'; top.classList.remove('has-art'); }
+  top.classList.toggle('boss', !!boss);
+  top.classList.remove('telling','now','broken','stunned','counter','skilling','dodge-l','dodge-r');
+  const body = cbBody(); if(body) body.className = '';
+  document.getElementById('tele').className = '';
   document.getElementById('cb-name').textContent=ent.name;
   document.getElementById('cb-type').textContent=ent.type||(ZONES[ent.zone]?.name?.toUpperCase()+' MONSTER');
   document.getElementById('e-spr').textContent=ent.emoji;
   document.getElementById('p-spr').textContent=Player.emoji;
   document.getElementById('p-cname').textContent=Player.name;
+  _cbLogLines=[];
   setCLog((boss
-    ?`${ent.name} fixes its ancient gaze upon you. The world grows cold.`
-    :`A ${ent.name} emerges from the darkness. It hungers for your soul.`)
-    + ((Player.ripostes||0) < 3 ? ' Strike as its bar fills red to RIPOSTE.' : ''));
-
-  playerCombo=0; playerActLocked=false; _cbLogLines=[];
+    ?`${ent.name} fixes its ancient gaze upon you.`
+    :`A ${ent.name} emerges from the darkness.`)
+    + ((Player.ripostes||0) < 3 ? ' Tap it to strike. Strike on the gold flash to PARRY.' : ''));
+  playerCombo=0; playerActLocked=false;
   buildAbilityButtons();
   setCBUI(); updateComboDisplay();
   document.getElementById('combat-modal').classList.add('active');
-  const _ti=document.getElementById('turn-ind');
-  _ti.textContent='ATTACK · ENEMY STRIKES WHEN BAR FILLS';
-  _ti.classList.remove('incoming');
-  const _tt=document.getElementById('enemy-timer-track');
-  if(_tt){ _tt.classList.remove('timer-warn','timer-danger'); }
+  toastStepAside();
   startCombatTimer();
   addLog(boss?`⚔ BOSS ENCOUNTER: ${ent.name}!`:`⚔ ${ent.name} appears!`,boss?'lb':'lc');
   tutOnCombatStart(ent);
   motionOnCombatStart();
 }
+// Marked gear with resource (mana/rage) bonuses starts you with some skill charge
+function cbStartMeter(){
+  let r = 0;
+  for(const n of Object.values((Player && Player.equipped) || {})) if(n && ITEMS[n] && ITEMS[n].resMax > 0) r += ITEMS[n].resMax;
+  return Math.min(50, Math.floor(r / 6));
+}
+function cbBossScale(e, boss){
+  if(!boss || !e || e._cbScaled || e.isRaid || e.isFinale || e.tutorialMob) return;
+  e._cbScaled = true;
+  const f = e.maxHp > 0 ? e.hp / e.maxHp : 1;
+  e.maxHp = Math.floor(e.maxHp * CB_BOSS_HP_MULT); e.hp = Math.max(1, Math.floor(e.maxHp * f));
+}
 
 function buildAbilityButtons(){
   const grid=document.getElementById('ab-grid');
+  const acts=document.getElementById('cb-acts');
+  const basic = Player.cls.abilities.find(x => x.type === 'Basic') || Player.cls.abilities[0];
+  const sig = Player.cls.abilities.find(x => x.type === 'Signature') || Player.cls.abilities[Player.cls.abilities.length - 1];
+  acts.innerHTML = `
+    <button id="cb-dodge" class="cbtn" aria-label="Dodge"><span class="ci">💨</span><span class="cl">DODGE</span><span class="cs">or swipe it</span></button>
+    <button id="cb-strike" class="cbtn" aria-label="Strike"><span class="ci">${basic.emoji}</span><span class="cl">STRIKE</span><span class="cs">or tap it</span></button>
+    <button id="cb-skill" class="cbtn" aria-label="Skill"><span id="cb-meter"><i id="cb-meter-fill"></i></span><span class="ci">${sig.emoji}</span><span class="cl${sig.name.length > 9 ? ' long' : ''}">${sig.name}</span><span class="cs" id="cb-skill-pct">0%</span></button>`;
+  const on = (id, fn) => { const b = document.getElementById(id); b.addEventListener('pointerdown', ev => { ev.preventDefault(); fn(ev); }); b.addEventListener('click', ev => ev.preventDefault()); };
+  on('cb-strike', () => cbStrike());
+  on('cb-dodge', () => cbDodge(Math.random() < 0.5 ? -1 : 1));
+  on('cb-skill', () => cbSkill());
   grid.innerHTML='';
-  Player.cls.abilities.forEach(a=>{
-    const btn=document.createElement('button');
-    const typeKey = a.type==='Signature'?'sig':a.type==='Basic'?'basic':'core';
-    const typeLbl = a.type==='Signature'?'SIGNATURE':a.type==='Basic'?'BASIC':'CORE';
-    btn.className=`abtn type-${typeKey}`;
-    btn.id=`abtn-${a.name.replace(/\s/g,'')}`;
-    const costTxt = a.cost>0 ? `${a.cost} ${a.costType.toUpperCase().slice(0,3)}` : 'FREE';
-    btn.innerHTML=`
-      <div class="abtn-type">${typeLbl}</div>
-      <div class="abtn-emoji">${a.emoji}</div>
-      <div class="abtn-name">${a.name}</div>
-      <div class="abtn-cost">${costTxt}</div>
-      <div class="abtn-cd-track"><div class="abtn-cd-fill" id="abtnfill-${a.name.replace(/\s/g,'')}"></div></div>
-      <div class="abtn-cd-overlay" id="abtnov-${a.name.replace(/\s/g,'')}"><span class="abtn-cd-num" id="abtncd-${a.name.replace(/\s/g,'')}"></span></div>`;
-    btn.onclick=()=>playerAct(a);
-    grid.appendChild(btn);
-  });
-  // Potion button
+  grid.className = 'cb2';
   const pot=document.createElement('button');
   pot.className='abtn potion-btn'; pot.id='potion-btn';
-  pot.innerHTML=`<div class="abtn-type">ITEM</div><div class="abtn-emoji">🧪</div><div class="abtn-name">POTION</div><div class="abtn-cost" id="pot-count"></div>`;
+  pot.innerHTML=`<div class="abtn-emoji">🧪</div><div class="abtn-name">POTION</div><div class="abtn-cost" id="pot-count"></div>`;
   pot.onclick=useCombatPotion;
   grid.appendChild(pot);
-  // Flee
   const flee=document.createElement('button');
   flee.className='abtn flee-btn'; flee.id='flee-btn';
-  flee.innerHTML=`<div class="abtn-type">FLEE</div><div class="abtn-emoji">🏃</div><div class="abtn-name">ESCAPE</div>`;
+  flee.innerHTML=`<div class="abtn-emoji">🏃</div><div class="abtn-name">ESCAPE</div>`;
   flee.onclick=doFlee;
   grid.appendChild(flee);
-  loopAddButtons(grid); qcSyncBtn(); _qcFeed = []; const qf = document.getElementById('qc-feed'); if(qf){ qf.innerHTML = ''; qf.classList.remove('show'); } qcClose();
+  loopAddButtons(grid); grid.classList.add('cb2'); qcSyncBtn(); _qcFeed = []; const qf = document.getElementById('qc-feed'); if(qf){ qf.innerHTML = ''; qf.classList.remove('show'); } qcClose();
+  cbSyncButtons();
 }
+
+// Stage input: tap = strike (on touch-down, no click delay), swipe = dodge
+(function cbBindStage(){
+  const bind = () => {
+    const st = document.getElementById('cb-top'); if(!st || st._cbBound) return; st._cbBound = true;
+    st.addEventListener('pointerdown', ev => {
+      if(!inCombat || ev.target.closest('button, #qc-wheel, #qc-feed')) return;
+      ev.preventDefault();
+      CB.ptr = { x:ev.clientX, y:ev.clientY, t:cbNow(), id:ev.pointerId, swiped:false };
+      cbStrike(ev.clientX, ev.clientY);
+    });
+    st.addEventListener('pointermove', ev => {
+      const p = CB.ptr; if(!p || p.swiped || ev.pointerId !== p.id) return;
+      const dx = ev.clientX - p.x, dy = ev.clientY - p.y;
+      if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) && cbNow() - p.t < 450){ p.swiped = true; cbDodge(dx < 0 ? -1 : 1); }
+      else if(dy > 50 && Math.abs(dy) > Math.abs(dx) && cbNow() - p.t < 450){ p.swiped = true; cbDodge(Math.random() < 0.5 ? -1 : 1); }
+    });
+    const end = () => { CB.ptr = null; };
+    st.addEventListener('pointerup', end); st.addEventListener('pointercancel', end);
+  };
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+  // Keyboard on a computer: Space/J strike, K/Shift/arrows dodge, L/E skill
+  document.addEventListener('keydown', ev => {
+    if(!inCombat || ev.repeat || /INPUT|TEXTAREA|SELECT/.test((ev.target && ev.target.tagName) || '')) return;
+    const k = ev.key;
+    if(k === ' ' || k === 'j' || k === 'J'){ ev.preventDefault(); cbStrike(); }
+    else if(k === 'k' || k === 'K' || k === 'Shift' || k === 'ArrowLeft' || k === 'ArrowRight'){ ev.preventDefault(); cbDodge(k === 'ArrowLeft' ? -1 : 1); }
+    else if(k === 'l' || k === 'L' || k === 'e' || k === 'E'){ ev.preventDefault(); cbSkill(); }
+  });
+})();
 
 let _cbElCache = null;
 function getCBEls(){
@@ -8988,10 +9640,8 @@ function getCBEls(){
   _cbElCache = {
     cPhp: document.getElementById('c-php'),
     cPhpT: document.getElementById('c-php-t'),
-    cRes: document.getElementById('c-res'),
-    cResT: document.getElementById('c-res-t'),
-    resLbl: document.getElementById('res-lbl-cb'),
     cEhp: document.getElementById('c-ehp'),
+    cEhpG: document.getElementById('c-ehp-ghost'),
     cEhpT: document.getElementById('c-ehp-t'),
     pStatus: document.getElementById('p-status'),
     eStatus: document.getElementById('e-status'),
@@ -9007,14 +9657,11 @@ function setCBUI(){
   const el = getCBEls();
   const php=Math.max(0,Player.hp/Player.maxHp*100);
   el.cPhp.style.width=php+'%';
+  el.cPhp.classList.toggle('low', php < 30);
   el.cPhpT.textContent=`${fmt(Player.hp)}/${fmt(Player.maxHp)}`;
-  const rp=Math.max(0,Player.res/Player.maxRes*100);
-  el.cRes.style.width=rp+'%';
-  el.cRes.style.background=Player.cls.resColor;
-  if(el.cResT) el.cResT.textContent=`${Math.floor(Player.res)}/${Player.maxRes}`;
-  if(el.resLbl) el.resLbl.textContent=Player.cls.resource.slice(0,3).toUpperCase();
   const ehp=Math.max(0,curEnemy.hp/curEnemy.maxHp*100);
   el.cEhp.style.width=ehp+'%';
+  if(el.cEhpG){ clearTimeout(setCBUI._g); setCBUI._g = setTimeout(() => { el.cEhpG.style.width = ehp + '%'; }, 380); }
   el.cEhpT.textContent=`${fmt(curEnemy.hp)}/${fmt(curEnemy.maxHp)}`;
   if(el.pStatus) el.pStatus.innerHTML=Player.statuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
   if(el.eStatus) el.eStatus.innerHTML=eStatuses.map(s=>`<div class="status-chip" style="color:${s.color||'#aaa'}">${s.icon}${s.name}${s.turns?` (${s.turns})`:''}</div>`).join('');
@@ -9024,46 +9671,12 @@ function setCBUI(){
   setPUI();
 }
 
-function updateCooldownDisplay(){
-  const now=Date.now();
-  Player.cls.abilities.forEach(a=>{
-    const btn=document.getElementById(`abtn-${a.name.replace(/\s/g,'')}`);
-    const fill=document.getElementById(`abtnfill-${a.name.replace(/\s/g,'')}`);
-    const cdNum=document.getElementById(`abtncd-${a.name.replace(/\s/g,'')}`);
-    if(!btn) return;
-    const endTime=Player.cooldowns[a.name]||0;
-    const remaining=Math.max(0, endTime-now);
-    const hasRes = a.cost===0 || a.costType==='none' || Player.res>=a.cost;
-    if(remaining>0){
-      const totalMs=a.cd*CD_SCALE;
-      const pct=(remaining/totalMs)*100;
-      if(fill) fill.style.width=pct+'%';
-      if(cdNum) cdNum.textContent=(remaining/1000).toFixed(1)+'s';
-      btn.disabled=true;
-      btn.classList.add('on-cooldown');
-      btn.classList.remove('ready');
-    } else {
-      if(fill) fill.style.width='0%';
-      if(cdNum) cdNum.textContent='';
-      const wasOnCooldown = btn.classList.contains('on-cooldown');
-      btn.classList.remove('on-cooldown');
-      btn.disabled=!hasRes;
-      btn.classList.toggle('ready', hasRes);
-      if(wasOnCooldown && hasRes){
-        btn.classList.add('btn-ready-flash');
-        setTimeout(()=>btn.classList.remove('btn-ready-flash'), 450);
-      }
-    }
-  });
-}
-
 let _cbLogLines=[];
 function setCLog(m){
   const log=document.getElementById('cb-log');
   _cbLogLines.push(m);
   if(_cbLogLines.length>3) _cbLogLines.shift();
-  log.innerHTML=_cbLogLines.map((l,i)=>`<div style="opacity:${0.4+i*0.3}">${l}</div>`).join('');
-  log.scrollTop=log.scrollHeight;
+  log.innerHTML = `<div>${m}</div>`;
 }
 
 function getRes(){ return Player.res; }
@@ -9079,17 +9692,15 @@ function tickStatuses(who){
     const s=arr[i];
     if(s.type==='bleed'||s.type==='dot'||s.type==='regen'||s.type==='poison'){
       let amt=Math.floor(target.maxHp*0.05);
-      // Nature's Wrath: DoT does 50% more
       if(natWrathActive && (s.type==='dot'||s.type==='bleed') && who==='enemy') amt=Math.floor(amt*1.5);
-      // Deathmark: poison does 60% more
       if(deathmarkActive && s.type==='poison' && who==='enemy') amt=Math.floor(amt*1.6);
-      // Divine Favor: heals restore 25% more
       if(s.type==='regen'){
         let healAmt = amt;
         if(Player.skills?.classUnique && Player.className==='Cleric') healAmt=Math.floor(healAmt*1.25);
         healAmt = Math.floor(healAmt*(1+(Player.healBonus||0)));
         target.hp=Math.min(target.maxHp,target.hp+healAmt);
         addLog(`Rejuvenation: +${fmt(healAmt)} HP`,'ll');
+        showDamageNum(`+${fmt(healAmt)}`,'dmg-heal',who==='enemy'?'right':'left');
       } else {
         target.hp=Math.max(who==='enemy' ? tutHpFloor(target) : 0,target.hp-amt);
         showDamageNum(fmt(amt),'dmg-orange',who==='enemy'?'right':'left');
@@ -9097,134 +9708,6 @@ function tickStatuses(who){
     }
     s.turns--;
     if(s.turns<=0) arr.splice(i,1);
-  }
-}
-
-// ── PLAYER ACTION ─────────────────────────────────────
-function playerAct(ability){
-  if(!inCombat || !curEnemy || curEnemy.hp <= 0) return; // a fast second tap must not win the fight twice
-  if(playerActLocked){ return; }
-  const now=Date.now();
-  if((Player.cooldowns[ability.name]||0) > now) return;
-  if(ability.cost>0 && ability.costType!=='none' && getRes()<ability.cost){
-    setCLog(`Not enough ${Player.cls.resource}!`); return;
-  }
-  // Lock actions briefly so each hit has weight
-  playerActLocked=true;
-  setTimeout(()=>{ playerActLocked=false; }, ACT_LOCKOUT);
-
-  spendRes(ability.cost);
-  if(ability.cd>0){
-    let cdMs = ability.cd * CD_SCALE;
-    if(Player.skills?.t1==='arcane') cdMs = Math.max(0, cdMs - 400);
-    if(Player.skills?.t3==='archmage') cdMs = Math.floor(cdMs * 0.70);
-    Player.cooldowns[ability.name] = now + cdMs;
-  }
-
-  // Riposte: a damaging blow landed in the enemy's wind-up parries it and hits harder
-  const atkInterval = isBoss ? 5000 : 4000;
-  const untilHit = curEnemy.nextAttackAt - now;
-  let riposted = false;
-  // core-loop: swinging wildly into a heavy wind-up leaves you off balance, so you can't turn that one; wait for the flash
-  if(ability.dmgMult>0 && loopIsHeavy(curEnemy) && untilHit>atkInterval*RIPOSTE_FRAC && untilHit<=atkInterval*0.42 && !eStatuses.find(s=>s.type==='stun') && curEnemy._offBal!==(curEnemy._sw||0)){
-    curEnemy._offBal = curEnemy._sw||0;
-    showDamageNum('TOO EARLY','dmg-dodge','left');
-  }
-  const offBal = loopIsHeavy(curEnemy) && curEnemy._offBal===(curEnemy._sw||0);
-  if(ability.dmgMult>0 && !offBal && untilHit>0 && untilHit<=atkInterval*RIPOSTE_FRAC && !eStatuses.find(s=>s.type==='stun')){
-    const relicRing = hasRelicEquipped();
-    ability = {...ability, dmgMult: ability.dmgMult*(relicRing ? 2.25 : 1.5)};
-    if(relicRing){ setTimeout(()=>showDamageNum('THE BELL TOLLS','dmg-crit','right'),140); sndDistrictBell(); }
-    curEnemy.nextAttackAt = now + atkInterval;
-    Player.ripostes = (Player.ripostes||0) + 1;
-    riposted = true;
-    const wasHeavy = loopIsHeavy(curEnemy);
-    if(wasHeavy){ ability = {...ability, dmgMult: ability.dmgMult*1.5}; loopOnBreak(); }
-    if(curEnemy.tutorialMob) curEnemy._tutRiposted = true;
-    showDamageNum('RIPOSTE!','dmg-riposte','left');
-    flashScreen('white'); sndRiposte();
-    setCLog(wasHeavy ? `💥 BREAK! You turn ${curEnemy.name}'s heavy blow and it reels.` : `⚔ RIPOSTE! You turn ${curEnemy.name}'s blow aside and strike back.`);
-  }
-
-  // Resource generation effects
-  if(ability.effect?.startsWith('rage+'))  gainRes(parseInt(ability.effect.split('+')[1]));
-  if(ability.effect?.startsWith('hp+'))    gainRes(parseInt(ability.effect.split('+')[1]));
-  if(ability.effect?.startsWith('focus+')) gainRes(parseInt(ability.effect.split('+')[1]));
-  if(ability.effect?.startsWith('chi+'))   gainRes(parseInt(ability.effect.split('+')[1]));
-
-  // Healing
-  if(ability.effect?.startsWith('heal')){
-    const pct=parseInt(ability.effect.replace('heal',''))/100;
-    let h=Math.floor(Player.maxHp*pct);
-    // Divine Favor: +25%
-    if(Player.skills?.classUnique && Player.className==='Cleric') h=Math.floor(h*1.25);
-    // Mastery: +20% heals
-    if(Player.skills?.t2==='mastery') h=Math.floor(h*1.20);
-    // WIS heal bonus
-    h=Math.floor(h*(1+(Player.healBonus||0)));
-    Player.hp=Math.min(Player.maxHp,Player.hp+h);
-    setCLog(`${ability.name}: Restored ${fmt(h)} HP!`);
-    showDamageNum(`+${fmt(h)}`,'dmg-heal','left');
-    anim('p-spr','atk-anim');
-    setCBUI(); return;
-  }
-
-  // Status effects
-  if(ability.effect==='stun1')    eStatuses.push({name:'STUNNED',icon:'⭐',type:'stun',turns:1,color:'#ffff44'});
-  if(ability.effect==='slow1')    eStatuses.push({name:'SLOWED',icon:'🐌',type:'slow',turns:1,color:'#88aacc'});
-  if(ability.effect==='bleed3')   eStatuses.push({name:'BLEED',icon:'🩸',type:'bleed',turns:3,color:'#cc2200'});
-  if(ability.effect==='evade2')   Player.statuses.push({name:'EVASION',icon:'💨',type:'evade',turns:2,color:'#88ccff'});
-  if(ability.effect==='dodge2')   Player.statuses.push({name:'MIRROR',icon:'🪞',type:'dodge',turns:2,color:'#ccaaff'});
-  if(ability.effect==='confuse1') eStatuses.push({name:'CONFUSED',icon:'🌀',type:'confuse',turns:1,color:'#cc88ff'});
-  if(ability.effect==='dot2')     eStatuses.push({name:'MOONFIRE',icon:'🌙',type:'dot',turns:2,color:'#8888ff'});
-  if(ability.effect==='regen3')   Player.statuses.push({name:'REGEN',icon:'🍃',type:'regen',turns:3,color:'#22cc66'});
-  if(ability.effect==='poison+1'){ curEnemy.poisonStacks=(curEnemy.poisonStacks||0)+1; eStatuses.push({name:`POISON×${curEnemy.poisonStacks}`,icon:'🐍',type:'poison',turns:3,color:'#66cc44'}); }
-  if(ability.effect?.startsWith('stack+')){ Player.illusionStacks=(Player.illusionStacks||0)+1; }
-  if(ability.effect==='detonate'&&curEnemy.poisonStacks>0){
-    ability={...ability, dmgMult:ability.dmgMult*curEnemy.poisonStacks*1.5};
-    curEnemy.poisonStacks=0; eStatuses=eStatuses.filter(s=>s.type!=='poison');
-  }
-
-  // Damage
-  if(ability.dmgMult>0){
-    let dmg=calcDamage(ability);
-    dmg=loopDmgMod(dmg, ability, riposted);
-    // Combo multiplier for Signature
-    let comboUsed=0;
-    if(ability.type==='Signature' && playerCombo>0){
-      comboUsed=playerCombo;
-      dmg=Math.floor(dmg*(1+comboUsed*0.4));
-    }
-    const overkill=curEnemy.hp>0&&dmg>curEnemy.hp*1.5;
-    curEnemy.hp=Math.max(tutHpFloor(curEnemy),curEnemy.hp-dmg);
-    if(curEnemy.isFinale) seasonFinaleHit(dmg);
-    showDamageNum(fmt(dmg),getDmgClass(dmg),'right');
-    if(overkill) setTimeout(()=>showDamageNum('OVERKILL','dmg-overkill','right'),180);
-    if(comboUsed>0){
-      setTimeout(()=>showDamageNum(`COMBO ×${comboUsed}!`,'dmg-crit','right'),110);
-      shakeScreen(); sndSignature();
-      playerCombo=0;
-    } else if(ability.type==='Basic'){
-      playerCombo=Math.min(playerCombo+2,15);
-      sndPlayerAttack(); sndComboRise();
-    } else if(ability.type==='Core'){
-      playerCombo=Math.min(playerCombo+1,15);
-      sndPlayerAttack();
-    }
-    updateComboDisplay();
-    if(dmg>=1000) flashScreen('white');
-    if(ability.type==='Signature') shakeScreen();
-    setCLog(`${ability.emoji} ${ability.name} — ${fmt(dmg)} dmg!`);
-    addLog(`${ability.name}: ${fmt(dmg)} dmg`,'lc');
-  }
-
-  anim('p-spr','atk-anim'); anim('e-spr','hit-anim');
-  tutOnPlayerAct(riposted);
-  setCBUI();
-  if(curEnemy.hp<=0){
-    anim('e-spr','death-anim');
-    showDamageNum('SLAIN!','dmg-overkill','right');
-    setTimeout(()=>victory(), isBoss ? 900 : 600);
   }
 }
 
@@ -9260,26 +9743,13 @@ function useCombatPotion(){
 }
 
 function updateComboDisplay(){
-  const el=document.getElementById('combo-count');
-  const hint=document.getElementById('combo-hint');
-  if(!el) return;
-  el.textContent=playerCombo;
-  // Colour tiers
-  el.className='';
-  if(playerCombo>=10)     el.classList.add('c10');
-  else if(playerCombo>=7) el.classList.add('c7');
-  else if(playerCombo>=5) el.classList.add('c5');
-  else if(playerCombo>=3) el.classList.add('c3');
-  else if(playerCombo>=1) el.classList.add('c1');
-  // Hint text
-  if(hint){
-    if(playerCombo===0) hint.textContent='Build chain · Signature unleashes it';
-    else { const mult=(1+playerCombo*0.4).toFixed(1); hint.textContent=`Signature hits ${mult}× · keep building or unleash!`; }
-  }
-  // Bump animation
-  el.classList.remove('combo-bump');
-  void el.offsetWidth;
-  el.classList.add('combo-bump');
+  const w = document.getElementById('cb-combo'); if(!w) return;
+  const n = playerCombo;
+  w.classList.toggle('on', n >= 3);
+  w.classList.toggle('hot', n >= 15);
+  document.getElementById('cb-combo-n').textContent = n;
+  document.getElementById('cb-combo-t').textContent = `HITS · +${Math.round(Math.min(CB_COMBO_MAX, n * CB_COMBO_STEP) * 100)}%`;
+  w.classList.remove('bump'); void w.offsetWidth; w.classList.add('bump');
 }
 
 function calcDamage(ability){
@@ -9289,18 +9759,18 @@ function calcDamage(ability){
 
   // ±20% variance, matching enemy side
   let dmg=Math.floor(Player.atk*dmgMult*(0.85+Math.random()*0.30));
+  calcDamage._crit = false;
+  const quiet = !!ability._quiet;
 
   if(ability.forceCrit){
     // Guaranteed 2× — always PRECISE, skip normal crit roll
-    dmg=Math.floor(dmg*2);
-    setTimeout(()=>showDamageNum('PRECISE!','dmg-crit','right'),90);
-    sndCrit();
+    dmg=Math.floor(dmg*2); calcDamage._crit = true;
+    if(!quiet){ setTimeout(()=>showDamageNum('PRECISE!','dmg-crit','right'),90); sndCrit(); }
   } else {
     // Normal crit chance from Player.crit stat
-    if(Math.random()*100 < Player.crit + blessCrit()){
-      dmg=Math.floor(dmg*1.75);
-      setTimeout(()=>showDamageNum('CRIT!','dmg-crit','right'),90);
-      sndCrit();
+    if(Math.random()*100 < Player.crit + blessCrit() + (ability.critBonus||0)){
+      dmg=Math.floor(dmg*1.75); calcDamage._crit = true;
+      if(!quiet){ setTimeout(()=>showDamageNum('CRIT!','dmg-crit','right'),90); sndCrit(); }
     }
   }
 
@@ -9308,7 +9778,7 @@ function calcDamage(ability){
   if(Player.illusionStacks>0){ dmg=Math.floor(dmg*(1+Player.illusionStacks*0.5)); }
 
   // Arcane Surge: every 5th ability deals double damage
-  if(sk.classUnique && Player.className==='Magic-User'){
+  if(sk.classUnique && Player.className==='Magic-User' && ability.type!=='Basic'){
     Player.surgeCount = (Player.surgeCount||0) + 1;
     if(Player.surgeCount % 5 === 0){ dmg = Math.floor(dmg * 2); showDamageNum('SURGE!','dmg-crit','right'); }
   }
@@ -9316,7 +9786,7 @@ function calcDamage(ability){
   // Devastator: execute — double damage below 20% HP
   if(sk.t3==='devastator' && curEnemy && curEnemy.hp/curEnemy.maxHp < 0.20){
     dmg = Math.floor(dmg * 2);
-    showDamageNum('EXECUTE!','dmg-red','right');
+    if(!quiet || ability.type!=='Basic') showDamageNum('EXECUTE!','dmg-red','right');
   }
 
   // Archmage: Signature abilities deal 1.5x
@@ -9354,79 +9824,7 @@ function getDmgClass(dmg){
   return 'dmg-white';
 }
 
-// ── ENEMY TURN ────────────────────────────────────────
-function doEnemyAttack(){
-  if(!inCombat) return;
-  const e=curEnemy;
-  const heavy = loopOnSwing(e); // core-loop: this swing was the telegraphed heavy blow
-
-  // Stun — skip attack
-  if(eStatuses.find(s=>s.type==='stun')){
-    setCLog(`${e.name} is stunned and cannot attack!`);
-    return;
-  }
-  // Confuse — attack self
-  if(eStatuses.find(s=>s.type==='confuse')){
-    const selfDmg=Math.floor(e.atk*1.2);
-    e.hp=Math.max(tutHpFloor(e),e.hp-selfDmg);
-    setCLog(`${e.name} is confused! It attacks itself for ${fmt(selfDmg)} damage!`);
-    showDamageNum(fmt(selfDmg),'dmg-orange','right');
-    anim('e-spr','hit-anim'); setCBUI();
-    if(e.hp<=0){ setTimeout(()=>victory(),400); }
-    return;
-  }
-  // Dodge check
-  const evading=Player.statuses.find(s=>s.type==='evade');
-  const dodging=Player.statuses.find(s=>s.type==='dodge');
-  const dodgeChance=Player.dodge+(evading?50:0)+(dodging?30:0);
-  if(Math.random()*100<dodgeChance){
-    setCLog(`${e.name} attacks — you dodge!`);
-    showDamageNum('DODGE','dmg-dodge','left');
-    sndDodge();
-    anim('p-spr','hit-anim'); return;
-  }
-  // Holy Shield: 15% chance to block all damage
-  if(Player.skills?.classUnique && Player.className==='Paladin' && Math.random()<0.15){
-    setCLog(`Holy Shield! ${e.name}'s attack is blocked!`);
-    showDamageNum('BLOCKED!','dmg-dodge','left');
-    anim('p-spr','hit-anim'); return;
-  }
-
-  // Damage
-  const isCrit = Math.random()<0.04;
-  const special = heavy || (isBoss && Math.random()<0.15);
-  let dmg=Math.floor(e.atk*(special?1.5:1.0)*(0.85+Math.random()*0.3));
-  dmg=Math.max(1,dmg-Math.floor(Player.def*0.5));
-  if(e.isRaid) dmg=Math.max(1,Math.floor(dmg*(1-warbandMitigation()))); // a warband tank soaks the raid's blows
-  if(e._practice && e._comp && e._comp.tank) dmg=Math.max(1,Math.floor(dmg*0.8)); // the echo tank draws some of it
-  if(isCrit){ dmg=Math.floor(dmg*1.7); }
-  if(heavy){ dmg=loopHeavyDmg(dmg); setTimeout(()=>showDamageNum('HEAVY BLOW','dmg-crit','left'),260); }
-
-  if(special){
-    // Boss special: charge-up veil → pause → slam
-    const veil=document.getElementById('boss-charge-veil');
-    veil.classList.add('active');
-    anim('e-spr','charge-anim');
-    sndChargeUp();
-    setTimeout(()=>{
-      veil.classList.remove('active');
-      anim('e-spr','special-anim');
-      triggerEnemyHit(e, dmg, true, false);
-      shakeScreen(true);
-    }, 250);
-  } else if(isCrit){
-    anim('e-spr','crit-anim');
-    flashEnemyAtk('flash-crit');
-    setTimeout(()=>{ shakeScreen(); }, 100);
-    triggerEnemyHit(e, dmg, false, true);
-  } else {
-    anim('e-spr','lunge-anim');
-    flashEnemyAtk('flash-normal');
-    triggerEnemyHit(e, dmg, false, false);
-  }
-
-}
-
+// ── ENEMY TURN: see cbBeginMove / cbUpdateMove (combat v2) ──
 function flashEnemyAtk(cls){
   const f=document.getElementById('enemy-atk-flash');
   f.className='';
@@ -9435,44 +9833,11 @@ function flashEnemyAtk(cls){
   setTimeout(()=>{ f.className=''; },500);
 }
 
-function triggerEnemyHit(e, dmg, special, isCrit){
-  Player.hp=Math.max(0,Player.hp-dmg);
-  // Hit breaks combo
-  if(playerCombo>0){
-    const lost=Math.min(2,playerCombo);
-    playerCombo=Math.max(0,playerCombo-2);
-    updateComboDisplay();
-    if(lost>0) setTimeout(()=>showDamageNum(`-${lost} COMBO`,'dmg-dodge','left'),300);
-  }
-  const label = special ? `${e.name} unleashes devastation! ${fmt(dmg)} damage!`
-                        : isCrit ? `ENEMY CRIT! ${e.name} hits for ${fmt(dmg)}!`
-                        : `${e.name} strikes for ${fmt(dmg)} damage.`;
-  setCLog(label);
-  addLog(`${e.name}: ${fmt(dmg)} dmg to you`,'lc');
-  if(isCrit){ showDamageNum('ENEMY CRIT!','dmg-crit','left'); sndEnemyCrit(); }
-  else if(special){ sndEnemySpecial(); }
-  else { sndEnemyAttack(); }
-  showDamageNum(fmt(dmg),getDmgClass(dmg),'left');
-  if(!special && !isCrit) sndPlayerHit();
-  anim('p-spr','hit-anim');
-  if(special) flashEnemyAtk('flash-special');
-
-  // Titan revive
-  if(Player.hp<=0 && Player.skills?.t3==='titan' && !Player.titanUsed){
-    Player.hp = Math.floor(Player.maxHp*0.20);
-    Player.titanUsed = true;
-    setCLog(`TITAN: You rise from the brink at 20% HP!`);
-    showDamageNum('TITAN REVIVE!','dmg-heal','left');
-    setCBUI(); return;
-  }
-  setCBUI();
-  if(Player.hp<=0){ setTimeout(()=>dead(),300); }
-}
-
 // ── VICTORY ───────────────────────────────────────────
 function victory(){
   if(!curEnemy || !inCombat) return; // already won (a queued second victory)
   if(curEnemy && curEnemy.isRaid && !curEnemy._dead){ raidResolveKill(); return; }
+  clearTimeout(CB.queued); CB.queued = 0;
   sndVictory();
   killingBlowFx(curEnemy);
   loopOnKill(curEnemy);
@@ -9708,18 +10073,25 @@ function revive(){
 }
 
 // ── DAMAGE NUMBERS ────────────────────────────────────
-function showDamageNum(text, cls, side){
+function showDamageNum(text, cls, side, cx, cy){
   const layer=document.getElementById('dmg-layer');
   const div=document.createElement('div');
   div.className=`dmg-num ${cls}`;
-  // Keep numbers on screen: enemy side = right half, player side = left half
-  const x = side==='right' ? 55+Math.random()*25 : 20+Math.random()*25;
-  const y = 25+Math.random()*35;
-  div.style.left=x+'%';
-  div.style.top=y+'%';
+  const box = layer.getBoundingClientRect();
+  const W = box.width || window.innerWidth, H = box.height || window.innerHeight;
+  const top = document.getElementById('cb-top'), tr = top && top.getBoundingClientRect();
+  const stageH = tr && tr.height ? tr.height : H * 0.55;
+  let x, y;
+  if(cx != null && cy != null){ x = cx - box.left + (Math.random() - 0.5) * 30; y = cy - box.top - 30 - Math.random() * 20; }
+  else if(side === 'right'){ x = W * (0.32 + Math.random() * 0.36); y = stageH * (0.28 + Math.random() * 0.30); }
+  else { x = W * (0.24 + Math.random() * 0.3); y = stageH * (0.70 + Math.random() * 0.12); }
+  x = Math.max(40, Math.min(W - 40, x));
+  div.style.left=x+'px';
+  div.style.top=y+'px';
   div.style.transform='translateX(-50%)';
   div.textContent=text;
   layer.appendChild(div);
+  while(layer.children.length > 14) layer.removeChild(layer.firstChild);
   setTimeout(()=>div.remove(),1100);
 }
 
@@ -9738,7 +10110,7 @@ function shakeScreen(big){
   setTimeout(()=>box.classList.remove('shaking','shaking-big'),big?400:320);
 }
 
-function anim(id,cls){ const e=document.getElementById(id); e.classList.remove(cls); void e.offsetWidth; e.classList.add(cls); setTimeout(()=>e.classList.remove(cls),280); }
+function anim(id,cls){ if(id==='e-spr' && document.getElementById('e-body')) id='e-body'; const e=document.getElementById(id); e.classList.remove(cls); void e.offsetWidth; e.classList.add(cls); setTimeout(()=>e.classList.remove(cls),280); }
 
 // ── SIDEBAR UI ────────────────────────────────────────
 function setPUI(){
@@ -9905,7 +10277,7 @@ const LOOP_HEAVY_PCT = 0.22;           // an unanswered heavy blow takes at leas
 const LOOP_MARK_CHANCE = 0.3;          // a normal drop is marked 3 times in 10
 const LOOP_MARKS = {
   riposte: { suffix:'of Riposte',     emoji:'⚔', desc:'Ripostes heal 10% of your HP.' },
-  breaking:{ suffix:'of Breaking',    emoji:'💥', desc:'A BREAK stuns for 2 swings and resets your cooldowns.' },
+  breaking:{ suffix:'of Breaking',    emoji:'💥', desc:'A BREAK stuns much longer and charges your skill.' },
   chain:   { suffix:'of the Chain',   emoji:'⛓', desc:'+5% damage per link of your Hunt Chain (up to +40%).' },
   embers:  { suffix:'of Embers',      emoji:'🔥', desc:'Walking charges embers 50% faster; Ember Strike hits 5× instead of 3.5×.' },
   first:   { suffix:'of First Blood', emoji:'🩸', desc:'Your first hit in every fight deals double damage.' },
@@ -9924,7 +10296,7 @@ function loopState(){
 function loopRegister(name, def){
   Object.defineProperty(ITEMS, name, { value:def, enumerable:false, configurable:true, writable:true });
 }
-function loopRestore(){ const L = loopState(); if(!L) return; for(const n in L.forged) loopRegister(n, L.forged[n]); }
+function loopRestore(){ const L = loopState(); if(!L) return; for(const n in L.forged){ const d = L.forged[n], m = LOOP_MARKS[d.mark]; if(m) d.desc = `${m.emoji} ${m.desc}`; loopRegister(n, d); } }
 function loopHas(mark){
   if(!Player || !Player.equipped) return false;
   return Object.values(Player.equipped).some(n => n && ITEMS[n] && ITEMS[n].mark === mark);
@@ -9942,8 +10314,9 @@ function loopTierCap(){ const L = (Player && Player.level) || 1; return L < 4 ? 
 function loopRescale(e){
   if(!e || !e.livingId || e._loopScaled || e.hp < e.maxHp) return;
   e._loopScaled = true;
-  const f = Math.floor((loopBaseAtk() * 13.5 + loopGearAtk() * 4) * (e.elite ? 2.2 : 1) * (e.bloodMoon ? 1.5 : 1) * (e.gilded ? 1.6 : 1));
+  const f = Math.floor((loopBaseAtk() * 13.5 + loopGearAtk() * 1.5) * (e.elite ? 2.2 : 1) * (e.bloodMoon ? 1.5 : 1) * (e.gilded ? 1.6 : 1));
   if(f > e.maxHp){ e.maxHp = f; e.hp = f; }
+  e.maxHp = e.hp = Math.floor(e.maxHp * CB_HP_MULT); // combat v2: you strike ~3× a second, so monsters carry more
 }
 function loopChainLive(){ const L = loopState(); return L && L.chain > 0 && Date.now() - L.chainAt <= LOOP_CHAIN_MS ? L.chain : 0; }
 
@@ -9957,14 +10330,12 @@ function loopIsHeavy(e){
 function loopOnSwing(e){ const h = loopIsHeavy(e); if(e) e._sw = (e._sw || 0) + 1; return h; }
 function loopHeavyDmg(dmg){ return Math.floor(Math.max(Math.floor(dmg * 2.2), Math.floor(Player.maxHp * LOOP_HEAVY_PCT)) * blessWard()); }
 function loopOnBreak(){
-  const e = curEnemy; if(!e) return;
+  const e = curEnemy; if(!e) return CB_BREAK_MS;
   e._sw = (e._sw || 0) + 1; e._broke = (e._broke || 0) + 1;
   const L = loopState(); L.breaks++;
-  const turns = loopHas('breaking') ? 2 : 1;
-  eStatuses.push({name:'BROKEN', icon:'💥', type:'stun', turns, color:'#ffcc44'});
-  if(loopHas('breaking')) Player.cooldowns = {};
-  setTimeout(() => showDamageNum('BREAK!', 'dmg-crit', 'right'), 220);
-  shakeScreen(); buzz && buzz('heavy');
+  if(loopHas('breaking')) cbGain(30);
+  buzz && buzz('heavy');
+  return loopHas('breaking') ? CB_BREAK_MS_MARK : CB_BREAK_MS;
 }
 function loopTurnText(inWindow){
   const e = curEnemy;
@@ -10003,7 +10374,7 @@ function loopAddWalk(mi){
   loopHudSync();
 }
 function loopEmberStrike(){
-  const L = loopState(); if(!inCombat || !curEnemy || !L || L.ember < 1 || playerActLocked) return;
+  const L = loopState(); if(!inCombat || !curEnemy || !L || L.ember < 1 || playerActLocked || curEnemy.hp <= 0) return;
   L.ember--;
   curEnemy._ember = true;
   flashScreen('white');
@@ -12386,6 +12757,18 @@ function sndCombatStart(){         // string-stab sting; bosses add their roar
   buzz(isBoss ? 'heavy' : 'medium');
 }
 
+function sndStrike(big){          // a quick cut with a little pitch play so 30 taps never sound the same
+  const p = 0.9 + Math.random() * 0.25 + Math.min(playerCombo, 20) * 0.012;
+  noise({ gain:0.10, attack:0.002, release:0.07, filter:'bandpass', filterFreq:900 * p, filterFreq2:3200 * p, filterQ:1.4, wet:0.05 });
+  voice({ type:'sine', freq:150 * p, freq2:55, gain:big ? 0.26 : 0.17, attack:0.001, decay:0.07, release:0.06, at:0.02, wet:0.08 });
+  noise({ gain:big ? 0.14 : 0.08, attack:0.001, release:0.05, filter:'lowpass', filterFreq:2200, dist:true, at:0.02, wet:0.06 });
+  buzz(big ? 'light' : 'tap');
+}
+function sndGuard(){               // steel on a raised guard: a dull clank
+  voice({ type:'triangle', freq:640, gain:0.06, attack:0.001, decay:0.06, sustain:0.1, release:0.18, wet:0.2 });
+  noise({ gain:0.08, attack:0.001, release:0.05, filter:'bandpass', filterFreq:1800, filterQ:3, wet:0.1 });
+  buzz('tap');
+}
 function sndDodge(){               // air whoosh past your ear
   noise({ gain:0.3, attack:0.02, release:0.14, filter:'bandpass', filterFreq:3000, filterFreq2:900, filterQ:1.2, wet:0.15, pan:0.5 });
 }
