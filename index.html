@@ -2320,7 +2320,21 @@ body:not(.net-on) .net-only { display:none !important; }
 @keyframes dnPop { 0%{transform:translate(-50%,0) scale(.5); opacity:1} 15%{transform:translate(-50%,-10px) scale(1.25)} 100%{transform:translate(-50%,-56px) scale(.9); opacity:0} }
 @keyframes dnPopBig { 0%{transform:translate(-50%,0) scale(.4) rotate(-6deg); opacity:1} 14%{transform:translate(-50%,-12px) scale(1.5) rotate(2deg)} 30%{transform:translate(-50%,-18px) scale(1.2)} 100%{transform:translate(-50%,-80px) scale(.95); opacity:0} }
 #cb-skill .cl.long { font-size:.74rem; letter-spacing:0; }
-#coach.in-fight { top:calc(86px + var(--sat)) !important; bottom:auto !important; }
+/* in a fight the tutorial is a slim strip over the log line, just above the buttons: never over the monster, ring or HP bars */
+#coach.in-fight { top:auto !important; bottom:var(--cbot,330px) !important; width:min(460px,calc(100vw - 12px)); padding:5px 30px 5px 10px;
+  border:1px solid #b8962a; border-left:3px solid var(--gold); border-radius:8px; background:rgba(22,14,4,.96); transform:translate(-50%,6px); }
+#coach.in-fight.show { transform:translate(-50%,0); }
+#coach.in-fight .coach-text { font-size:.84rem; line-height:1.25; text-align:center; }
+#coach.in-fight .coach-row { position:absolute; right:4px; top:50%; transform:translateY(-50%); margin:0; }
+#coach.in-fight .coach-row:has(.coach-btn) { position:static; transform:none; justify-content:center; margin-top:4px; }
+#coach.in-fight .coach-skip { font-size:0; text-decoration:none; padding:4px; }
+#coach.in-fight .coach-skip::after { content:'✕'; font-size:.95rem; color:#9a8a60; }
+#coach.in-fight .coach-row:has(.coach-btn) .coach-skip { font-size:.7rem; text-decoration:underline; }
+#coach.in-fight .coach-row:has(.coach-btn) .coach-skip::after { content:''; }
+#coach.in-fight::after { content:''; position:absolute; bottom:-9px; left:var(--ax,50%); margin-left:-8px; border:8px solid transparent; border-bottom:0; border-top:9px solid var(--gold); display:var(--arrow,none); }
+#coach.in-fight.min { width:auto; left:auto; right:8px; bottom:var(--cbot,330px) !important; transform:none; padding:4px 8px; }
+#coach.in-fight.new { animation:coachIn .35s ease-out; }
+@keyframes coachIn { 0%{ box-shadow:0 0 0 0 rgba(232,184,64,.9) } 100%{ box-shadow:0 0 0 14px rgba(232,184,64,0) } }
 @media (prefers-reduced-motion: reduce){ #combat-box.shaking, #combat-box.shaking-big { animation:none; } #cb-top.dodge-l #e-body, #cb-top.dodge-r #e-body { animation:none; } }
 
 </style>
@@ -7416,7 +7430,8 @@ function coach(html, { button=null, onButton=null, skip='tutSkip()', skipLabel='
   el.innerHTML = `<div class="coach-tab">💡 TIP</div><div class="coach-text">${html}</div>
     <div class="coach-row">${button ? `<button class="coach-btn" id="coach-btn">${button}</button>` : '<span></span>'}
     <button class="coach-skip" onclick="${skip}">${skipLabel}</button></div>`;
-  el.classList.remove('show', 'min'); coachPlace(); void el.offsetWidth; el.classList.add('show');
+  el.classList.remove('show', 'min', 'new'); coachPlace(); void el.offsetWidth; el.classList.add('show');
+  if(inCombat){ el.classList.add('new'); requestAnimationFrame(coachPlace); if(curEnemy && curEnemy.tutorialMob && typeof cbHoldEnemy === 'function') cbHoldEnemy(1200); } // a beat to read it
   el.querySelector('.coach-text').onclick = () => el.classList.add('min');   // tuck it away
   el.querySelector('.coach-tab').onclick = () => el.classList.remove('min'); // bring it back
   if(button) document.getElementById('coach-btn').onclick = onButton;
@@ -7428,12 +7443,27 @@ function coachHide(){ document.getElementById('coach').classList.remove('show');
 // In a fight the tip moves down over the combat log so the monster stays in view
 function coachPlace(){
   const el = document.getElementById('coach'); if(!el) return;
-  el.classList.toggle('in-fight', document.getElementById('combat-modal').classList.contains('active'));
+  const fight = document.getElementById('combat-modal').classList.contains('active');
+  el.classList.toggle('in-fight', fight);
+  if(!fight) return;
+  // sit on the log line, bottom edge on the buttons' panel; point at the glowing button if there is one
+  const bot = document.getElementById('cb-bottom');
+  if(bot){ const r = bot.getBoundingClientRect(); el.style.setProperty('--cbot', Math.max(0, window.innerHeight - r.top + 4) + 'px'); }
+  // the log line makes room for the strip, so the stage above (monster, ring, HP) is never covered
+  const log = document.getElementById('cb-log'), open = el.classList.contains('show') && !el.classList.contains('min');
+  if(log){ const want = open ? Math.ceil(el.getBoundingClientRect().height) + 10 + 'px' : ''; if(log.style.minHeight !== want){ log.style.minHeight = want; log.style.maxHeight = want ? 'none' : ''; } }
+  const g = document.querySelector('#combat-modal .coach-glow');
+  if(g && el.classList.contains('show') && !el.classList.contains('min')){
+    const gr = g.getBoundingClientRect(), cr = el.getBoundingClientRect();
+    el.style.setProperty('--ax', Math.max(16, Math.min(cr.width - 16, gr.left + gr.width / 2 - cr.left)) + 'px');
+    el.style.setProperty('--arrow', 'block');
+  } else el.style.setProperty('--arrow', 'none');
 }
-setInterval(coachPlace, 400);
+setInterval(coachPlace, 250);
 function coachGlow(sel){
   document.querySelectorAll('.coach-glow').forEach(e => e.classList.remove('coach-glow'));
   if(sel){ const e = document.querySelector(sel); if(e) e.classList.add('coach-glow'); }
+  coachPlace();
 }
 
 // Keep the tutorial's monster and shrine a few steps from the hunter (GPS can lock anywhere)
@@ -7469,7 +7499,7 @@ function tutHpFloor(e){
 function tutOnEnemySwing(e){
   if(!e || !e.tutorialMob || e._tutRiposted || tutStep() !== 'riposte') return;
   e._tutSwings = (e._tutSwings || 0) + 1;
-  if(e._tutSwings === 3){ coachGlow(null); coach('Close enough — <b>finish it</b>. Strike on the <b>gold flash</b> to parry any time.'); }
+  if(e._tutSwings === 3){ coachGlow(null); coach('Close enough. <b>Finish it!</b> Strike on the <b>gold flash</b> to parry.'); }
 }
 function tutKeepClose(){
   if(!tutStep()){ clearInterval(_tutTimer); _tutTimer = null; return; }
@@ -7511,7 +7541,7 @@ function tutOnCombatStart(ent){
 }
 function tutMotionIntro(){
   if(tutStep() !== 'fight' || !inCombat) return;
-  coach('In Darkworld you fight with your phone. <b>Lean it or flick it</b> to attack — a slight move is enough. First, let\'s tune it to your hand.',
+  coach('Fight by <b>leaning or flicking your phone</b>. Tune it to your hand?',
     { button:'TRY IT', onButton:() => { motionRequestPermission(true); _mo.after = tutFightCoach; motionCalibrate(); },
       skip:'tutFightCoach()', skipLabel:'use taps' });
 }
@@ -7521,7 +7551,7 @@ function tutFightCoach(){
   const a = Player.cls.abilities[0], moving = MOTION_ENABLED && motionPref.on && motionPref.map && _mo.seen;
   coach(moving
     ? `<b>Lean your phone left</b> (or tap <b>${a.emoji} ${a.name.toUpperCase()}</b>) — your basic attack. Each one builds your combo. Back to center between moves.`
-    : `<b>Tap the monster</b> (or ${a.emoji} <b>STRIKE</b>) to hit it. Tap fast: every hit builds your combo and charges your skill.`);
+    : `<b>Tap the monster</b> or <b>STRIKE</b> to hit it. Tap fast!`);
   coachGlow('#cb-strike');
 }
 
@@ -7531,12 +7561,13 @@ function tutOnPlayerAct(riposted){
   if(step === 'fight'){
     Player.tutorial = 'riposte';
     coachGlow(null);
-    coach(`When it attacks, a <b>ring closes in</b>. Strike the moment it <b>flashes gold</b> to <b>PARRY</b>: no damage, and you hit back harder.`);
+    coach(`A <b>ring</b> closes in when it attacks. Strike on the <b>gold flash</b> to <b>PARRY</b>.`);
     cbHoldEnemy(2600);
     curEnemy.hp = Math.max(curEnemy.hp, Math.ceil(curEnemy.maxHp * 0.5)); // stay alive long enough to try it
   } else if(step === 'riposte' && riposted){
     coachGlow(null);
-    coach('<b>PARRY!</b> That\'s the trick. <b>Purple</b> attacks can\'t be parried: <b>swipe</b> the monster or tap 💨 <b>DODGE</b>. Now finish it.');
+    coach('<b>PARRY!</b> <b>Purple</b> attacks can\'t be parried: <b>swipe</b> or tap <b>DODGE</b>.');
+    coachGlow('#cb-dodge');
   }
 }
 
