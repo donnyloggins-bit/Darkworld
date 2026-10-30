@@ -10453,7 +10453,7 @@ const KC_INTENT = {
 function kcEnemyHpFor(e, boss){
   const P = kcPow(), kit = CB_SPECIES[e.name];
   const gk = kgKind(e); if(gk) return Math.round(KG_T[gk].hpPer * KG_T[gk].size * P); // group bosses: sized for the whole party
-  let base = 95; // ~3-5 turns for a street monster (chains hit harder than single cards)
+  let base = 110; // ~3-5 turns for a street monster (chains hit harder than single cards)
   if(e.tutorialMob) base = 38;
   else if(boss) base = 220; // bosses: a long fight with phases
   else if(e.elite || e.gilded) base = 155;
