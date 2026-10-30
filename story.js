@@ -146,12 +146,135 @@ window.DW_STORY = {
   ],
 
   // ── Encounter tiers (WoW-style) ───────────────────────────────────
-  // party: named bosses, a 5-hunter team · raid: big bosses, 25 · city: the
-  // season finale, everyone. Until online play is switched on, solo hunters
-  // can try party and raid fights in PRACTICE with echo companions.
+  // party: every named boss, a 5-hunter team · raid: the one raid boss, 25 ·
+  // city: the season finale, everyone. Until online play is switched on, solo
+  // hunters can only PRACTICE these fights with AI echoes (no loot).
+  // Exactly one 25-hunter raid boss for now (swap the name here). Every other
+  // named monster (bosses, sub-bosses, lock bosses, quest and delve bosses,
+  // weekly raids) is a 5-hunter party fight; nobody beats a named monster alone.
+  raidBoss: 'MALECHAR THE LICH-KING',
   tiers: {
     party: { icon:'👥', name:'PARTY BOSS', size:5,  min:3,  blurb:'A five-hunter fight. Gather a party at the landmark.' },
-    raid:  { icon:'⚔',  name:'RAID BOSS',  size:25, min:10, blurb:'A twenty-five-hunter raid. The city gathers at the landmark.' },
+    raid:  { icon:'⚔',  name:'RAID BOSS',  size:25, min:10, blurb:'The one twenty-five-hunter raid. The city gathers at the landmark.' },
     city:  { icon:'🏙', name:'CITY FINALE', size:0,  min:1,  blurb:'Everyone. One health bar for the whole city.' },
+  },
+
+  // ── CARDS · items · chain perks ─────────────────────────────────────
+  // How to fill in: change a `name:'[NAME PLACEHOLDER]'` to the real name and
+  // write a `flavor:` line. `idea` is only a working title the game shows in
+  // [brackets] until the real name is in. Numbers scale with level and rarity.
+  // Card fields: t = attack | guard | skill | finisher | heal, cost = points,
+  //   dmg/blk/heal/bleed/weak/mark/evade/draw/energy/str/thorns, el = chain element
+  //   (fire frost storm holy shadow nature), infuse = leaves that element up for the
+  //   party, eat = uses that element for a bonus, once = burns after one use.
+  cards: {
+    // Every class starts with its own plain BASIC set (10 cards). Plain names on purpose.
+    basics: {
+      'Fighter':     { hint:'shield and rage',      cards:['strike','strike','strike','strike','guard','guard','guard','guard','fi_bash','fi_rage'] },
+      'Paladin':     { hint:'holy light and armor', cards:['strike','strike','strike','strike','guard','guard','guard','guard','pa_holy','pa_mend'] },
+      'Ranger':      { hint:'marks and volleys',    cards:['strike','strike','strike','strike','guard','guard','guard','guard','ra_mark','ra_twin'] },
+      'Magic-User':  { hint:'elements and energy',  cards:['strike','strike','strike','guard','guard','guard','guard','mu_fire','mu_frost','mu_focus'] },
+      'Illusionist': { hint:'dodges and weakness',  cards:['strike','strike','strike','strike','guard','guard','guard','guard','il_dodge','il_weak'] },
+      'Cleric':      { hint:'healing and wards',    cards:['strike','strike','strike','strike','guard','guard','guard','guard','cl_heal','cl_ward'] },
+      'Thief':       { hint:'bleeds and finishers', cards:['strike','strike','strike','strike','guard','guard','guard','guard','th_bleed','th_finish'] },
+      'Assassin':    { hint:'poison and marks',     cards:['strike','strike','strike','strike','guard','guard','guard','guard','as_poison','as_mark'] },
+      'Monk':        { hint:'quick combos',         cards:['strike','strike','strike','strike','guard','guard','guard','guard','mo_quick','mo_breathe'] },
+      'Druid':       { hint:'thorns and regrowth',  cards:['strike','strike','strike','strike','guard','guard','guard','guard','dr_thorn','dr_regrow'] },
+    },
+    basicDefs: {
+      strike:    { name:'Strike',          t:'attack', cost:1, dmg:6 },
+      guard:     { name:'Guard',           t:'guard',  cost:1, blk:5 },
+      fi_bash:   { name:'Shield Bash',     t:'attack', cost:1, dmg:4, blk:4, stag:1 },
+      fi_rage:   { name:'Rage',            t:'skill',  cost:1, str:2, once:true, el:'fire' },
+      pa_holy:   { name:'Holy Strike',     t:'attack', cost:1, dmg:5, el:'holy', infuse:'holy' },
+      pa_mend:   { name:'Mend',            t:'heal',   cost:1, heal:7, blk:3, el:'holy', eat:'holy' },
+      ra_mark:   { name:'Mark',            t:'skill',  cost:1, mark:2, draw:1, el:'storm' },
+      ra_twin:   { name:'Double Shot',     t:'attack', cost:1, dmg:3, hits:2, el:'storm', eat:'storm' },
+      mu_fire:   { name:'Fire Bolt',       t:'attack', cost:1, dmg:7, el:'fire', infuse:'fire' },
+      mu_frost:  { name:'Frost Bolt',      t:'attack', cost:1, dmg:4, weak:2, el:'frost', infuse:'frost' },
+      mu_focus:  { name:'Gather',          t:'skill',  cost:0, nextE:1, draw:1 },
+      il_dodge:  { name:'Dodge',           t:'skill',  cost:1, evade:1, draw:1, el:'shadow' },
+      il_weak:   { name:'Weaken',          t:'skill',  cost:1, weak:2, el:'shadow', infuse:'shadow' },
+      cl_heal:   { name:'Heal',            t:'heal',   cost:1, heal:8, el:'holy', eat:'holy' },
+      cl_ward:   { name:'Holy Ward',       t:'guard',  cost:1, blk:6, el:'holy', infuse:'holy' },
+      th_bleed:  { name:'Cut',             t:'attack', cost:1, dmg:3, bleed:4 },
+      th_finish: { name:'Finish',          t:'finisher', cost:1, dmg:2, per:4 },
+      as_poison: { name:'Poison Strike',   t:'attack', cost:1, dmg:2, bleed:5, el:'nature', infuse:'nature' },
+      as_mark:   { name:'Mark',            t:'skill',  cost:1, mark:2, draw:1, el:'shadow' },
+      mo_quick:  { name:'Quick Strike',    t:'attack', cost:0, dmg:3, combo:{ after:'skill', dmg:3 } },
+      mo_breathe:{ name:'Breathe',         t:'skill',  cost:1, draw:2 },
+      dr_thorn:  { name:'Thorn Guard',     t:'guard',  cost:1, blk:4, thorns:3, el:'nature', infuse:'nature' },
+      dr_regrow: { name:'Regrow',          t:'heal',   cost:1, heal:6, blk:3, el:'nature', eat:'nature' },
+    },
+    // SPECIAL / NAMED cards, class by class. These come from rewards and the skill tree.
+    named: {
+      'Fighter': [
+        { id:'cleave',   name:'[NAME PLACEHOLDER]', idea:'Cleave',      t:'attack',   cost:2, dmg:11, stag:1, flavor:'' },
+        { id:'wall',     name:'[NAME PLACEHOLDER]', idea:'Iron Wall',   t:'guard',    cost:2, blk:12, keep:true, flavor:'' },
+        { id:'retort',   name:'[NAME PLACEHOLDER]', idea:'Retort',      t:'guard',    cost:1, blk:4, thorns:4, flavor:'' },
+        { id:'storm',    name:'[NAME PLACEHOLDER]', idea:'Bladestorm',  t:'finisher', cost:2, dmg:3, per:3, el:'storm', flavor:'' },
+        { id:'cry',      name:'[NAME PLACEHOLDER]', idea:'Battle Cry',  t:'skill',    cost:1, str:2, once:true, el:'fire', eat:'fire', flavor:'' },
+      ],
+      'Thief': [
+        { id:'backstab', name:'[NAME PLACEHOLDER]', idea:'Backstab',    t:'attack',   cost:0, dmg:4, vsMark:6, el:'shadow', flavor:'' },
+        { id:'mark',     name:'[NAME PLACEHOLDER]', idea:'Mark Target', t:'skill',    cost:1, mark:2, draw:1, el:'shadow', infuse:'shadow', flavor:'' },
+        { id:'lacerate', name:'[NAME PLACEHOLDER]', idea:'Lacerate',    t:'attack',   cost:1, dmg:3, bleed:4, flavor:'' },
+        { id:'step',     name:'[NAME PLACEHOLDER]', idea:'Shadowstep',  t:'skill',    cost:1, evade:1, draw:1, el:'shadow', flavor:'' },
+        { id:'smoke',    name:'[NAME PLACEHOLDER]', idea:'Smoke Bomb',  t:'guard',    cost:1, blk:6, weak:1, el:'shadow', eat:'shadow', flavor:'' },
+        { id:'evisc',    name:'[NAME PLACEHOLDER]', idea:'Eviscerate',  t:'finisher', cost:1, dmg:2, per:4, flavor:'' },
+      ],
+      'Magic-User': [
+        { id:'bolt',     name:'[NAME PLACEHOLDER]', idea:'Firebolt',    t:'attack',   cost:1, dmg:8, el:'fire', infuse:'fire', flavor:'' },
+        { id:'ward',     name:'[NAME PLACEHOLDER]', idea:'Arcane Ward', t:'guard',    cost:1, blk:7, el:'frost', flavor:'' },
+        { id:'channel',  name:'[NAME PLACEHOLDER]', idea:'Channel',     t:'skill',    cost:0, nextE:1, draw:1, flavor:'' },
+        { id:'lance',    name:'[NAME PLACEHOLDER]', idea:'Frost Lance', t:'attack',   cost:1, dmg:5, weak:2, el:'frost', eat:'frost', flavor:'' },
+        { id:'meteor',   name:'[NAME PLACEHOLDER]', idea:'Meteor',      t:'finisher', cost:3, dmg:24, stag:2, spellDisc:true, el:'fire', eat:'fire', flavor:'' },
+        { id:'burn',     name:'[NAME PLACEHOLDER]', idea:'Immolate',    t:'attack',   cost:2, dmg:6, bleed:6, el:'fire', flavor:'' },
+      ],
+      'Paladin':     [ { id:'pa_n1', name:'[NAME PLACEHOLDER]', idea:'Judgment',   t:'finisher', cost:2, dmg:4, per:3, el:'holy', eat:'holy', flavor:'' },
+                       { id:'pa_n2', name:'[NAME PLACEHOLDER]', idea:'Aegis',      t:'guard',    cost:2, blk:12, keep:true, el:'holy', flavor:'' } ],
+      'Ranger':      [ { id:'ra_n1', name:'[NAME PLACEHOLDER]', idea:'Volley',     t:'attack',   cost:2, dmg:3, hits:4, el:'storm', flavor:'' },
+                       { id:'ra_n2', name:'[NAME PLACEHOLDER]', idea:'Hunter\'s Eye', t:'skill', cost:0, mark:1, draw:1, el:'storm', infuse:'storm', flavor:'' } ],
+      'Illusionist': [ { id:'il_n1', name:'[NAME PLACEHOLDER]', idea:'Mirror Image', t:'skill',  cost:1, evade:2, el:'shadow', eat:'shadow', flavor:'' },
+                       { id:'il_n2', name:'[NAME PLACEHOLDER]', idea:'Mind Spike', t:'attack',   cost:1, dmg:6, weak:1, el:'shadow', flavor:'' } ],
+      'Cleric':      [ { id:'cl_n1', name:'[NAME PLACEHOLDER]', idea:'Sanctuary',  t:'guard',    cost:2, blk:10, heal:5, el:'holy', eat:'holy', flavor:'' },
+                       { id:'cl_n2', name:'[NAME PLACEHOLDER]', idea:'Smite',      t:'attack',   cost:1, dmg:8, el:'holy', flavor:'' } ],
+      'Assassin':    [ { id:'as_n1', name:'[NAME PLACEHOLDER]', idea:'Envenom',    t:'skill',    cost:1, bleed:8, el:'nature', eat:'nature', flavor:'' },
+                       { id:'as_n2', name:'[NAME PLACEHOLDER]', idea:'Execute',    t:'finisher', cost:2, dmg:6, vsMark:12, flavor:'' } ],
+      'Monk':        [ { id:'mo_n1', name:'[NAME PLACEHOLDER]', idea:'Flurry',     t:'attack',   cost:1, dmg:2, hits:4, flavor:'' },
+                       { id:'mo_n2', name:'[NAME PLACEHOLDER]', idea:'Still Mind', t:'skill',    cost:0, energy:1, draw:1, once:true, flavor:'' } ],
+      'Druid':       [ { id:'dr_n1', name:'[NAME PLACEHOLDER]', idea:'Bramble Wall', t:'guard',  cost:2, blk:9, thorns:5, el:'nature', eat:'nature', flavor:'' },
+                       { id:'dr_n2', name:'[NAME PLACEHOLDER]', idea:'Wild Swipe', t:'attack',   cost:1, dmg:5, bleed:3, el:'nature', flavor:'' } ],
+    },
+    // Chain perks: the passive layer that bends how chains score. Magic items carry them.
+    perks: {
+      ember:  { name:'Ember',      ic:'🔥', d:'Fire cards add +1 to the multiplier.' },
+      frost:  { name:'Frost',      ic:'❄', d:'Frost cards add +1 to the multiplier.' },
+      twin:   { name:'Twin',       ic:'♊', d:'The 2nd card each turn adds its damage twice.' },
+      iron:   { name:'Iron',       ic:'🧱', d:'Guard cards add half their block to the chain.' },
+      echo:   { name:'Echo',       ic:'🔁', d:'Matching elements add +1 instead of +0.5.' },
+      flow:   { name:'Flow',       ic:'🌊', d:'Three different card types in a row add +2 instead of +1.' },
+      long:   { name:'Long Chain', ic:'⛓', d:'+0.5 for every card past the 4th.' },
+      spark:  { name:'Spark',      ic:'⚡', d:'Your first skill each turn costs 1 less point.' },
+      battery:{ name:'Battery',    ic:'🔋', d:'1 unused point carries into your next turn.' },
+      glass:  { name:'Glass',      ic:'🔮', d:'Doubles the final multiplier. Shatters for the fight if one hit takes a quarter of your HP.', breaks:true },
+      last:   { name:'Last Stand', ic:'💀', d:'Triples the multiplier while you are under 25% HP. Cracks after 3 uses in a fight.', breaks:true },
+    },
+    // Magic items that work with the cards. Plain names for basic gear; special ones
+    // keep a [NAME PLACEHOLDER] for you. rarity uses the card scale: common · uncommon · rare · legendary
+    // (items have no Epic yet). perk = its chain perk; card = a card it upgrades; el = the element its gear card carries.
+    items: [
+      { id:'mi_ring',   name:'Iron Ring',           slot:'accessory', rarity:'common', perk:'iron',  card:'guard',    el:null,     stats:{ def:6 } },
+      { id:'mi_coal',   name:'Ember Stone',         slot:'accessory', rarity:'common', perk:'ember', card:null,       el:'fire',   stats:{ atk:12 } },
+      { id:'mi_shard',  name:'Frost Shard',         slot:'accessory', rarity:'common', perk:'frost', card:null,       el:'frost',  stats:{ atk:10, def:3 } },
+      { id:'mi_cell',   name:'Spark Charm',         slot:'accessory', rarity:'uncommon', perk:'spark', card:null,       el:'storm',  stats:{ resMax:30 } },
+      { id:'mi_twin',   name:'[NAME PLACEHOLDER]',  idea:'Twin Blades',   slot:'weapon',    rarity:'uncommon', perk:'twin',    el:'storm',  stats:{ atk:70, crit:4 } },
+      { id:'mi_bell',   name:'[NAME PLACEHOLDER]',  idea:'Echo Bell',     slot:'accessory', rarity:'rare', perk:'echo',    el:'holy',   stats:{ atk:90, hp:80 } },
+      { id:'mi_chain',  name:'[NAME PLACEHOLDER]',  idea:'Long Chain',    slot:'weapon',    rarity:'rare', perk:'long',    el:'shadow', stats:{ atk:240, crit:6 } },
+      { id:'mi_glass',  name:'[NAME PLACEHOLDER]',  idea:'Glass Heart',   slot:'accessory', rarity:'rare', perk:'glass',   el:null,     stats:{ atk:150 } },
+      { id:'mi_battery',name:'[NAME PLACEHOLDER]',  idea:'Spare Breath',  slot:'armor',     rarity:'rare', perk:'battery', el:null,     stats:{ def:90, hp:150 } },
+      { id:'mi_last',   name:'[NAME PLACEHOLDER]',  idea:'Last Light',    slot:'accessory', rarity:'legendary', perk:'last',    el:'fire',   stats:{ atk:260, hp:200 } },
+      { id:'mi_flow',   name:'[NAME PLACEHOLDER]',  idea:'Tide Wraps',    slot:'armor',     rarity:'legendary', perk:'flow',    el:'frost',  stats:{ def:140, hp:260, dodge:6 } },
+    ],
   },
 };
