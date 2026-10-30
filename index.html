@@ -2337,6 +2337,79 @@ body:not(.net-on) .net-only { display:none !important; }
 @keyframes coachIn { 0%{ box-shadow:0 0 0 0 rgba(232,184,64,.9) } 100%{ box-shadow:0 0 0 14px rgba(232,184,64,0) } }
 @media (prefers-reduced-motion: reduce){ #combat-box.shaking, #combat-box.shaking-big { animation:none; } #cb-top.dodge-l #e-body, #cb-top.dodge-r #e-body { animation:none; } }
 
+/* ══ COMBAT FX: a place, a living monster, your weapon ══ */
+#cb-cam { position:absolute; inset:-4%; z-index:0; will-change:transform; pointer-events:none; }
+#cb-bgwrap { position:absolute; inset:0; will-change:transform; display:none; }
+#cb-top.fx-on #cb-bgwrap { display:block; }
+#cb-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:fxKen 40s ease-in-out infinite alternate; -webkit-user-drag:none; }
+@keyframes fxKen { from{ transform:scale(1) } to{ transform:scale(1.07) translateY(-1.5%) } }
+#cb-bglight { position:absolute; inset:0; pointer-events:none; opacity:0; background:radial-gradient(circle at var(--lx,50%) var(--ly,50%), rgba(255,210,150,.45), rgba(255,180,90,.12) 30%, transparent 60%); }
+#cb-bglight.on { animation:fxLight .22s ease-out; }
+#cb-bglight.on.big { animation:fxLight .4s ease-out; }
+@keyframes fxLight { 0%{opacity:1} 100%{opacity:0} }
+#cb-atmo, #cb-fxc { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }
+#cb-cam #cb-atmo { left:4%; top:4%; width:92%; height:92%; }
+#cb-fxc { z-index:7; }
+#e-shadow { position:absolute; height:28px; border-radius:50%; background:radial-gradient(ellipse at center, rgba(0,0,0,.75), rgba(0,0,0,.35) 45%, transparent 70%); display:none; transform-origin:50% 50%; }
+#cb-top.fx-cut #e-shadow { display:block; }
+#cb-cam #e-body { position:absolute; inset:4%; display:block; }
+#e-rig { position:absolute; transform-origin:50% 100%; will-change:transform; }
+#e-slices, .e-slice { position:absolute; inset:0; width:100%; height:100%; }
+.e-slice { will-change:transform; -webkit-user-drag:none; user-select:none; }
+#e-glow { position:absolute; inset:-3%; width:106%; height:106%; display:none; opacity:.45;
+  filter:brightness(0) invert(1) sepia(1) saturate(3) blur(10px); }
+#cb-top.fx-cut #e-glow { display:block; }
+#e-anim { position:absolute; inset:0; width:100%; height:100%; display:none; transition:opacity .6s; }
+#e-anim.fade { opacity:0; }
+#cb-top.fx-anim .e-slice { object-fit:contain; object-position:50% 100%; }
+#cb-top.fx-anim #e-glow { display:none; }
+#cb-top[data-scene=graveyard] #e-glow, #cb-top[data-scene=woods] #e-glow, #cb-top[data-scene=prison] #e-glow, #cb-top[data-scene=prisongate] #e-glow, #cb-top[data-scene=pier] #e-glow, #cb-top[data-scene=parkway] #e-glow, #cb-top[data-scene=skyline] #e-glow { filter:brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(170deg) blur(10px); }
+#cb-top.fx-framed .e-slice { -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 52%, transparent 74%); mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 52%, transparent 74%); }
+#cb-top.fx-on #boss-portrait { display:none !important; }
+#cb-top.fx-on:not(.fx-emoji) #e-spr { display:none; }
+#cb-top.fx-emoji #e-rig { display:flex; align-items:center; justify-content:center; }
+#cb-top.fx-cut .e-slice { filter:none; }
+/* monster lit to match its place */
+#cb-top.fx-dead #e-rig, #cb-top.fx-dead #e-shadow { opacity:0; transition:opacity .08s; }
+#cb-top.fx-dead #e-body.death-anim { animation:none; }
+/* front fog, the grade and the vignette */
+#cb-fog { position:absolute; left:-20%; right:-20%; bottom:0; height:46%; pointer-events:none; will-change:transform; }
+#cb-fog::before, #cb-fog::after { content:''; position:absolute; inset:0; opacity:.55;
+  background:radial-gradient(ellipse 35% 40% at 25% 85%, rgba(170,180,200,.30), transparent 70%), radial-gradient(ellipse 40% 35% at 70% 90%, rgba(150,160,190,.26), transparent 70%), radial-gradient(ellipse 30% 30% at 50% 100%, rgba(120,130,160,.3), transparent 70%);
+  animation:fxFog 18s ease-in-out infinite alternate; }
+#cb-fog::after { opacity:.35; animation-duration:27s; animation-direction:alternate-reverse; transform:scaleX(-1); }
+@keyframes fxFog { from{ translate:-6% 0 } to{ translate:6% 0 } }
+#cb-top:not(.fx-on) #cb-fog { display:none; }
+#cb-grade { position:absolute; inset:0; z-index:1; pointer-events:none; display:none;
+  background:radial-gradient(ellipse 80% 70% at 50% 52%, transparent 55%, rgba(0,0,0,.6) 100%), linear-gradient(var(--grade,transparent), var(--grade,transparent)); }
+#cb-top.fx-on #cb-grade { display:block; }
+#cb-top.fx-rage #cb-grade { animation:fxRage 1.4s ease-out; }
+@keyframes fxRage { 0%{ box-shadow:inset 0 0 160px 60px rgba(255,0,0,.75) } 100%{ box-shadow:inset 0 0 0 0 rgba(255,0,0,0) } }
+#cb-top.fx-skillflash #cb-grade { animation:fxSkillFlash .5s ease-out; }
+@keyframes fxSkillFlash { 0%{ background-color:rgba(255,230,160,.55) } 100%{ background-color:transparent } }
+/* your weapon */
+#cb-fp { position:absolute; z-index:4; right:-12%; bottom:-10%; width:58%; max-width:320px; pointer-events:none; will-change:transform; transform-origin:85% 95%; display:none; }
+#cb-top.fx-on #cb-fp { display:block; }
+#cb-fp.left { right:auto; left:-12%; transform-origin:15% 95%; }
+#cb-fp.fp-punch { width:52%; right:-6%; bottom:-14%; }
+#cb-fp.fp-stab { width:56%; bottom:-10%; }
+#cb-fp img { width:100%; display:block; -webkit-user-drag:none; filter:drop-shadow(0 0 calc(var(--fpg,0) * 18px) rgba(255,220,140,.9)) brightness(.9); }
+#cb-fp.fp-cast img { filter:drop-shadow(0 0 calc(4px + var(--fpg,0) * 24px) rgba(150,200,255,.85)); }
+#cb-fp.mirror { right:auto; left:-6%; }
+/* keep the HUD and the telegraph above the scene */
+#cb-top.fx-on #cb-hud, #cb-top.fx-on #cb-combo, #cb-top.fx-on #tele, #cb-top.fx-on #stun-lbl { z-index:8; }
+#cb-top.fx-on #cb-fx { z-index:8; }
+#cb-top.fx-on::after { z-index:5; background:linear-gradient(180deg, rgba(0,0,0,.66) 0%, rgba(0,0,0,0) 18%, rgba(0,0,0,0) 80%, rgba(7,4,12,.7) 100%); }
+#cb-top.fx-on.telling::before, #cb-top.fx-on.counter::before { z-index:6; }
+/* the old CSS sidestep fights the camera; the camera does it now */
+#cb-top.fx-on.dodge-l #e-body, #cb-top.fx-on.dodge-r #e-body { animation:none; }
+/* low effects: no particles, fog drift, ken burns or glow */
+body.fx-low #cb-atmo, body.fx-low #cb-fog::after, body.fx-low #e-glow { display:none !important; }
+body.fx-low #cb-bg, body.fx-low #cb-fog::before { animation:none; }
+body.fx-calm #cb-bg { animation:none; }
+@media (prefers-reduced-motion: reduce){ #cb-bg, #cb-fog::before, #cb-fog::after { animation:none; } }
+#fx-low-btn { width:100%; margin-top:6px; }
+
 </style>
 </head>
 <body>
@@ -2545,6 +2618,7 @@ body:not(.net-on) .net-only { display:none !important; }
         <button class="sb-btn" onclick="openShop()">🏪 SHOP</button>
         <button class="sb-btn" onclick="openSkills()">🌟 SKILLS</button>
       </div>
+      <button class="sb-btn" id="fx-low-btn" onclick="fxSetLow(!FX.low)">✨ EFFECTS: FULL (tap for low)</button>
     </div>
     <div id="online-panel" class="net-only">
       <div id="raid-panel" style="display:none"></div>
@@ -2581,7 +2655,17 @@ body:not(.net-on) .net-only { display:none !important; }
     <div id="cb-top">
       <div id="boss-charge-veil"></div>
       <div id="enemy-atk-flash"></div>
-      <div id="e-body"><img id="boss-portrait" src="" alt="" draggable="false" style="display:none"><span id="e-spr" class="c-sprite">💀</span></div>
+      <div id="cb-cam">
+        <div id="cb-bgwrap"><img id="cb-bg" alt="" draggable="false"></div>
+        <div id="cb-bglight"></div>
+        <canvas id="cb-atmo"></canvas>
+        <div id="e-shadow"></div>
+        <div id="e-body"><div id="e-rig"><img id="e-glow" alt="" draggable="false"><div id="e-slices"></div><canvas id="e-anim"></canvas><img id="boss-portrait" src="" alt="" draggable="false" style="display:none"><span id="e-spr" class="c-sprite">💀</span></div></div>
+        <div id="cb-fog"></div>
+      </div>
+      <div id="cb-grade"></div>
+      <div id="cb-fp"><img id="cb-fp-img" alt="" draggable="false"></div>
+      <canvas id="cb-fxc"></canvas>
       <div id="cb-hud">
         <div id="cb-name">ENEMY</div>
         <div id="cb-type">TYPE</div>
@@ -9076,7 +9160,609 @@ const CB = { t:0, last:0, freezeUntil:0, raf:0, kit:null, bag:[], move:null, nex
   strikeReal:-1e9, queued:0, dodgeUntil:-1, dodgeCdReal:-1e9, invulnUntil:-1, counterUntil:-1,
   stunUntil:-1, brokenUntil:-1, phase:0, statusAt:0, ptr:null, holdUntil:-1 };
 
+// ════════════════════════════════════════════════════════════════
+//  COMBAT FX — the fight as a place: a backdrop where you stand, a living monster,
+//  your weapon in hand, and hits you can feel. All transforms/opacity + two canvases,
+//  one rAF loop while the fight is on screen. "Low effects" (settings or reduced motion)
+//  keeps the scene but drops particles, slices, shake, zoom and slow-mo.
+// ════════════════════════════════════════════════════════════════
+const FX_CUTS = {"blood-wraith-sword.jpg": "fx/mon/blood-wraith-sword.webp", "bloodwraith.jpeg": "fx/mon/blood-wraith-sword.webp", "bogspecter.jpeg": "fx/mon/bogspecter.webp", "storm-wraith.jpg": "fx/mon/riverwraith.webp", "bonearcher.jpeg": "fx/mon/bonearcher.webp", "city-beast.jpg": "fx/mon/city-beast.webp", "city-beast-frazetta.jpg": "fx/mon/city-beast.webp", "colonial-shade.jpeg": "fx/mon/colonial-shade.webp", "cursedrat.jpeg": "fx/mon/cursedrat.webp", "gravewanderer.jpeg": "fx/mon/gravewanderer.webp", "drowned-sailor.jpg": "fx/mon/gravewanderer.webp", "water-wraith.jpg": "fx/mon/gravewanderer.webp", "hollowknight.jpeg": "fx/mon/hollowknight.webp", "iron ghost.jpg": "fx/mon/iron-ghost.webp", "ledger-wraith.jpg": "fx/mon/ledger-wraith.webp", "lostsoul.jpeg": "fx/mon/ledger-wraith.webp", "lichservant.jpeg": "fx/mon/lichservant.webp", "living-mannequin.jpeg": "fx/mon/living-mannequin.webp", "mannequin-horror.jpg": "fx/mon/mannequin-horror.webp", "boyds-mannequin.jpg": "fx/mon/boyds-mannequin.webp", "plaguehound.jpeg": "fx/mon/plaguehound.webp", "RIVER WRATH.jpg": "fx/mon/river-wrath.webp", "rotgolem.jpeg": "fx/mon/rotgolem.webp", "swamp-colossus.jpg": "fx/mon/rotgolem.webp", "voidshade.jpeg": "fx/mon/voidshade.webp", "wailing-ghost.jpg": "fx/mon/wailing-ghost.webp", "wailingbanshee.jpeg": "fx/mon/wailing-ghost.webp", "GRAVEMASTER.jpg": "fx/mon/gravemaster.webp", "0_0.jpeg": "fx/mon/malechar.webp", "jackburton_can_you_make_a_demon_in_a_cathedral_like_a_boss_fi_8ba5a125-cdfb-4f8f-ad6c-93384cfb0d1b_1.jpg": "fx/mon/cathedral-demon.webp", "the-hollow.jpg": "fx/mon/the-hollow.webp", "rev-ghost.jpg": "fx/mon/the-hollow.webp", "shadowimp.jpeg": "fx/mon/shadowimp.webp", "edward.jpeg": "fx/mon/edward.webp"};
+// Animated bosses: short clips with the alpha matte in the bottom half (plays on every phone), drawn with WebGL.
+// lunge = seconds into the attack clip where it strikes, so the clip lands with the telegraph.
+const FX_ANIM = {
+  '0_0.jpeg':         { base:'fx/boss/malechar',    lunge:1.8, still:'fx/mon/malechar.webp' },
+  'storm-wraith.jpg': { base:'fx/boss/riverwraith', lunge:1.75, still:'fx/mon/riverwraith.webp', float:true },
+};
+// Backdrops by place: the nearest spot within its radius wins; otherwise a dark street
+const FX_SCENES = {
+  street:    { img:'fx/bg/street.webp',              grade:'rgba(20,40,60,.18)', rim:'200,150,80',  atmo:'ash',    pos:'50% 60%' },
+  graveyard: { img:'fx/bg/graveyard.webp',           grade:'rgba(20,50,60,.20)', rim:'150,190,230', atmo:'motes',  pos:'50% 62%' },
+  woods:     { img:'fx/bg/woods.webp',               grade:'rgba(10,50,40,.22)', rim:'140,210,200', atmo:'motes',  pos:'50% 62%' },
+  market:    { img:'fx/bg/market.webp',              grade:'rgba(70,20,0,.18)',  rim:'255,150,60',  atmo:'embers', pos:'50% 62%' },
+  prison:    { img:'fx/bg/eastern-state-night.webp', grade:'rgba(10,30,50,.22)', rim:'160,200,255', atmo:'ash',    pos:'50% 70%' },
+  prisongate:{ img:'fx/bg/eastern-state-gate.webp',  grade:'rgba(10,30,50,.22)', rim:'160,200,255', atmo:'ash',    pos:'50% 70%' },
+  hellgate:  { img:'fx/bg/hellgate-arch.webp',       grade:'rgba(80,10,0,.18)',  rim:'255,120,60',  atmo:'embers', pos:'50% 60%' },
+  pit:       { img:'fx/bg/title4.webp',              grade:'rgba(80,20,0,.18)',  rim:'255,140,60',  atmo:'embers', pos:'50% 60%' },
+  river:     { img:'fx/bg/delaware-night.webp',      grade:'rgba(10,40,40,.20)', rim:'190,230,170', atmo:'motes',  pos:'50% 70%' },
+  pier:      { img:'fx/bg/delaware-tallship.webp',   grade:'rgba(10,30,50,.20)', rim:'170,200,255', atmo:'motes',  pos:'50% 70%' },
+  skyline:   { img:'fx/bg/philly-dark-skyline.webp', grade:'rgba(10,30,40,.16)', rim:'180,210,220', atmo:'ash',    pos:'50% 75%' },
+  parkway:   { img:'fx/bg/char-create-bg.webp',      grade:'rgba(10,20,50,.16)', rim:'170,190,255', atmo:'motes',  pos:'50% 75%' },
+  burning:   { img:'fx/bg/title3.webp',              grade:'rgba(80,10,20,.16)', rim:'255,120,80',  atmo:'embers', pos:'50% 70%' },
+};
+const FX_SPOTS = [
+  { s:'prison',     lat:39.9683, lng:-75.1727, r:0.30 },  // Eastern State
+  { s:'hellgate',   lat:39.9618, lng:-75.1740, r:0.15 },  // Rodin Museum
+  { s:'parkway',    lat:39.9656, lng:-75.1809, r:0.35 },  // Art Museum, Water Works, Boathouses
+  { s:'woods',      lat:39.9800, lng:-75.2050, r:1.20 },  // Fairmount Park west
+  { s:'woods',      lat:40.0550, lng:-75.2180, r:1.60 },  // Wissahickon
+  { s:'woods',      lat:39.9320, lng:-75.2125, r:0.35 },  // Bartram's
+  { s:'graveyard',  lat:39.9522, lng:-75.1470, r:0.12 },  // Christ Church burial ground
+  { s:'graveyard',  lat:39.9432, lng:-75.1460, r:0.10 },  // St Peter's
+  { s:'graveyard',  lat:39.9341, lng:-75.1440, r:0.12 },  // Gloria Dei
+  { s:'graveyard',  lat:39.9475, lng:-75.2050, r:0.30 },  // The Woodlands
+  { s:'graveyard',  lat:40.0036, lng:-75.1880, r:0.35 },  // Laurel Hill
+  { s:'graveyard',  lat:39.9471, lng:-75.1525, r:0.10 },  // Washington Square
+  { s:'market',     lat:39.9533, lng:-75.1591, r:0.10 },  // Reading Terminal
+  { s:'market',     lat:39.9385, lng:-75.1578, r:0.20 },  // Italian Market
+  { s:'market',     lat:39.9415, lng:-75.1452, r:0.08 },  // Head House
+  { s:'pier',       lat:39.9419, lng:-75.1412, r:0.25 },  // Penn's Landing
+  { s:'river',      lat:39.9532, lng:-75.1394, r:0.30 },  // Ben Franklin Bridge
+  { s:'river',      lat:39.9666, lng:-75.1287, r:0.35 },  // Penn Treaty / river wards waterfront
+  { s:'river',      lat:39.9759, lng:-75.1144, r:0.30 },  // Graffiti Pier
+  { s:'river',      lat:39.8752, lng:-75.2130, r:0.50 },  // Fort Mifflin
+  { s:'skyline',    lat:39.9524, lng:-75.1636, r:0.25 },  // City Hall
+];
+// Weapons in hand, by class
+const FX_FP = {
+  Fighter:{ img:'sword', kind:'swing' }, Paladin:{ img:'sword', kind:'swing', f:'sepia(.6) saturate(1.6) brightness(1.1)' },
+  Ranger:{ img:'bow', kind:'shoot', left:true }, 'Magic-User':{ img:'staff', kind:'cast' },
+  Illusionist:{ img:'staff', kind:'cast', f:'hue-rotate(70deg) saturate(1.4)' }, Cleric:{ img:'mace', kind:'swing' },
+  Thief:{ img:'dagger', kind:'stab' }, Assassin:{ img:'dagger', kind:'stab', f:'hue-rotate(-30deg) brightness(.85)' },
+  Monk:{ img:'fist', kind:'punch' }, Druid:{ img:'staff', kind:'cast', f:'hue-rotate(-95deg) saturate(1.5)' },
+};
+const FX_PREF_KEY = 'darkworld_fx_v1';
+const FX = {
+  on:false, low:false, reduced:false, raf:0, last:0, t:0, slow:1,
+  W:0, H:0, dpr:1, scene:null, mode:'emoji', fam:null, src:null, imgs:[], aspect:1,
+  cam:{ x:0, y:0, vx:0, z:1, zv:0, zt:1, fx:.5, fy:.5, trauma:0, px:0, pv:0 },
+  rig:{ x:0, vx:0, r:0, vr:0, y:0, vy:0, s:0, vs:0 },
+  fp:{ a:null, side:1, x:0, y:0, r:0 }, parts:[], back:[], shards:[], lights:[], trails:[], lastTap:null, frameMs:[], dirty:false,
+  els:{},
+};
+function fxPrefs(){ try { return JSON.parse(localStorage.getItem(FX_PREF_KEY) || '{}'); } catch(e){ return {}; } }
+function fxSetLow(v, auto){ const p = fxPrefs(); p.low = !!v; if(auto) p.auto = true; else delete p.auto; localStorage.setItem(FX_PREF_KEY, JSON.stringify(p)); fxApplyPrefs(); }
+function fxApplyPrefs(){
+  const p = fxPrefs();
+  FX.reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  FX.low = !!p.low;
+  document.body.classList.toggle('fx-low', FX.low);
+  document.body.classList.toggle('fx-calm', FX.low || FX.reduced);
+  const b = document.getElementById('fx-low-btn'); if(b) b.textContent = FX.low ? '✨ EFFECTS: LOW (tap for full)' : FX.reduced ? '✨ EFFECTS: CALM (device reduced motion)' : '✨ EFFECTS: FULL (tap for low)';
+  if(FX.on) fxResize();
+}
+function fxCalm(){ return FX.low || FX.reduced; }
+function fxEl(id){ return FX.els[id] || (FX.els[id] = document.getElementById(id)); }
+
+function fxSceneFor(ent){
+  if(ent && ent.fxScene && FX_SCENES[ent.fxScene]) return ent.fxScene;
+  if(ent && ent.isFinale) return 'burning';
+  if(ent && /cathedral|demon/i.test((ent.portrait || '') + ' ' + (ent.name || '')) && isBoss) return 'pit';
+  const lat = Player && Player.lat, lng = Player && Player.lng;
+  if(lat && lng && typeof distMiles === 'function'){
+    let best = null, bd = 1e9;
+    for(const s of FX_SPOTS){ const d = distMiles(lat, lng, s.lat, s.lng); if(d < s.r && d / s.r < bd){ bd = d / s.r; best = s.s; } }
+    if(best) return best;
+  }
+  return 'street';
+}
+
+function fxStart(ent, boss){
+  fxApplyPrefs();
+  const top = fxEl('cb-top'); if(!top) return;
+  FX.on = true; FX.t = 0; FX.slow = 1; FX.parts = []; FX.shards = []; FX.lights = []; FX.trails = []; FX.lastTap = null; FX.frameMs = [];
+  Object.assign(FX.cam, { x:0, y:0, vx:0, z:1, zv:0, zt:1, trauma:0, px:0, pv:0 });
+  Object.assign(FX.rig, { x:0, vx:0, r:0, vr:0, y:0, vy:0, s:0, vs:0 });
+  FX.fp.a = null; FX.fp.side = 1;
+  FX.dying = 0;
+  // place
+  const sk = fxSceneFor(ent); FX.sceneKey = sk; FX.scene = FX_SCENES[sk];
+  const bg = fxEl('cb-bg'); if(bg){ if(bg.getAttribute('src') !== FX.scene.img) bg.src = FX.scene.img; bg.style.objectPosition = FX.scene.pos; }
+  top.style.setProperty('--grade', FX.scene.grade); top.style.setProperty('--rim', FX.scene.rim);
+  top.dataset.scene = sk;
+  // monster
+  FX.fam = (typeof creatureFamily === 'function') ? creatureFamily(ent) : null;
+  FX.float = FX.fam === 'specter' || /ghost|wraith|soul|specter|shade|banshee|spirit/i.test(ent.name || '');
+  const cut = ent.portrait && FX_CUTS[ent.portrait];
+  FX.mode = cut ? 'cut' : ent.portrait ? 'framed' : 'emoji';
+  FX.src = cut || ent.portrait || null;
+  top.classList.remove('fx-cut', 'fx-framed', 'fx-emoji', 'fx-dead');
+  top.classList.add('fx-on', 'fx-' + FX.mode);
+  top.classList.toggle('fx-float', !!FX.float);
+  const sl = fxEl('e-slices'), glow = fxEl('e-glow');
+  sl.innerHTML = ''; FX.imgs = [];
+  if(FX.src){
+    const bands = (FX.mode === 'cut' && !fxCalm()) ? [[0, .32], [.31, .56], [.55, .79], [.78, 1]] : [[0, 1]];
+    FX.bands = bands;
+    for(const [a, b] of bands){
+      const im = new Image(); im.decoding = 'async'; im.draggable = false; im.alt = ''; im.src = FX.src; im.className = 'e-slice';
+      if(bands.length > 1) im.style.clipPath = `inset(${(a * 100).toFixed(1)}% 0 ${((1 - b) * 100).toFixed(1)}% 0)`;
+      sl.appendChild(im); FX.imgs.push(im);
+    }
+    glow.src = FX.mode === 'cut' ? FX.src : '';
+    const first = FX.imgs[0];
+    const ready = () => { FX.aspect = (first.naturalWidth || 1) / (first.naturalHeight || 1); fxLayout(); };
+    if(first.complete && first.naturalWidth) ready(); else first.onload = ready;
+  } else { glow.src = ''; FX.bands = null; }
+  const cvA = fxEl('e-anim'); if(cvA) cvA.classList.remove('fade'); sl.style.visibility = '';
+  if(fxAnimSetup(ent)){ FX.mode = 'anim'; top.classList.remove('fx-cut'); top.classList.add('fx-cut', 'fx-anim'); } else top.classList.remove('fx-anim');
+  // weapon
+  const fp = FX_FP[Player.className] || FX_FP.Fighter; FX.fpDef = fp;
+  const fpi = fxEl('cb-fp-img'); if(fpi){ fpi.src = 'fx/fp/fp-' + fp.img + '.webp'; fpi.style.filter = fp.f || ''; }
+  const fpw = fxEl('cb-fp'); if(fpw){ fpw.className = 'fp-' + fp.kind + (fp.left ? ' left' : ''); }
+  fxResize(); fxLayout();
+  fxSeedBack();
+  if(!FX.raf){ FX.last = performance.now(); FX.raf = requestAnimationFrame(fxFrame); }
+}
+
+// ── animated bosses ───────────────────────────────────────
+const FX_GL_VS = 'attribute vec2 p;varying vec2 uv;void main(){uv=vec2((p.x+1.)*.5,1.-(p.y+1.)*.5);gl_Position=vec4(p,0.,1.);}';
+const FX_GL_FS = 'precision mediump float;uniform sampler2D t;uniform float e;varying vec2 uv;void main(){vec3 c=texture2D(t,vec2(uv.x,min(uv.y*.5,.5-e))).rgb;float a=texture2D(t,vec2(uv.x,.5+e+uv.y*(.5-e))).r;gl_FragColor=vec4(c,a);}';
+function fxAnimSetup(ent){
+  const old = FX.anim; if(old){ for(const v of Object.values(old.v)) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch(e){} } }
+  FX.anim = null;
+  const def = ent && ent.portrait && FX_ANIM[ent.portrait];
+  const cv = fxEl('e-anim'); if(cv) cv.style.display = 'none';
+  if(!def || FX.low || !cv) return false;
+  let gl = null;
+  try { gl = cv.getContext('webgl', { premultipliedAlpha:true, alpha:true, antialias:false, preserveDrawingBuffer:false }); } catch(e){}
+  if(!gl) return false;
+  if(!cv._prog){
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+    const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, FX_GL_VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FX_GL_FS)); gl.linkProgram(pr);
+    if(!gl.getProgramParameter(pr, gl.LINK_STATUS)) return false;
+    gl.useProgram(pr);
+    const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    for(const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    gl.clearColor(0, 0, 0, 0); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    cv._prog = pr; cv._e = gl.getUniformLocation(pr, 'e');
+  }
+  const mk = (name, loop) => { const v = document.createElement('video'); v.muted = true; v.defaultMuted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('muted', ''); v.loop = loop; v.preload = 'auto'; v.src = def.base + '-' + name + '.mp4'; return v; };
+  FX.anim = { def, gl, cv, v:{ idle:mk('idle', true), attack:mk('attack', false), death:mk('death', false) }, cur:'idle', ready:false, lastT:-1, lastMoveT0:null };
+  const A = FX.anim;
+  A.v.attack.addEventListener('ended', () => { if(FX.anim === A && A.cur === 'attack'){ A.cur = 'idle'; A.v.idle.play().catch(() => {}); } });
+  A.v.idle.addEventListener('playing', () => { if(FX.anim === A){ A.ready = true; cv.style.display = 'block'; fxEl('e-slices').style.visibility = 'hidden'; } }, { once:true });
+  A.v.idle.play().catch(() => { /* autoplay refused: the still stays */ });
+  if(def.float) FX.float = true;
+  return true;
+}
+function fxAnimTick(){
+  const A = FX.anim; if(!A || !A.ready) return;
+  // the attack clip starts with each new telegraphed strike, timed so its lunge lands on the impact
+  const m = (typeof CB !== 'undefined') ? CB.move : null;
+  if(m && A.cur !== 'death' && m.t0 !== A.lastMoveT0 && ['parry', 'break', 'dodge'].includes(m.d.kind) && (m.hit || 0) === 0){
+    A.lastMoveT0 = m.t0;
+    const v = A.v.attack;
+    try { v.currentTime = 0; v.playbackRate = Math.max(.6, Math.min(2.5, A.def.lunge / Math.max(.3, m.tell / 1000))); v.play().catch(() => {}); A.cur = 'attack'; A.v.idle.pause(); } catch(e){}
+  }
+  const v = A.v[A.cur]; if(!v || v.readyState < 2) return;
+  if(v.currentTime === A.lastT && A.lastV === v) return;
+  A.lastT = v.currentTime; A.lastV = v;
+  const gl = A.gl, cv = A.cv, w = v.videoWidth, h = v.videoHeight / 2;
+  if(cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
+  gl.viewport(0, 0, w, h);
+  try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, v); } catch(e){ return; }
+  gl.uniform1f(cv._e, 1.5 / v.videoHeight);
+  gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+function fxAnimDie(){
+  const A = FX.anim; if(!A || !A.ready) return false;
+  A.v.idle.pause(); A.v.attack.pause();
+  const v = A.v.death; A.cur = 'death';
+  try { v.currentTime = 0; v.playbackRate = 1.35; v.play().catch(() => {}); } catch(e){ return false; }
+  fxShake(.5); fxSlowmo(250, .4);
+  const b = FX.box;
+  for(let i = 0; i < (fxCalm() ? 10 : 40); i++) FX.parts.push({ t:'ember', x:b.left + Math.random() * b.w, y:b.top + Math.random() * b.h, vx:(Math.random() - .5) * 60, vy:-30 - Math.random() * 120, g:-30, drag:.5, r:1 + Math.random() * 2, c:A.def.float ? '150,210,255' : '200,255,170', life:900 + Math.random() * 900, max:1800 });
+  setTimeout(() => { if(FX.anim === A) A.cv.classList.add('fade'); }, 1700);
+  FX.dirty = true;
+  return true;
+}
+
+function fxStop(){ if(FX.anim) for(const v of Object.values(FX.anim.v)) v.pause(); FX.on = false; if(FX.raf) cancelAnimationFrame(FX.raf); FX.raf = 0; }
+
+function fxResize(){
+  const top = fxEl('cb-top'); if(!top) return;
+  const r = top.getBoundingClientRect(); FX.W = r.width; FX.H = r.height;
+  FX.dpr = fxCalm() ? 1 : Math.min(1.5, window.devicePixelRatio || 1);
+  for(const id of ['cb-fxc', 'cb-atmo']){
+    const c = fxEl(id); if(!c) continue;
+    const d = id === 'cb-atmo' ? 1 : FX.dpr, w = Math.round(FX.W * d), h = Math.round(FX.H * d);
+    if(c.width !== w || c.height !== h){ c.width = w; c.height = h; }
+  }
+  fxLayout();
+}
+// size and place the monster: feet on the ground line, a boss stands taller
+function fxLayout(){
+  const rig = fxEl('e-rig'); if(!rig || !FX.W) return;
+  const W = FX.W, H = FX.H;
+  let w, h, bottom;
+  if(FX.mode === 'anim'){
+    h = H * .8; w = h * (320 / 426); if(w > W * 1.05){ w = W * 1.05; h = w * 426 / 320; } bottom = H * (FX.float ? .86 : .93);
+  } else if(FX.mode === 'cut'){
+    const maxH = H * (isBoss ? 0.66 : 0.56), maxW = W * (isBoss ? 0.98 : 0.9);
+    h = maxH; w = h * FX.aspect; if(w > maxW){ w = maxW; h = w / FX.aspect; }
+    bottom = H * (FX.float ? 0.80 : 0.86);
+  } else if(FX.mode === 'framed'){
+    w = Math.min(W * 0.98, H * 0.62); h = w / (FX.aspect || 1); bottom = H * 0.86;
+  } else { w = W * 0.6; h = w; bottom = H * 0.8; }
+  FX.box = { w, h, left:(W - w) / 2, top:bottom - h };
+  Object.assign(rig.style, { width:w + 'px', height:h + 'px', left:FX.box.left + 'px', top:FX.box.top + 'px' });
+  const sh = fxEl('e-shadow'); if(sh){ Object.assign(sh.style, { width:(w * 0.8) + 'px', left:(W - w * 0.8) / 2 + 'px', top:(H * 0.86 - 14) + 'px' }); }
+}
+
+// ── ambient particles (behind the monster) ───────────────
+function fxSeedBack(){
+  FX.back = [];
+  if(fxCalm()) return;
+  const n = FX.scene.atmo === 'motes' ? 26 : 36;
+  for(let i = 0; i < n; i++) FX.back.push(fxBackPart(true));
+}
+function fxBackPart(any){
+  const k = FX.scene.atmo, W = FX.W, H = FX.H;
+  const p = { x:Math.random() * W, y:any ? Math.random() * H : (k === 'embers' ? H + 10 : k === 'ash' ? -10 : Math.random() * H), k, ph:Math.random() * 6.28 };
+  if(k === 'embers'){ p.vx = (Math.random() - .5) * 12; p.vy = -(18 + Math.random() * 30); p.r = .8 + Math.random() * 1.8; p.c = Math.random() < .6 ? '255,150,50' : '255,90,30'; }
+  else if(k === 'ash'){ p.vx = 6 + Math.random() * 10; p.vy = 10 + Math.random() * 16; p.r = .7 + Math.random() * 1.6; p.c = '200,200,210'; }
+  else { p.vx = (Math.random() - .5) * 8; p.vy = (Math.random() - .5) * 8; p.r = 1 + Math.random() * 1.6; p.c = FX.scene.rim; }
+  p.a = .25 + Math.random() * .5; return p;
+}
+
+// ── the loop ──────────────────────────────────────────────
+function fxFrame(now){
+  FX.raf = 0;
+  const modalOpen = document.getElementById('combat-modal')?.classList.contains('active');
+  if(!FX.on || !modalOpen){ FX.on = false; if(FX.anim) for(const v of Object.values(FX.anim.v)) v.pause(); return; }
+  let dt = Math.min(50, now - FX.last); FX.last = now;
+  fxPerf(dt);
+  const sdt = dt * (typeof CB !== 'undefined' && now < (CB.slowUntil || 0) ? (CB.slowScale || .35) : 1) * (typeof CB !== 'undefined' && now < CB.freezeUntil ? 0.15 : 1);
+  FX.t += sdt / 1000;
+  const s = sdt / 1000, calm = fxCalm();
+  // camera: shake (trauma²), punch zoom, parallax sidestep
+  const c = FX.cam;
+  c.trauma = Math.max(0, c.trauma - dt / 1000 * 1.6);
+  const sh = calm ? 0 : c.trauma * c.trauma * 22;
+  const sx = sh * (Math.sin(now * .071) + Math.sin(now * .113) * .6) / 1.6, sy = sh * (Math.sin(now * .089 + 1) + Math.sin(now * .057) * .6) / 1.6;
+  c.zv += ((c.zt - c.z) * 160 - c.zv * 18) * dt / 1000; c.z += c.zv * dt / 1000;
+  if(c.zt > 1) c.zt = Math.max(1, c.zt - dt / 1000 * .5);
+  c.pv += ((0 - c.px) * 60 - c.pv * 11) * dt / 1000; c.px += c.pv * dt / 1000;
+  const drift = calm ? 0 : Math.sin(FX.t * .35) * 6;
+  const camX = c.px + drift;
+  const cam = fxEl('cb-cam');
+  if(cam){ cam.style.transformOrigin = `${(c.fx * 100).toFixed(1)}% ${(c.fy * 100).toFixed(1)}%`; cam.style.transform = `translate3d(${(sx + camX).toFixed(1)}px,${sy.toFixed(1)}px,0) scale(${c.z.toFixed(4)})`; }
+  const bgw = fxEl('cb-bgwrap'); if(bgw) bgw.style.transform = `translate3d(${(-camX * .7).toFixed(1)}px,0,0) scale(1.08)`;
+  const fog = fxEl('cb-fog'); if(fog) fog.style.transform = `translate3d(${(camX * .8).toFixed(1)}px,0,0)`;
+  // monster rig: breathing, sway (bent through slices), wind-up toward camera, recoil spring
+  fxRig(dt, s, calm);
+  fxWeapon(dt, calm);
+  fxDrawBack(s, calm);
+  fxDrawFront(sdt / 1000, dt);
+  FX.raf = requestAnimationFrame(fxFrame);
+}
+function fxPerf(dt){
+  if(FX.low) return;
+  const p = fxPrefs(); if(p.auto === false) return;
+  FX.frameMs.push(dt); if(FX.frameMs.length < 150) return;
+  const avg = FX.frameMs.reduce((a, b) => a + b, 0) / FX.frameMs.length; FX.frameMs = [];
+  if(avg > 30){ fxSetLow(true, true); if(typeof toast === 'function') toast('✨ Effects lowered to keep the fight smooth (menu to change)'); }
+}
+function fxRig(dt, s, calm){
+  const R = FX.rig, k = dt / 1000;
+  for(const [p, v] of [['x', 'vx'], ['r', 'vr'], ['y', 'vy'], ['s', 'vs']]){ R[v] += (-R[p] * 220 - R[v] * 16) * k; R[p] += R[v] * k; }
+  const t = FX.t, m = (typeof CB !== 'undefined') ? CB.move : null;
+  const stunned = typeof CB !== 'undefined' && CB.t < CB.stunUntil;
+  const amp = calm ? .35 : 1;
+  let breath = Math.sin(t * (FX.fam === 'beast' ? 3.2 : 2.1)) * amp;
+  let sway = (Math.sin(t * .9) * 1.6 + Math.sin(t * 2.3) * .4) * amp;     // degrees, bends the upper body
+  let lift = FX.float ? Math.sin(t * 1.4) * 9 * amp : 0, scale = 1, lean = 0, tint = 0;
+  if(m && !stunned){
+    const kind = m.d.kind, p = Math.max(0, Math.min(1, (CB.t - m.t0) / Math.max(1, m.tell)));
+    if(kind === 'guard'){ scale = 1 - .04 * Math.min(1, p * 4); lift += 10 * Math.min(1, p * 4); sway *= .3; }
+    else if(kind === 'drain'){ sway += Math.sin(t * 9) * 2.2; tint = .5 + .5 * Math.sin(t * 8); }
+    else {
+      // rear back, then surge at the camera as the ring closes
+      const back = Math.min(1, p / .7), surge = p > .7 ? (p - .7) / .3 : 0;
+      const big = kind === 'break' || kind === 'dodge' ? 1.6 : 1;
+      lean = -4 * back * big + 9 * surge * surge * big;
+      scale = 1 - .03 * back * big + (.10 * big) * surge * surge;
+      lift += -8 * back * big + 26 * surge * surge * big;
+      breath *= .4;
+    }
+  }
+  if(stunned){ sway = Math.sin(t * 5) * 4; lean = 6; lift += 8; }
+  const rig = fxEl('e-rig'); if(!rig) return;
+  if(FX.anim){ fxAnimTick(); if(FX.anim.ready){ lean *= .35; scale = 1 + (scale - 1) * .35; } }
+  const sc = scale * (1 + R.s);
+  rig.style.transform = `translate3d(${R.x.toFixed(1)}px,${(lift + R.y).toFixed(1)}px,0) rotate(${(R.r + lean * .25).toFixed(2)}deg) scale(${(sc * (1 - breath * .006)).toFixed(4)},${(sc * (1 + breath * .013)).toFixed(4)})`;
+  const sh = fxEl('e-shadow'); if(sh){ const f = FX.float ? .7 - lift / 120 : 1 - Math.max(0, -lift) / 200; sh.style.transform = `translateX(${(R.x * .6).toFixed(1)}px) scale(${(f * sc).toFixed(3)},${(f * sc * .9).toFixed(3)})`; sh.style.opacity = String(Math.max(.2, Math.min(1, f))); }
+  const glow = fxEl('e-glow'); if(glow) glow.style.opacity = String((.30 + tint * .4 + (m && m.flashed ? .35 : 0)).toFixed(2));
+  // the bend: each band skews about its own bottom edge, and is carried by the bands under it
+  if(FX.imgs.length > 1 && FX.box){
+    const h = FX.box.h, wts = [1.35, 1.0, .55, 0], b = FX.bands; // top..bottom
+    const ang = (sway + lean) * Math.PI / 180;
+    let carry = 0;
+    for(let i = b.length - 1; i >= 0; i--){
+      const a = ang * wts[i], bandH = (b[i][1] - b[i][0]) * h;
+      const im = FX.imgs[i];
+      im.style.transformOrigin = `50% ${(b[i][1] * 100).toFixed(1)}%`;
+      im.style.transform = `translate3d(${carry.toFixed(2)}px,0,0) skewX(${(-a * 180 / Math.PI).toFixed(3)}deg)`;
+      carry += bandH * Math.tan(a);
+    }
+  } else if(FX.imgs.length === 1){
+    FX.imgs[0].style.transformOrigin = '50% 100%';
+    FX.imgs[0].style.transform = `skewX(${(-(sway + lean) * .5).toFixed(2)}deg)`;
+  }
+}
+// first-person weapon: idle bob, swing/shoot/cast/stab/punch, block, sidestep, flinch
+function fxWeapon(dt, calm){
+  const el = fxEl('cb-fp'); if(!el) return;
+  const F = FX.fp, t = FX.t, now = performance.now();
+  let x = Math.sin(t * 1.7) * 4 * (calm ? .3 : 1), y = Math.abs(Math.sin(t * 1.7)) * 5 * (calm ? .3 : 1), r = 0, s = 1, glow = 0;
+  const a = F.a;
+  if(a){
+    const p = (now - a.t0) / a.dur;
+    if(p >= 1) F.a = null;
+    else {
+      const up = p < a.hit ? p / a.hit : 1 - (p - a.hit) / (1 - a.hit);  // 0→1 at contact → 0
+      const e = up * up * (3 - 2 * up);
+      const d = a.dir || 1;
+      switch(a.type){
+        case 'swing': x += -150 * e * d; y += -70 * e; r += -55 * e * d; s += .08 * e; break;
+        case 'stab':  x += -90 * e; y += -120 * e; r += -12 * e; s += .12 * e; break;
+        case 'punch': x += -120 * e; y += -90 * e; s += .28 * e; break;
+        case 'shoot': y += p < a.hit ? 18 * (p / a.hit) : -30 * (1 - (p - a.hit) / (1 - a.hit)); s += p < a.hit ? -.04 : .03; break;
+        case 'cast':  x += -60 * e; y += -80 * e; r += -14 * e; s += .1 * e; glow = e; break;
+        case 'block': x += -120 * e; y += -60 * e; r += -70 * e; s += .06 * e; break;
+        case 'dodge': x += 90 * e * d; r += 14 * e * d; y += 16 * e; break;
+        case 'hurt':  y += 60 * e; r += 8 * e; x += 20 * e; break;
+        case 'skill': { const w = p < .45 ? p / .45 : 1, sl = p > .45 ? Math.sin(Math.min(1, (p - .45) / .4) * Math.PI) : 0;
+          y += -60 * w + 80 * sl; x += -30 * w - 90 * sl; r += -20 * w - 50 * sl; s += .12 * w; glow = w; break; }
+      }
+    }
+  }
+  if(FX.fpDef && FX.fpDef.left){ x = -x; r = -r; }
+  const mirror = (F.side < 0 && FX.fpDef && FX.fpDef.kind === 'punch');
+  el.style.transform = `translate3d(${(mirror ? -x : x).toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${(mirror ? -r : r).toFixed(2)}deg) scale(${mirror ? -s : s},${s})`;
+  el.classList.toggle('mirror', mirror);
+  el.style.setProperty('--fpg', glow.toFixed(2));
+}
+function fxFp(type, o = {}){
+  const dur = { swing:260, stab:200, punch:200, shoot:300, cast:320, block:330, dodge:340, hurt:300, skill:700 }[type] || 260;
+  const hit = { shoot:.55, block:.35, skill:.6 }[type] || .35;
+  if(type === 'punch') FX.fp.side = -FX.fp.side;
+  if(type === 'swing') FX.fp.swDir = -(FX.fp.swDir || -1);
+  FX.fp.a = { type, t0:performance.now(), dur, hit, dir:o.dir || (type === 'swing' ? (FX.fp.swDir > 0 ? 1 : .55) : 1) };
+}
+
+// ── canvases ──────────────────────────────────────────────
+function fxDrawBack(s, calm){
+  const c = fxEl('cb-atmo'); if(!c) return;
+  if(calm || !FX.back.length){ if(FX._atmoDirty){ c.getContext('2d').clearRect(0, 0, c.width, c.height); FX._atmoDirty = false; } return; }
+  if((FX._af = (FX._af || 0) + 1) % 2) return; s *= 2;   // ambient motes at half rate
+  const g = c.getContext('2d'); FX._atmoDirty = true;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, FX.W, FX.H);
+  g.globalCompositeOperation = 'lighter';
+  for(let i = 0; i < FX.back.length; i++){
+    const p = FX.back[i]; p.ph += s * 2;
+    p.x += (p.vx + Math.sin(p.ph) * 6) * s; p.y += p.vy * s;
+    if(p.y < -20 || p.y > FX.H + 20 || p.x < -20 || p.x > FX.W + 20){ FX.back[i] = fxBackPart(false); continue; }
+    const a = p.a * (p.k === 'motes' ? (.5 + .5 * Math.sin(p.ph * 1.7)) : 1);
+    g.fillStyle = `rgba(${p.c},${a.toFixed(2)})`;
+    g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.283); g.fill();
+  }
+  g.globalCompositeOperation = 'source-over';
+}
+function fxDrawFront(s, dt){
+  const c = fxEl('cb-fxc'); if(!c) return;
+  const busy = FX.parts.length || FX.trails.length || FX.lights.length || FX.shards.length;
+  if(!busy && !FX.dirty) return;
+  const g = c.getContext('2d'); g.setTransform(FX.dpr, 0, 0, FX.dpr, 0, 0); g.clearRect(0, 0, FX.W, FX.H);
+  FX.dirty = !!busy;
+  // light flashes
+  g.globalCompositeOperation = 'lighter';
+  FX.lights = FX.lights.filter(L => (L.life -= dt) > 0);
+  for(const L of FX.lights){
+    const a = L.a * (L.life / L.max);
+    const gr = g.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r);
+    gr.addColorStop(0, `rgba(${L.c},${a.toFixed(3)})`); gr.addColorStop(1, `rgba(${L.c},0)`);
+    g.fillStyle = gr; g.fillRect(L.x - L.r, L.y - L.r, L.r * 2, L.r * 2);
+  }
+  // slash trails: a tapered crescent that sweeps on and fades, with a hot white core
+  FX.trails = FX.trails.filter(T => (T.life -= dt) > 0);
+  for(const T of FX.trails){
+    const p = 1 - T.life / T.max, head = Math.min(1, p * 3.5), tail = Math.max(0, (p - .25) / .75), fade = 1 - tail;
+    if(head - tail < .02) continue;
+    g.save(); g.translate(T.x, T.y); g.rotate(T.ang);
+    const L = T.len, N = 18, pts = [];
+    for(let i = 0; i <= N; i++){
+      const u = tail + (head - tail) * i / N, x = -L / 2 + L * u, y = -T.bend * 4 * u * (1 - u);
+      const w = T.w * Math.sin(Math.PI * (i / N)) * (.35 + .65 * (i / N)) * fade;  // thick near the head
+      pts.push([x, y, w]);
+    }
+    g.beginPath(); g.moveTo(pts[0][0], pts[0][1] - pts[0][2]);
+    for(const q of pts) g.lineTo(q[0], q[1] - q[2]);
+    for(let i = pts.length - 1; i >= 0; i--) g.lineTo(pts[i][0], pts[i][1] + pts[i][2] * .45);
+    g.closePath();
+    if(!fxCalm()){ g.save(); g.scale(1, 2.2); g.fillStyle = `rgba(${T.c},${(.22 * fade).toFixed(2)})`; g.fill(); g.restore(); } // soft halo without a blur
+    g.fillStyle = `rgba(${T.c},${(.78 * fade).toFixed(2)})`; g.fill();
+    g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); for(const q of pts) g.lineTo(q[0], q[1] - q[2] * .3);
+    g.strokeStyle = `rgba(255,255,255,${(.95 * fade).toFixed(2)})`; g.lineWidth = Math.max(1.2, T.w * .22 * fade); g.lineCap = 'round'; g.stroke();
+    g.restore();
+  }
+  // sparks (additive) and ichor (normal blending)
+  const k = s;
+  const keep = [];
+  for(const p of FX.parts){
+    p.life -= dt; if(p.life <= 0) continue; keep.push(p);
+    p.vy += p.g * k; p.vx *= (1 - p.drag * k); p.vy *= (1 - p.drag * k);
+    const ox = p.x, oy = p.y; p.x += p.vx * k; p.y += p.vy * k;
+    const a = Math.min(1, p.life / p.max * 1.5);
+    if(p.t === 'spark'){
+      g.globalCompositeOperation = 'lighter';
+      g.strokeStyle = `rgba(${p.c},${a.toFixed(2)})`; g.lineWidth = p.r;
+      g.beginPath(); g.moveTo(ox - p.vx * k * 1.5, oy - p.vy * k * 1.5); g.lineTo(p.x, p.y); g.stroke();
+    } else if(p.t === 'ember'){
+      g.globalCompositeOperation = 'lighter';
+      g.fillStyle = `rgba(${p.c},${a.toFixed(2)})`; g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.283); g.fill();
+    } else {
+      g.globalCompositeOperation = 'source-over';
+      g.fillStyle = `rgba(${p.c},${(a * .85).toFixed(2)})`; g.beginPath(); g.ellipse(p.x, p.y, p.r * 1.3, p.r, Math.atan2(p.vy, p.vx), 0, 6.283); g.fill();
+    }
+  }
+  FX.parts = keep;
+  // death: shards of the monster fly apart and burn away as ash
+  if(FX.shards.length){
+    g.globalCompositeOperation = 'source-over';
+    const img = FX.imgs[0];
+    FX.shards = FX.shards.filter(S => (S.life -= dt) > 0);
+    for(const S of FX.shards){
+      if(S.delay > 0){ S.delay -= dt; }
+      else { S.vy += S.g * k; S.x += S.vx * k; S.y += S.vy * k; S.rot += S.vr * k; }
+      const a = Math.min(1, S.life / (S.max * .6));
+      g.save(); g.globalAlpha = a; g.translate(S.x, S.y); g.rotate(S.rot);
+      const burn = 1 - a;
+      if(img && img.naturalWidth) g.drawImage(img, S.sx, S.sy, S.sw, S.sh, -S.w / 2, -S.h / 2, S.w, S.h);
+      if(burn > .05){ g.globalCompositeOperation = 'source-atop'; g.fillStyle = `rgba(255,${Math.floor(140 * (1 - burn))},40,${(burn * .9).toFixed(2)})`; g.fillRect(-S.w / 2, -S.h / 2, S.w, S.h); }
+      g.restore(); g.globalCompositeOperation = 'source-over';
+    }
+  }
+  g.globalCompositeOperation = 'source-over';
+}
+
+// ── events from the fight ─────────────────────────────────
+function fxLocal(x, y){
+  const r = fxEl('cb-top').getBoundingClientRect();
+  if(x == null || y == null){
+    const b = FX.box || { left:FX.W * .25, top:FX.H * .3, w:FX.W * .5, h:FX.H * .4 };
+    return { x:b.left + b.w * (.3 + Math.random() * .4), y:b.top + b.h * (.25 + Math.random() * .35) };
+  }
+  return { x:x - r.left, y:y - r.top };
+}
+function fxIchor(){ // monster "blood": cold wisps for spirits, dark ichor for the rest (no gore)
+  if(FX.float) return '170,220,255';
+  return { beast:'90,10,20', construct:'60,70,50', undead:'50,60,40', demon:'120,20,10' }[FX.fam] || '70,10,30';
+}
+function fxShake(amount){ if(fxCalm()) return; FX.cam.trauma = Math.min(1, FX.cam.trauma + amount); }
+function fxPunch(z, x, y){ if(fxCalm()) return; FX.cam.zt = Math.max(FX.cam.zt, z); FX.cam.fx = x / FX.W; FX.cam.fy = y / FX.H; }
+function fxSlowmo(ms, scale){ if(fxCalm() || typeof CB === 'undefined') return; CB.slowUntil = performance.now() + ms; CB.slowScale = scale; }
+function fxHit(o = {}){
+  if(!FX.on){ return false; }
+  const p = fxLocal(o.x, o.y), kind = o.kind || 'hit';
+  const big = o.crit || kind === 'parry' || kind === 'skill', guard = kind === 'guard';
+  const weight = guard ? .15 : kind === 'skill' ? .55 : kind === 'parry' ? .7 : o.crit ? .5 : kind === 'counter' ? .4 : .22;
+  // slash direction: along the line from the last tap, else alternating diagonals
+  let ang;
+  const lt = FX.lastTap, now = performance.now();
+  if(lt && now - lt.t < 450 && Math.hypot(p.x - lt.x, p.y - lt.y) > 30) ang = Math.atan2(p.y - lt.y, p.x - lt.x);
+  else { FX.slashFlip = !FX.slashFlip; ang = (FX.slashFlip ? -1 : 1) * (0.5 + Math.random() * .5) + (FX.slashFlip ? Math.PI : 0); }
+  if(o.x != null) FX.lastTap = { x:p.x, y:p.y, t:now };
+  const calm = fxCalm();
+  const col = guard ? '140,190,255' : kind === 'counter' ? '120,230,255' : big ? '255,215,110' : '255,240,210';
+  FX.trails.push({ x:p.x, y:p.y, ang, len:Math.min(FX.W * .95, (big ? 340 : 240)) * (guard ? .6 : 1), w:big ? 15 : 10, bend:(big ? 50 : 34) * (Math.random() < .5 ? 1 : -1), c:col, life:big ? 300 : 230, max:big ? 300 : 230 });
+  if(big && !guard) FX.trails.push({ x:p.x, y:p.y, ang:ang + 1.25, len:260, w:11, bend:-36, c:col, life:280, max:280 });
+  FX.lights.push({ x:p.x, y:p.y, r:big ? 240 : 140, c:guard ? '120,170,255' : '255,200,120', a:big ? .55 : .3, life:big ? 220 : 140, max:big ? 220 : 140 });
+  const nS = calm ? (big ? 5 : 2) : (big ? 22 : guard ? 6 : 9);
+  for(let i = 0; i < nS; i++){
+    const a = ang + (Math.random() - .5) * 2.4 + (Math.random() < .5 ? Math.PI : 0), v = 220 + Math.random() * (big ? 620 : 380);
+    FX.parts.push({ t:'spark', x:p.x, y:p.y, vx:Math.cos(a) * v, vy:Math.sin(a) * v - 80, g:900, drag:2.5, r:big ? 2.2 : 1.6, c:guard ? '170,210,255' : '255,220,140', life:260 + Math.random() * 260, max:500 });
+  }
+  if(!guard){
+    const nI = calm ? 0 : (big ? 9 : 4), ic = fxIchor();
+    for(let i = 0; i < nI; i++){
+      const a = ang + (Math.random() - .5) * 1.2, v = 120 + Math.random() * 280;
+      FX.parts.push({ t:FX.float ? 'ember' : 'ichor', x:p.x, y:p.y, vx:Math.cos(a) * v * 1.4, vy:Math.sin(a) * v * 1.4 - 160, g:FX.float ? -60 : 1300, drag:FX.float ? 3 : 1, r:1.2 + Math.random() * (big ? 2.6 : 1.8), c:ic, life:420 + Math.random() * 320, max:740 });
+    }
+  }
+  // the body reacts: knocked along the slash, tilted, squashed
+  const dir = Math.cos(ang) >= 0 ? 1 : -1;
+  FX.rig.vx += dir * (guard ? 60 : big ? 520 : 260); FX.rig.vr += dir * (guard ? 10 : big ? 90 : 45); FX.rig.vs += big ? -1.4 : -.6; FX.rig.vy += big ? 260 : 90;
+  fxShake(weight * (guard ? .5 : 1));
+  const bgl = fxEl('cb-bglight'); if(bgl){ bgl.style.setProperty('--lx', (p.x / FX.W * 100).toFixed(1) + '%'); bgl.style.setProperty('--ly', (p.y / FX.H * 100).toFixed(1) + '%'); bgl.classList.remove('on', 'big'); void bgl.offsetWidth; bgl.classList.add('on'); if(big) bgl.classList.add('big'); }
+  if(o.crit && kind !== 'skill'){ fxPunch(1.07, p.x, p.y); fxSlowmo(200, .35); }
+  if(kind !== 'skill' && kind !== 'parry') fxFp(FX.fpDef ? FX.fpDef.kind : 'swing');
+  // shots and spells fly from your hand to the hit
+  if(FX.fpDef && (FX.fpDef.kind === 'shoot' || FX.fpDef.kind === 'cast') && kind !== 'skill'){
+    const from = FX.fpDef.left ? { x:FX.W * .2, y:FX.H * .92 } : { x:FX.W * .68, y:FX.H * .78 };
+    const L = Math.hypot(p.x - from.x, p.y - from.y);
+    FX.trails.push({ x:(from.x + p.x) / 2, y:(from.y + p.y) / 2, ang:Math.atan2(p.y - from.y, p.x - from.x), len:L, w:FX.fpDef.kind === 'cast' ? 7 : 3, bend:0,
+      c:FX.fpDef.kind === 'cast' ? (Player.className === 'Druid' ? '140,255,160' : Player.className === 'Illusionist' ? '220,150,255' : '150,200,255') : '255,240,200', life:150, max:150 });
+  }
+  FX.dirty = true;
+  return true;
+}
+function fxParry(isBreak, grade){
+  if(!FX.on) return;
+  const c = { x:FX.W / 2, y:FX.H * .52 };
+  fxFp('block');
+  FX.lights.push({ x:c.x, y:c.y, r:FX.W * .9, c:'255,220,120', a:isBreak ? .75 : .5, life:300, max:300 });
+  for(let i = 0; i < (fxCalm() ? 6 : 30); i++){ const a = Math.random() * 6.283, v = 300 + Math.random() * 700; FX.parts.push({ t:'spark', x:c.x, y:c.y, vx:Math.cos(a) * v, vy:Math.sin(a) * v, g:600, drag:2.2, r:2.2, c:'255,225,140', life:300 + Math.random() * 300, max:600 }); }
+  FX.rig.vy -= 320; FX.rig.vs -= 1.2; FX.rig.vr += (Math.random() < .5 ? -1 : 1) * 80;
+  fxShake(isBreak ? .75 : grade === 'PERFECT' ? .5 : .35);
+  fxPunch(isBreak ? 1.12 : grade === 'PERFECT' ? 1.08 : 1.05, c.x, c.y);
+  fxSlowmo(isBreak ? 520 : grade === 'PERFECT' ? 320 : 180, isBreak ? .25 : .4);
+  FX.dirty = true;
+}
+function fxHurt(big){
+  if(!FX.on) return;
+  fxFp('hurt'); fxShake(big ? .8 : .45);
+  FX.rig.vy += 200; FX.rig.vs += 1.6; // it lunges through you
+  if(!fxCalm()){ FX.cam.zt = Math.max(FX.cam.zt, big ? 1.06 : 1.03); FX.cam.fx = .5; FX.cam.fy = .6; }
+}
+function fxDodge(dir){
+  if(!FX.on) return;
+  fxFp('dodge', { dir:dir < 0 ? 1 : -1 });
+  if(!fxCalm()) FX.cam.pv += (dir < 0 ? 1 : -1) * 900; // you step aside; the world slides the other way
+}
+function fxPerfectDodge(){ if(!FX.on) return; fxSlowmo(380, .3); FX.lights.push({ x:FX.W / 2, y:FX.H / 2, r:FX.W, c:'90,200,255', a:.35, life:380, max:380 }); FX.dirty = true; }
+function fxSkill(){
+  if(!FX.on) return;
+  fxFp('skill'); fxShake(.4); fxPunch(1.1, FX.W / 2, FX.H * .5); fxSlowmo(260, .35);
+  FX.lights.push({ x:FX.W / 2, y:FX.H * .55, r:FX.W * 1.1, c:'255,210,120', a:.6, life:500, max:500 });
+  const top = fxEl('cb-top'); top.classList.remove('fx-skillflash'); void top.offsetWidth; top.classList.add('fx-skillflash');
+  FX.dirty = true;
+}
+function fxPhase(){ if(!FX.on) return; fxShake(.7); const top = fxEl('cb-top'); top.classList.remove('fx-rage'); void top.offsetWidth; top.classList.add('fx-rage'); }
+// the monster comes apart: a flash, then shards that burn to ash and drift up
+function fxDie(){
+  if(!FX.on) return false;
+  if(FX.anim && FX.anim.ready) return fxAnimDie() ? 'anim' : false;
+  if(FX.mode === 'emoji' || !FX.box || !FX.imgs[0] || !FX.imgs[0].naturalWidth) return false;
+  const top = fxEl('cb-top');
+  const img = FX.imgs[0], nw = img.naturalWidth, nh = img.naturalHeight;
+  const rig = fxEl('e-rig').getBoundingClientRect(), tr = top.getBoundingClientRect();
+  const bx = rig.left - tr.left, by = rig.top - tr.top, bw = rig.width, bh = rig.height;
+  const cols = fxCalm() ? 4 : 8, rows = fxCalm() ? 5 : 10;
+  const cx = bx + bw / 2, cy = by + bh * .55;
+  for(let j = 0; j < rows; j++) for(let i = 0; i < cols; i++){
+    const w = bw / cols, h = bh / rows, x = bx + w * (i + .5), y = by + h * (j + .5);
+    const a = Math.atan2(y - cy, x - cx), v = 60 + Math.random() * 260;
+    FX.shards.push({ sx:nw * i / cols, sy:nh * j / rows, sw:nw / cols, sh:nh / rows, w:w + 1, h:h + 1, x, y,
+      vx:Math.cos(a) * v, vy:Math.sin(a) * v - 60, g:-140 - Math.random() * 160, rot:0, vr:(Math.random() - .5) * 5,
+      delay:j * 28 + Math.random() * 40, life:900 + Math.random() * 300, max:1100 });
+  }
+  for(let i = 0; i < (fxCalm() ? 10 : 50); i++){
+    FX.parts.push({ t:'ember', x:bx + Math.random() * bw, y:by + Math.random() * bh, vx:(Math.random() - .5) * 80, vy:-40 - Math.random() * 160, g:-40, drag:.6, r:1 + Math.random() * 2.2, c:Math.random() < .5 ? '255,160,60' : '255,100,40', life:700 + Math.random() * 700, max:1400 });
+  }
+  FX.lights.push({ x:cx, y:cy, r:Math.max(bw, bh), c:'255,240,220', a:.8, life:260, max:260 });
+  top.classList.add('fx-dead');
+  fxShake(.6); fxPunch(1.06, cx, cy); fxSlowmo(300, .4);
+  FX.dirty = true;
+  return true;
+}
+window.addEventListener('resize', () => { if(FX.on) fxResize(); });
+if(window.matchMedia){ try { matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', fxApplyPrefs); } catch(e){} }
+
 function cbNow(){ return performance.now(); }
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fxApplyPrefs); else fxApplyPrefs();
 function cbFreeze(ms){ CB.freezeUntil = Math.max(CB.freezeUntil, cbNow() + ms); }
 // The monster waits (coach cards, tutorial pauses)
 function cbHoldEnemy(ms){ CB.holdUntil = Math.max(CB.holdUntil, CB.t + ms); if(!CB.move) CB.nextAt = Math.max(CB.nextAt, CB.t + ms); }
@@ -9099,6 +9785,7 @@ function combatTick(){
   const real = cbNow();
   let dt = Math.min(120, real - CB.last); CB.last = real;
   if(real < CB.freezeUntil) dt = 0;                 // hit-stop: the world holds its breath
+  else if(real < (CB.slowUntil || 0)) dt *= (CB.slowScale || .35); // slow-mo on crits, breaks, perfect dodges
   CB.t += dt;
   const now = Date.now();
   warbandCombatTick(now);
@@ -9245,6 +9932,7 @@ function cbHurt(dmg, m, lunge){
   if(lunge) cbBodyAnim(big ? 'special-anim' : 'lunge-anim');
   const v = document.getElementById('hurt-vig'); if(v){ v.classList.remove('on', 'big'); void v.offsetWidth; v.classList.add('on'); if(big) v.classList.add('big'); }
   if(big){ shakeScreen(true); sndEnemySpecial(); cbFreeze(90); } else { shakeScreen(); sndPlayerHit(); }
+  fxHurt(big);
   sndEnemyAttack();
   showDamageNum(`-${fmt(dmg)}`, big ? 'dn-hurt dn-hurt-big' : 'dn-hurt', 'left');
   setCLog(big ? `${e.name}'s ${m.name.toLowerCase()} lands for ${fmt(dmg)}.` : `${e.name} hits you for ${fmt(dmg)}.`);
@@ -9260,7 +9948,7 @@ function cbPerfectDodge(m){
   CB.counterUntil = CB.t + CB_COUNTER_MS;
   cbGain(CB_METER.pdodge);
   cbFreeze(110);
-  showDamageNum('PERFECT DODGE', 'dn-pdodge', 'left');
+  showDamageNum('PERFECT DODGE', 'dn-pdodge', 'left'); fxPerfectDodge();
   sndDodge(); buzz('riposte');
   document.getElementById('cb-top')?.classList.add('counter');
   setTimeout(() => document.getElementById('cb-top')?.classList.remove('counter'), CB_COUNTER_MS);
@@ -9277,7 +9965,7 @@ function cbPhaseCheck(){
   if(ph > CB.phase){
     CB.phase = ph;
     showDamageNum(ph === 2 ? 'FRENZY' : 'ENRAGED', 'dn-phase', 'right');
-    shakeScreen(true); sndChargeUp(); buzz('slam');
+    shakeScreen(true); sndChargeUp(); buzz('slam'); fxPhase();
     setCLog(`${curEnemy.name} ${ph === 2 ? 'is frenzied — faster, and it hits harder.' : 'is enraged — it comes faster now.'}`);
   }
 }
@@ -9335,7 +10023,7 @@ function cbParry(m, left, x, y){
   const r = cbHitEnemy(cbStrikeAbility(), mult, { x, y, kind:'parry', riposted:true });
   cbFreeze(grade === 'PERFECT' ? 150 : 110);
   showDamageNum(isBreak ? 'BREAK!' : `${grade} PARRY`, 'dn-parry', 'left');
-  flashScreen('white'); sndRiposte(); shakeScreen(isBreak);
+  flashScreen('white'); sndRiposte(); shakeScreen(isBreak); fxParry(isBreak, grade);
   if(isBreak){
     const ms = loopOnBreak();
     CB.stunUntil = CB.brokenUntil = CB.t + ms;
@@ -9374,7 +10062,7 @@ function cbHitEnemy(ability, mult, o = {}){
   const cls = o.kind === 'guard' ? 'dn-guard' : o.kind === 'parry' || o.kind === 'skill' ? 'dn-big' : crit ? 'dn-crit' : o.kind === 'counter' ? 'dn-counter' : 'dn-hit';
   showDamageNum(o.kind === 'guard' ? `${fmt(dmg)} 🛡` : fmt(dmg) + (crit && o.kind !== 'guard' ? '!' : ''), cls, 'right', o.x, o.y);
   cbBodyHit(crit || o.kind === 'parry' || o.kind === 'skill', o.kind === 'guard');
-  cbSlash(o.x, o.y, crit || o.kind === 'parry' || o.kind === 'skill');
+  if(!fxHit({ x:o.x, y:o.y, kind:o.kind, crit })) cbSlash(o.x, o.y, crit || o.kind === 'parry' || o.kind === 'skill');
   if(o.kind !== 'parry' && o.kind !== 'skill') cbFreeze(o.kind === 'guard' ? 25 : crit ? 75 : 45);
   if(crit && o.kind !== 'guard') buzz('medium');
   return { dmg, crit };
@@ -9386,10 +10074,11 @@ function cbAfterHit(){
 function cbKill(){
   if(CB._dying) return; CB._dying = true;
   if(curEnemy && curEnemy.isRaid){ setTimeout(() => { CB._dying = false; victory(); }, 300); return; } // the shared raid decides
-  cbBodyAnim('death-anim');
+  const shattered = fxDie();
+  if(!shattered) cbBodyAnim('death-anim');
   const tele = document.getElementById('tele'); if(tele) tele.className = '';
   stopCombatTimer();
-  setTimeout(() => { CB._dying = false; victory(); }, isBoss ? 900 : 600);
+  setTimeout(() => { CB._dying = false; victory(); }, shattered === 'anim' ? 2300 : shattered ? (isBoss ? 1250 : 900) : (isBoss ? 900 : 600));
 }
 
 // ── player: dodge ─────────────────────────────────
@@ -9401,7 +10090,7 @@ function cbDodge(dir){
   CB.dodgeUntil = CB.t + CB_DODGE_IFRAMES;
   const st = document.getElementById('cb-top');
   if(st){ st.classList.remove('dodge-l', 'dodge-r'); void st.offsetWidth; st.classList.add(dir < 0 ? 'dodge-l' : 'dodge-r'); setTimeout(() => st.classList.remove('dodge-l', 'dodge-r'), 380); }
-  sndDodge(); buzz('tap');
+  sndDodge(); buzz('tap'); fxDodge(dir);
   const b = document.getElementById('cb-dodge'); if(b){ b.classList.remove('cd'); void b.offsetWidth; b.classList.add('cd'); }
 }
 
@@ -9442,7 +10131,7 @@ function cbBigHit(ability, o = {}){
     setTimeout(() => showDamageNum(m.d.kind === 'guard' ? 'SHATTERED!' : 'INTERRUPTED!', 'dn-parry', 'left'), 120);
     cbEndMove();
   }
-  sndSignature(); cbFreeze(160); flashScreen('white');
+  sndSignature(); cbFreeze(160); flashScreen('white'); fxSkill();
   document.getElementById('cb-top')?.classList.add('skilling');
   showDamageNum(`${ability.emoji} ${ability.name}`, 'dn-skillname', 'left');
   setCLog(`${ability.emoji} <b>${ability.name}</b>!`);
@@ -9560,7 +10249,7 @@ function startCombat(ent,boss){
   clearTimeout(CB.queued);
   Object.assign(CB, { t:0, last:cbNow(), freezeUntil:0, bag:[], move:null, meter:cbStartMeter(), strikeReal:-1e9, queued:0,
     dodgeUntil:-1, dodgeCdReal:-1e9, invulnUntil:-1, counterUntil:-1, stunUntil:-1, brokenUntil:-1, guardUntil:-1, phase:0,
-    holdUntil:-1, lastMove:null, _dying:false });
+    holdUntil:-1, lastMove:null, _dying:false, slowUntil:0, slowScale:1 });
   CB.kit = cbKitFor(ent);
   CB.nextAt = (boss ? 2200 : ent.tutorialMob ? 3000 : 1500); // a beat to land a few hits before the first move
   ent._sw = 0;
@@ -9588,6 +10277,7 @@ function startCombat(ent,boss){
   setCBUI(); updateComboDisplay();
   document.getElementById('combat-modal').classList.add('active');
   toastStepAside();
+  fxStart(ent, boss);
   startCombatTimer();
   addLog(boss?`⚔ BOSS ENCOUNTER: ${ent.name}!`:`⚔ ${ent.name} appears!`,boss?'lb':'lc');
   tutOnCombatStart(ent);
@@ -10134,6 +10824,7 @@ function flashScreen(type){
 }
 
 function shakeScreen(big){
+  if(typeof FX !== 'undefined' && FX.on){ fxShake(big ? .55 : .3); return; } // the camera shakes, not the buttons under your thumb
   const box=document.getElementById('combat-box');
   box.classList.remove('shaking','shaking-big');
   void box.offsetWidth; // force reflow so re-triggering restarts the animation
