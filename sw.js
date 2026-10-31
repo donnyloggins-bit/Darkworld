@@ -1,4 +1,4 @@
-const CACHE = 'darkworld-v8'; // v8: story.js (seasons, meetup spots)
+const CACHE = 'darkworld-v9'; // v9: card combat + class specs
 // v7: flush the old keyless CARTO "API KEY REQUIRED" tiles
 
 const CORE = [
